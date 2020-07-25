@@ -1,0 +1,42 @@
+{
+  "name": "spotter",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "npm run start:macos",
+    "test": "jest",
+    "lint": "eslint .",
+    "install:macos": "cd ./macos && pod install",
+    "start:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos",
+    "build:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
+  },
+  "dependencies": {
+    "react": "16.13.1",
+    "react-native": "0.63.0",
+    "react-native-macos": "^0.61.0-0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/runtime": "^7.8.4",
+    "@react-native-community/eslint-config": "^1.1.0",
+    "@types/jest": "^26.0.7",
+    "@types/react": "^16.9.43",
+    "@types/react-native": "^0.63.2",
+    "@types/react-test-renderer": "^16.9.2",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
+    "babel-jest": "^25.1.0",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.20.3",
+    "jest": "^25.1.0",
+    "metro-react-native-babel-preset": "^0.59.0",
+    "react-test-renderer": "16.13.1",
+    "typescript": "^3.9.7"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
