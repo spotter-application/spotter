@@ -1,5 +1,5 @@
 //
-//  Window.swift
+//  PanelController.swift
 //  spotter-macOS
 //
 //  Created by Denis Zyulev on 24/07/2020.
@@ -12,9 +12,15 @@ enum KeyCode {
   static let downArrow: UInt16 = 125
 }
 
+public struct Option {
+  var title: String
+  var subtitle: String
+  var image: NSImage
+}
+
 import Foundation
 
-class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
+class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
   
   let IGNORED_KEYCODES = [
     KeyCode.esc, KeyCode.enter,
@@ -29,14 +35,14 @@ class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
   private var transparentView: NSVisualEffectView!
   private var matchesList: NSOutlineView!
   private var scrollView: NSScrollView!
-  private var settings: WindowSettings!
+  private var settings: PanelSettings!
   
-  private var options: [Any]!
-  private var matches: [Any]!
+  public var options: [Option]!
+  private var matches: [Option]!
   private var selected: Int?
 
   
-  init(settings: WindowSettings) {
+  init(settings: PanelSettings) {
     super.init(nibName: nil, bundle: nil)
     
     self.settings = settings
@@ -219,17 +225,13 @@ class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
 
     let value = searchField.stringValue + event.characters!
     
-    let nextMatches = languages.filter {
-      $0.name.lowercased().contains(value.lowercased())
-    }
-
-    matches = nextMatches
+    matches = settings.delegate?.valueWasEntered(value)
 
     reloadMatches()
   }
   
   @objc func itemSelected() {
-    let selected = matchesList.item(atRow: matchesList.selectedRow) as Any
+    let selected = matchesList.item(atRow: matchesList.selectedRow) as! Option
 
     if let delegate = settings.delegate {
       delegate.itemWasSelected(selected: selected)
@@ -249,7 +251,7 @@ class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
   */
   
   internal func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-    return settings.delegate?.getItemView(item: item)
+    return settings.delegate?.getItemView(option: item as! Option)
   }
   
   private func clearMatches() {
@@ -288,8 +290,8 @@ class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
 
     guard var frame = panel.contentView?.window?.frame else { return }
     
-    print("newSize")
-    print(frame.size.height)
+//    print("newSize")
+//    print(frame.size.height)
 
     frame.origin.y += frame.size.height;
     frame.origin.y -= newSize.height;
@@ -304,7 +306,7 @@ class Window: NSViewController, NSTextFieldDelegate, NSOutlineViewDelegate {
   }
 }
 
-extension Window: NSOutlineViewDataSource {
+extension PanelController: NSOutlineViewDataSource {
 
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
     return matches.count
@@ -327,7 +329,7 @@ extension Window: NSOutlineViewDataSource {
   }
 
   func outlineView(_ outlineView: NSOutlineView, rowViewForItem item: Any) -> NSTableRowView? {
-    return WindowTableRowView(frame: NSZeroRect)
+    return PanelTableRowView(frame: NSZeroRect)
   }
 
   func outlineViewSelectionDidChange(_ notification: Notification) {
@@ -335,7 +337,7 @@ extension Window: NSOutlineViewDataSource {
   }
 }
 
-class WindowTableRowView: NSTableRowView {
+class PanelTableRowView: NSTableRowView {
   override var isEmphasized: Bool {
     get {
       return true
@@ -345,13 +347,13 @@ class WindowTableRowView: NSTableRowView {
   }
 }
 
-public protocol WindowDelegate {
+public protocol PanelDelegate {
 
-  func itemWasSelected(selected item: Any)
+  func itemWasSelected(selected item: Option)
 
-  func valueWasEntered(_ value: String) -> [Any]
+  func valueWasEntered(_ value: String) -> [Option]
 
-  func getItemView(item: Any) -> NSView?
+  func getItemView(option: Option) -> NSView?
   
   func windowDidClose()
 

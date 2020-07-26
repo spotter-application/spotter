@@ -14,11 +14,11 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		514201522437B4B40078DB4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 514201512437B4B40078DB4F /* Assets.xcassets */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
-		923A363524CB21DE008B6C63 /* WindowSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363424CB21DE008B6C63 /* WindowSettings.swift */; };
-		923A363724CB74E2008B6C63 /* Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363624CB74E2008B6C63 /* Window.swift */; };
+		923A363524CB21DE008B6C63 /* PanelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363424CB21DE008B6C63 /* PanelSettings.swift */; };
+		923A363724CB74E2008B6C63 /* PanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363624CB74E2008B6C63 /* PanelController.swift */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
-		92AB4F7024B98D870094195D /* Hotkeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Hotkeys.swift */; };
-		92AB4F7224B98DF80094195D /* Hotkeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Hotkeys.m */; };
+		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
+		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,12 +37,12 @@
 		514201542437B4B40078DB4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
-		923A363424CB21DE008B6C63 /* WindowSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowSettings.swift; sourceTree = "<group>"; };
-		923A363624CB74E2008B6C63 /* Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Window.swift; sourceTree = "<group>"; };
+		923A363424CB21DE008B6C63 /* PanelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSettings.swift; sourceTree = "<group>"; };
+		923A363624CB74E2008B6C63 /* PanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelController.swift; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
-		92AB4F6F24B98D870094195D /* Hotkeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkeys.swift; sourceTree = "<group>"; };
-		92AB4F7124B98DF80094195D /* Hotkeys.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hotkeys.m; sourceTree = "<group>"; };
+		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
+		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
 		C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Shared-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-Shared-spotter-macOS/Pods-Shared-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -104,17 +104,14 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				9206FEB524CD8AF000CBE256 /* Panel */,
 				38423A3E24576CBC00BC2EAC /* main.jsbundle */,
-				92AB4F6F24B98D870094195D /* Hotkeys.swift */,
-				92AB4F7124B98DF80094195D /* Hotkeys.m */,
 				514201512437B4B40078DB4F /* Assets.xcassets */,
 				514201532437B4B40078DB4F /* Main.storyboard */,
 				514201562437B4B40078DB4F /* Info.plist */,
 				514201592437B4B40078DB4F /* spotter.entitlements */,
 				92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */,
 				92418A1C24CA1848007897A2 /* AppDelegate.swift */,
-				923A363424CB21DE008B6C63 /* WindowSettings.swift */,
-				923A363624CB74E2008B6C63 /* Window.swift */,
 			);
 			path = "spotter-macOS";
 			sourceTree = "<group>";
@@ -148,6 +145,17 @@
 				514201492437B4B30078DB4F /* spotter.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9206FEB524CD8AF000CBE256 /* Panel */ = {
+			isa = PBXGroup;
+			children = (
+				92AB4F6F24B98D870094195D /* Panel.swift */,
+				92AB4F7124B98DF80094195D /* Panel.m */,
+				923A363424CB21DE008B6C63 /* PanelSettings.swift */,
+				923A363624CB74E2008B6C63 /* PanelController.swift */,
+			);
+			path = Panel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -359,10 +367,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
-				923A363724CB74E2008B6C63 /* Window.swift in Sources */,
-				92AB4F7024B98D870094195D /* Hotkeys.swift in Sources */,
-				923A363524CB21DE008B6C63 /* WindowSettings.swift in Sources */,
-				92AB4F7224B98DF80094195D /* Hotkeys.m in Sources */,
+				923A363724CB74E2008B6C63 /* PanelController.swift in Sources */,
+				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
+				923A363524CB21DE008B6C63 /* PanelSettings.swift in Sources */,
+				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
