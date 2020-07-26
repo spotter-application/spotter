@@ -3,40 +3,39 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
-  NativeModules,
-  NativeEventEmitter,
 } from 'react-native';
+import Panel from './panel/panel';
+import Spotify from './spotify/spotify';
+import Plugins from './core/plugins';
 
-const App = () => {
-  const Panel = new NativeEventEmitter(NativeModules.Panel);
-  Panel.addListener('onEvent', (res) => console.log('event', res));
-  Panel.addListener('onSelected', (res) => console.log('selected', res));
-  NativeModules.Panel.registerHotkey();
+export default class App extends React.Component<{}, {}> {
 
-  NativeModules.Panel.registerOptions([
-    {
-      title: 'First',
-      subtitle: 'First subtitle',
-      image: false,
-    },
-    {
-      title: 'Second',
-      subtitle: 'Second subtitle',
-      image: false,
-    },
-  ]);
+  constructor(
+    props: {},
+    private panel: Panel,
+    private plugins: Plugins,
+  ) {
+    super(props);
 
-  return (
-    <>
-      <SafeAreaView>
-        <ScrollView contentInsetAdjustmentBehavior="automatic">
-          <Text>Settings</Text>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
+    this.panel = new Panel();
+    this.plugins = new Plugins();
+
+    this.plugins.register(new Spotify());
+
+    this.panel.registerHotkey(null); // TODO: do
+    this.panel.registerOptions(this.plugins.getAllActions());
+    this.panel.registerOnSelectedCallback((actionId) => this.plugins.onSelectAction(actionId));
+  }
+
+  render() {
+    return (
+      <>
+        <SafeAreaView>
+          <ScrollView contentInsetAdjustmentBehavior="automatic">
+            <Text>Settings</Text>
+          </ScrollView>
+        </SafeAreaView>
+      </>
+    );
+  }
 };
-
-// const styles = StyleSheet.create({});
-
-export default App;

@@ -13,6 +13,7 @@ enum KeyCode {
 }
 
 public struct Option {
+  var id: String
   var title: String
   var subtitle: String
   var image: NSImage

@@ -23,6 +23,7 @@
     "@types/react": "^16.9.43",
     "@types/react-native": "^0.63.2",
     "@types/react-test-renderer": "^16.9.2",
+    "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^3.7.0",
     "@typescript-eslint/parser": "^3.7.0",
     "babel-jest": "^25.1.0",

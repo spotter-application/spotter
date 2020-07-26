@@ -52,6 +52,7 @@ class Panel: RCTEventEmitter {
     
     for option in options {
       nextOptions.append(Option(
+        id: (option as AnyObject)["id"] as! String,
         title: (option as AnyObject)["title"] as! String,
         subtitle: (option as AnyObject)["subtitle"] as! String,
         image: NSWorkspace.shared.icon(forFileType: ".swift")
@@ -120,7 +121,7 @@ extension Panel: PanelDelegate {
 
   func itemWasSelected(selected option: Option) {
     print("\(option.title) was selected")
-    self.sendEvent(withName: "onSelected", body: ["value": "\(option.title) was selected!!!"])
+    self.sendEvent(withName: "onSelected", body: ["value": option.id])
   }
 
   func windowDidClose() {

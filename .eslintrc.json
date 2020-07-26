@@ -4,7 +4,6 @@
         "node": true
     },
     "extends": [
-        "airbnb",
         "plugin:react/recommended",
         "plugin:@typescript-eslint/eslint-recommended"
     ],
