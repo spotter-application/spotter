@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class WindowOptions {
+public class WindowSettings {
 
   /// Setup sensible defaults
   public init() {
@@ -62,6 +62,6 @@ public class WindowOptions {
 
   // MARK: - Delegate options
   /// An instance that conforms to the OpenQuicklyDelegate
-  public var delegate: OpenQuicklyDelegate?
+  public var delegate: WindowDelegate?
 
 }
