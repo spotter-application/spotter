@@ -1,4 +1,5 @@
 import { SpotterPlugin, SpotterAction } from '../base/base.plugin';
+import Shell from '../core/native-modules/shell.native';
 
 export enum SpotifyActionKey {
   Previous = 'previous',
@@ -15,76 +16,104 @@ export default class Spotify implements SpotterPlugin {
     {
       key: SpotifyActionKey.Previous,
       title: 'Previous',
-      subtitle: 'Previous track',
+      subtitle: 'Spotify Previous track',
       image: '',
     },
     {
       key: SpotifyActionKey.Next,
       title: 'Next',
-      subtitle: 'Next track',
+      subtitle: 'Spotify Next track',
       image: '',
     },
     {
       key: SpotifyActionKey.Pause,
       title: 'Pause',
-      subtitle: 'Pause',
+      subtitle: 'Spotify Pause',
       image: '',
     },
     {
       key: SpotifyActionKey.Play,
       title: 'Play',
-      subtitle: 'Play',
+      subtitle: 'Spotify Play',
       image: '',
     },
     {
       key: SpotifyActionKey.Mute,
       title: 'Mute',
-      subtitle: 'Mute',
+      subtitle: 'Spotify Mute',
       image: '',
     },
     {
       key: SpotifyActionKey.Unmute,
       title: 'Unmute',
-      subtitle: 'Unmute',
+      subtitle: 'Spotify Unmute',
       image: '',
     },
     {
       key: SpotifyActionKey.TogglePlayPause,
       title: 'Toggle play/pause',
-      subtitle: 'Toggle play/pause',
+      subtitle: 'Spotify Toggle play/pause',
       image: '',
     },
   ];
 
+  constructor(private shell: Shell) {
+    this.shell = new Shell();
+  }
+
   onSelectAction(action: SpotterAction) {
     switch (action.key) {
       case SpotifyActionKey.Previous:
-        console.log('Previous!!!');
+        this.previous();
         break;
       case SpotifyActionKey.Next:
-        console.log('Next!!!');
+        this.next();
         break;
       case SpotifyActionKey.Pause:
         this.pause();
         break;
       case SpotifyActionKey.Play:
-        console.log('Play!!!');
+        this.play();
         break;
       case SpotifyActionKey.Mute:
-        console.log('Mute!!!');
+        this.mute();
         break;
       case SpotifyActionKey.Unmute:
-        console.log('Unmute!!!');
+        this.unmute();
         break;
       case SpotifyActionKey.TogglePlayPause:
-        console.log('TogglePlayPause!!!');
+        this.togglePlayPause();
         break;
       default:
         throw new Error('Something went wrong')
     }
   }
 
-  async pause() {
-    // await runApplescript('tell application "Spotify" to pause');
+  private previous() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
+  }
+
+  private next() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to next track'")
+  }
+
+  private pause() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to pause'")
+  }
+
+  private play() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
+  }
+
+  private mute() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
+  }
+
+  private unmute() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
+  }
+
+  private togglePlayPause() {
+    this.shell.execute("osascript -e 'tell application \"Spotify\" to playpause'")
   }
 }

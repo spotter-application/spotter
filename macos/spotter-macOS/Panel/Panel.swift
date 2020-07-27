@@ -7,6 +7,7 @@
 
 import Foundation
 import HotKey
+import ShellOut
 
 @objc(Panel)
 class Panel: RCTEventEmitter {

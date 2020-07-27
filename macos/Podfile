@@ -35,6 +35,7 @@ abstract_target 'Shared' do
   pod 'Folly', :podspec => '../node_modules/react-native-macos/third-party-podspecs/Folly.podspec'
 
   pod 'HotKey'
+  pod 'ShellOut'
 
   target 'spotter-macOS' do
     platform :macos, '10.14'

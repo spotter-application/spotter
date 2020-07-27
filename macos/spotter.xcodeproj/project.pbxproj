@@ -19,6 +19,8 @@
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
 		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
+		92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3524CEC6740049B6B3 /* Shell.swift */; };
+		92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3724CEC6820049B6B3 /* Shell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,8 @@
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
 		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
+		92BE4F3524CEC6740049B6B3 /* Shell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shell.swift; sourceTree = "<group>"; };
+		92BE4F3724CEC6820049B6B3 /* Shell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Shell.m; sourceTree = "<group>"; };
 		C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Shared-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-Shared-spotter-macOS/Pods-Shared-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -104,6 +108,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				92BE4F3424CEC64F0049B6B3 /* Shell */,
 				9206FEB524CD8AF000CBE256 /* Panel */,
 				38423A3E24576CBC00BC2EAC /* main.jsbundle */,
 				514201512437B4B40078DB4F /* Assets.xcassets */,
@@ -156,6 +161,15 @@
 				923A363624CB74E2008B6C63 /* PanelController.swift */,
 			);
 			path = Panel;
+			sourceTree = "<group>";
+		};
+		92BE4F3424CEC64F0049B6B3 /* Shell */ = {
+			isa = PBXGroup;
+			children = (
+				92BE4F3524CEC6740049B6B3 /* Shell.swift */,
+				92BE4F3724CEC6820049B6B3 /* Shell.m */,
+			);
+			path = Shell;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -366,6 +380,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
+				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
 				923A363724CB74E2008B6C63 /* PanelController.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
