@@ -4,7 +4,7 @@ import {
   ScrollView,
   Text,
 } from 'react-native';
-import Panel from './panel/panel';
+import Panel from './core/panel';
 import Spotify from './spotify/spotify';
 import Plugins from './core/plugins';
 

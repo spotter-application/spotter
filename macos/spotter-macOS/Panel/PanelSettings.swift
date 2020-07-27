@@ -13,10 +13,10 @@ public class PanelSettings {
     self.radius = 7
     self.width = 400
     self.height = 44
-    self.rowHeight = 20
+    self.rowHeight = 50
     self.matchesShown = 6
     self.material = .popover
-    self.placeholder = "Search"
+    self.placeholder = "Query here..."
     self.persistMatches = false
     self.persistPosition = true
     self.font = NSFont.systemFont(ofSize: 20, weight: .light)

@@ -60,6 +60,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     stackView.addArrangedSubview(scrollView)
     transparentView.addSubview(stackView)
     panel.contentView?.addSubview(transparentView)
+    panel.makeFirstResponder(searchField)
     
     setupConstraints()
     
@@ -92,15 +93,14 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   */
   
   private func setupPanel() {
-    panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 400, height: 40), styleMask: [
-      .borderless,
-      .nonactivatingPanel,
-      .titled,
-      .resizable,
-    ], backing: .buffered, defer: true)
-    
+    panel = NSPanel(contentRect: NSRect(x: 0, y: 10, width: settings.width, height: settings.height), styleMask: [
+        .nonactivatingPanel,
+        .titled,
+        .fullSizeContentView,
+        ], backing: .buffered, defer: true)
+    panel.titleVisibility = .hidden
     panel.level = .mainMenu
-    panel.backgroundColor = NSColor.clear
+    panel.titlebarAppearsTransparent = true
   }
   
   private func setupStackView() {
@@ -108,7 +108,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     stackView.spacing = 0.0
     stackView.orientation = .vertical
     stackView.distribution = .fillEqually
-    stackView.edgeInsets = NSEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
+    stackView.edgeInsets = settings.edgeInsets
     stackView.translatesAutoresizingMaskIntoConstraints = false
     stackView.distribution = .fill
   }
@@ -121,12 +121,12 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     searchField.isBezeled = false
 //    searchField.isEnabled = true
 //    searchField.isSelectable = true
-    searchField.font = NSFont.systemFont(ofSize: 20, weight: .light)
-//    searchField.focusRingType = .none
+    searchField.font = settings.font
+    searchField.focusRingType = .none
     searchField.drawsBackground = false
-    searchField.placeholderString = "Query here..."
+    searchField.placeholderString = settings.placeholder
     
-    searchField.setFrameSize(NSMakeSize(400, 40))
+    searchField.setFrameSize(NSMakeSize(settings.width, settings.height))
     searchField.backgroundColor = NSColor.green
   }
   
@@ -134,8 +134,8 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     let frame = NSRect(
       x: 0,
       y: 0,
-      width: 600,
-      height: 40
+      width: settings.width,
+      height: settings.height
     )
 
     transparentView = NSVisualEffectView()
@@ -224,7 +224,8 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
       return
     }
 
-    let value = searchField.stringValue + event.characters!
+    let value = (event.keyCode == 51) ?
+      String(searchField.stringValue.dropLast()) : (searchField.stringValue + event.characters!)
     
     matches = settings.delegate?.valueWasEntered(value)
 

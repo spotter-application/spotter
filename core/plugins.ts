@@ -17,16 +17,23 @@ export default class Plugins {
   }
 
   onSelectAction(actionId: SpotterActionId) {
-    const plugin = this.registry.find(p => p.actions.find(a => a.id === actionId));
+    const selected = this.registry.reduce<{ plugin: SpotterPlugin | null, action: SpotterAction | null }>((acc, plugin) => {
+      const action = plugin.actions.find(a => a.id === actionId);
+      if (!action) {
+        return acc;
+      }
 
-    if (!plugin) {
+      return { plugin, action };
+    }, { plugin: null, action: null })
+
+    if (!selected.plugin || !selected.action) {
       throw new Error('Selected not registered action');
     }
 
-    if (!plugin.onSelectAction) {
+    if (!selected.plugin.onSelectAction) {
       throw new Error('There is no onSelectAction method in selected plugin');
     }
 
-    plugin.onSelectAction(actionId);
+    selected.plugin.onSelectAction(selected.action);
   }
 }

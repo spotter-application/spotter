@@ -28,13 +28,7 @@ class Panel: RCTEventEmitter {
         return
       }
 
-      sendEvent(withName: "onEvent", body: ["value": "Registered"])
-
       hotKey.keyDownHandler = { [weak self] in
-
-        self?.sendEvent(withName: "onEvent", body: ["value": "Pressed at \(Date())"])
-
-        print("OPEN PANEL")
         self?.panelController.togglePanel()
 
       }
@@ -63,7 +57,7 @@ class Panel: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return ["onEvent", "onSelected"]
+    return ["onSelected"]
   }
 
 }
@@ -120,7 +114,6 @@ extension Panel: PanelDelegate {
   }
 
   func itemWasSelected(selected option: Option) {
-    print("\(option.title) was selected")
     self.sendEvent(withName: "onSelected", body: ["value": option.id])
   }
 
