@@ -2,7 +2,7 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
-import { SpotterAction, SpotterActionId } from '../../base/base.plugin';
+import { SpotterAction, SpotterActionId } from '@spotter-app/core';
 
 export default class Panel {
   private panel = NativeModules.Panel;
