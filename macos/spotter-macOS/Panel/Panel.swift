@@ -25,7 +25,6 @@ class Panel: RCTEventEmitter {
   private var hotKey: HotKey? {
     didSet {
       guard let hotKey = hotKey else {
-        sendEvent(withName: "onEvent", body: ["value": "Unregistered"])
         return
       }
 
@@ -38,11 +37,50 @@ class Panel: RCTEventEmitter {
 
   @objc
   func registerHotkey() {
+//    let applications = self.getAllApplications
+    
+//    print(applications)
+
     hotKey = HotKey(keyCombo: KeyCombo(key: .s, modifiers: [.option]))
   }
   
+  // TODO: Move to class
+  private func getAllApplications() -> [Any] {
+      let fileManager = FileManager()
+
+      guard let applicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .localDomainMask, appropriateFor: nil, create: false) else { return [] }
+
+      let applicationUrls = try! fileManager.contentsOfDirectory(at: applicationsFolderUrl , includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants])
+
+      guard let systemApplicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .systemDomainMask, appropriateFor: nil, create: false) else { return [] }
+
+    let utilitiesFolderUrl = NSURL.init(string: "\(systemApplicationsFolderUrl.path)/Utilities")! as URL
+
+      guard let utilitiesUrls = try? fileManager.contentsOfDirectory(at: utilitiesFolderUrl, includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants]) else { return [] }
+
+      let urls = applicationUrls + utilitiesUrls
+
+      var applications = [Any]()
+
+      for url in urls {
+          print(url.path, fileManager.isExecutableFile(atPath: url.path))
+          if fileManager.isExecutableFile(atPath: url.path) {
+              guard let mdi = NSMetadataItem(url: url) else { continue }
+            
+            let option = [
+              "title": mdi.value(forAttribute: kMDItemDisplayName as String) as! String,
+              "path": mdi.value(forAttribute: kMDItemPath as String) as! String
+            ]
+      
+            applications.append(option)
+          }
+      }
+
+      return applications
+  }
+  
   @objc
-  func registerOptions(_ options: NSArray) {
+  func displayOptions(_ options: NSArray) {
     var nextOptions: [Option] = []
     
     for option in options {
@@ -54,11 +92,13 @@ class Panel: RCTEventEmitter {
       ))
     }
     
-    panelController.options = nextOptions
+    DispatchQueue.main.async {
+      self.panelController.displayOptions(options: nextOptions)
+    }
   }
 
   override func supportedEvents() -> [String]! {
-    return ["onSelected"]
+    return ["query", "onSelected"]
   }
 
 }
@@ -105,13 +145,8 @@ extension Panel: PanelDelegate {
     return view
   }
 
-  func valueWasEntered(_ value: String) -> [Option] {
-    
-    let matches = panelController.options.filter {
-      $0.title.lowercased().contains(value.lowercased())
-    }
-    
-    return matches
+  func valueWasEntered(_ value: String) {
+    self.sendEvent(withName: "query", body: value)
   }
 
   func itemWasSelected(selected option: Option) {

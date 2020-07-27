@@ -9,8 +9,8 @@ export default class Panel {
 
   private panelEventEmitter = new NativeEventEmitter(this.panel);
 
-  registerOptions(options: SpotterAction[]) {
-    this.panel.registerOptions(options);
+  displayOptions(options: SpotterAction[]) {
+    this.panel.displayOptions(options);
   }
 
   registerHotkey(hotkey: any) {
@@ -19,5 +19,9 @@ export default class Panel {
 
   registerOnSelectedCallback(callback: (option: SpotterActionId) => void) {
     this.panelEventEmitter.addListener('onSelected', (event) => callback(event?.value));
+  }
+
+  registerQueryCallback(callback: (event: string) => void) {
+    this.panelEventEmitter.addListener('query', (event) => callback(event));
   }
 }

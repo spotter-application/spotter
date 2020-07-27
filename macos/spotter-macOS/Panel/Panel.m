@@ -11,6 +11,6 @@
 
 RCT_EXTERN_METHOD(registerHotkey)
 
-RCT_EXTERN_METHOD(registerOptions: (NSArray)options)
+RCT_EXTERN_METHOD(displayOptions: (NSArray)options)
 
 @end

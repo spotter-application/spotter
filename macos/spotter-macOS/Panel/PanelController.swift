@@ -37,9 +37,8 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   private var matchesList: NSOutlineView!
   private var scrollView: NSScrollView!
   private var settings: PanelSettings!
-  
-  public var options: [Option]!
-  private var matches: [Option]!
+
+  private var options: [Option]!
   private var selected: Int?
 
   
@@ -47,7 +46,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     super.init(nibName: nil, bundle: nil)
     
     self.settings = settings
-    self.matches = []
+    self.options = []
     
     setupPanel()
     setupSearchField()
@@ -77,13 +76,18 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
       panel.center()
       isActivePanel = true
       
-      reloadMatches()
+      reloadOptions()
     }
+  }
+  
+  public func displayOptions(options: [Option]) {
+    self.options = options
+    self.reloadOptions()
   }
   
   private func reset() {
     searchField.stringValue = ""
-    matches = []
+    options = []
   }
   
   /*
@@ -227,9 +231,9 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     let value = (event.keyCode == 51) ?
       String(searchField.stringValue.dropLast()) : (searchField.stringValue + event.characters!)
     
-    matches = settings.delegate?.valueWasEntered(value)
+    settings.delegate?.valueWasEntered(value)
 
-    reloadMatches()
+    reloadOptions()
   }
   
   @objc func itemSelected() {
@@ -255,23 +259,18 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   internal func outlineView(_ outlineView: NSOutlineView, viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
     return settings.delegate?.getItemView(option: item as! Option)
   }
-  
-  private func clearMatches() {
-    matches = []
-    reloadMatches()
-  }
 
-  private func reloadMatches() {
+  private func reloadOptions() {
     matchesList.reloadData()
     updateViewSize()
 
-    if matches.count > 0 {
+    if options.count > 0 {
       setSelected(at: 0)
     }
   }
 
   private func setSelected(at index: Int) {
-    if index < 0 || index >= matches.count {
+    if index < 0 || index >= options.count {
       return
     }
 
@@ -282,8 +281,8 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   }
 
   private func updateViewSize() {
-    let numMatches = matches.count > settings.matchesShown
-      ? settings.matchesShown : matches.count
+    let numMatches = options.count > settings.matchesShown
+      ? settings.matchesShown : options.count
 
     let rowHeight = CGFloat(numMatches) * settings.rowHeight
     let newHeight = settings.height + rowHeight
@@ -304,18 +303,18 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     panel.contentView?.window?.setFrame(frame, display: true)
     
     
-    stackView.spacing = matches.count > 0 ? 5.0 : 0.0
+    stackView.spacing = options.count > 0 ? 5.0 : 0.0
   }
 }
 
 extension PanelController: NSOutlineViewDataSource {
 
   func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-    return matches.count
+    return options.count
   }
 
   func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-    return matches[index]
+    return options[index]
   }
 
   func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
@@ -353,7 +352,7 @@ public protocol PanelDelegate {
 
   func itemWasSelected(selected item: Option)
 
-  func valueWasEntered(_ value: String) -> [Option]
+  func valueWasEntered(_ value: String)
 
   func getItemView(option: Option) -> NSView?
   

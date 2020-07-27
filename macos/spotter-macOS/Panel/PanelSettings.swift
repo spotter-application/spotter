@@ -11,15 +11,15 @@ public class PanelSettings {
 
   public init() {
     self.radius = 7
-    self.width = 400
-    self.height = 44
-    self.rowHeight = 50
+    self.width = 600
+    self.height = 56
+    self.rowHeight = 56
     self.matchesShown = 6
     self.material = .popover
     self.placeholder = "Query here..."
     self.persistMatches = false
     self.persistPosition = true
-    self.font = NSFont.systemFont(ofSize: 20, weight: .light)
+    self.font = NSFont.systemFont(ofSize: 28, weight: .light)
     self.edgeInsets = NSEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
   }
 

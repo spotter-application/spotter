@@ -3,7 +3,10 @@
   "version": "0.0.1",
   "description": "Productivity tool that allows to launch external application actions and applications themselves. Supports plugins, cross platform, written without electron.",
   "keywords": [
-    "Spotter", "launcher", "productivity", "spotlight"
+    "Spotter",
+    "launcher",
+    "productivity",
+    "spotlight"
   ],
   "private": true,
   "scripts": {
@@ -15,8 +18,8 @@
     "build:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
   },
   "dependencies": {
-    "@spotter-app/core": "0.0.3",
-    "@spotter-app/spotify-plugin": "0.0.1",
+    "@spotter-app/core": "0.0.4",
+    "@spotter-app/spotify-plugin": "0.0.2",
     "react": "16.13.1",
     "react-native": "0.63.0",
     "react-native-macos": "^0.61.0-0"
