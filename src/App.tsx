@@ -12,6 +12,7 @@ import Api from './core/native/api.native';
 import Spotify from './plugins/spotify.plugin';
 import OptionsRegistry from './core/options.registry';
 import Applications from './plugins/applications.plugin';
+import Calculator from './plugins/calculator.plugin';
 
 export default class App extends React.Component<{}, {}> {
 
@@ -32,6 +33,7 @@ export default class App extends React.Component<{}, {}> {
     this.pluginsRegistry.register([
       new Spotify(this.api),
       new Applications(this.api),
+      new Calculator(),
     ]);
 
     this.panel.registerHotkey(null); // TODO: do

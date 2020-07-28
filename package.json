@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@spotter-app/core": "0.0.7",
+    "@types/math-expression-evaluator": "^1.2.0",
+    "math-expression-evaluator": "^1.2.22",
     "react": "16.13.1",
     "react-native": "0.63.0",
     "react-native-macos": "^0.61.0-0"

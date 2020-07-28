@@ -11,10 +11,10 @@ public class PanelSettings {
 
   public init() {
     self.radius = 10
-    self.width = 600
-    self.height = 56
-    self.rowHeight = 56
-    self.matchesShown = 6
+    self.width = 550
+    self.height = 60
+    self.rowHeight = 60
+    self.matchesShown = 5
     self.material = .popover
     self.placeholder = "Query here..."
     self.persistMatches = false
