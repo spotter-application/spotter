@@ -131,7 +131,6 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     searchField.placeholderString = settings.placeholder
     
     searchField.setFrameSize(NSMakeSize(settings.width, settings.height))
-    searchField.backgroundColor = NSColor.green
   }
   
   private func setupTransparentView() {
@@ -147,7 +146,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     transparentView.state = .active
     transparentView.wantsLayer = true
     transparentView.blendingMode = .behindWindow
-    transparentView.layer?.cornerRadius = 8
+    transparentView.layer?.cornerRadius = settings.radius
     transparentView.material = .popover
   }
   
@@ -290,9 +289,6 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     let newSize = NSSize(width: settings.width, height: newHeight)
 
     guard var frame = panel.contentView?.window?.frame else { return }
-    
-//    print("newSize")
-//    print(frame.size.height)
 
     frame.origin.y += frame.size.height;
     frame.origin.y -= newSize.height;
@@ -322,7 +318,7 @@ extension PanelController: NSOutlineViewDataSource {
   }
 
   func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-    return 50
+    return settings.rowHeight
   }
 
   func outlineView(_ outlineView: NSOutlineView, shouldSelectItem item: Any) -> Bool {

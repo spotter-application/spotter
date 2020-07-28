@@ -1,39 +1,16 @@
-import { SpotterPlugin, SpotterAction, SpotterActionId } from '@spotter-app/core';
+import { SpotterPlugin } from '@spotter-app/core';
 import { v4 as uuid } from 'uuid';
 
-export default class Plugins {
-  private readonly registry: SpotterPlugin[] = [];
+export default class PluginsRegistry {
 
-  getAllActions(): SpotterAction[] {
-    return this.registry.reduce<SpotterAction[]>((acc, plugin) => ([...acc, ...plugin.actions]), []);
+  private readonly registry = new Map<string, SpotterPlugin>();
+
+  get list(): SpotterPlugin[] {
+    return Array.from(this.registry).map(entities => entities[1]);
   }
 
-  register(plugin: SpotterPlugin): void {
-    plugin.actions = plugin.actions.map(action => ({
-      ...action,
-      id: uuid(),
-    }))
-    this.registry.push(plugin);
+  register(plugins: SpotterPlugin[]): void {
+    plugins.forEach(plugin => this.registry.set(uuid(), plugin));
   }
 
-  onSelectAction(actionId: SpotterActionId) {
-    const selected = this.registry.reduce<{ plugin: SpotterPlugin | null, action: SpotterAction | null }>((acc, plugin) => {
-      const action = plugin.actions.find(a => a.id === actionId);
-      if (!action) {
-        return acc;
-      }
-
-      return { plugin, action };
-    }, { plugin: null, action: null })
-
-    if (!selected.plugin || !selected.action) {
-      throw new Error('Selected not registered action');
-    }
-
-    if (!selected.plugin.onSelectAction) {
-      throw new Error('There is no onSelectAction method in selected plugin');
-    }
-
-    selected.plugin.onSelectAction(selected.action);
-  }
 }

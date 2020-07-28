@@ -4,53 +4,50 @@ import {
   ScrollView,
   Text,
 } from 'react-native';
+import { SpotterOption } from '@spotter-app/core';
+
 import Panel from './core/native/panel.native';
-import Plugins from './core/plugins.registry';
+import PluginsRegistry from './core/plugins.registry';
 import Api from './core/native/api.native';
-
-import Spotify from '@spotter-app/spotify-plugin';
-import { SpotterPlugin, SpotterApi } from '@spotter-app/core';
-
-export class Applications {
-
-  constructor(private api: SpotterApi) {}
-
-  get actions() {
-    return [];
-  }
-
-  onSelectAction() {
-    console.log('check')
-  }
-
-}
+import Spotify from './plugins/spotify.plugin';
+import OptionsRegistry from './core/options.registry';
+import Applications from './plugins/applications.plugin';
 
 export default class App extends React.Component<{}, {}> {
 
   constructor(
     props: {},
     private panel: Panel,
-    private plugins: Plugins,
+    private pluginsRegistry: PluginsRegistry,
+    private optionsRegistry: OptionsRegistry,
     private api: Api,
   ) {
     super(props);
 
     this.panel = new Panel();
-    this.plugins = new Plugins();
+    this.pluginsRegistry = new PluginsRegistry();
+    this.optionsRegistry = new OptionsRegistry();
     this.api = new Api();
 
-    this.plugins.register(
-      new Spotify(this.api)
-    );
+    this.pluginsRegistry.register([
+      new Spotify(this.api),
+      new Applications(this.api),
+    ]);
 
     this.panel.registerHotkey(null); // TODO: do
-    // this.panel.registerOptions(this.plugins.getAllActions());
 
     this.panel.registerQueryCallback(query => {
-      const actions = this.plugins.getAllActions();
-      this.panel.displayOptions(actions.filter(a => a.title.toUpperCase().includes(query.toUpperCase())))
+      const possibleOptions = this.pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
+        [...acc, ...plugin.query(query)]
+      ), []);
+
+      this.optionsRegistry.clear();
+      const registeredOptions = this.optionsRegistry.register(possibleOptions);
+
+      this.panel.displayOptions(registeredOptions)
     });
-    // this.panel.registerOnSelectedCallback((actionId) => this.plugins.onSelectAction(actionId));
+
+    this.panel.registerOnSelectedCallback((id) => this.optionsRegistry.getById(id)?.action());
   }
 
   render() {

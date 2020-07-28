@@ -2,14 +2,14 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
-import { SpotterAction, SpotterActionId } from '@spotter-app/core';
+import { SpotterActionId, SpotterOption } from '@spotter-app/core';
 
 export default class Panel {
   private panel = NativeModules.Panel;
 
   private panelEventEmitter = new NativeEventEmitter(this.panel);
 
-  displayOptions(options: SpotterAction[]) {
+  displayOptions(options: SpotterOption[]) {
     this.panel.displayOptions(options);
   }
 
@@ -18,7 +18,7 @@ export default class Panel {
   }
 
   registerOnSelectedCallback(callback: (option: SpotterActionId) => void) {
-    this.panelEventEmitter.addListener('onSelected', (event) => callback(event?.value));
+    this.panelEventEmitter.addListener('onSelected', (event) => callback(event));
   }
 
   registerQueryCallback(callback: (event: string) => void) {

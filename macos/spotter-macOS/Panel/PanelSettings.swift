@@ -10,7 +10,7 @@ import Foundation
 public class PanelSettings {
 
   public init() {
-    self.radius = 7
+    self.radius = 10
     self.width = 600
     self.height = 56
     self.rowHeight = 56

@@ -22,8 +22,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     popover = NSPopover()
 
-    popover.contentSize = NSSize(width: 700, height: 800)
-    popover.animates = true
+    popover.contentSize = NSSize(width: 500, height: 300)
+    popover.animates = false
     popover.behavior = .transient
     popover.contentViewController = rootViewController
 
@@ -34,6 +34,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       button.title = "Spotter"
     }
 
+    NSApplication.shared.windows.last!.close()
+    
+    OperationQueue.main.addOperation { NSApplication.shared.windows.last!.makeKeyAndOrderFront(nil); NSApplication.shared.activate(ignoringOtherApps: true) }
   }
 
   @objc func togglePopover(_ sender: AnyObject?) {

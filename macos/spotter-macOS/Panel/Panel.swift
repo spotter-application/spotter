@@ -37,46 +37,7 @@ class Panel: RCTEventEmitter {
 
   @objc
   func registerHotkey() {
-//    let applications = self.getAllApplications
-    
-//    print(applications)
-
     hotKey = HotKey(keyCombo: KeyCombo(key: .s, modifiers: [.option]))
-  }
-  
-  // TODO: Move to class
-  private func getAllApplications() -> [Any] {
-      let fileManager = FileManager()
-
-      guard let applicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .localDomainMask, appropriateFor: nil, create: false) else { return [] }
-
-      let applicationUrls = try! fileManager.contentsOfDirectory(at: applicationsFolderUrl , includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants])
-
-      guard let systemApplicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .systemDomainMask, appropriateFor: nil, create: false) else { return [] }
-
-    let utilitiesFolderUrl = NSURL.init(string: "\(systemApplicationsFolderUrl.path)/Utilities")! as URL
-
-      guard let utilitiesUrls = try? fileManager.contentsOfDirectory(at: utilitiesFolderUrl, includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants]) else { return [] }
-
-      let urls = applicationUrls + utilitiesUrls
-
-      var applications = [Any]()
-
-      for url in urls {
-          print(url.path, fileManager.isExecutableFile(atPath: url.path))
-          if fileManager.isExecutableFile(atPath: url.path) {
-              guard let mdi = NSMetadataItem(url: url) else { continue }
-            
-            let option = [
-              "title": mdi.value(forAttribute: kMDItemDisplayName as String) as! String,
-              "path": mdi.value(forAttribute: kMDItemPath as String) as! String
-            ]
-      
-            applications.append(option)
-          }
-      }
-
-      return applications
   }
   
   @objc
@@ -109,7 +70,7 @@ extension Panel: PanelDelegate {
   func getItemView(option: Option) -> NSView? {
     let view = NSStackView()
 
-    let imageView = NSImageView(image: option.image)
+//    let imageView = NSImageView(image: option.image)
 
     let title = NSTextField()
 
@@ -118,7 +79,7 @@ extension Panel: PanelDelegate {
     title.isSelectable = false
     title.focusRingType = .none
     title.drawsBackground = false
-    title.font = NSFont.systemFont(ofSize: 14)
+    title.font = NSFont.systemFont(ofSize: 16)
     title.stringValue = option.title
 
     let subtitle = NSTextField()
@@ -130,16 +91,17 @@ extension Panel: PanelDelegate {
     subtitle.drawsBackground = false
     subtitle.stringValue = option.subtitle
     subtitle.font = NSFont.systemFont(ofSize: 12)
+    subtitle.textColor = NSColor(calibratedRed: 255, green: 255, blue: 255, alpha: 0.5)
 
     let text = NSStackView()
     text.orientation = .vertical
-    text.spacing = 2.0
+    text.spacing = 3.0
     text.alignment = .left
 
     text.addArrangedSubview(title)
     text.addArrangedSubview(subtitle)
 
-    view.addArrangedSubview(imageView)
+//    view.addArrangedSubview(imageView)
     view.addArrangedSubview(text)
 
     return view
@@ -150,7 +112,7 @@ extension Panel: PanelDelegate {
   }
 
   func itemWasSelected(selected option: Option) {
-    self.sendEvent(withName: "onSelected", body: ["value": option.id])
+    self.sendEvent(withName: "onSelected", body: option.id)
   }
 
   func windowDidClose() {

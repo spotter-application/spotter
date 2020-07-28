@@ -15,6 +15,8 @@
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		923A363524CB21DE008B6C63 /* PanelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363424CB21DE008B6C63 /* PanelSettings.swift */; };
 		923A363724CB74E2008B6C63 /* PanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923A363624CB74E2008B6C63 /* PanelController.swift */; };
+		923C274E24D01BE3006C67F3 /* Applications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* Applications.swift */; };
+		923C275024D01BF1006C67F3 /* Applications.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* Applications.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
 		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
@@ -40,6 +42,8 @@
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
 		923A363424CB21DE008B6C63 /* PanelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelSettings.swift; sourceTree = "<group>"; };
 		923A363624CB74E2008B6C63 /* PanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelController.swift; sourceTree = "<group>"; };
+		923C274D24D01BE3006C67F3 /* Applications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Applications.swift; sourceTree = "<group>"; };
+		923C274F24D01BF1006C67F3 /* Applications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Applications.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
@@ -108,6 +112,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				923C274C24D01BC6006C67F3 /* Applications */,
 				92BE4F3424CEC64F0049B6B3 /* Shell */,
 				9206FEB524CD8AF000CBE256 /* Panel */,
 				38423A3E24576CBC00BC2EAC /* main.jsbundle */,
@@ -161,6 +166,15 @@
 				923A363624CB74E2008B6C63 /* PanelController.swift */,
 			);
 			path = Panel;
+			sourceTree = "<group>";
+		};
+		923C274C24D01BC6006C67F3 /* Applications */ = {
+			isa = PBXGroup;
+			children = (
+				923C274D24D01BE3006C67F3 /* Applications.swift */,
+				923C274F24D01BF1006C67F3 /* Applications.m */,
+			);
+			path = Applications;
 			sourceTree = "<group>";
 		};
 		92BE4F3424CEC64F0049B6B3 /* Shell */ = {
@@ -382,8 +396,10 @@
 			files = (
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
+				923C275024D01BF1006C67F3 /* Applications.m in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
 				923A363724CB74E2008B6C63 /* PanelController.swift in Sources */,
+				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				923A363524CB21DE008B6C63 /* PanelSettings.swift in Sources */,
 				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
