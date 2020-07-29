@@ -4,11 +4,11 @@
 
 # Spotter
 
-Spotter is a productivity tool, the main function is to search and launch external application actions and applications themselves. (e.g. switch the next song or set a timer...) so you can stay focused on your current task. Kind of spotlight or alfred alternative.
+Spotter is a productivity tool, the main function is to search and launch external application actions and applications themselves. (e.g. switch the next song or set a timer...) so you can stay focused on your current task. Kind of Spotlight or Alfred alternative.
 
 * ❤️&nbsp;&nbsp;&nbsp;<b>Open source</b>
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
-* 🔌&nbsp;&nbsp;&nbsp;<b>Plugins system</b>
+* 🔌&nbsp;&nbsp;&nbsp;<b>Plugin system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
 
 ## Usage
