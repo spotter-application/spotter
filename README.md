@@ -11,9 +11,22 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * 🔌&nbsp;&nbsp;&nbsp;<b>Plugins system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
 
-## Status
-Work in progress 👷  <br>
-<b>Not usable yet</b>
+## Usage
+[Beta versions](https://github.com/spotter-application/spotter/releases)
+
+#### Сurrently supports the following plug-ins:
+* <b>Applications</b>
+· Search / run by all installed applications
+· Saving / restoring positions and sizes of running applications
+
+* <b>Spotify</b>
+· Basic player functionality
+
+* <b>Calculator</b>
+· Basic calculator functionality
+
+#### Hotkeys
+To run the app, press ```option + s```
 
 ## Contributing
 Contributions are always welcome, no matter how large or small.
