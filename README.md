@@ -8,8 +8,8 @@ Spotter is a productivity tool, the main function is to search and launch extern
 
 * ❤️&nbsp;&nbsp;&nbsp;<b>Open source</b>
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
+* 🔌&nbsp;&nbsp;&nbsp;<b>Plugins system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
-* 🔌&nbsp;&nbsp;&nbsp;<b>Support plugins</b>
 
 ## Status
 Work in progress 👷  <br>
