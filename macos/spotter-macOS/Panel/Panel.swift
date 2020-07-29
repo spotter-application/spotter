@@ -37,6 +37,25 @@ class Panel: RCTEventEmitter {
 
   @objc
   func registerHotkey() {
+//    let workspace = NSWorkspace.shared
+//    let apps = workspace.runningApplications.filter{  $0.activationPolicy == .regular }
+//    
+//    for app in apps {
+//      print(app)
+//        if fileManager.isExecutableFile(atPath: url.path) {
+//            guard let mdi = NSMetadataItem(url: url) else { continue }
+//
+//          let option = [
+//            "title": mdi.value(forAttribute: kMDItemDisplayName as String) as! String,
+//            "path": mdi.value(forAttribute: kMDItemPath as String) as! String
+//          ]
+//
+//          applications.append(option)
+//        }
+//    }
+//
+//    print(apps)
+    
     hotKey = HotKey(keyCombo: KeyCombo(key: .s, modifiers: [.option]))
   }
   

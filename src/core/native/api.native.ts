@@ -19,4 +19,20 @@ export default class Api implements SpotterApi {
     this.applications.open(path);
   }
 
+  setDimensions(
+    appName: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+  ): void {
+    this.applications.setDimensions(
+      appName,
+      x.toString(),
+      y.toString(),
+      width.toString(),
+      height.toString(),
+    );
+  }
+
 }

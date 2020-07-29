@@ -32,6 +32,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   private var isActivePanel = false
   
   private var stackView: NSStackView!
+  private var fieldContainerView: NSStackView!
   private var searchField: NSTextField!
   private var transparentView: NSVisualEffectView!
   private var matchesList: NSOutlineView!
@@ -50,12 +51,16 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     
     setupPanel()
     setupSearchField()
+    setupFieldContainerView()
     setupTransparentView()
     setupMatchesListView()
     setupScrollView()
     setupStackView()
     
-    stackView.addArrangedSubview(searchField)
+    
+    
+    fieldContainerView.addArrangedSubview(searchField)
+    stackView.addArrangedSubview(fieldContainerView)
     stackView.addArrangedSubview(scrollView)
     transparentView.addSubview(stackView)
     panel.contentView?.addSubview(transparentView)
@@ -97,7 +102,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   */
   
   private func setupPanel() {
-    panel = NSPanel(contentRect: NSRect(x: 0, y: 10, width: settings.width, height: settings.height), styleMask: [
+    panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: settings.width, height: settings.height), styleMask: [
         .nonactivatingPanel,
         .titled,
         .fullSizeContentView,
@@ -109,12 +114,22 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
   
   private func setupStackView() {
     stackView = NSStackView()
-    stackView.spacing = 0.0
+    stackView.spacing = 0
     stackView.orientation = .vertical
     stackView.distribution = .fillEqually
     stackView.edgeInsets = settings.edgeInsets
     stackView.translatesAutoresizingMaskIntoConstraints = false
     stackView.distribution = .fill
+  }
+  
+  private func setupFieldContainerView() {
+    fieldContainerView = NSStackView()
+    fieldContainerView.spacing = 100
+    fieldContainerView.orientation = .vertical
+    fieldContainerView.distribution = .fillEqually
+    fieldContainerView.edgeInsets = NSEdgeInsets(top: 10, left: 15, bottom: 0, right: 0)
+    fieldContainerView.translatesAutoresizingMaskIntoConstraints = false
+    fieldContainerView.distribution = .fill
   }
   
   private func setupSearchField() {

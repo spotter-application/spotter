@@ -14,4 +14,6 @@ RCT_EXTERN_METHOD(getAll: (RCTPromiseResolveBlock)resolve rejecter: (RCTPromiseR
 
 RCT_EXTERN_METHOD(open: (NSString)command)
 
+RCT_EXTERN_METHOD(setDimensions: (NSString)appName x: (NSString)x y: (NSString)y width: (NSString)width height: (NSString)height)
+
 @end
