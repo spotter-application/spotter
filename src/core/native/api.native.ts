@@ -7,9 +7,13 @@ export default class Api implements SpotterApi {
   private shell = NativeModules.Shell;
   private applications = NativeModules.Applications;
 
+  /** SHELL */
+
   shellCommand(command: string): void {
     this.shell.execute(command);
   }
+
+  /** APPLICATIONS */
 
   async getAllApplications(): Promise<SystemApplication[]> {
     return await this.applications.getAll();
