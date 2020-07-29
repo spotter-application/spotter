@@ -18,7 +18,7 @@
     "build:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
   },
   "dependencies": {
-    "@spotter-app/core": "0.0.7",
+    "@spotter-app/core": "0.0.8",
     "@types/math-expression-evaluator": "^1.2.0",
     "math-expression-evaluator": "^1.2.22",
     "react": "16.13.1",

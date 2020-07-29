@@ -3,6 +3,8 @@ import { SpotterPlugin, SpotterApi, SpotterOption, SystemApplication } from '@sp
 export default class Applications implements SpotterPlugin {
   private applications: SystemApplication[] = [];
 
+  private temp: any[] = [];
+
   constructor(private api: SpotterApi) {
     this.init();
   }
@@ -12,14 +14,6 @@ export default class Applications implements SpotterPlugin {
   }
 
   query(query: string): SpotterOption[] {
-    if (query === 'pos') {
-      return [{
-        title: 'Change position',
-        subtitle: '',
-        image: '',
-        action: () => this.api.setDimensions('Terminal', 5, 5, 500, 500)
-      }]
-    }
     // TODO: q Spotify - quit Spotify
 
     return this.applications.filter((o: any) => o.title.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map((app) => ({
@@ -29,6 +23,36 @@ export default class Applications implements SpotterPlugin {
       action: () => this.api.openApplication(app.path),
       shortKey: ''
     }));
+  }
+
+  get actions() {
+    return [
+      {
+        title: 'Save application positions',
+        subtitle: '',
+        image: '',
+        action: async () => {
+          const d = await this.api.getAllDimensions();
+          this.temp = d;
+        }
+      },
+      {
+        title: 'Restore application positions',
+        subtitle: '',
+        image: '',
+        action: async () => {
+          this.temp.forEach(dimensions => {
+            this.api.setDimensions(
+              dimensions.appName,
+              dimensions.x,
+              dimensions.y,
+              dimensions.width,
+              dimensions.height,
+            )
+          })
+        }
+      }
+    ]
   }
 
 }

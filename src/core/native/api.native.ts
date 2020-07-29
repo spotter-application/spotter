@@ -35,4 +35,8 @@ export default class Api implements SpotterApi {
     );
   }
 
+  async getAllDimensions() {
+    return await this.applications.getAllDimensions()
+  }
+
 }

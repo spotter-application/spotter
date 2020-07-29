@@ -127,7 +127,7 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     fieldContainerView.spacing = 100
     fieldContainerView.orientation = .vertical
     fieldContainerView.distribution = .fillEqually
-    fieldContainerView.edgeInsets = NSEdgeInsets(top: 10, left: 15, bottom: 0, right: 0)
+    fieldContainerView.edgeInsets = NSEdgeInsets(top: 10, left: 17.5, bottom: 0, right: 0)
     fieldContainerView.translatesAutoresizingMaskIntoConstraints = false
     fieldContainerView.distribution = .fill
   }
