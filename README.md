@@ -17,7 +17,7 @@ The main idea:
 
 * 🔮&nbsp;&nbsp;&nbsp;Provide an api on the native level
 * ⚛️&nbsp;&nbsp;&nbsp;React app uses it and implements various plugins
-<br/>
+
 It will allow the application to remain native and be available for developing javascript/typescript plugins.
 
 ## Usage
