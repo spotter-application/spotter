@@ -11,9 +11,7 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * 🔌&nbsp;&nbsp;&nbsp;<b>Plugin system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
 
-## About
-
-The main idea:
+## The main idea
 
 * 🔮&nbsp;&nbsp;&nbsp;Provide an api on the native level
 * ⚛️&nbsp;&nbsp;&nbsp;React app uses it and implements various plugins
