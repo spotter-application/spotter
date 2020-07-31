@@ -29,6 +29,8 @@ Spotter is a productivity tool, the main function is to search and launch extern
 To run the app, press ```option + s```
 
 ## Contributing
+After cloning & setting up the local project you can push the changes to your github fork and make a pull request.
+
 Contributions are always welcome, no matter how large or small.
 
 ## License
