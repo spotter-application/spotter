@@ -48,7 +48,7 @@ export default class Applications implements SpotterPlugin {
         title: 'Calendar',
         subtitle: '/Applications/Calendar.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Calculator\" to activate'"),
+        action: () => this.api.shellCommand("osascript -e 'tell application \"Calendar\" to activate'"),
       },
       {
         title: 'App Store',
