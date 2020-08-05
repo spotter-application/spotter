@@ -56,7 +56,7 @@ class Panel: RCTEventEmitter {
 //
 //    print(apps)
     
-    hotKey = HotKey(keyCombo: KeyCombo(key: .s, modifiers: [.option]))
+    hotKey = HotKey(keyCombo: KeyCombo(key: .space, modifiers: [.option]))
   }
   
   @objc
