@@ -1,11 +1,14 @@
 import { SpotterPlugin, SpotterApi, SpotterOption } from '@spotter-app/core';
+import SpotterSearch from '../core/fuzzy-search/fuzzy-search';
 
 export default class Spotify implements SpotterPlugin {
 
   constructor(private api: SpotterApi) {}
 
+  private searcher = new SpotterSearch(this.options, ['title', 'subtitle']);
+
   query(query: string): SpotterOption[] {
-    return this.options.filter(o => o.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+    return this.searcher.search(query);
   }
 
   private get options(): SpotterOption[] {
@@ -14,49 +17,42 @@ export default class Spotify implements SpotterPlugin {
         title: 'Previous',
         subtitle: 'Spotify Previous track',
         image: '',
-        shortKey: 'SP',
         action: () => this.previous(),
       },
       {
         title: 'Next',
         subtitle: 'Spotify Next track',
         image: '',
-        shortKey: 'SP',
         action: () => this.next(),
       },
       {
         title: 'Pause',
         subtitle: 'Spotify Pause',
         image: '',
-        shortKey: 'SP',
         action: () => this.pause(),
       },
       {
         title: 'Play',
         subtitle: 'Spotify Play',
         image: '',
-        shortKey: 'SP',
         action: () => this.play(),
       },
       {
         title: 'Mute',
         subtitle: 'Spotify Mute',
         image: '',
-        shortKey: 'SP',
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
         subtitle: 'Spotify Unmute',
         image: '',
-        shortKey: 'SP',
         action: () => this.unmute(),
       },
       {
         title: 'Toggle play/pause',
         subtitle: 'Spotify Toggle play/pause',
         image: '',
-        shortKey: 'SP',
         action: () => this.togglePlayPause(),
       },
     ];
