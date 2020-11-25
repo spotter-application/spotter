@@ -11,12 +11,12 @@ import ShellOut
 
 @objc(Panel)
 class Panel: RCTEventEmitter {
-  
+
   private var panelController: PanelController!
-  
+
   override init() {
     super.init()
-    
+
     let panelSettings = PanelSettings()
     panelSettings.delegate = self
     self.panelController = PanelController(settings: panelSettings)
@@ -39,7 +39,7 @@ class Panel: RCTEventEmitter {
   func registerHotkey() {
 //    let workspace = NSWorkspace.shared
 //    let apps = workspace.runningApplications.filter{  $0.activationPolicy == .regular }
-//    
+//
 //    for app in apps {
 //      print(app)
 //        if fileManager.isExecutableFile(atPath: url.path) {
@@ -55,14 +55,14 @@ class Panel: RCTEventEmitter {
 //    }
 //
 //    print(apps)
-    
-    hotKey = HotKey(keyCombo: KeyCombo(key: .space, modifiers: [.option]))
+
+    hotKey = HotKey(keyCombo: KeyCombo(key: .s, modifiers: [.option]))
   }
-  
+
   @objc
   func displayOptions(_ options: NSArray) {
     var nextOptions: [Option] = []
-    
+
     for option in options {
       nextOptions.append(Option(
         id: (option as AnyObject)["id"] as! String,
@@ -71,7 +71,7 @@ class Panel: RCTEventEmitter {
         image: NSWorkspace.shared.icon(forFileType: ".swift")
       ))
     }
-    
+
     DispatchQueue.main.async {
       self.panelController.displayOptions(options: nextOptions)
     }

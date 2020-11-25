@@ -25,14 +25,14 @@ abstract_target 'Shared' do
   pod 'React-jsi', :path => '../node_modules/react-native-macos/ReactCommon/jsi'
   pod 'React-jsiexecutor', :path => '../node_modules/react-native-macos/ReactCommon/jsiexecutor'
   pod 'React-jsinspector', :path => '../node_modules/react-native-macos/ReactCommon/jsinspector'
-  pod 'ReactCommon/jscallinvoker', :path => '../node_modules/react-native-macos/ReactCommon'
+  pod 'ReactCommon/callinvoker', :path => '../node_modules/react-native-macos/ReactCommon'
   pod 'ReactCommon/turbomodule/core', :path => '../node_modules/react-native-macos/ReactCommon'
   pod 'Yoga', :path => '../node_modules/react-native-macos/ReactCommon/yoga'
 
   pod 'boost-for-react-native', :podspec => '../node_modules/react-native-macos/third-party-podspecs/boost-for-react-native.podspec'
   pod 'DoubleConversion', :podspec => '../node_modules/react-native-macos/third-party-podspecs/DoubleConversion.podspec'
   pod 'glog', :podspec => '../node_modules/react-native-macos/third-party-podspecs/glog.podspec'
-  pod 'Folly', :podspec => '../node_modules/react-native-macos/third-party-podspecs/Folly.podspec'
+  pod 'RCT-Folly', :podspec => '../node_modules/react-native-macos/third-party-podspecs/RCT-Folly.podspec'
 
   pod 'HotKey'
   pod 'ShellOut'
