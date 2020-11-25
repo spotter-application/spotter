@@ -40,5 +40,34 @@ After cloning & setting up the local project you can push the changes to your gi
 
 Contributions are always welcome, no matter how large or small.
 
+## How to develop
+**React native requirements:**
+*  [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)  version 11.3.1 or newer
+
+* Ensure to install Xcode Command Line Tools. Open Xcode, then choose “Preferences…” from the Xcode menu. Go to the Locations panel and install the tools by selecting the most recent version in the Command Line Tools dropdown.
+
+* Install  [CocoaPods](https://guides.cocoapods.org/using/getting-started.html)
+`sudo gem install cocoapods`
+
+* Install  [Node.js](https://nodejs.org/)  version 12 LTS or newer via  [HomeBrew](https://brew.sh/)
+ `brew install node`
+
+* Install  [Watchman](https://facebook.github.io/watchman)
+`brew install watchman`
+
+
+**Project**
+* Clone repo
+`git clone  https://github.com/spotter-application/spotter.git`
+
+* Install node modules
+`cd spotter && npm i`
+
+* Install pods
+`npm run install:macos`
+
+* Run project
+`npm start`
+
 ## License
 GNU General Public License
