@@ -19,35 +19,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let rootView = RCTRootView(bundleURL: jsCodeLocation, moduleName: "spotter", initialProperties: nil, launchOptions: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
+    let statusBar = NSStatusBar.system
+        statusBarItem = statusBar.statusItem(
+            withLength: NSStatusItem.squareLength)
+        statusBarItem.button?.title = "☂︎"
+        let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
+        statusBarItem.menu = statusBarMenu
+        statusBarMenu.addItem(
+            withTitle: "Open Spotter",
+            action: #selector(AppDelegate.openspotter),
+            keyEquivalent: "k")
+        statusBarMenu.addItem(
+            withTitle: "Preferences",
+            action: #selector(AppDelegate.openpreferences),
+            keyEquivalent: "")
+        statusBarMenu.addItem(
+            withTitle: "Quit",
+            action: #selector(AppDelegate.Quitapp),
+            keyEquivalent: "q")
+  }
 
-    popover = NSPopover()
-
-    popover.contentSize = NSSize(width: 500, height: 300)
-    popover.animates = false
-    popover.behavior = .transient
-    popover.contentViewController = rootViewController
-
-    statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(80))
-
-    if let button = self.statusBarItem.button {
-        button.action = #selector(togglePopover(_:))
-      button.title = "Spotter"
+   @objc func openspotter() {
+        print("open")
     }
-
-    NSApplication.shared.windows.last!.close()
-    
-    OperationQueue.main.addOperation { NSApplication.shared.windows.last!.makeKeyAndOrderFront(nil); NSApplication.shared.activate(ignoringOtherApps: true) }
+    @objc func openpreferences() {
+        print("Preferences")
+    }
+    @objc func Quitapp() {
+        NSApp.terminate(self)
+    }
   }
 
-  @objc func togglePopover(_ sender: AnyObject?) {
-      if let button = self.statusBarItem.button {
-          if self.popover.isShown {
-              self.popover.performClose(sender)
-          } else {
-              self.popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
-
-              self.popover.contentViewController?.view.window?.becomeKey()
-          }
-      }
-  }
-}
