@@ -22,52 +22,56 @@ export default class SpotterSearch {
   }
 
   search(query = '') {
-    if (query === '') {
-      return this.haystack;
-    }
-
-    const results = [];
-
-    for (let i = 0; i < this.haystack.length; i++) {
-      const item = this.haystack[i];
-
-      if (this.keys.length === 0) {
-        const score = SpotterSearch.isMatch(item, query, this.options.caseSensitive);
-
-        if (score) {
-          results.push({ item, score });
-        }
-      } else {
-        for (let y = 0; y < this.keys.length; y++) {
-          const propertyValues = FuzzySearchHelper.getDescendantProperty(item, this.keys[y]);
-
-          let found = false;
-
-          for (let z = 0; z < propertyValues.length; z++) {
-            const score = SpotterSearch.isMatch(propertyValues[z], query, this.options.caseSensitive);
-
-            if (score) {
-              found = true;
-
-              results.push({ item, score });
-
-              break;
-            }
-          }
-
-          if (found) {
-            break;
-          }
-        }
-      }
-    }
-
-    if (this.options.sort) {
-      results.sort((a, b) => a.score - b.score);
-    }
-
-    return results.map(result => result.item);
+    return this.haystack.filter((item: any) => item.title.toLowerCase().includes(query.toLowerCase()))
   }
+
+  // search(query = '') {
+  //   if (query === '') {
+  //     return this.haystack;
+  //   }
+
+  //   const results = [];
+
+  //   for (let i = 0; i < this.haystack.length; i++) {
+  //     const item = this.haystack[i];
+
+  //     if (this.keys.length === 0) {
+  //       const score = SpotterSearch.isMatch(item, query, this.options.caseSensitive);
+
+  //       if (score) {
+  //         results.push({ item, score });
+  //       }
+  //     } else {
+  //       for (let y = 0; y < this.keys.length; y++) {
+  //         const propertyValues = FuzzySearchHelper.getDescendantProperty(item, this.keys[y]);
+
+  //         let found = false;
+
+  //         for (let z = 0; z < propertyValues.length; z++) {
+  //           const score = SpotterSearch.isMatch(propertyValues[z], query, this.options.caseSensitive);
+
+  //           if (score) {
+  //             found = true;
+
+  //             results.push({ item, score });
+
+  //             break;
+  //           }
+  //         }
+
+  //         if (found) {
+  //           break;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (this.options.sort) {
+  //     results.sort((a, b) => a.score - b.score);
+  //   }
+
+  //   return results.map(result => result.item);
+  // }
 
   static isMatch(item: any, query: any, caseSensitive: any) {
     item = String(item);

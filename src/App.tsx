@@ -1,10 +1,13 @@
 import React from 'react';
 import {
+  NativeSyntheticEvent,
   SafeAreaView,
   ScrollView,
+  View,
   StyleSheet,
   Text,
   TextInput,
+  TextInputKeyPressEventData,
 } from 'react-native';
 import { SpotterOption } from '@spotter-app/core';
 
@@ -16,11 +19,13 @@ import OptionsRegistry from './core/options.registry';
 import Applications from './plugins/applications.plugin';
 import Calculator from './plugins/calculator.plugin';
 import Storage from './core/native/storage.native';
+import GlobalHotkey from './core/native/hotkey.native';
 
-export default class App extends React.Component<{}, {}> {
+export default class App extends React.Component<{}, {options: any[]}> {
 
   constructor(
     props: {},
+    private hotKey: GlobalHotkey,
     private panel: Panel,
     private pluginsRegistry: PluginsRegistry,
     private optionsRegistry: OptionsRegistry,
@@ -29,7 +34,9 @@ export default class App extends React.Component<{}, {}> {
   ) {
     super(props);
 
+    this.hotKey = new GlobalHotkey();
     this.panel = new Panel();
+
     this.pluginsRegistry = new PluginsRegistry();
     this.optionsRegistry = new OptionsRegistry();
     this.api = new Api();
@@ -41,30 +48,59 @@ export default class App extends React.Component<{}, {}> {
       new Calculator(),
     ]);
 
-    this.panel.registerHotkey(null); // TODO: do
+    this.hotKey.register('', ''); // TODO: do
 
-    this.panel.registerQueryCallback(query => {
-      const possibleOptions = this.pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
-        [...acc, ...plugin.query(query)]
-      ), []);
+    this.hotKey.onPress((e) => this.panel.toggle());
 
-      this.optionsRegistry.clear();
-      const registeredOptions = this.optionsRegistry.register(possibleOptions);
+    this.hotKey.onEsc((e) => this.panel.toggle());
 
-      this.panel.displayOptions(registeredOptions)
-    });
+    // this.panel.registerQueryCallback(query => {
+    //   const possibleOptions = this.pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
+    //     [...acc, ...plugin.query(query)]
+    //   ), []);
 
-    this.panel.registerOnSelectedCallback((id) => this.optionsRegistry.getById(id)?.action());
+    //   this.optionsRegistry.clear();
+    //   const registeredOptions = this.optionsRegistry.register(possibleOptions);
+
+    //   this.panel.displayOptions(registeredOptions)
+    // });
+
+    // this.panel.registerOnSelectedCallback((id) => this.optionsRegistry.getById(id)?.action());
+
+    this.state = {
+      options: [],
+    }
+  }
+
+  onChangeText(query: string) {
+    const possibleOptions = this.pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
+      [...acc, ...plugin.query(query)]
+    ), []);
+
+    this.setState({ options: possibleOptions })
+
+    console.log(possibleOptions);
+  }
+
+  onSubmitEditing() {
+    console.log('submit!!!!!!!!!!')
+    // this.panel.toggle();
   }
 
   render() {
+    const { options } = this.state;
+
     return (
       <>
         <SafeAreaView style={styles.container}>
-          <TextInput placeholder="Query..." style={styles.input} caretHidden={true} autoCorrect={false} autoFocus={true}></TextInput>
-          {/* <ScrollView contentInsetAdjustmentBehavior="automatic"> */}
-            <Text>Results</Text>
-          {/* </ScrollView> */}
+          <TextInput placeholder="Query..." style={styles.input} onSubmitEditing={() => this.onSubmitEditing()} onChangeText={e => this.onChangeText(e)} autoCorrect={false} autoFocus={true}></TextInput>
+          <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.options}>
+            {options.map((option: any) => (
+              <View key={option.title} style={styles.option}>
+                <Text>{option.title}</Text>
+              </View>
+            )) }
+          </ScrollView>
         </SafeAreaView>
       </>
     );
@@ -84,4 +120,10 @@ const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: '#000',
   },
+  options: {
+    backgroundColor: '#000',
+  },
+  option: {
+    padding: 10,
+  }
 });
