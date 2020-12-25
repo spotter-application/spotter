@@ -21,7 +21,7 @@ import Calculator from './plugins/calculator.plugin';
 import Storage from './core/native/storage.native';
 import GlobalHotkey from './core/native/hotkey.native';
 
-export default class App extends React.Component<{}, {options: any[]}> {
+export default class App extends React.Component<{}, { options: any[], selectedIndex: number }> {
 
   constructor(
     props: {},
@@ -54,6 +54,26 @@ export default class App extends React.Component<{}, {options: any[]}> {
 
     this.hotKey.onEsc((e) => this.panel.toggle());
 
+
+    this.hotKey.onUpArrow(() => {
+      const { options, selectedIndex } = this.state;
+      const nextSelectedIndex = selectedIndex - 1;
+      if (!options[nextSelectedIndex]) {
+        return;
+      }
+
+      this.setState({ selectedIndex: nextSelectedIndex });
+    });
+    this.hotKey.onDownArrow(() => {
+      const { options, selectedIndex } = this.state;
+      const nextSelectedIndex = selectedIndex + 1;
+      if (!options[nextSelectedIndex]) {
+        return;
+      }
+
+      this.setState({ selectedIndex: nextSelectedIndex });
+    });
+
     // this.panel.registerQueryCallback(query => {
     //   const possibleOptions = this.pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
     //     [...acc, ...plugin.query(query)]
@@ -69,6 +89,7 @@ export default class App extends React.Component<{}, {options: any[]}> {
 
     this.state = {
       options: [],
+      selectedIndex: 0,
     }
   }
 
@@ -83,20 +104,34 @@ export default class App extends React.Component<{}, {options: any[]}> {
   }
 
   onSubmitEditing() {
-    console.log('submit!!!!!!!!!!')
-    // this.panel.toggle();
+    const { options, selectedIndex } = this.state;
+
+    if (!options[selectedIndex]) {
+      return;
+    }
+
+    this.onSubmit(options[selectedIndex]);
+  }
+
+  onSubmit(option: any) {
+    if (!option?.action) {
+      return;
+    }
+
+    option.action();
+    this.panel.toggle();
   }
 
   render() {
-    const { options } = this.state;
+    const { options, selectedIndex } = this.state;
 
     return (
       <>
         <SafeAreaView style={styles.container}>
           <TextInput placeholder="Query..." style={styles.input} onSubmitEditing={() => this.onSubmitEditing()} onChangeText={e => this.onChangeText(e)} autoCorrect={false} autoFocus={true}></TextInput>
           <ScrollView contentInsetAdjustmentBehavior="automatic" style={styles.options}>
-            {options.map((option: any) => (
-              <View key={option.title} style={styles.option}>
+            {options.map((option: any, index) => (
+              <View key={option.title} style={selectedIndex === index ? styles.activeOption : styles.option} onTouchEnd={() => this.onSubmit(option)}>
                 <Text>{option.title}</Text>
               </View>
             )) }
@@ -122,6 +157,10 @@ const styles = StyleSheet.create({
   },
   options: {
     backgroundColor: '#000',
+  },
+  activeOption: {
+    backgroundColor: 'grey',
+    padding: 10,
   },
   option: {
     padding: 10,

@@ -12,15 +12,19 @@ enum KeyCode {
   static let downArrow: UInt16 = 125
 }
 
+enum Events {
+  static let press: String = "onPress"
+  static let esc: String = "onEsc"
+  static let upArrow: String = "onUpArrow"
+  static let downArrow: String = "onDownArrow"
+}
+
 import Foundation
 import HotKey
 import ShellOut
 
 @objc(GlobalHotkey)
 class GlobalHotkey: RCTEventEmitter {
-  
-  let eventName = "onPress"
-  let escEventName = "onEsc"
   
   override init() {
     super.init()
@@ -32,7 +36,17 @@ class GlobalHotkey: RCTEventEmitter {
     let keyCode = event.keyCode
 
     if keyCode == KeyCode.esc {
-      self.sendEvent(withName: self.escEventName, body: keyCode)
+      self.sendEvent(withName: Events.esc, body: keyCode)
+      return nil
+    }
+    
+    if keyCode == KeyCode.upArrow {
+      self.sendEvent(withName: Events.upArrow, body: keyCode)
+      return nil
+    }
+    
+    if keyCode == KeyCode.downArrow {
+      self.sendEvent(withName: Events.downArrow, body: keyCode)
       return nil
     }
 
@@ -47,7 +61,7 @@ class GlobalHotkey: RCTEventEmitter {
       }
 
       hotKey.keyDownHandler = { [weak self] in
-        self?.sendEvent(withName: self?.eventName, body: "")
+        self?.sendEvent(withName: Events.press, body: "")
       }
     }
   }
@@ -58,7 +72,7 @@ class GlobalHotkey: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return [eventName, escEventName]
+    return [Events.press, Events.esc, Events.upArrow, Events.downArrow]
   }
 
 }

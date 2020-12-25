@@ -21,4 +21,12 @@ export default class GlobalHotkey {
     this.panelEventEmitter.addListener('onEsc', (event) => callback(event));
   }
 
+  onUpArrow(callback: (option: SpotterActionId) => void) {
+    this.panelEventEmitter.addListener('onUpArrow', (event) => callback(event));
+  }
+
+  onDownArrow(callback: (option: SpotterActionId) => void) {
+    this.panelEventEmitter.addListener('onDownArrow', (event) => callback(event));
+  }
+
 }
