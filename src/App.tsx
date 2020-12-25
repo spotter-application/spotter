@@ -2,7 +2,9 @@ import React from 'react';
 import {
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
+  TextInput,
 } from 'react-native';
 import { SpotterOption } from '@spotter-app/core';
 
@@ -58,12 +60,28 @@ export default class App extends React.Component<{}, {}> {
   render() {
     return (
       <>
-        <SafeAreaView>
-          <ScrollView contentInsetAdjustmentBehavior="automatic">
-            <Text>Settings</Text>
-          </ScrollView>
+        <SafeAreaView style={styles.container}>
+          <TextInput placeholder="Query..." style={styles.input} caretHidden={true} autoCorrect={false} autoFocus={true}></TextInput>
+          {/* <ScrollView contentInsetAdjustmentBehavior="automatic"> */}
+            <Text>Results</Text>
+          {/* </ScrollView> */}
         </SafeAreaView>
       </>
     );
   }
 };
+
+const styles = StyleSheet.create({
+  container: {
+    // paddingTop: 15,
+  },
+  input: {
+    padding: 15,
+    fontSize: 18,
+    backgroundColor: '#000',
+    elevation: 0,
+    borderRadius: 10,
+    borderWidth: 5,
+    borderColor: '#000',
+  },
+});

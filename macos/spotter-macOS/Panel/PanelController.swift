@@ -41,6 +41,8 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
 
   private var options: [Option]!
   private var selected: Int?
+  
+  let delegate = NSApplication.shared.delegate as! AppDelegate
 
   
   init(settings: PanelSettings) {
@@ -59,19 +61,44 @@ class PanelController: NSViewController, NSTextFieldDelegate, NSOutlineViewDeleg
     
     
     
-    fieldContainerView.addArrangedSubview(searchField)
-    stackView.addArrangedSubview(fieldContainerView)
-    stackView.addArrangedSubview(scrollView)
-    transparentView.addSubview(stackView)
-    panel.contentView?.addSubview(transparentView)
-    panel.makeFirstResponder(searchField)
     
-    setupConstraints()
+//    let jsCodeLocation: URL
+//    #if DEBUG
+//    jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index", fallbackResource:nil)
+//    #else
+//    jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")!
+//    #endif
+    
+//    print("TEST!@#")
+//    let rootView = RCTRootView(bundleURL: self.delegate.jsCodeLocation, moduleName: "spotter", initialProperties: nil, launchOptions: nil)
+//    let rootViewController = NSViewController()
+//    rootViewController.view = rootView
+    
+    
+//    popover = NSPopover()
+//    popover.contentSize = NSSize(width: 500, height: 300)
+//    popover.animates = false
+//    popover.behavior = .transient
+//    popover.contentViewController = rootViewController
+    
+//    panel.contentViewController = rootViewController
+    
+    
+    
+//    fieldContainerView.addArrangedSubview(searchField)
+//    stackView.addArrangedSubview(fieldContainerView)
+//    stackView.addArrangedSubview(scrollView)
+//    transparentView.addSubview(stackView)
+//    panel.contentView?.addSubview(transparentView)
+//    panel.makeFirstResponder(searchField)
+    
+//    setupConstraints()
     
     NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: keyDown)
   }
   
   public func togglePanel() {
+    print("TOGGLE_PANEL")
     if isActivePanel {
       panel.close()
       isActivePanel = false
