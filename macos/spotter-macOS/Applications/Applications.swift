@@ -47,7 +47,7 @@ class Applications: RCTEventEmitter {
   
   @objc
   func open(_ path: String) {
-    NSWorkspace.shared.open(URL(fileURLWithPath: path))
+     (URL(fileURLWithPath: path))
   }
   
   @objc
