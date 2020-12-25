@@ -21,8 +21,7 @@ export default class Applications implements SpotterPlugin {
       title: application.title,
       subtitle: application.path,
       image: '',
-      action: () => console.log(application.path),
-      // action: () => this.api.openApplication(application.path),
+      action: () => this.api.shellCommand(`open "${application.path}"`),
       shortKey: ''
     }));
     this.storedApplicationDimensions = await this.getApplicationDimensions();
