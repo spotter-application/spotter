@@ -26,7 +26,7 @@ Spotter is a productivity tool, the main function is to search and launch extern
 · Basic calculator functionality<br/>
 
 #### Hotkeys
-To run the app, press ```option + s```
+To run the app, press ```double shift```
 
 ## The main idea
 

@@ -13,32 +13,27 @@ enum Events {
 }
 
 import Foundation
-import HotKey
 import ShellOut
+import Magnet
+import Carbon
 
 @objc(GlobalHotkey)
 class GlobalHotkey: RCTEventEmitter {
   
-  override init() {
-    super.init()
-  }
-
-  private var hotKey: HotKey? {
-    didSet {
-      
-      guard let hotKey = hotKey else {
-        return
-      }
-
-      hotKey.keyDownHandler = {
-        self.sendEvent(withName: Events.press, body: "")
-      }
-    }
-  }
+  let appDelegate = NSApplication.shared.delegate as! AppDelegate
+  
+//  override init() {
+//    super.init()
+//  }
 
   @objc
   func register(_ key: NSString, withModifier modifier: NSString) {
-    hotKey = HotKey(keyCombo: KeyCombo(key: .space, modifiers: [.option]))
+    guard let keyCombo = KeyCombo(doubledCarbonModifiers: shiftKey) else { return }
+    let hotKey = HotKey(identifier: "Spotter",
+                         keyCombo: keyCombo,
+                         target: self,
+                         action: #selector(self.tappedDoubleShiftKey))
+    hotKey.register()
   }
 
   override func supportedEvents() -> [String]! {
@@ -47,6 +42,16 @@ class GlobalHotkey: RCTEventEmitter {
   
   @objc override static func requiresMainQueueSetup() -> Bool {
     return false
+  }
+  
+  @objc func tappedDoubleShiftKey() {
+    self.sendEvent(withName: Events.press, body: "")
+  }
+  
+  @objc func openSettings() {
+    DispatchQueue.main.async {
+      self.appDelegate.openSettings()
+    }
   }
 
 }

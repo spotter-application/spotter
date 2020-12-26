@@ -10,7 +10,8 @@ PODS:
     - React-jsi (= 0.62.16)
     - ReactCommon/turbomodule/core (= 0.62.16)
   - glog (0.3.5)
-  - HotKey (0.1.2)
+  - Magnet (3.2.0):
+    - Sauce (~> 2.1)
   - RCT-Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
@@ -244,6 +245,7 @@ PODS:
     - ReactCommon/callinvoker (= 0.62.16)
   - RNCAsyncStorage (1.13.2):
     - React
+  - Sauce (2.1.0)
   - ShellOut (2.0.0)
   - Yoga (1.14.0)
 
@@ -253,7 +255,7 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native-macos/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native-macos/Libraries/FBReactNativeSpec`)
   - glog (from `../node_modules/react-native-macos/third-party-podspecs/glog.podspec`)
-  - HotKey
+  - Magnet
   - RCT-Folly (from `../node_modules/react-native-macos/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native-macos/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native-macos/Libraries/TypeSafety`)
@@ -283,7 +285,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - HotKey
+    - Magnet
+    - Sauce
     - ShellOut
 
 EXTERNAL SOURCES:
@@ -348,7 +351,7 @@ SPEC CHECKSUMS:
   FBLazyVector: f7ecc4fb8e76a380e4bac28fe4773c30b2bc7b2e
   FBReactNativeSpec: f1a34d51179ade22df30b9fb09bdd52578f2734a
   glog: d86cb3634e15ec6d8cd9a1c7c1b9d6fa295beb37
-  HotKey: ad59450195936c10992438c4210f673de5aee43e
+  Magnet: 8316a30fe91fdc6f2816ec0f04e20c72e341ca2e
   RCT-Folly: 71ece0166f9c96c1ec9279eeb0317baf533c020f
   RCTRequired: e3780ba29155206352b1ea54d4f98c5afd86a326
   RCTTypeSafety: 797c0250e3117bb435c80c732929f03e2557eaa4
@@ -370,9 +373,10 @@ SPEC CHECKSUMS:
   React-RCTVibration: 92859bffe23ec2514f4e3650442d0cc14feb4b0c
   ReactCommon: 6985b9148dc9e4f4fdaaa9cc7027f42553e1fe66
   RNCAsyncStorage: bc2f81cc1df90c267ce9ed30bb2dbc93b945a8ee
+  Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
   ShellOut: 1393eefc56892e80d85339e233d3935e2e1ff6f9
   Yoga: 0f98dd1219266759167df8e5c7ae102d4a2ae4c5
 
-PODFILE CHECKSUM: 8e2bc0344cd371332c540a95c019d010a61c0acb
+PODFILE CHECKSUM: fcdafaf40949da2e33bc44a0bb5b600f5bd06c97
 
 COCOAPODS: 1.10.0
