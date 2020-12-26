@@ -1,6 +1,5 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// TODO: Move to core
 export declare abstract class SpotterStorage {
 
   abstract setItem<T>(key: string, value: T): Promise<void>

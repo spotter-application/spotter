@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0496A360A6F874C295C73D4B /* libPods-Shared-spotter-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
+		9221FA302596AF4200BA37D2 /* NSPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9221FA2F2596AF4200BA37D2 /* NSPanel.swift */; };
 		923C274E24D01BE3006C67F3 /* Applications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* Applications.swift */; };
 		923C275024D01BF1006C67F3 /* Applications.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* Applications.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
@@ -35,6 +36,7 @@
 		514201542437B4B40078DB4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
+		9221FA2F2596AF4200BA37D2 /* NSPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSPanel.swift; sourceTree = "<group>"; };
 		923C274D24D01BE3006C67F3 /* Applications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Applications.swift; sourceTree = "<group>"; };
 		923C274F24D01BF1006C67F3 /* Applications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Applications.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				514201592437B4B40078DB4F /* spotter.entitlements */,
 				92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */,
 				92418A1C24CA1848007897A2 /* AppDelegate.swift */,
+				9221FA2F2596AF4200BA37D2 /* NSPanel.swift */,
 			);
 			path = "spotter-macOS";
 			sourceTree = "<group>";
@@ -334,6 +337,7 @@
 				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
+				9221FA302596AF4200BA37D2 /* NSPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

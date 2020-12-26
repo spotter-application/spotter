@@ -18,6 +18,7 @@
     "build:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.13.2",
     "@spotter-app/core": "0.0.8",
     "@types/math-expression-evaluator": "^1.2.0",
     "math-expression-evaluator": "^1.2.22",

@@ -1,6 +1,6 @@
 import { SpotterPlugin, SpotterApi, SpotterOption, SystemApplication, SystemApplicationDimensions } from '@spotter-app/core';
 import { SpotterStorage } from '../core/native/storage.native';
-import SpotterSearch from '../core/fuzzy-search/fuzzy-search';
+import SpotterSearch from '../core/search';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
@@ -25,12 +25,10 @@ export default class Applications implements SpotterPlugin {
       shortKey: ''
     }));
     this.storedApplicationDimensions = await this.getApplicationDimensions();
-    this.searcher = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions], ['title', 'subtitle']);
+    this.searcher = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions], ['title']);
   }
 
   query(query: string): SpotterOption[] {
-    // TODO: q Spotify - quit Spotify
-
     return this.searcher?.search(query);
   }
 

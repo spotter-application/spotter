@@ -157,5 +157,9 @@ class Applications: RCTEventEmitter {
     let status = AXIsProcessTrustedWithOptions(options)
     return status
   }
+  
+  @objc override static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
 
 }

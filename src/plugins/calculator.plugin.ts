@@ -13,7 +13,7 @@ export default class Calculator implements SpotterPlugin {
             subtitle: '',
             image: '',
             action: () => null,
-           shortKey: ''
+            shortKey: '',
           }];
     } catch {
       return []

@@ -27,5 +27,9 @@ class Shell: RCTEventEmitter {
   override func supportedEvents() -> [String]! {
     return []
   }
+  
+  @objc override static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
 
 }

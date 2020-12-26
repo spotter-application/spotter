@@ -6,7 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   
   var bridge: RCTBridge!
   var statusBarItem: NSStatusItem!
-  var panel: NSPanel!
+  var panel: NSPanelExt!
   var isActivePanel = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -19,7 +19,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let statusBar = NSStatusBar.system
         statusBarItem = statusBar.statusItem(
             withLength: NSStatusItem.squareLength)
-        statusBarItem.button?.title = "Find"//Should change to spotter logo in future
+        statusBarItem.button?.title = "S"
         let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
         statusBarItem.menu = statusBarMenu
         statusBarMenu.addItem(
@@ -36,13 +36,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let width = 500
     let height = 300
     var jsCodeLocation: URL
+    
     #if DEBUG
     jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index", fallbackResource:nil)
     #else
     jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")!
     #endif
     
-    panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
+    panel = NSPanelExt(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
         .nonactivatingPanel,
         .titled,
         .fullSizeContentView,
@@ -65,18 +66,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     panel.contentView?.window?.backgroundColor = NSColor.clear
   }
   
+  @objc func openPanel() {
+    panel.makeKeyAndOrderFront(nil)
+    panel.center()
+    isActivePanel = true
+  }
+  
+  @objc func closePanel() {
+    panel.close()
+    isActivePanel = false
+  }
+  
   @objc func togglePanel() {
     if isActivePanel {
-      panel.close()
-      isActivePanel = false
+      self.closePanel()
     } else {
-      panel.makeKeyAndOrderFront(nil)
-      panel.center()
-      isActivePanel = true
+      self.openPanel()
     }
   }
 
   @objc func Quitapp() {
     NSApp.terminate(self)
   }
+  
 }
