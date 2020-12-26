@@ -9,8 +9,10 @@
 
 @interface RCT_EXTERN_MODULE(Panel, RCTEventEmitter)
 
-RCT_EXTERN_METHOD(registerHotkey)
+RCT_EXTERN_METHOD(toggle)
 
-RCT_EXTERN_METHOD(displayOptions: (NSArray)options)
+RCT_EXTERN_METHOD(open)
+
+RCT_EXTERN_METHOD(close)
 
 @end

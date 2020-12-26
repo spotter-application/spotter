@@ -47,7 +47,7 @@ class Applications: RCTEventEmitter {
   
   @objc
   func open(_ path: String) {
-    NSWorkspace.shared.open(URL(fileURLWithPath: path))
+     (URL(fileURLWithPath: path))
   }
   
   @objc
@@ -156,6 +156,10 @@ class Applications: RCTEventEmitter {
     let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: prompt]
     let status = AXIsProcessTrustedWithOptions(options)
     return status
+  }
+  
+  @objc override static func requiresMainQueueSetup() -> Bool {
+    return false
   }
 
 }

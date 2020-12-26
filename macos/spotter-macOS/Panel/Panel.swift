@@ -6,136 +6,62 @@
 //
 
 import Foundation
-import HotKey
 import ShellOut
+import HotKey
 
 @objc(Panel)
 class Panel: RCTEventEmitter {
-
-  private var panelController: PanelController!
-
+  
+  let appDelegate = NSApplication.shared.delegate as! AppDelegate
+  
   override init() {
     super.init()
-
-    let panelSettings = PanelSettings()
-    panelSettings.delegate = self
-    self.panelController = PanelController(settings: panelSettings)
+    
+    NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: onPanelKeyDown)
   }
+  
+  func onPanelKeyDown(with event: NSEvent) -> NSEvent? {
+    let keyCode = event.keyCode
 
-  private var hotKey: HotKey? {
-    didSet {
-      guard let hotKey = hotKey else {
-        return
-      }
-
-      hotKey.keyDownHandler = { [weak self] in
-        self?.panelController.togglePanel()
-
-      }
+    if keyCode == KeyCode.esc {
+      self.sendEvent(withName: Events.esc, body: keyCode)
     }
-  }
-
-  @objc
-  func registerHotkey() {
-//    let workspace = NSWorkspace.shared
-//    let apps = workspace.runningApplications.filter{  $0.activationPolicy == .regular }
-//
-//    for app in apps {
-//      print(app)
-//        if fileManager.isExecutableFile(atPath: url.path) {
-//            guard let mdi = NSMetadataItem(url: url) else { continue }
-//
-//          let option = [
-//            "title": mdi.value(forAttribute: kMDItemDisplayName as String) as! String,
-//            "path": mdi.value(forAttribute: kMDItemPath as String) as! String
-//          ]
-//
-//          applications.append(option)
-//        }
-//    }
-//
-//    print(apps)
-
-    hotKey = HotKey(keyCombo: KeyCombo(key: .space, modifiers: [.option]))
-  }
-
-  @objc
-  func displayOptions(_ options: NSArray) {
-    var nextOptions: [Option] = []
-
-    for option in options {
-      nextOptions.append(Option(
-        id: (option as AnyObject)["id"] as! String,
-        title: (option as AnyObject)["title"] as! String,
-        subtitle: (option as AnyObject)["subtitle"] as! String,
-        image: NSWorkspace.shared.icon(forFileType: ".swift")
-      ))
+    
+    if keyCode == KeyCode.upArrow {
+      self.sendEvent(withName: Events.upArrow, body: keyCode)
+    }
+    
+    if keyCode == KeyCode.downArrow {
+      self.sendEvent(withName: Events.downArrow, body: keyCode)
     }
 
+    return event
+  }
+  
+  @objc func open() {
     DispatchQueue.main.async {
-      self.panelController.displayOptions(options: nextOptions)
+      self.appDelegate.openPanel()
+    }
+  }
+  
+  @objc func close() {
+    DispatchQueue.main.async {
+      self.appDelegate.closePanel()
+    }
+  }
+  
+  @objc func toggle() {
+    DispatchQueue.main.async {
+      self.appDelegate.togglePanel()
     }
   }
 
   override func supportedEvents() -> [String]! {
-    return ["query", "onSelected"]
+    return [Events.esc, Events.upArrow, Events.downArrow]
   }
-
-}
-
-
-extension Panel: PanelDelegate {
-
-  func getItemView(option: Option) -> NSView? {
-    let view = NSStackView()
-
-//    let imageView = NSImageView(image: option.image)
-
-    let title = NSTextField()
-
-    title.isEditable = false
-    title.isBezeled = false
-    title.isSelectable = false
-    title.focusRingType = .none
-    title.drawsBackground = false
-    title.font = NSFont.systemFont(ofSize: 16)
-    title.stringValue = option.title
-
-    let subtitle = NSTextField()
-
-    subtitle.isEditable = false
-    subtitle.isBezeled = false
-    subtitle.isSelectable = false
-    subtitle.focusRingType = .none
-    subtitle.drawsBackground = false
-    subtitle.stringValue = option.subtitle
-    subtitle.font = NSFont.systemFont(ofSize: 12)
-    subtitle.textColor = NSColor(calibratedRed: 255, green: 255, blue: 255, alpha: 0.5)
-
-    let text = NSStackView()
-    text.orientation = .vertical
-    text.spacing = 3.0
-    text.alignment = .left
-
-    text.addArrangedSubview(title)
-    text.addArrangedSubview(subtitle)
-
-//    view.addArrangedSubview(imageView)
-    view.addArrangedSubview(text)
-
-    return view
-  }
-
-  func valueWasEntered(_ value: String) {
-    self.sendEvent(withName: "query", body: value)
-  }
-
-  func itemWasSelected(selected option: Option) {
-    self.sendEvent(withName: "onSelected", body: option.id)
-  }
-
-  func windowDidClose() {
-    print("Window did close")
+  
+  @objc override static func requiresMainQueueSetup() -> Bool {
+    return false
   }
 
 }

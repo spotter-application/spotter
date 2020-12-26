@@ -1,11 +1,11 @@
 import { SpotterPlugin, SpotterApi, SpotterOption } from '@spotter-app/core';
-import SpotterSearch from '../core/fuzzy-search/fuzzy-search';
+import SpotterSearch from '../core/search';
 
 export default class Spotify implements SpotterPlugin {
 
   constructor(private api: SpotterApi) {}
 
-  private searcher = new SpotterSearch(this.options, ['title', 'subtitle']);
+  private searcher = new SpotterSearch(this.options, ['title']);
 
   query(query: string): SpotterOption[] {
     return this.searcher.search(query);
@@ -56,7 +56,7 @@ export default class Spotify implements SpotterPlugin {
         action: () => this.togglePlayPause(),
       },
     ];
-  } 
+  }
 
   private previous() {
     this.api.shellCommand("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
