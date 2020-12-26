@@ -34,8 +34,8 @@ abstract_target 'Shared' do
   pod 'glog', :podspec => '../node_modules/react-native-macos/third-party-podspecs/glog.podspec'
   pod 'RCT-Folly', :podspec => '../node_modules/react-native-macos/third-party-podspecs/RCT-Folly.podspec'
 
-  pod 'HotKey'
   pod 'ShellOut'
+  pod 'Magnet'
 
   target 'spotter-macOS' do
     platform :macos, '10.14'

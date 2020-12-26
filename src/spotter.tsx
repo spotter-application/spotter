@@ -2,8 +2,11 @@ import React from 'react';
 import {
   SafeAreaView,
   StyleSheet,
+  LogBox,
 } from 'react-native';
 import { SpotterOption } from '@spotter-app/core';
+
+// LogBox.ignoreLogs([]);
 
 import Panel from './core/native/panel.native';
 import PluginsRegistry from './core/plugins.registry';
@@ -136,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     backgroundColor: '#212121',
     borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
     elevation: 0,
   },
   options: {
