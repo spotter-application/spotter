@@ -17,29 +17,13 @@ class Panel: RCTEventEmitter {
   override init() {
     super.init()
     
-//    NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: onPanelKeyDown)
-    hotKey = HotKey(keyCombo: KeyCombo(key: .escape, modifiers: []))
-  }    
-  
-  private var hotKey: HotKey? {
-    didSet {
-      
-      guard let hotKey = hotKey else {
-        return
-      }
-
-      hotKey.keyDownHandler = {
-//        self.sendEvent(withName: Events.press, body: "")
-        print("TEST321123")
-      }
-    }
+    NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: onPanelKeyDown)
   }
   
   func onPanelKeyDown(with event: NSEvent) -> NSEvent? {
     let keyCode = event.keyCode
 
     if keyCode == KeyCode.esc {
-      print("ESC!")
       self.sendEvent(withName: Events.esc, body: keyCode)
     }
     

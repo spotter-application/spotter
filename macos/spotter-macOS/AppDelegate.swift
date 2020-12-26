@@ -6,7 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   
   var bridge: RCTBridge!
   var statusBarItem: NSStatusItem!
-  var panel: NSPanelExt!
+  var panel: NSPanel!
   var isActivePanel = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -43,7 +43,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")!
     #endif
     
-    panel = NSPanelExt(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
+    panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
         .nonactivatingPanel,
         .titled,
         .fullSizeContentView,
