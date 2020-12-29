@@ -16,26 +16,26 @@ class Panel: RCTEventEmitter {
   override init() {
     super.init()
 
-    NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: onPanelKeyDown)
+//    NSEvent.addLocalMonitorForEvents(matching: .keyDown, handler: onPanelKeyDown)
   }
 
-  func onPanelKeyDown(with event: NSEvent) -> NSEvent? {
-    let keyCode = event.keyCode
-
-    if keyCode == KeyCode.esc {
-      self.sendEvent(withName: Events.esc, body: keyCode)
-    }
-
-    if keyCode == KeyCode.upArrow {
-      self.sendEvent(withName: Events.upArrow, body: keyCode)
-    }
-
-    if keyCode == KeyCode.downArrow {
-      self.sendEvent(withName: Events.downArrow, body: keyCode)
-    }
-
-    return event
-  }
+//  func onPanelKeyDown(with event: NSEvent) -> NSEvent? {
+//    let keyCode = event.keyCode
+//
+//    if keyCode == KeyCode.esc {
+//      self.sendEvent(withName: Events.esc, body: keyCode)
+//    }
+//
+//    if keyCode == KeyCode.upArrow {
+//      self.sendEvent(withName: Events.upArrow, body: keyCode)
+//    }
+//
+//    if keyCode == KeyCode.downArrow {
+//      self.sendEvent(withName: Events.downArrow, body: keyCode)
+//    }
+//
+//    return event
+//  }
 
   @objc func open() {
     DispatchQueue.main.async {
@@ -56,7 +56,7 @@ class Panel: RCTEventEmitter {
   }
 
   override func supportedEvents() -> [String]! {
-    return [Events.esc, Events.upArrow, Events.downArrow]
+    return []
   }
 
   @objc override static func requiresMainQueueSetup() -> Bool {

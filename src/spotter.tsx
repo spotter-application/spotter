@@ -2,11 +2,9 @@ import React from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  LogBox,
+  View,
 } from 'react-native';
 import { SpotterOption } from '@spotter-app/core';
-
-// LogBox.ignoreLogs([]);
 
 import Panel from './core/native/panel.native';
 import PluginsRegistry from './core/plugins.registry';
@@ -16,8 +14,8 @@ import Applications from './plugins/applications.plugin';
 import Calculator from './plugins/calculator.plugin';
 import Storage from './core/native/storage.native';
 import GlobalHotkey from './core/native/hotkey.native';
-import { Search } from './core/components/search.component';
 import { Options } from './core/components/options.component';
+import { Input } from './core/native/input.native';
 
 const hotKey = new GlobalHotkey();
 const panel = new Panel();
@@ -53,28 +51,28 @@ export default class App extends React.Component<{}, AppState> {
     hotKey.onPress(() => {
       panel.open();
     });
-
-    panel.onEsc(() => {
-      panel.close();
-      this.setState({
-        selectedIndex: 0,
-        options: [],
-        query: '',
-      });
-    });
-
-    panel.onUpArrow(() => {
-      const { options, selectedIndex } = this.state;
-      const nextSelectedIndex = selectedIndex - 1;
-      this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1 })
-    });
-
-    panel.onDownArrow(() => {
-      const { options, selectedIndex } = this.state;
-      const nextSelectedIndex = selectedIndex + 1;
-      this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : 0 })
-    });
   }
+
+  onArrowUp() {
+    const { options, selectedIndex } = this.state;
+    const nextSelectedIndex = selectedIndex - 1;
+    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1 })
+  };
+
+  onArrowDown() {
+    const { options, selectedIndex } = this.state;
+    const nextSelectedIndex = selectedIndex + 1;
+    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : 0 })
+  };
+
+  onEscape() {
+    panel.close();
+    this.setState({
+      selectedIndex: 0,
+      options: [],
+      query: '',
+    });
+  };
 
   onChangeText(query: string) {
     const options = pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
@@ -115,13 +113,17 @@ export default class App extends React.Component<{}, AppState> {
     const { query, options, selectedIndex } = this.state;
     return <>
       <SafeAreaView>
-        <Search
-          style={styles.input}
-          value={query}
-          placeholder="Query..."
-          onSubmit={() => this.onSubmitEditing()}
-          onChange={text => this.onChangeText(text)}
-        ></Search>
+        <View style={options?.length ? styles.inputWithResults : styles.input}>
+          <Input
+            value={query}
+            placeholder="Query..."
+            onChangeText={text => this.onChangeText(text)}
+            onSubmit={() => this.onSubmitEditing()}
+            onArrowDown={() => this.onArrowDown()}
+            onArrowUp={() => this.onArrowUp()}
+            onEscape={() => this.onEscape()}
+          ></Input>
+        </View>
         <Options
           style={styles.options}
           selectedIndex={selectedIndex}
@@ -134,13 +136,19 @@ export default class App extends React.Component<{}, AppState> {
 }
 
 const styles = StyleSheet.create({
-  input: {
-    padding: 20,
-    fontSize: 18,
+  inputWithResults: {
     backgroundColor: '#212121',
+    padding: 10,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomWidth: 1,
+  },
+  input: {
+    backgroundColor: '#212121',
+    padding: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    elevation: 0,
   },
   options: {
     backgroundColor: '#212121',

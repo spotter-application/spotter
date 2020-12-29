@@ -12,6 +12,9 @@
 		923C274E24D01BE3006C67F3 /* Applications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* Applications.swift */; };
 		923C275024D01BF1006C67F3 /* Applications.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* Applications.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
+		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
+		9245EB9D2598BBCA0032CB6D /* Input.m in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB9C2598BBCA0032CB6D /* Input.m */; };
+		9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */; };
 		9251DDF324DB160900D3193F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9251DDF224DB160900D3193F /* Assets.xcassets */; };
 		925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3EF2596266D00D71A76 /* Hotkey.swift */; };
 		925CF3F42596267E00D71A76 /* Hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3F32596267E00D71A76 /* Hotkey.m */; };
@@ -38,6 +41,9 @@
 		923C274D24D01BE3006C67F3 /* Applications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Applications.swift; sourceTree = "<group>"; };
 		923C274F24D01BF1006C67F3 /* Applications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Applications.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
+		9245EB9C2598BBCA0032CB6D /* Input.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Input.m; sourceTree = "<group>"; };
+		9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNSTextField.swift; sourceTree = "<group>"; };
 		9251DDF224DB160900D3193F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		925CF3EF2596266D00D71A76 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		925CF3F32596267E00D71A76 /* Hotkey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hotkey.m; sourceTree = "<group>"; };
@@ -102,6 +108,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				9245EB642598AC930032CB6D /* Input */,
 				925CF3EE2596265600D71A76 /* Hotkey */,
 				923C275124D066A0006C67F3 /* Bluetooth */,
 				923C274C24D01BC6006C67F3 /* Applications */,
@@ -171,6 +178,16 @@
 			children = (
 			);
 			path = Bluetooth;
+			sourceTree = "<group>";
+		};
+		9245EB642598AC930032CB6D /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				9245EB662598ACAD0032CB6D /* Input.swift */,
+				9245EB9C2598BBCA0032CB6D /* Input.m */,
+				9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */,
+			);
+			path = Input;
 			sourceTree = "<group>";
 		};
 		925CF3EE2596265600D71A76 /* Hotkey */ = {
@@ -325,14 +342,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9245EB672598ACAD0032CB6D /* Input.swift in Sources */,
 				925CF3F42596267E00D71A76 /* Hotkey.m in Sources */,
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
 				923C275024D01BF1006C67F3 /* Applications.m in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
+				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
 				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
+				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
 				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

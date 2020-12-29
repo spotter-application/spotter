@@ -8,7 +8,7 @@ export default class SpotterSearch {
   ) {}
 
   search(query = '') {
-    if (query === '' || query.length < 2) {
+    if (query === '') {
       return [];
     }
 
