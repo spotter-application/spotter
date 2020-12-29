@@ -14,6 +14,14 @@ Spotter is a productivity tool, the main function is to search and launch extern
 ## Usage
 [Beta versions](https://github.com/spotter-application/spotter/releases)
 
+#### If you recive "The application “spotter” can’t be opened."
+
+Go to Terminal-> Go to spotter Directory "cd ..." (If Desktop "cd Desktop") -> Paste "chmod +x "Spotter.app/Contents/MacOS/Spotter"" and press Enter
+
+#### If you recive "“spotter” can’t be opened because Apple cannot check it for malicious software."
+
+Go to System Preference -> Privacity and Security -> General -> And Press "Open Anyway"
+
 #### Сurrently supports the following plug-ins:
 * <b>Applications</b><br/>
 · Search / run by all installed applications<br/>
