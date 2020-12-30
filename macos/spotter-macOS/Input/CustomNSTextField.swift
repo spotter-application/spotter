@@ -62,11 +62,11 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
         return true
       } else if (commandSelector == #selector(NSResponder.moveDown(_:))) {
         // DOWN_ARROW key
-        self.onArrowUp!(["text": self.stringValue])
+        self.onArrowDown!(["text": self.stringValue])
         return true
       } else if (commandSelector == #selector(NSResponder.moveUp(_:))) {
         // UP_ARROW key
-        self.onArrowDown!(["text": self.stringValue])
+        self.onArrowUp!(["text": self.stringValue])
         return true
       }
 

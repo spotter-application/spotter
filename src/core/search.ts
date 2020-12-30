@@ -4,7 +4,6 @@ export default class SpotterSearch {
 
   constructor(
     private options: SpotterOption[] = [],
-    private keys: string[] = ['title'],
   ) {}
 
   search(query = '') {
@@ -12,7 +11,9 @@ export default class SpotterSearch {
       return [];
     }
 
-    return this.options.filter((item: any) => this.keys.find((key) => item[key].toLowerCase().includes(query.toLowerCase())));
+    return this.options
+      .filter((item: SpotterOption) => item.title.toLowerCase().includes(query.toLowerCase()))
+      .sort((a, b) => a.title.indexOf(query) - b.title.indexOf(query))
   }
 
 }
