@@ -22,6 +22,10 @@ To run the app, press ```double shift```
 · Search / run by all installed applications<br/>
 · Saving / restoring positions and sizes of running applications<br/>
 
+* <b>Timer</b><br/>
+· Basic timer functionality<br/>
+Example: ```t 15m``` (set a timer for 15 minutes)
+
 * <b>Spotify</b><br/>
 · Basic player functionality<br/>
 
