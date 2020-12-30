@@ -1,22 +1,25 @@
-import { SpotterPlugin, SpotterApi, SpotterOption, SystemApplication, SystemApplicationDimensions } from '@spotter-app/core';
-import { SpotterStorage } from '../core/native/storage.native';
 import SpotterSearch from '../core/search';
+import { SpotterOption, SpotterPlugin, SpotterQuery, SystemApplication, SystemApplicationDimensions } from '../core/shared';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
-export default class Applications implements SpotterPlugin {
+export default class Applications extends SpotterPlugin implements SpotterQuery {
   private options: SpotterOption[] = [];
   private storedApplicationDimensions: SystemApplicationDimensions[] | null = null;
   private searcher: SpotterSearch | null = null;
 
-  constructor(
-    private api: SpotterApi,
-    private storage: SpotterStorage,
-  ) {
-    this.init();
-  }
+  // constructor(
+  //   private api: SpotterApi,
+  //   private storage: SpotterStorage,
+  // ) {
+  //   this.init();
+  // }]
 
-  private async init() {
+  // constructor(...props: any[]) {
+  //   super(props);
+  // }
+
+  async init() {
     this.options = await (await this.api.getAllApplications()).map((application: SystemApplication) => ({
       title: application.title,
       subtitle: application.path,
@@ -25,11 +28,15 @@ export default class Applications implements SpotterPlugin {
       shortKey: ''
     }));
     this.storedApplicationDimensions = await this.getApplicationDimensions();
-    this.searcher = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions], ['title']);
+    this.searcher = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions]);
   }
 
   query(query: string): SpotterOption[] {
-    return this.searcher?.search(query);
+    if (!this.searcher) {
+      return [];
+    }
+
+    return this.searcher.search(query);
   }
 
   // TODO: Figure out why it's not there from getAllApplications

@@ -1,11 +1,9 @@
-import { SpotterPlugin, SpotterApi, SpotterOption } from '@spotter-app/core';
 import SpotterSearch from '../core/search';
+import { SpotterOption, SpotterPlugin, SpotterQuery } from '../core/shared';
 
-export default class Spotify implements SpotterPlugin {
+export default class Spotify extends SpotterPlugin implements SpotterQuery {
 
-  constructor(private api: SpotterApi) {}
-
-  private searcher = new SpotterSearch(this.options, ['title']);
+  private searcher = new SpotterSearch(this.options);
 
   query(query: string): SpotterOption[] {
     return this.searcher.search(query);

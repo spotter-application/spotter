@@ -4,7 +4,6 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { SpotterOption } from '@spotter-app/core';
 
 import Panel from './core/native/panel.native';
 import PluginsRegistry from './core/plugins.registry';
@@ -13,20 +12,27 @@ import Spotify from './plugins/spotify.plugin';
 import Applications from './plugins/applications.plugin';
 import Calculator from './plugins/calculator.plugin';
 import Storage from './core/native/storage.native';
-import GlobalHotkey from './core/native/hotkey.native';
+import GlobalHotkey from './core/native/globalHotkey.native';
 import { Options } from './core/components/options.component';
 import { Input } from './core/native/input.native';
+import Timer from './plugins/timer.plugin';
+import Notifications from './core/native/notifications.native';
+import StatusBar from './core/native/statusBar.native';
+import { SpotterOption } from './core/shared';
 
 const hotKey = new GlobalHotkey();
 const panel = new Panel();
 const pluginsRegistry = new PluginsRegistry();
 const api = new Api();
 const storage = new Storage();
+const notifications = new Notifications();
+const statusBar = new StatusBar();
 
 pluginsRegistry.register([
-  new Spotify(api),
-  new Applications(api, storage),
-  new Calculator(),
+  new Spotify(api, storage, hotKey, notifications, statusBar),
+  new Applications(api, storage, hotKey, notifications, statusBar),
+  new Calculator(api, storage, hotKey, notifications, statusBar),
+  new Timer(api, storage, hotKey, notifications, statusBar),
 ]);
 
 hotKey.register('', ''); // TODO: do

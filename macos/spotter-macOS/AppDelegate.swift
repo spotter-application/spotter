@@ -23,27 +23,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     self.setupWindow()
   }
   
+  func setStatusBarTitle(_ title: NSString) {
+    if (title.length == 0) {
+      self.statusBarItem.button?.title = ""
+      
+      DispatchQueue.main.async {
+        self.statusBarItem.button?.image = NSImage(named: NSImage.Name("Icon"))
+      }
+    }
+
+    self.statusBarItem.button?.title = title as String
+    self.statusBarItem.button?.image = nil
+  }
+  
   private func setupMenubar() {
     let statusBar = NSStatusBar.system
-        statusBarItem = statusBar.statusItem(
-            withLength: NSStatusItem.squareLength)
-//        statusBarItem.button?.title = "S"
-        statusBarItem.button?.image = NSImage(named: "Icon")
+    self.statusBarItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
+    self.statusBarItem.button?.image = NSImage(named: NSImage.Name("Icon"))
     
-        let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
-        statusBarItem.menu = statusBarMenu
-        statusBarMenu.addItem(
-            withTitle: "Toggle Spotter",
-            action: #selector(AppDelegate.togglePanel),
-            keyEquivalent: "")
-        statusBarMenu.addItem(
-            withTitle: "Settings",
-            action: #selector(AppDelegate.openSettings),
-            keyEquivalent: ",")
-        statusBarMenu.addItem(
-            withTitle: "Quit",
-            action: #selector(AppDelegate.Quitapp),
-            keyEquivalent: "q")
+    let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
+    statusBarItem.menu = statusBarMenu
+    statusBarMenu.addItem(
+      withTitle: "Toggle Spotter",
+      action: #selector(AppDelegate.togglePanel),
+      keyEquivalent: "")
+    statusBarMenu.addItem(
+      withTitle: "Settings",
+      action: #selector(AppDelegate.openSettings),
+      keyEquivalent: ",")
+    statusBarMenu.addItem(
+      withTitle: "Quit",
+      action: #selector(AppDelegate.Quitapp),
+      keyEquivalent: "q")
   }
   
   private func setupWindow() {

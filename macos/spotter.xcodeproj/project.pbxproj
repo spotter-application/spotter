@@ -15,6 +15,10 @@
 		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
 		9245EB9D2598BBCA0032CB6D /* Input.m in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB9C2598BBCA0032CB6D /* Input.m */; };
 		9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */; };
+		924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDEF259CC6E8002FF7D3 /* Notifications.swift */; };
+		924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDF2259CC6FA002FF7D3 /* Notifications.m */; };
+		924CFDF7259CC9AF002FF7D3 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDF6259CC9AF002FF7D3 /* StatusBar.m */; };
+		924CFDFA259CC9B7002FF7D3 /* StatusBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDF9259CC9B7002FF7D3 /* StatusBar.swift */; };
 		9251DDF324DB160900D3193F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9251DDF224DB160900D3193F /* Assets.xcassets */; };
 		925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3EF2596266D00D71A76 /* Hotkey.swift */; };
 		925CF3F42596267E00D71A76 /* Hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3F32596267E00D71A76 /* Hotkey.m */; };
@@ -36,6 +40,10 @@
 		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
 		9245EB9C2598BBCA0032CB6D /* Input.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Input.m; sourceTree = "<group>"; };
 		9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNSTextField.swift; sourceTree = "<group>"; };
+		924CFDEF259CC6E8002FF7D3 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Notifications.swift; path = "Spotter-macOS/Notifications/Notifications.swift"; sourceTree = SOURCE_ROOT; };
+		924CFDF2259CC6FA002FF7D3 /* Notifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Notifications.m; path = "Spotter-macOS/Notifications/Notifications.m"; sourceTree = SOURCE_ROOT; };
+		924CFDF6259CC9AF002FF7D3 /* StatusBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = StatusBar.m; path = "Spotter-macOS/StatusBar/StatusBar.m"; sourceTree = SOURCE_ROOT; };
+		924CFDF9259CC9B7002FF7D3 /* StatusBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StatusBar.swift; path = "Spotter-macOS/StatusBar/StatusBar.swift"; sourceTree = SOURCE_ROOT; };
 		9251DDF224DB160900D3193F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		925CF3EF2596266D00D71A76 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		925CF3F32596267E00D71A76 /* Hotkey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hotkey.m; sourceTree = "<group>"; };
@@ -86,6 +94,8 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				924CFDF5259CC987002FF7D3 /* StatusBar */,
+				924CFDEE259CC697002FF7D3 /* Notifications */,
 				9245EB642598AC930032CB6D /* Input */,
 				925CF3EE2596265600D71A76 /* Hotkey */,
 				923C275124D066A0006C67F3 /* Bluetooth */,
@@ -164,6 +174,24 @@
 				9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */,
 			);
 			path = Input;
+			sourceTree = "<group>";
+		};
+		924CFDEE259CC697002FF7D3 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				924CFDEF259CC6E8002FF7D3 /* Notifications.swift */,
+				924CFDF2259CC6FA002FF7D3 /* Notifications.m */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		924CFDF5259CC987002FF7D3 /* StatusBar */ = {
+			isa = PBXGroup;
+			children = (
+				924CFDF6259CC9AF002FF7D3 /* StatusBar.m */,
+				924CFDF9259CC9B7002FF7D3 /* StatusBar.swift */,
+			);
+			path = StatusBar;
 			sourceTree = "<group>";
 		};
 		925CF3EE2596265600D71A76 /* Hotkey */ = {
@@ -321,14 +349,18 @@
 				9245EB672598ACAD0032CB6D /* Input.swift in Sources */,
 				925CF3F42596267E00D71A76 /* Hotkey.m in Sources */,
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
+				924CFDFA259CC9B7002FF7D3 /* StatusBar.swift in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
 				923C275024D01BF1006C67F3 /* Applications.m in Sources */,
+				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
+				924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */,
 				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
 				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
+				924CFDF7259CC9AF002FF7D3 /* StatusBar.m in Sources */,
 				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

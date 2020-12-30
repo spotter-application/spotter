@@ -1,7 +1,7 @@
-import { SpotterPlugin, SpotterOption } from '@spotter-app/core';
 import Mexp from 'math-expression-evaluator';
+import { SpotterOption, SpotterPlugin, SpotterQuery } from '../core/shared';
 
-export default class Calculator implements SpotterPlugin {
+export default class Calculator extends SpotterPlugin implements SpotterQuery {
 
   query(query: string): SpotterOption[] {
     try {
@@ -13,7 +13,6 @@ export default class Calculator implements SpotterPlugin {
             subtitle: '',
             image: '',
             action: () => null,
-            shortKey: '',
           }];
     } catch {
       return []

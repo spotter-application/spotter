@@ -1,7 +1,7 @@
 import {
   NativeModules,
 } from 'react-native';
-import { SpotterApi, SystemApplication } from '@spotter-app/core';
+import { SpotterApi, SystemApplication } from '../shared';
 
 export default class Api implements SpotterApi {
   private shell = NativeModules.Shell;

@@ -2,9 +2,9 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
-import { SpotterActionId } from '@spotter-app/core';
+import { SpotterActionId, SpotterGlobalHotkey } from '../shared';
 
-export default class GlobalHotkey {
+export default class GlobalHotkey implements SpotterGlobalHotkey {
   private hotkey = NativeModules.GlobalHotkey;
 
   private panelEventEmitter = new NativeEventEmitter(this.hotkey);
