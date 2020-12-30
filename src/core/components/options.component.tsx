@@ -1,6 +1,6 @@
-import { SpotterOption } from '@spotter-app/core';
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { SpotterOption } from '../shared';
 
 type OptionsProps = {
   options: SpotterOption[];

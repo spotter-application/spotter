@@ -1,4 +1,4 @@
-import { SpotterOption } from '@spotter-app/core';
+import { SpotterOption } from "./shared";
 
 export default class SpotterSearch {
 
