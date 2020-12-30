@@ -12,9 +12,9 @@ export default class Timer extends SpotterPlugin implements SpotterQuery {
 
   presets: SpotterOption[] = [
     {
-      title: 't 1h',
-      subtitle: 'Set a timer for an hour',
-      action: () => null,
+      title: 't 15m',
+      subtitle: 'Set a timer for a 15 minutes',
+      action: () => this.setTimer(900),
       image: '',
     }
   ];
