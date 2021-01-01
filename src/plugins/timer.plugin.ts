@@ -20,23 +20,24 @@ export class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
   ];
 
   onQuery(query: string) {
-    if (!query.toLowerCase().startsWith('t')) {
+    const [prefix, ...timerQueryArray] = query.split(' ');
+    const timerQuery = timerQueryArray.join(' ');
+
+    if (prefix.toLowerCase() !== 't') {
       return;
     }
 
-    const timeQuery = query.split(' ')[1];
-
-    if (!timeQuery) {
+    if (!timerQuery) {
       this.setOptions(this.presets);
       return;
     }
 
-    const time = this.parseTimeQuery(timeQuery);
+    const time = this.parseTimeQuery(timerQuery);
     const timeSubtile = this.getSubtitle(time);
     const seconds = this.getSeconds(time);
 
     this.setOptions([{
-      title: `t ${timeQuery}`,
+      title: `t ${timerQuery}`,
       subtitle: `Set a timer for ${timeSubtile}`,
       action: () => this.setTimer(seconds),
       image: '',
@@ -82,6 +83,11 @@ export class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
     const hours = timeQuery.match(/(\d+)\s*h/);
     const minutes = timeQuery.match(/(\d+)\s*m/);
     const seconds = timeQuery.match(/(\d+)\s*s/);
+
+    if (!hours && !minutes && !seconds && /^\d+$/.test(timeQuery)) {
+      return { hours: 0, minutes: parseInt(timeQuery), seconds: 0 };
+    }
+
     return {
       hours: hours ? parseInt(hours[1]) : 0,
       minutes: minutes ? parseInt(minutes[1]) : 0,
