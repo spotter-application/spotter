@@ -27,12 +27,12 @@ export class Applications extends SpotterPlugin implements SpotterPluginLifecycl
     this.searcherWithOptions = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions]);
   }
 
-  onQuery(query: string) {
+  onQuery(query: string): SpotterOption[] {
     if (!this.searcherWithOptions) {
-      return;
+      return [];
     }
 
-    this.setOptions(this.searcherWithOptions.search(query));
+    return this.searcherWithOptions.search(query);
   }
 
   // TODO: Figure out why it's not there from getAllApplications

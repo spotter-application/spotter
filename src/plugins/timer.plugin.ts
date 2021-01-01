@@ -19,29 +19,28 @@ export class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
     }
   ];
 
-  onQuery(query: string) {
+  onQuery(query: string): SpotterOption[] {
     const [prefix, ...timerQueryArray] = query.split(' ');
     const timerQuery = timerQueryArray.join(' ');
 
     if (prefix.toLowerCase() !== 't') {
-      return;
+      return [];
     }
 
     if (!timerQuery) {
-      this.setOptions(this.presets);
-      return;
+      return this.presets;
     }
 
     const time = this.parseTimeQuery(timerQuery);
     const timeSubtile = this.getSubtitle(time);
     const seconds = this.getSeconds(time);
 
-    this.setOptions([{
+    return [{
       title: `t ${timerQuery}`,
       subtitle: `Set a timer for ${timeSubtile}`,
       action: () => this.setTimer(seconds),
       image: '',
-    }])
+    }];
   }
 
   private setTimer(seconds: number) {

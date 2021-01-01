@@ -1,9 +1,6 @@
-import { SpotterNativeModules, SpotterOption } from './interfaces';
+import { SpotterNativeModules } from './interfaces';
 export class SpotterPlugin {
 
-  constructor(
-    public nativeModules: SpotterNativeModules,
-    public setOptions: (options: SpotterOption[]) => void,
-  ) {}
+  constructor(public nativeModules: SpotterNativeModules) {}
 
 }

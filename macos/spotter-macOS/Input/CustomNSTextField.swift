@@ -40,7 +40,6 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   
   func controlTextDidChange(_ obj: Notification) {
     let textField = obj.object as! NSTextField
-    print(textField.stringValue)
     
     if ((self.onChangeText) != nil) {
       self.onChangeText!(["text": textField.stringValue]);

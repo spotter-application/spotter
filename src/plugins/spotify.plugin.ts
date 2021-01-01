@@ -5,8 +5,8 @@ export class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
 
   private searcher = new SpotterSearch(this.options);
 
-  onQuery(query: string) {
-    this.setOptions(this.searcher.search(query))
+  onQuery(query: string): SpotterOption[] {
+    return this.searcher.search(query);
   }
 
   private get options(): SpotterOption[] {

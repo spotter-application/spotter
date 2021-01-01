@@ -1,22 +1,22 @@
-import { SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
 export class Google extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  async onQuery(query: string) {
+  async onQuery(query: string): Promise<SpotterOption[]> {
     const [prefix, ...googleQueryArray ] = query.split(' ');
-    const googleQuery = googleQueryArray.join(' ');
+    const googleQueryString = googleQueryArray.join(' ');
 
-    if (prefix.toLowerCase() !== 'g' || !googleQuery) {
-      return;
+    const googleQuery = googleQueryString?.length
+      ? googleQueryString
+      : await this.nativeModules.clipboard.getValue();
+
+    if (prefix.toLowerCase() !== 'g' || !googleQuery.trim()?.length) {
+      return [];
     }
 
-    const suggestions = await this.getSuggestions(googleQuery);
+    const suggestions = await this.getSuggestions(googleQuery) ?? [];
 
-    if (!suggestions?.length) {
-      return;
-    }
-
-    this.setOptions([
+    return [
       {
         title: `g ${googleQuery}`,
         subtitle: `Search google for ${googleQuery}`,
@@ -29,7 +29,7 @@ export class Google extends SpotterPlugin implements SpotterPluginLifecycle {
         action: () => this.openSuggestion(suggestion),
         image: '',
       }))
-    ]);
+    ];
   }
 
 
@@ -40,7 +40,8 @@ export class Google extends SpotterPlugin implements SpotterPluginLifecycle {
   }
 
   private openSuggestion(q: string) {
-    this.nativeModules.api.shellCommand(`open http://www.google.com/search?${new URLSearchParams({ q })}`)
+    const uri = `http://www.google.com/search?q=${q}`;
+    this.nativeModules.api.shellCommand(`open "${encodeURI(uri)}"`);
   }
 
 }

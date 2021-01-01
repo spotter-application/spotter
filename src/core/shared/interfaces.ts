@@ -6,6 +6,12 @@ export interface SpotterNativeModules {
   globalHotKey: SpotterGlobalHotkey,
   notifications: SpotterNotifications,
   statusBar: SpotterStatusBar,
+  clipboard: SpotterClipboard,
+}
+
+export declare abstract class SpotterClipboard {
+  abstract setValue(value: string): void;
+  abstract getValue(): Promise<string>;
 }
 
 export declare abstract class SpotterStatusBar {
@@ -75,15 +81,12 @@ export declare abstract class SpotterPluginLifecycle {
 
   abstract onInit?(): void;
 
-  abstract onQuery(query: string): void;
+  abstract onQuery(query: string): SpotterOption[] | Promise<SpotterOption[]>;
 
   abstract onDestroy?(): void;
 
 }
 
 export interface SpotterPluginConstructor {
-  new(
-    nativeModules: SpotterNativeModules,
-    setOptions: (options: SpotterOption[]) => void,
-  ): SpotterPluginLifecycle;
+  new(nativeModules: SpotterNativeModules): SpotterPluginLifecycle;
 }

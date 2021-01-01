@@ -22,6 +22,8 @@
 		9251DDF324DB160900D3193F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9251DDF224DB160900D3193F /* Assets.xcassets */; };
 		925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3EF2596266D00D71A76 /* Hotkey.swift */; };
 		925CF3F42596267E00D71A76 /* Hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3F32596267E00D71A76 /* Hotkey.m */; };
+		925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925D5850259F4A9000A8FE7C /* Clipboard.swift */; };
+		925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 925D5853259F4AA300A8FE7C /* Clipboard.m */; };
 		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
 		92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3524CEC6740049B6B3 /* Shell.swift */; };
@@ -48,6 +50,8 @@
 		925CF3EF2596266D00D71A76 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		925CF3F32596267E00D71A76 /* Hotkey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hotkey.m; sourceTree = "<group>"; };
 		925CF4322596443100D71A76 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
+		925D5850259F4A9000A8FE7C /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Clipboard.swift; path = "Spotter-macOS/Clipboard/Clipboard.swift"; sourceTree = SOURCE_ROOT; };
+		925D5853259F4AA300A8FE7C /* Clipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Clipboard.m; path = "Spotter-macOS/Clipboard/Clipboard.m"; sourceTree = SOURCE_ROOT; };
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
 		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
@@ -94,6 +98,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				925D584F259F4A7600A8FE7C /* Clipboard */,
 				924CFDF5259CC987002FF7D3 /* StatusBar */,
 				924CFDEE259CC697002FF7D3 /* Notifications */,
 				9245EB642598AC930032CB6D /* Input */,
@@ -201,6 +206,15 @@
 				925CF3F32596267E00D71A76 /* Hotkey.m */,
 			);
 			path = Hotkey;
+			sourceTree = "<group>";
+		};
+		925D584F259F4A7600A8FE7C /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (
+				925D5850259F4A9000A8FE7C /* Clipboard.swift */,
+				925D5853259F4AA300A8FE7C /* Clipboard.m */,
+			);
+			path = Clipboard;
 			sourceTree = "<group>";
 		};
 		92BE4F3424CEC64F0049B6B3 /* Shell */ = {
@@ -358,6 +372,8 @@
 				924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */,
 				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
 				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
+				925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */,
+				925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
 				924CFDF7259CC9AF002FF7D3 /* StatusBar.m in Sources */,
