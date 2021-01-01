@@ -3,7 +3,7 @@ import {
 } from 'react-native';
 import { SpotterApi, SystemApplication } from '../shared';
 
-export default class Api implements SpotterApi {
+export class Api implements SpotterApi {
   private shell = NativeModules.Shell;
   private applications = NativeModules.Applications;
 

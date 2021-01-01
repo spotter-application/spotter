@@ -53,6 +53,10 @@ export interface SpotterOption {
   action: SpotterAction;
 }
 
+export interface SpotterOptionWithId extends SpotterOption {
+  id: string;
+}
+
 export interface SystemApplication {
   title: string;
   path: string;

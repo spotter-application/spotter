@@ -1,7 +1,7 @@
 import SpotterSearch from '../core/search';
 import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export default class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
+export class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
 
   private searcher = new SpotterSearch(this.options);
 

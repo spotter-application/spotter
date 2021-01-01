@@ -1,19 +1,15 @@
-import Api from './native/api.native';
-import GlobalHotkey from './native/globalHotkey.native';
-import Notifications from './native/notifications.native';
-import StatusBar from './native/statusBar.native';
-import Storage from './native/storage.native';
-import PluginsRegistry from './plugins.registry';
-import { SpotterNativeModules, SpotterOption, SpotterPluginConstructor } from './shared';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { skip } from 'rxjs/operators';
+import PluginsRegistry from './plugins.registry';
+import { SpotterNativeModules, SpotterOption, SpotterOptionWithId, SpotterPluginConstructor } from './shared';
+import { Api, GlobalHotkey, Notifications, StatusBar, Storage } from './native';
 
 export default class SpotterPluginsInitializations {
 
   private pluginsRegistry = new PluginsRegistry();
-  private optionsSubject$ = new BehaviorSubject<SpotterOption[]>([]);
+  private optionsSubject$ = new BehaviorSubject<SpotterOptionWithId[]>([]);
 
-  public options$: Observable<SpotterOption[]> = this.optionsSubject$.asObservable().pipe(
+  public options$: Observable<SpotterOptionWithId[]> = this.optionsSubject$.asObservable().pipe(
     skip(1), // Initialization of BehaviorSubject
   );
 
@@ -48,7 +44,11 @@ export default class SpotterPluginsInitializations {
   }
 
   private setOptions = (options: SpotterOption[]) => {
-    this.optionsSubject$.next([...this.optionsSubject$.value, ...options]);
+    this.optionsSubject$.next([...this.optionsSubject$.value, ...options.map(o => ({ ...o, id: this.generateId() }))]);
+  }
+
+  private generateId(): string {
+    return Math.random().toString(36).substr(2, 9);
   }
 
 }

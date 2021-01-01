@@ -4,23 +4,17 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-
-import Panel from './core/native/panel.native';
-import Spotify from './plugins/spotify.plugin';
-import Applications from './plugins/applications.plugin';
-import Calculator from './plugins/calculator.plugin';
-import GlobalHotkey from './core/native/globalHotkey.native';
+import { Subject, Subscription } from 'rxjs';
+import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { Options } from './core/components/options.component';
-import { Input } from './core/native/input.native';
-import Timer from './plugins/timer.plugin';
-import { SpotterOption } from './core/shared';
-import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { SpotterOptionWithId } from './core/shared';
 import SpotterPluginsInitializations from './core/plugins.initializations';
+import { GlobalHotkey, Input, Panel } from './core/native';
+import { Applications, Calculator, Google, Spotify, Timer } from './plugins';
 
 type AppState = {
   query: string;
-  options: SpotterOption[];
+  options: SpotterOptionWithId[];
   selectedIndex: number;
 }
 export default class App extends React.Component<{}, AppState> {
@@ -28,12 +22,14 @@ export default class App extends React.Component<{}, AppState> {
   private globalHotkey = new GlobalHotkey();
   private panel = new Panel();
   private subscriptions: Subscription[] = [];
+  private query$ = new Subject<string>();
   private plugins = new SpotterPluginsInitializations([
     Applications,
     Spotify,
     Calculator,
     Timer,
-  ])
+    Google
+  ]);
 
   constructor(props: {}) {
     super(props);
@@ -57,7 +53,12 @@ export default class App extends React.Component<{}, AppState> {
             options,
           });
         }),
-      ).subscribe()
+      ).subscribe(),
+
+      this.query$.pipe(
+        distinctUntilChanged(),
+        tap(query => this.plugins.onQuery(query))
+      ).subscribe(),
     );
   }
 
@@ -83,7 +84,7 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   onChangeText(query: string) {
-    this.plugins.onQuery(query);
+    this.query$.next(query);
     this.setState({ query });
   };
 

@@ -9,7 +9,7 @@ import {
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
-export default class Applications extends SpotterPlugin implements SpotterPluginLifecycle {
+export class Applications extends SpotterPlugin implements SpotterPluginLifecycle {
   private options: SpotterOption[] = [];
   private storedApplicationDimensions: SystemApplicationDimensions[] | null = null;
   private searcherWithOptions: SpotterSearch | null = null;

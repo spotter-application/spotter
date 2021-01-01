@@ -1,7 +1,7 @@
 import { NativeModules } from 'react-native';
 import { SpotterPanel } from '../shared';
 
-export default class Panel implements SpotterPanel {
+export class Panel implements SpotterPanel {
 
   private panel = NativeModules.Panel;
 

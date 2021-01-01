@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterOption } from '../shared';
+import { SpotterOption, SpotterOptionWithId } from '../shared';
 
 type OptionsProps = {
-  options: SpotterOption[];
+  options: SpotterOptionWithId[];
   selectedIndex: number;
   onSubmit: (option: SpotterOption) => void;
   style: StyleProp<ViewStyle>;
@@ -34,7 +34,7 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
   return <ScrollView contentInsetAdjustmentBehavior="automatic" style={style} ref={setRef}>
     {options.map((option, index) => (
       <View
-        key={option.title}
+        key={option.id}
         style={selectedIndex === index ? styles.activeOption : styles.option}
         onTouchEnd={() => onSubmit(option)}
         onLayout={(e) => onLayout(e, index)}

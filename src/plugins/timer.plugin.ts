@@ -6,7 +6,7 @@ interface Time {
   seconds: number;
 }
 
-export default class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
+export class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
 
   timer: NodeJS.Timeout | null = null;
 

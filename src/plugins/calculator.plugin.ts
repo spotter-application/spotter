@@ -1,7 +1,7 @@
 import Mexp from 'math-expression-evaluator';
 import { SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export default class Calculator extends SpotterPlugin implements SpotterPluginLifecycle {
+export class Calculator extends SpotterPlugin implements SpotterPluginLifecycle {
 
   onQuery(query: string) {
     try {
