@@ -6,44 +6,34 @@ import {
 } from 'react-native';
 
 import Panel from './core/native/panel.native';
-import PluginsRegistry from './core/plugins.registry';
-import Api from './core/native/api.native';
 import Spotify from './plugins/spotify.plugin';
 import Applications from './plugins/applications.plugin';
 import Calculator from './plugins/calculator.plugin';
-import Storage from './core/native/storage.native';
 import GlobalHotkey from './core/native/globalHotkey.native';
 import { Options } from './core/components/options.component';
 import { Input } from './core/native/input.native';
 import Timer from './plugins/timer.plugin';
-import Notifications from './core/native/notifications.native';
-import StatusBar from './core/native/statusBar.native';
 import { SpotterOption } from './core/shared';
-
-const hotKey = new GlobalHotkey();
-const panel = new Panel();
-const pluginsRegistry = new PluginsRegistry();
-const api = new Api();
-const storage = new Storage();
-const notifications = new Notifications();
-const statusBar = new StatusBar();
-
-pluginsRegistry.register([
-  new Spotify(api, storage, hotKey, notifications, statusBar),
-  new Applications(api, storage, hotKey, notifications, statusBar),
-  new Calculator(api, storage, hotKey, notifications, statusBar),
-  new Timer(api, storage, hotKey, notifications, statusBar),
-]);
-
-hotKey.register('', ''); // TODO: do
+import { Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import SpotterPluginsInitializations from './core/plugins.initializations';
 
 type AppState = {
   query: string;
   options: SpotterOption[];
   selectedIndex: number;
 }
-
 export default class App extends React.Component<{}, AppState> {
+
+  private globalHotkey = new GlobalHotkey();
+  private panel = new Panel();
+  private subscriptions: Subscription[] = [];
+  private plugins = new SpotterPluginsInitializations([
+    Applications,
+    Spotify,
+    Calculator,
+    Timer,
+  ])
 
   constructor(props: {}) {
     super(props);
@@ -53,10 +43,22 @@ export default class App extends React.Component<{}, AppState> {
       options: [],
       selectedIndex: 0,
     }
+    this.init();
+  }
 
-    hotKey.onPress(() => {
-      panel.open();
-    });
+  private init() {
+    this.globalHotkey.register('', '');
+    this.globalHotkey.onPress(() => this.panel.open());
+    this.subscriptions.push(
+      this.plugins.options$.pipe(
+        tap(options => {
+          this.setState({
+            selectedIndex: 0,
+            options,
+          });
+        }),
+      ).subscribe()
+    );
   }
 
   onArrowUp() {
@@ -72,7 +74,7 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   onEscape() {
-    panel.close();
+    this.panel.close();
     this.setState({
       selectedIndex: 0,
       options: [],
@@ -81,15 +83,8 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   onChangeText(query: string) {
-    const options = pluginsRegistry.list.reduce<SpotterOption[]>((acc, plugin) => (
-      [...acc, ...plugin.query(query)]
-    ), []);
-
-    this.setState({
-      selectedIndex: 0,
-      options,
-      query,
-    });
+    this.plugins.onQuery(query);
+    this.setState({ query });
   };
 
   onSubmitEditing() {
@@ -107,13 +102,18 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     option.action();
-    panel.close();
+    this.panel.close();
     this.setState({
       selectedIndex: 0,
       options: [],
       query: '',
     });
   };
+
+  componentWillUnmount() {
+    this.subscriptions.forEach(s => s.unsubscribe());
+    this.plugins.destroy();
+  }
 
   render() {
     const { query, options, selectedIndex } = this.state;

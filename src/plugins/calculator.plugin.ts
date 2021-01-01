@@ -1,12 +1,12 @@
 import Mexp from 'math-expression-evaluator';
-import { SpotterOption, SpotterPlugin, SpotterQuery } from '../core/shared';
+import { SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export default class Calculator extends SpotterPlugin implements SpotterQuery {
+export default class Calculator extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  query(query: string): SpotterOption[] {
+  onQuery(query: string) {
     try {
       const result = Mexp.eval(query).toString();
-      return result === query
+      const options = result === query
         ? []
         : [{
             title: Mexp.eval(query).toString(),
@@ -14,9 +14,8 @@ export default class Calculator extends SpotterPlugin implements SpotterQuery {
             image: '',
             action: () => null,
           }];
-    } catch {
-      return []
-    }
+      this.setOptions(options);
+    } catch { }
   }
 
 }

@@ -1,12 +1,12 @@
 import SpotterSearch from '../core/search';
-import { SpotterOption, SpotterPlugin, SpotterQuery } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export default class Spotify extends SpotterPlugin implements SpotterQuery {
+export default class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
 
   private searcher = new SpotterSearch(this.options);
 
-  query(query: string): SpotterOption[] {
-    return this.searcher.search(query);
+  onQuery(query: string) {
+    this.setOptions(this.searcher.search(query))
   }
 
   private get options(): SpotterOption[] {
@@ -57,30 +57,30 @@ export default class Spotify extends SpotterPlugin implements SpotterQuery {
   }
 
   private previous() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
   }
 
   private next() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to next track'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to next track'")
   }
 
   private pause() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to pause'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to pause'")
   }
 
   private play() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to play'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to play'")
   }
 
   private mute() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
   }
 
   private unmute() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
   }
 
   private togglePlayPause() {
-    this.api.shellCommand("osascript -e 'tell application \"Spotify\" to playpause'")
+    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to playpause'")
   }
 }

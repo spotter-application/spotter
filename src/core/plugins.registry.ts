@@ -1,16 +1,15 @@
-import { v4 as uuid } from 'uuid';
-import { SpotterQuery } from './shared';
+import { SpotterPluginLifecycle } from './shared';
 
 export default class PluginsRegistry {
 
-  private readonly registry = new Map<string, SpotterQuery>();
+  private readonly registry: SpotterPluginLifecycle[] = [];
 
-  get list(): SpotterQuery[] {
-    return Array.from(this.registry).map(entities => entities[1]);
+  get list(): SpotterPluginLifecycle[] {
+    return this.registry;
   }
 
-  register(plugins: SpotterQuery[]): void {
-    plugins.forEach(plugin => this.registry.set(uuid(), plugin));
+  register(plugins: SpotterPluginLifecycle[]): void {
+    this.registry.push(...plugins)
   }
 
 }

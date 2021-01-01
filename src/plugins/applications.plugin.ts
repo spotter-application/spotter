@@ -1,42 +1,38 @@
 import SpotterSearch from '../core/search';
-import { SpotterOption, SpotterPlugin, SpotterQuery, SystemApplication, SystemApplicationDimensions } from '../core/shared';
+import {
+  SpotterOption,
+  SpotterPlugin,
+  SpotterPluginLifecycle,
+  SystemApplication,
+  SystemApplicationDimensions,
+} from '../core/shared';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
-export default class Applications extends SpotterPlugin implements SpotterQuery {
+export default class Applications extends SpotterPlugin implements SpotterPluginLifecycle {
   private options: SpotterOption[] = [];
   private storedApplicationDimensions: SystemApplicationDimensions[] | null = null;
-  private searcher: SpotterSearch | null = null;
+  private searcherWithOptions: SpotterSearch | null = null;
 
-  // constructor(
-  //   private api: SpotterApi,
-  //   private storage: SpotterStorage,
-  // ) {
-  //   this.init();
-  // }]
-
-  // constructor(...props: any[]) {
-  //   super(props);
-  // }
-
-  async init() {
-    this.options = await (await this.api.getAllApplications()).map((application: SystemApplication) => ({
+  async onInit() {
+    this.options = (await this.nativeModules.api.getAllApplications()).map((application: SystemApplication) => ({
       title: application.title,
       subtitle: application.path,
       image: '',
-      action: () => this.api.shellCommand(`open "${application.path}"`),
+      action: () => this.nativeModules.api.shellCommand(`open "${application.path}"`),
       shortKey: ''
     }));
+
     this.storedApplicationDimensions = await this.getApplicationDimensions();
-    this.searcher = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions]);
+    this.searcherWithOptions = new SpotterSearch([...this.systemApps, ...this.options, ...this.actions]);
   }
 
-  query(query: string): SpotterOption[] {
-    if (!this.searcher) {
-      return [];
+  onQuery(query: string) {
+    if (!this.searcherWithOptions) {
+      return;
     }
 
-    return this.searcher.search(query);
+    this.setOptions(this.searcherWithOptions.search(query));
   }
 
   // TODO: Figure out why it's not there from getAllApplications
@@ -46,77 +42,78 @@ export default class Applications extends SpotterPlugin implements SpotterQuery 
         title: 'Calculator',
         subtitle: '/Applications/Calculator.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Calculator\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Calculator\" to activate'"),
       },
       {
         title: 'Calendar',
         subtitle: '/Applications/Calendar.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Calendar\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Calendar\" to activate'"),
       },
       {
         title: 'App Store',
         subtitle: '/Applications/App Store.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"App Store\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"App Store\" to activate'"),
       },
       {
         title: 'Notes',
         subtitle: '/Applications/Notes.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Notes\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Notes\" to activate'"),
       },
       {
         title: 'Photos',
         subtitle: '/Applications/Photos.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Photos\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Photos\" to activate'"),
       },
       {
         title: 'Books',
         subtitle: '/Applications/Books.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Books\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Books\" to activate'"),
       },
       {
         title: 'Music',
         subtitle: '/Applications/Music.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Music\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Music\" to activate'"),
       },
       {
         title: 'Mail',
         subtitle: '/Applications/Mail.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Mail\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Mail\" to activate'"),
       },
       {
         title: 'Messages',
         subtitle: '/Applications/Messages.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Messages\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Messages\" to activate'"),
       },
       {
         title: 'Reminders',
         subtitle: '/Applications/Reminders.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Reminders\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Reminders\" to activate'"),
       },
       {
         title: 'Stickers',
         subtitle: '/Applications/Stickers.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"Stickers\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"Stickers\" to activate'"),
       },
       {
         title: 'System Preferences',
         subtitle: '/Applications/System Preferences.app',
         image: '',
-        action: () => this.api.shellCommand("osascript -e 'tell application \"System Preferences\" to activate'"),
+        action: () => this.nativeModules.api.shellCommand("osascript -e 'tell application \"System Preferences\" to activate'"),
       },
     ]
   }
 
+  // TODO: Move to own plugin
   private get actions() {
     return [
       {
@@ -124,7 +121,7 @@ export default class Applications extends SpotterPlugin implements SpotterQuery 
         subtitle: 'Save sizes and positions of all open applications',
         image: '',
         action: async () => {
-          const dimensions = await this.api.getAllDimensions();
+          const dimensions = await this.nativeModules.api.getAllDimensions();
           this.saveApplicationDimensions(dimensions);
         }
       },
@@ -134,7 +131,7 @@ export default class Applications extends SpotterPlugin implements SpotterQuery 
         image: '',
         action: async () => {
           this.storedApplicationDimensions?.forEach(dimensions => {
-            this.api.setDimensions(
+            this.nativeModules.api.setDimensions(
               dimensions.appName,
               dimensions.x,
               dimensions.y,
@@ -149,11 +146,11 @@ export default class Applications extends SpotterPlugin implements SpotterQuery 
 
   private async saveApplicationDimensions(dimensions: SystemApplicationDimensions[]) {
     this.storedApplicationDimensions = dimensions;
-    await this.storage.setItem(APPLICATION_POSITIONS_STORAGE_KEY, dimensions);
+    await this.nativeModules.storage.setItem(APPLICATION_POSITIONS_STORAGE_KEY, dimensions);
   }
 
   private async getApplicationDimensions() {
-    return await this.storage.getItem<SystemApplicationDimensions[]>(APPLICATION_POSITIONS_STORAGE_KEY);
+    return await this.nativeModules.storage.getItem<SystemApplicationDimensions[]>(APPLICATION_POSITIONS_STORAGE_KEY);
   }
 
 }

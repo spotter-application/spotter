@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterQuery } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
 interface Time {
   hours: number;
@@ -6,7 +6,7 @@ interface Time {
   seconds: number;
 }
 
-export default class Timer extends SpotterPlugin implements SpotterQuery {
+export default class Timer extends SpotterPlugin implements SpotterPluginLifecycle {
 
   timer: NodeJS.Timeout | null = null;
 
@@ -19,28 +19,28 @@ export default class Timer extends SpotterPlugin implements SpotterQuery {
     }
   ];
 
-  query(query: string): SpotterOption[] {
-
-    if (query.toLowerCase().startsWith('t')) {
-      const timeQuery = query.split(' ')[1];
-
-      if (timeQuery) {
-        const time = this.parseTimeQuery(timeQuery);
-        const timeSubtile = this.getSubtitle(time);
-        const seconds = this.getSeconds(time);
-
-        return [{
-          title: `t ${timeQuery}`,
-          subtitle: `Set a timer for ${timeSubtile}`,
-          action: () => this.setTimer(seconds),
-          image: '',
-        }]
-      }
-
-      return this.presets;
+  onQuery(query: string) {
+    if (!query.toLowerCase().startsWith('t')) {
+      return;
     }
 
-    return [];
+    const timeQuery = query.split(' ')[1];
+
+    if (!timeQuery) {
+      this.setOptions(this.presets);
+      return;
+    }
+
+    const time = this.parseTimeQuery(timeQuery);
+    const timeSubtile = this.getSubtitle(time);
+    const seconds = this.getSeconds(time);
+
+    this.setOptions([{
+      title: `t ${timeQuery}`,
+      subtitle: `Set a timer for ${timeSubtile}`,
+      action: () => this.setTimer(seconds),
+      image: '',
+    }])
   }
 
   private setTimer(seconds: number) {
@@ -50,12 +50,12 @@ export default class Timer extends SpotterPlugin implements SpotterQuery {
     this.timer = setInterval(() => {
       if (!counter) {
         this.resetTimer();
-        this.notifications.show('Complete', `Timer for ${seconds} seconds has been completed`)
-        this.statusBar.changeTitle('');
+        this.nativeModules.notifications.show('Complete', `Timer for ${seconds} seconds has been completed`)
+        this.nativeModules.statusBar.changeTitle('');
         return;
       }
 
-      this.statusBar.changeTitle(`${counter--}`)
+      this.nativeModules.statusBar.changeTitle(`${counter--}`)
     }, 1000)
   }
 

@@ -1,5 +1,13 @@
 /* Native modules */
 
+export interface SpotterNativeModules {
+  api: SpotterApi,
+  storage: SpotterStorage,
+  globalHotKey: SpotterGlobalHotkey,
+  notifications: SpotterNotifications,
+  statusBar: SpotterStatusBar,
+}
+
 export declare abstract class SpotterStatusBar {
   abstract changeTitle(title: string): void;
 }
@@ -59,6 +67,19 @@ export interface SystemApplicationDimensions {
   height: number;
 }
 
-export declare abstract class SpotterQuery {
-  abstract query(query: string): SpotterOption[];
+export declare abstract class SpotterPluginLifecycle {
+
+  abstract onInit?(): void;
+
+  abstract onQuery(query: string): void;
+
+  abstract onDestroy?(): void;
+
+}
+
+export interface SpotterPluginConstructor {
+  new(
+    nativeModules: SpotterNativeModules,
+    setOptions: (options: SpotterOption[]) => void,
+  ): SpotterPluginLifecycle;
 }
