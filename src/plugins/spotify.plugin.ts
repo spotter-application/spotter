@@ -1,12 +1,10 @@
-import SpotterSearch from '../core/search';
+import { search } from '../core/helpers';
 import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
-
-  private searcher = new SpotterSearch(this.options);
+export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
   onQuery(query: string): SpotterOption[] {
-    return this.searcher.search(query);
+    return search(query, this.options);
   }
 
   private get options(): SpotterOption[] {
@@ -56,31 +54,31 @@ export class Spotify extends SpotterPlugin implements SpotterPluginLifecycle {
     ];
   }
 
-  private previous() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
+  private async previous() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
   }
 
-  private next() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to next track'")
+  private async next() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to next track'")
   }
 
-  private pause() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to pause'")
+  private async pause() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to pause'")
   }
 
-  private play() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to play'")
+  private async play() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
   }
 
-  private mute() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
+  private async mute() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
   }
 
-  private unmute() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
+  private async unmute() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
   }
 
-  private togglePlayPause() {
-    this.nativeModules.api.shellCommand("osascript -e 'tell application \"Spotify\" to playpause'")
+  private async togglePlayPause() {
+    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to playpause'")
   }
 }

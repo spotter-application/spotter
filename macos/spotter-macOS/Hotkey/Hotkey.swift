@@ -21,10 +21,6 @@ import Carbon
 class GlobalHotkey: RCTEventEmitter {
   
   let appDelegate = NSApplication.shared.delegate as! AppDelegate
-  
-//  override init() {
-//    super.init()
-//  }
 
   @objc
   func register(_ key: NSString, withModifier modifier: NSString) {

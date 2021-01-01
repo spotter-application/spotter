@@ -4,8 +4,8 @@ import { requireNativeComponent } from 'react-native';
 const RNInput = requireNativeComponent<any>('RNInput');
 
 type InputProps = {
-  placeholder: string,
   value: string,
+  placeholder: string,
   onChangeText: (text: string) => void,
   onSubmit: (text: string) => void,
   onEscape: () => void,
@@ -13,7 +13,7 @@ type InputProps = {
   onArrowUp: () => void,
 }
 
-export class Input extends React.PureComponent<InputProps> {
+export class InputNative extends React.PureComponent<InputProps> {
 
   _onChangeText = (event: { nativeEvent: { text: string }}) => {
     if (!this.props.onChangeText) {

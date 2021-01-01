@@ -1,12 +1,17 @@
 /* Native modules */
 
 export interface SpotterNativeModules {
-  api: SpotterApi,
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
   notifications: SpotterNotifications,
   statusBar: SpotterStatusBar,
   clipboard: SpotterClipboard,
+  shell: SpotterShell,
+  appsDimensions: SpotterAppsDimensions,
+}
+
+export declare abstract class SpotterShell {
+  abstract execute(command: string): Promise<string>;
 }
 
 export declare abstract class SpotterClipboard {
@@ -33,12 +38,9 @@ export declare abstract class SpotterGlobalHotkey {
   abstract onPress(callback: (option: SpotterActionId) => void): void;
 }
 
-export declare abstract class SpotterApi {
-  abstract shellCommand(command: string): void;
-  abstract getAllApplications(): Promise<SystemApplication[]>;
-  abstract openApplication(path: string): void;
-  abstract setDimensions(appName: string, x: number, y: number, width: number, height: number): void;
-  abstract getAllDimensions(): Promise<SystemApplicationDimensions[]>;
+export declare abstract class SpotterAppsDimensions {
+  abstract setValue(appName: string, x: number, y: number, width: number, height: number): void;
+  abstract getValue(): Promise<SystemApplicationDimensions[]>;
 }
 
 export declare abstract class SpotterStorage {

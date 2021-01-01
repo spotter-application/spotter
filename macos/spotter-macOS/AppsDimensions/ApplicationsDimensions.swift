@@ -1,57 +1,11 @@
-//
-//  Applications.swift
-//  spotter-macOS
-//
-//  Created by Denis Zyulev on 28/07/2020.
-//
-
 import Foundation
 import ShellOut
 
-@objc(Applications)
-class Applications: RCTEventEmitter {
-
-  @objc
-  func getAll(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Any {
-    let fileManager = FileManager()
-
-    guard let applicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .localDomainMask, appropriateFor: nil, create: false) else { return [] }
-
-    let applicationUrls = try! fileManager.contentsOfDirectory(at: applicationsFolderUrl , includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants])
-
-    guard let systemApplicationsFolderUrl = try? FileManager.default.url(for: .applicationDirectory, in: .systemDomainMask, appropriateFor: nil, create: false) else { return [] }
-
-    let utilitiesFolderUrl = NSURL.init(string: "\(systemApplicationsFolderUrl.path)/Utilities")! as URL
-
-    guard let utilitiesUrls = try? fileManager.contentsOfDirectory(at: utilitiesFolderUrl, includingPropertiesForKeys: [], options: [FileManager.DirectoryEnumerationOptions.skipsPackageDescendants, FileManager.DirectoryEnumerationOptions.skipsSubdirectoryDescendants]) else { return [] }
-
-    let urls = applicationUrls + utilitiesUrls
-
-    var applications = [Any]()
-
-    for url in urls {
-        if fileManager.isExecutableFile(atPath: url.path) {
-            guard let mdi = NSMetadataItem(url: url) else { continue }
-
-          let option = [
-            "title": mdi.value(forAttribute: kMDItemDisplayName as String) as! String,
-            "path": mdi.value(forAttribute: kMDItemPath as String) as! String
-          ]
-
-          applications.append(option)
-        }
-    }
-
-    return resolve(applications)
-  }
+@objc(AppsDimensions)
+class AppsDimensions: RCTEventEmitter {
   
   @objc
-  func open(_ path: String) {
-     (URL(fileURLWithPath: path))
-  }
-  
-  @objc
-  func getAllDimensions(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+  func getValue(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
     if !self.readPrivileges(prompt: true) {
       //  SUBSCRIBE
       DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: nil) { _ in
@@ -99,12 +53,12 @@ class Applications: RCTEventEmitter {
   }
 
   @objc
-  func setDimensions(_ appName: String, x: String, y: String, width: String, height: String) {
+  func setValue(_ appName: String, x: String, y: String, width: String, height: String) {
     if !self.readPrivileges(prompt: true) {
       //  SUBSCRIBE
       DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: nil) { _ in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-          self.setDimensions(appName, x: x, y: y, width: width, height: height)
+          self.setValue(appName, x: x, y: y, width: width, height: height)
           DistributedNotificationCenter.default().removeObserver(self)
         }
       }

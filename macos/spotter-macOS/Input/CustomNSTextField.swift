@@ -1,10 +1,3 @@
-//
-//  CustomNSTextField.swift
-//  spotter-macOS
-//
-//  Created by Denis on 29.12.20.
-//
-
 import Foundation
 
 class CustomNSTextField: NSTextField, NSTextFieldDelegate {
@@ -26,6 +19,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   override init(frame: CGRect) {
     super.init(frame: frame)
 
+    self.stringValue = ""
     self.isBezeled = false
     self.isBordered = false
     self.focusRingType = NSFocusRingType.none

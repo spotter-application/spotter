@@ -9,33 +9,41 @@ import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { Options } from './core/components/options.component';
 import { SpotterOptionWithId } from './core/shared';
 import SpotterPluginsInitializations from './core/plugins.initializations';
-import { GlobalHotkey, Input, Panel } from './core/native';
-import { Applications, Calculator, Google, Spotify, Timer } from './plugins';
+import { GlobalHotkeyNative, InputNative, PanelNative } from './core/native';
+import {
+  ApplicationsPlugin,
+  AppsDimensionsPlugin,
+  CalculatorPlugin,
+  GooglePlugin,
+  SpotifyPlugin,
+  TimerPlugin,
+} from './plugins';
 
 type AppState = {
-  query: string;
+  value: string;
   options: SpotterOptionWithId[];
   selectedIndex: number;
 }
 export default class App extends React.Component<{}, AppState> {
 
-  private globalHotkey = new GlobalHotkey();
-  private panel = new Panel();
+  private globalHotkey = new GlobalHotkeyNative();
+  private panel = new PanelNative();
   private subscriptions: Subscription[] = [];
   private query$ = new Subject<string>();
   private plugins = new SpotterPluginsInitializations([
-    Applications,
-    Spotify,
-    Calculator,
-    Timer,
-    Google
+    ApplicationsPlugin,
+    SpotifyPlugin,
+    CalculatorPlugin,
+    TimerPlugin,
+    GooglePlugin,
+    AppsDimensionsPlugin,
   ]);
 
   constructor(props: {}) {
     super(props);
 
     this.state = {
-      query: '',
+      value: '',
       options: [],
       selectedIndex: 0,
     }
@@ -76,16 +84,15 @@ export default class App extends React.Component<{}, AppState> {
 
   onEscape() {
     this.panel.close();
+    this.resetValue();
     this.setState({
       selectedIndex: 0,
       options: [],
-      query: '',
     });
   };
 
   onChangeText(query: string) {
     this.query$.next(query);
-    this.setState({ query });
   };
 
   onSubmitEditing() {
@@ -104,10 +111,10 @@ export default class App extends React.Component<{}, AppState> {
 
     option.action();
     this.panel.close();
+    this.resetValue();
     this.setState({
       selectedIndex: 0,
       options: [],
-      query: '',
     });
   };
 
@@ -116,20 +123,25 @@ export default class App extends React.Component<{}, AppState> {
     this.plugins.destroy();
   }
 
+  resetValue() {
+    // TODO: Implement resetValue method for Input
+    this.setState({ value: '_' }, () => this.setState({ value: '' }));
+  }
+
   render() {
-    const { query, options, selectedIndex } = this.state;
+    const { value, options, selectedIndex } = this.state;
     return <>
       <SafeAreaView>
         <View style={options?.length ? styles.inputWithResults : styles.input}>
-          <Input
-            value={query}
+          <InputNative
+            value={value}
             placeholder="Query..."
             onChangeText={text => this.onChangeText(text)}
             onSubmit={() => this.onSubmitEditing()}
             onArrowDown={() => this.onArrowDown()}
             onArrowUp={() => this.onArrowUp()}
             onEscape={() => this.onEscape()}
-          ></Input>
+          ></InputNative>
         </View>
         <Options
           style={styles.options}

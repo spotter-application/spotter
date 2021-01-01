@@ -8,12 +8,13 @@ import {
   SpotterPluginConstructor,
 } from './shared';
 import {
-  Api,
-  Clipboard,
-  GlobalHotkey,
-  Notifications,
-  StatusBar,
-  Storage,
+  AppsDimensionsNative,
+  ClipboardNative,
+  GlobalHotkeyNative,
+  NotificationsNative,
+  StatusBarNative,
+  StorageNative,
+  ShellNative,
 } from './native';
 import { generateId } from './helpers';
 
@@ -56,13 +57,23 @@ export default class SpotterPluginsInitializations {
   }
 
   private initNativeModules(): SpotterNativeModules {
-    const globalHotKey = new GlobalHotkey();
-    const api = new Api();
-    const storage = new Storage();
-    const notifications = new Notifications();
-    const statusBar = new StatusBar();
-    const clipboard = new Clipboard();
-    return { api, storage, globalHotKey, notifications, statusBar, clipboard };
+    const globalHotKey = new GlobalHotkeyNative();
+    const appsDimensions = new AppsDimensionsNative();
+    const storage = new StorageNative();
+    const notifications = new NotificationsNative();
+    const statusBar = new StatusBarNative();
+    const clipboard = new ClipboardNative();
+    const shell = new ShellNative();
+
+    return {
+      appsDimensions,
+      storage,
+      globalHotKey,
+      notifications,
+      statusBar,
+      clipboard,
+      shell,
+    };
   }
 
   private setOptions = (pluginId: string) => (options: SpotterOption[]) => {

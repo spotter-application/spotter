@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SpotterStorage } from '../shared';
 
-export class Storage implements SpotterStorage {
+export class StorageNative implements SpotterStorage {
 
   async setItem<T>(key: string, value: T): Promise<void> {
     return await AsyncStorage.setItem(key, JSON.stringify(value));

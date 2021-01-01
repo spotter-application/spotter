@@ -1,9 +1,3 @@
-//
-//  Panel.m
-//  spotter-macOS
-//
-//  Created by Denis Zyulev on 11/07/2020.
-//
 #import "React/RCTBridgeModule.h"
 #import "React/RCTEventEmitter.h"
 

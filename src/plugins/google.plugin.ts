@@ -1,6 +1,6 @@
 import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
 
-export class Google extends SpotterPlugin implements SpotterPluginLifecycle {
+export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
   async onQuery(query: string): Promise<SpotterOption[]> {
     const [prefix, ...googleQueryArray ] = query.split(' ');
@@ -39,9 +39,9 @@ export class Google extends SpotterPlugin implements SpotterPluginLifecycle {
     return suggestions;
   }
 
-  private openSuggestion(q: string) {
+  private async openSuggestion(q: string) {
     const uri = `http://www.google.com/search?q=${q}`;
-    this.nativeModules.api.shellCommand(`open "${encodeURI(uri)}"`);
+    await this.nativeModules.shell.execute(`open "${encodeURI(uri)}"`);
   }
 
 }

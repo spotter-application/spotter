@@ -1,21 +1,16 @@
-//
-//  Shell.swift
-//  spotter-macOS
-//
-//  Created by Denis Zyulev on 27/07/2020.
-//
-
-
 import Foundation
 import ShellOut
 
 @objc(Shell)
 class Shell: RCTEventEmitter {
-
+  
   @objc
-  func execute(_ command: String) {
+  func execute(_ command: String,
+                      resolver resolve: RCTPromiseResolveBlock,
+                      rejecter reject: RCTPromiseRejectBlock) -> Void {    
     do {
-      try shellOut(to: command)
+      let output = try shellOut(to: command)
+      resolve(output)
     } catch {
       let error = error as! ShellOutError
       print(error.message)
@@ -23,7 +18,6 @@ class Shell: RCTEventEmitter {
     }
   }
   
-
   override func supportedEvents() -> [String]! {
     return []
   }
