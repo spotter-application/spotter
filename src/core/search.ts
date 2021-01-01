@@ -1,4 +1,4 @@
-import { SpotterOption } from "./shared";
+import { SpotterOption } from './shared';
 
 export default class SpotterSearch {
 
