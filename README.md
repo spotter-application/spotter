@@ -90,7 +90,7 @@ Contributions are always welcome, no matter how large or small.
 
 #### The application “spotter” can’t be opened.
 
-Go to Terminal-> Go to spotter Directory "cd ..." (If Desktop "cd Desktop") -> Paste "chmod +x "Spotter.app/Contents/MacOS/Spotter"" and press Enter
+```chmod +x "/Applications/spotter.app/Contents/MacOS/Spotter```
 
 #### spotter can’t be opened because Apple cannot check it for malicious software.
 
