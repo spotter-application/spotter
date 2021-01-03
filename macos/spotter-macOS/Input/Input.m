@@ -6,6 +6,8 @@ RCT_EXPORT_VIEW_PROPERTY(onSubmit, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onEscape, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onArrowDown, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onArrowUp, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onCommandComma, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(placeholder, NSString)
 RCT_EXPORT_VIEW_PROPERTY(value, NSString)
+RCT_EXPORT_VIEW_PROPERTY(fontSize, NSNumber)
 @end

@@ -25,7 +25,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
         await this.nativeModules.shell
           .execute(`cd ${path} && ls`)
           .then(res => res.split('\n')
-            .filter(title => title.endsWith('.app'))
+            .filter(title => title.endsWith('.app') && title !== 'spotter.app')
             .map(title => ({ title: title.replace('.app', ''), path: `${path}/${title}` }))
           )
       ),

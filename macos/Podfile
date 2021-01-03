@@ -36,6 +36,7 @@ abstract_target 'Shared' do
 
   pod 'ShellOut'
   pod 'Magnet'
+  pod 'KeyHolder'
 
   target 'spotter-macOS' do
     platform :macos, '10.14'

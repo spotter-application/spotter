@@ -1,4 +1,4 @@
-export * from './appsDimensions.native';
+export * from './apps-dimensions.native';
 export * from './globalHotkey.native';
 export * from './input.native';
 export * from './notifications.native';

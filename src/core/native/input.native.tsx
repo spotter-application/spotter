@@ -1,16 +1,19 @@
 import React from 'react';
-import { requireNativeComponent } from 'react-native';
+import { requireNativeComponent, TextStyle } from 'react-native';
 
 const RNInput = requireNativeComponent<any>('RNInput');
 
 type InputProps = {
   value: string,
   placeholder: string,
-  onChangeText: (text: string) => void,
-  onSubmit: (text: string) => void,
-  onEscape: () => void,
-  onArrowDown: () => void,
-  onArrowUp: () => void,
+  fontSize?: number,
+  style?: TextStyle,
+  onChangeText?: (text: string) => void,
+  onSubmit?: (text: string) => void,
+  onEscape?: () => void,
+  onArrowDown?: () => void,
+  onArrowUp?: () => void,
+  onCommandComma?: () => void,
 }
 
 export class InputNative extends React.PureComponent<InputProps> {
@@ -50,6 +53,13 @@ export class InputNative extends React.PureComponent<InputProps> {
     this.props.onArrowUp()
   }
 
+  _onCommandComma = () => {
+    if (!this.props.onCommandComma) {
+      return;
+    }
+    this.props.onCommandComma()
+  }
+
   render() {
     const nativeProps = {
       ...this.props,
@@ -58,8 +68,12 @@ export class InputNative extends React.PureComponent<InputProps> {
       onEscape: this._onEscape,
       onArrowDown: this._onArrowDown,
       onArrowUp: this._onArrowUp,
+      onCommandComma: this._onCommandComma,
     }
 
-    return <RNInput {...nativeProps} style={{padding: 17, backgroundColor: 'transparent'}}/>
+    return <RNInput
+      {...nativeProps}
+      style={{ padding: 17, backgroundColor: 'transparent', ...(this.props.style ? this.props.style : {})}}
+    />
   }
 }

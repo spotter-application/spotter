@@ -8,6 +8,7 @@ export interface SpotterNativeModules {
   clipboard: SpotterClipboard,
   shell: SpotterShell,
   appsDimensions: SpotterAppsDimensions,
+  panel: SpotterPanel,
 }
 
 export declare abstract class SpotterShell {
@@ -27,6 +28,7 @@ export declare abstract class SpotterPanel {
   abstract toggle(): void;
   abstract open(): void;
   abstract close(): void;
+  abstract openSettings(): void;
 }
 
 export declare abstract class SpotterNotifications {
@@ -34,7 +36,7 @@ export declare abstract class SpotterNotifications {
 }
 
 export declare abstract class SpotterGlobalHotkey {
-  abstract register(key: string, modifier: string): void;
+  abstract register(hotkey: SpotterHotkey | null): void;
   abstract onPress(callback: (option: SpotterActionId) => void): void;
 }
 
@@ -91,4 +93,14 @@ export declare abstract class SpotterPluginLifecycle {
 
 export interface SpotterPluginConstructor {
   new(nativeModules: SpotterNativeModules): SpotterPluginLifecycle;
+}
+
+export interface SpotterHotkey {
+  keyCode: number;
+  modifiers: number;
+  doubledModifiers: boolean;
+}
+
+export interface SpotterSettings {
+  hotkey: SpotterHotkey | null;
 }

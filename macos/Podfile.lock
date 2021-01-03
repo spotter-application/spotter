@@ -10,6 +10,8 @@ PODS:
     - React-jsi (= 0.62.16)
     - ReactCommon/turbomodule/core (= 0.62.16)
   - glog (0.3.5)
+  - KeyHolder (4.0.0):
+    - Magnet (~> 3.2)
   - Magnet (3.2.0):
     - Sauce (~> 2.1)
   - RCT-Folly (2018.10.22.00):
@@ -255,6 +257,7 @@ DEPENDENCIES:
   - FBLazyVector (from `../node_modules/react-native-macos/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native-macos/Libraries/FBReactNativeSpec`)
   - glog (from `../node_modules/react-native-macos/third-party-podspecs/glog.podspec`)
+  - KeyHolder
   - Magnet
   - RCT-Folly (from `../node_modules/react-native-macos/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native-macos/Libraries/RCTRequired`)
@@ -285,6 +288,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - KeyHolder
     - Magnet
     - Sauce
     - ShellOut
@@ -351,6 +355,7 @@ SPEC CHECKSUMS:
   FBLazyVector: f7ecc4fb8e76a380e4bac28fe4773c30b2bc7b2e
   FBReactNativeSpec: f1a34d51179ade22df30b9fb09bdd52578f2734a
   glog: d86cb3634e15ec6d8cd9a1c7c1b9d6fa295beb37
+  KeyHolder: 457d8dde330a17452672756ae0e3b9c2e180a7e2
   Magnet: 8316a30fe91fdc6f2816ec0f04e20c72e341ca2e
   RCT-Folly: 71ece0166f9c96c1ec9279eeb0317baf533c020f
   RCTRequired: e3780ba29155206352b1ea54d4f98c5afd86a326
@@ -377,6 +382,6 @@ SPEC CHECKSUMS:
   ShellOut: 1393eefc56892e80d85339e233d3935e2e1ff6f9
   Yoga: 0f98dd1219266759167df8e5c7ae102d4a2ae4c5
 
-PODFILE CHECKSUM: fcdafaf40949da2e33bc44a0bb5b600f5bd06c97
+PODFILE CHECKSUM: ed15117b106ee0dcb15e1e75007c97a052cf21cb
 
 COCOAPODS: 1.10.0

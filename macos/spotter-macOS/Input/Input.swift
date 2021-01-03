@@ -6,7 +6,8 @@ class RNInput: RCTViewManager, NSTextFieldDelegate {
   
   var textField = CustomNSTextField(frame: NSMakeRect(200,20,200,20));
   
-  override func view() -> NSView! {    
+  override func view() -> NSView! {
+    self.textField.becomeFirstResponder();
     return self.textField;
   }
   

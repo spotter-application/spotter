@@ -7,15 +7,6 @@ import {
   SpotterOptionWithId,
   SpotterPluginConstructor,
 } from './shared';
-import {
-  AppsDimensionsNative,
-  ClipboardNative,
-  GlobalHotkeyNative,
-  NotificationsNative,
-  StatusBarNative,
-  StorageNative,
-  ShellNative,
-} from './native';
 import { generateId } from './helpers';
 
 export default class SpotterPluginsInitializations {
@@ -28,8 +19,11 @@ export default class SpotterPluginsInitializations {
     map(optionsMap => Object.values(optionsMap).reduce((acc, v) => ([...acc, ...v]), [])),
   );
 
-  constructor(private plugins: SpotterPluginConstructor[]) {
-    this.init();
+  constructor(
+    private plugins: SpotterPluginConstructor[],
+    private nativeModules: SpotterNativeModules,
+  ) {
+    this.init(this.nativeModules);
   }
 
   public destroy() {
@@ -48,33 +42,33 @@ export default class SpotterPluginsInitializations {
     });
   }
 
-  private init() {
-    const nativeModules = this.initNativeModules();
+  private init(nativeModules: SpotterNativeModules) {
+    // const nativeModules = this.initNativeModules();
     this.pluginsRegistry.register(
       this.plugins.map(plugin => new plugin(nativeModules))
     );
     this.pluginsRegistry.list.forEach(plugin => plugin.onInit ? plugin.onInit() : null);
   }
 
-  private initNativeModules(): SpotterNativeModules {
-    const globalHotKey = new GlobalHotkeyNative();
-    const appsDimensions = new AppsDimensionsNative();
-    const storage = new StorageNative();
-    const notifications = new NotificationsNative();
-    const statusBar = new StatusBarNative();
-    const clipboard = new ClipboardNative();
-    const shell = new ShellNative();
+  // private initNativeModules(): SpotterNativeModules {
+  //   const globalHotKey = new GlobalHotkeyNative();
+  //   const appsDimensions = new AppsDimensionsNative();
+  //   const storage = new StorageNative();
+  //   const notifications = new NotificationsNative();
+  //   const statusBar = new StatusBarNative();
+  //   const clipboard = new ClipboardNative();
+  //   const shell = new ShellNative();
 
-    return {
-      appsDimensions,
-      storage,
-      globalHotKey,
-      notifications,
-      statusBar,
-      clipboard,
-      shell,
-    };
-  }
+  //   return {
+  //     appsDimensions,
+  //     storage,
+  //     globalHotKey,
+  //     notifications,
+  //     statusBar,
+  //     clipboard,
+  //     shell,
+  //   };
+  // }
 
   private setOptions = (pluginId: string) => (options: SpotterOption[]) => {
     const currentOptions = this.optionsMapSubject$.value;

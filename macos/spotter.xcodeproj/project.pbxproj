@@ -12,6 +12,7 @@
 		923C274E24D01BE3006C67F3 /* ApplicationsDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* ApplicationsDimensions.swift */; };
 		923C275024D01BF1006C67F3 /* ApplicationsDimensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* ApplicationsDimensions.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
+		9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244817125A2555F00EF3F60 /* HotkeyInputView.swift */; };
 		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
 		9245EB9D2598BBCA0032CB6D /* Input.m in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB9C2598BBCA0032CB6D /* Input.m */; };
 		9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */; };
@@ -28,6 +29,8 @@
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
 		92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3524CEC6740049B6B3 /* Shell.swift */; };
 		92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3724CEC6820049B6B3 /* Shell.m */; };
+		92F41E5C25A24A9C00D6EAD6 /* HotkeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F41E5B25A24A9C00D6EAD6 /* HotkeyInput.swift */; };
+		92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 92F41E5E25A24AA600D6EAD6 /* HotkeyInput.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +42,7 @@
 		923C274D24D01BE3006C67F3 /* ApplicationsDimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationsDimensions.swift; sourceTree = "<group>"; };
 		923C274F24D01BF1006C67F3 /* ApplicationsDimensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplicationsDimensions.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		9244817125A2555F00EF3F60 /* HotkeyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HotkeyInputView.swift; path = "Spotter-macOS/HotkeyInput/HotkeyInputView.swift"; sourceTree = SOURCE_ROOT; };
 		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
 		9245EB9C2598BBCA0032CB6D /* Input.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Input.m; sourceTree = "<group>"; };
 		9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNSTextField.swift; sourceTree = "<group>"; };
@@ -57,6 +61,8 @@
 		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
 		92BE4F3524CEC6740049B6B3 /* Shell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shell.swift; sourceTree = "<group>"; };
 		92BE4F3724CEC6820049B6B3 /* Shell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Shell.m; sourceTree = "<group>"; };
+		92F41E5B25A24A9C00D6EAD6 /* HotkeyInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HotkeyInput.swift; path = "Spotter-macOS/HotkeyInput/HotkeyInput.swift"; sourceTree = SOURCE_ROOT; };
+		92F41E5E25A24AA600D6EAD6 /* HotkeyInput.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HotkeyInput.m; path = "Spotter-macOS/HotkeyInput/HotkeyInput.m"; sourceTree = SOURCE_ROOT; };
 		C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Shared-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-Shared-spotter-macOS/Pods-Shared-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -98,6 +104,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				92F41E5A25A24A8B00D6EAD6 /* HotkeyInput */,
 				925D584F259F4A7600A8FE7C /* Clipboard */,
 				924CFDF5259CC987002FF7D3 /* StatusBar */,
 				924CFDEE259CC697002FF7D3 /* Notifications */,
@@ -224,6 +231,16 @@
 				92BE4F3724CEC6820049B6B3 /* Shell.m */,
 			);
 			path = Shell;
+			sourceTree = "<group>";
+		};
+		92F41E5A25A24A8B00D6EAD6 /* HotkeyInput */ = {
+			isa = PBXGroup;
+			children = (
+				92F41E5B25A24A9C00D6EAD6 /* HotkeyInput.swift */,
+				92F41E5E25A24AA600D6EAD6 /* HotkeyInput.m */,
+				9244817125A2555F00EF3F60 /* HotkeyInputView.swift */,
+			);
+			path = HotkeyInput;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -368,9 +385,12 @@
 				923C275024D01BF1006C67F3 /* ApplicationsDimensions.m in Sources */,
 				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
+				92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */,
+				9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
 				924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */,
 				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
+				92F41E5C25A24A9C00D6EAD6 /* HotkeyInput.swift in Sources */,
 				923C274E24D01BE3006C67F3 /* ApplicationsDimensions.swift in Sources */,
 				925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */,
 				925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */,

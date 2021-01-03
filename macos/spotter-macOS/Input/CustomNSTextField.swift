@@ -7,6 +7,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onEscape: RCTDirectEventBlock?
   @objc var onArrowDown: RCTDirectEventBlock?
   @objc var onArrowUp: RCTDirectEventBlock?
+  @objc var onCommandComma: RCTDirectEventBlock?
   
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
@@ -14,6 +15,10 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
 
   @objc func setValue(_ val: NSNumber) {
     self.stringValue = String(describing: val)
+  }
+  
+  @objc func setFontSize(_ val: NSNumber) {
+    self.font = NSFont.systemFont(ofSize: CGFloat(truncating: val))
   }
   
   override init(frame: CGRect) {
@@ -26,6 +31,19 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.font = NSFont.systemFont(ofSize: 26)
     
     self.delegate = self
+    
+    // TODO: Find a way to add listener for "command + ," event
+    NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) {
+      return self.hotkeyDown(with: $0)
+    }
+  }
+  
+  func hotkeyDown(with event: NSEvent) -> NSEvent? {
+    if (event.keyCode == 43 && event.modifierFlags.contains(NSEvent.ModifierFlags.command)) {
+      self.onCommandComma!(["text": self.stringValue]);
+      return nil
+    }
+    return event
   }
   
   required init?(coder: NSCoder) {

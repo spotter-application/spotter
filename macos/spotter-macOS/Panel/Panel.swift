@@ -27,6 +27,12 @@ class Panel: RCTEventEmitter {
       self.appDelegate.togglePanel()
     }
   }
+  
+  @objc func openSettings() {
+    DispatchQueue.main.async {
+      self.appDelegate.openSettings()
+    }
+  }
 
   override func supportedEvents() -> [String]! {
     return []

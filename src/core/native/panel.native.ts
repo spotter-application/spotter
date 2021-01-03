@@ -17,4 +17,8 @@ export class PanelNative implements SpotterPanel {
     this.panel.close();
   }
 
+  openSettings() {
+    this.panel.openSettings();
+  }
+
 }

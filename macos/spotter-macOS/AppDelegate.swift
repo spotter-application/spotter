@@ -9,13 +9,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var jsCodeLocation: URL!
   var panel: NSPanel!
   var settingsPanel: NSPanel!
-  var isActivePanel = false
+  var isActiveSettingsPanel = false
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     #if DEBUG
     jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index", fallbackResource:nil)
     #else
     jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")!
+    #endif
+    
+    self.bridge = RCTBridge(bundleURL: jsCodeLocation, moduleProvider: nil, launchOptions: nil)
+    #if RCT_DEV
+    self.bridge?.module(for: RCTDevLoadingView.self)
     #endif
     
     self.setupMenubar()
@@ -61,7 +66,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let width = 600
     let height = 500
   
-//    settingsPanel = NSPanel(contentRect: .init(origin: .zero, size: .init(width: NSScreen.main!.frame.midX, height: NSScreen.main!.frame.midY)), styleMask: [.closable, .titled, .resizable], backing: .buffered, defer: false)
     settingsPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
       .nonactivatingPanel,
       .closable,
@@ -70,7 +74,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     ], backing: .buffered, defer: true)
     settingsPanel.title = "Settings"
     settingsPanel.level = .mainMenu
-    let rootView = RCTRootView(bundleURL: jsCodeLocation, moduleName: "settings", initialProperties: nil, launchOptions: nil)
+//    let rootView = RCTRootView(bundleURL: jsCodeLocation, moduleName: "settings", initialProperties: nil, launchOptions: nil)
+    let rootView = RCTRootView(bridge: self.bridge, moduleName: "settings", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
     
@@ -83,8 +88,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     frame.size = newSize
     settingsPanel.contentView?.setFrameSize(newSize)
     settingsPanel.contentView?.window?.setFrame(frame, display: true)
-    
-//    self.openSettings()
   }
   
   @objc func openSettings() {
@@ -109,7 +112,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     panel.level = .mainMenu
     panel.titlebarAppearsTransparent = true
     
-    let rootView = RCTRootView(bundleURL: jsCodeLocation, moduleName: "spotter", initialProperties: nil, launchOptions: nil)
+    let rootView = RCTRootView(bridge: self.bridge, moduleName: "spotter", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
     
@@ -124,18 +127,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
   
   @objc func openPanel() {
-    panel.makeKeyAndOrderFront(nil)
-    panel.center()
-    isActivePanel = true
+    if (!settingsPanel.isVisible) {
+      panel.makeKeyAndOrderFront(nil)
+      panel.center()
+    }
   }
   
   @objc func closePanel() {
     panel.close()
-    isActivePanel = false
   }
   
   @objc func togglePanel() {
-    if isActivePanel {
+    if panel.isVisible {
       self.closePanel()
     } else {
       self.openPanel()

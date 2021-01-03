@@ -1,15 +1,5 @@
-enum KeyCode {
-  static let esc: UInt16 = 53
-  static let enter: UInt16 = 36
-  static let upArrow: UInt16 = 126
-  static let downArrow: UInt16 = 125
-}
-
 enum Events {
   static let press: String = "onPress"
-  static let esc: String = "onEsc"
-  static let upArrow: String = "onUpArrow"
-  static let downArrow: String = "onDownArrow"
 }
 
 import Foundation
@@ -19,16 +9,20 @@ import Carbon
 
 @objc(GlobalHotkey)
 class GlobalHotkey: RCTEventEmitter {
-  
-  let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
   @objc
-  func register(_ key: NSString, withModifier modifier: NSString) {
-    guard let keyCombo = KeyCombo(doubledCarbonModifiers: shiftKey) else { return }
+  func register(_ hotkey: NSDictionary) {
+    HotKeyCenter.shared.unregisterAll()
+
+    guard let keyCombo = hotkey["doubledModifiers"] as! Bool
+      ? KeyCombo(doubledCarbonModifiers: hotkey["modifiers"] as! Int)
+      : KeyCombo(QWERTYKeyCode: hotkey["keyCode"] as! Int, carbonModifiers: hotkey["modifiers"] as! Int)
+    else { return }
+
     let hotKey = HotKey(identifier: "Spotter",
                          keyCombo: keyCombo,
                          target: self,
-                         action: #selector(self.tappedDoubleShiftKey))
+                         action: #selector(self.onPressHotkey))
     hotKey.register()
   }
 
@@ -40,14 +34,8 @@ class GlobalHotkey: RCTEventEmitter {
     return false
   }
   
-  @objc func tappedDoubleShiftKey() {
+  @objc func onPressHotkey() {
     self.sendEvent(withName: Events.press, body: "")
-  }
-  
-  @objc func openSettings() {
-    DispatchQueue.main.async {
-      self.appDelegate.openSettings()
-    }
   }
 
 }

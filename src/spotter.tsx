@@ -7,9 +7,9 @@ import {
 import { Subject, Subscription } from 'rxjs';
 import { distinctUntilChanged, tap } from 'rxjs/operators';
 import { Options } from './core/components/options.component';
-import { SpotterOptionWithId } from './core/shared';
+import { SpotterNativeModules, SpotterOptionWithId } from './core/shared';
 import SpotterPluginsInitializations from './core/plugins.initializations';
-import { GlobalHotkeyNative, InputNative, PanelNative } from './core/native';
+import { InputNative } from './core/native';
 import {
   ApplicationsPlugin,
   AppsDimensionsPlugin,
@@ -18,16 +18,19 @@ import {
   SpotifyPlugin,
   TimerPlugin,
 } from './plugins';
+import { SettingsRegistry } from './core/settings.registry';
 
-type AppState = {
+type Props = {
+  nativeModules: SpotterNativeModules
+}
+
+type State = {
   value: string;
   options: SpotterOptionWithId[];
   selectedIndex: number;
 }
-export default class App extends React.Component<{}, AppState> {
-
-  private globalHotkey = new GlobalHotkeyNative();
-  private panel = new PanelNative();
+export default class App extends React.Component<Props, State> {
+  private settingsRegistry = new SettingsRegistry();
   private subscriptions: Subscription[] = [];
   private query$ = new Subject<string>();
   private plugins = new SpotterPluginsInitializations([
@@ -37,9 +40,9 @@ export default class App extends React.Component<{}, AppState> {
     TimerPlugin,
     GooglePlugin,
     AppsDimensionsPlugin,
-  ]);
+  ], this.props.nativeModules);
 
-  constructor(props: {}) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
@@ -50,9 +53,11 @@ export default class App extends React.Component<{}, AppState> {
     this.init();
   }
 
-  private init() {
-    this.globalHotkey.register('', '');
-    this.globalHotkey.onPress(() => this.panel.open());
+  private async init() {
+    const settings = await this.settingsRegistry.getSettings();
+    this.props.nativeModules.globalHotKey.register(settings?.hotkey);
+    this.props.nativeModules.globalHotKey.onPress(() => this.props.nativeModules.panel.open());
+
     this.subscriptions.push(
       this.plugins.options$.pipe(
         tap(options => {
@@ -68,12 +73,12 @@ export default class App extends React.Component<{}, AppState> {
         tap(query => this.plugins.onQuery(query))
       ).subscribe(),
     );
-  }
+  };
 
   onArrowUp() {
     const { options, selectedIndex } = this.state;
     const nextSelectedIndex = selectedIndex - 1;
-    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1 })
+    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1 });
   };
 
   onArrowDown() {
@@ -83,7 +88,7 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   onEscape() {
-    this.panel.close();
+    this.props.nativeModules.panel.close();
     this.resetValue();
     this.setState({
       selectedIndex: 0,
@@ -99,7 +104,7 @@ export default class App extends React.Component<{}, AppState> {
     const { options, selectedIndex } = this.state;
     if (!options[selectedIndex]) {
       return;
-    }
+    };
 
     this.execAction(options[selectedIndex]);
   };
@@ -107,10 +112,10 @@ export default class App extends React.Component<{}, AppState> {
   execAction(option: any) {
     if (!option?.action) {
       return;
-    }
+    };
 
     option.action();
-    this.panel.close();
+    this.props.nativeModules.panel.close();
     this.resetValue();
     this.setState({
       selectedIndex: 0,
@@ -121,12 +126,17 @@ export default class App extends React.Component<{}, AppState> {
   componentWillUnmount() {
     this.subscriptions.forEach(s => s.unsubscribe());
     this.plugins.destroy();
-  }
+  };
 
   resetValue() {
     // TODO: Implement resetValue method for Input
     this.setState({ value: '_' }, () => this.setState({ value: '' }));
-  }
+  };
+
+  onCommandComma() {
+    this.onEscape();
+    this.props.nativeModules.panel.openSettings();
+  };
 
   render() {
     const { value, options, selectedIndex } = this.state;
@@ -141,6 +151,7 @@ export default class App extends React.Component<{}, AppState> {
             onArrowDown={() => this.onArrowDown()}
             onArrowUp={() => this.onArrowUp()}
             onEscape={() => this.onEscape()}
+            onCommandComma={() => this.onCommandComma()}
           ></InputNative>
         </View>
         <Options
@@ -151,8 +162,8 @@ export default class App extends React.Component<{}, AppState> {
         ></Options>
       </SafeAreaView>
     </>
-  }
-}
+  };
+};
 
 const styles = StyleSheet.create({
   inputWithResults: {
