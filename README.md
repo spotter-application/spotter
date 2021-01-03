@@ -10,6 +10,7 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
 * 🔌&nbsp;&nbsp;&nbsp;<b>Plugin system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
+* 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
 [Download beta versions](https://github.com/spotter-application/spotter/releases)
 
