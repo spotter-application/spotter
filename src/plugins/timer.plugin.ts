@@ -10,52 +10,43 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
 
   timer: NodeJS.Timeout | null = null;
 
-  presets: SpotterOption[] = [
-    {
-      title: 't 15m',
-      subtitle: 'Set a timer for a 15 minutes',
-      action: () => this.setTimer(900),
-      image: '',
-    }
-  ];
-
   onQuery(query: string): SpotterOption[] {
-    const [prefix, ...timerQueryArray] = query.split(' ');
-    const timerQuery = timerQueryArray.join(' ');
+    const startsWithNumber = /^\d/.test(query);
 
-    if (prefix.toLowerCase() !== 't') {
+    if (!startsWithNumber) {
       return [];
     }
 
-    if (!timerQuery) {
-      return this.presets;
+    const time = this.parseTimeQuery(query);
+
+    if (!time.hours && !time.minutes && !time.seconds) {
+      return [];
     }
 
-    const time = this.parseTimeQuery(timerQuery);
-    const timeSubtile = this.getSubtitle(time);
     const seconds = this.getSeconds(time);
+    const stringTime = this.getStringTime(time);
 
     return [{
-      title: `t ${timerQuery}`,
-      subtitle: `Set a timer for ${timeSubtile}`,
-      action: () => this.setTimer(seconds),
+      title: `${stringTime}`,
+      subtitle: `Set a timer for ${stringTime}`,
+      action: () => this.setTimer(seconds, stringTime),
       image: '',
     }];
   }
 
-  private setTimer(seconds: number) {
+  private setTimer(seconds: number, stringTime: string) {
     let counter = seconds;
     this.resetTimer();
 
     this.timer = setInterval(() => {
       if (!counter) {
         this.resetTimer();
-        this.nativeModules.notifications.show('Complete', `Timer for ${seconds} seconds has been completed`)
+        this.nativeModules.notifications.show('Complete', `Timer for ${stringTime} has been completed`);
         this.nativeModules.statusBar.changeTitle('');
         return;
       }
 
-      this.nativeModules.statusBar.changeTitle(`${counter--}`)
+      this.nativeModules.statusBar.changeTitle(`${this.getStringISOTime(counter--)}`);
     }, 1000)
   }
 
@@ -64,18 +55,6 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       return;
     }
     clearInterval(this.timer)
-  }
-
-  private getSubtitle(time: Time): string {
-    const timeLabel = time.hours
-      ? `${time.hours} hour(s)`
-      : time.minutes
-        ? `${time.minutes} minute(s)`
-        : time.seconds
-          ? `${time.seconds} second(s)`
-          : '';
-
-    return timeLabel;
   }
 
   private parseTimeQuery(timeQuery: string): Time {
@@ -99,6 +78,17 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     if (time.hours) { seconds += time.hours * 3600; }
     if (time.minutes) { seconds += time.minutes * 60; }
     return seconds;
+  }
+
+  private getStringTime(time: Time): string {
+    const hours = time.hours ? `${time.hours}h` : '';
+    const minutes = time.minutes ? `${time.minutes}m` : '';
+    const seconds = time.seconds ? `${time.seconds}s` : '';
+    return `${hours}${minutes}${seconds}`;
+  }
+
+  private getStringISOTime(seconds: number): string {
+    return new Date(seconds * 1000).toISOString().substr(11, 8);
   }
 
 }
