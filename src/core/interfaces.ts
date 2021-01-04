@@ -14,7 +14,7 @@ export interface SpotterNativeModules {
 export interface SpotterRegistries {
   plugins: SpotterPluginsRegistry,
   settings: SpotterSettingsRegistry,
-  history?: SpotterHistoryRegistry,
+  history: SpotterHistoryRegistry,
 }
 
 export declare abstract class SpotterPluginsRegistry {
@@ -31,7 +31,7 @@ export declare abstract class SpotterSettingsRegistry {
 
 export declare abstract class SpotterHistoryRegistry {
   abstract getHistory(): Promise<SpotterHistory>;
-  abstract patchHistory(history: Partial<SpotterHistory>): void;
+  abstract increaseHistoryItem(query: string): void;
 }
 
 export declare abstract class SpotterShell {

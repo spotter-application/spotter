@@ -14,9 +14,14 @@ export class HistoryRegistry implements SpotterHistoryRegistry {
     return history ?? this.defaultValue;
   }
 
-  async patchHistory(history: Partial<SpotterHistory>) {
+  async increaseHistoryItem(optionTitle: string) {
     const currentValue = await this.getHistory();
-    this.nativeModules.storage.setItem(this.STORAGE_KEY, { ...currentValue, ...history });
+    const nextHistory = {
+      ...currentValue,
+      ...({ [optionTitle]: currentValue[optionTitle] ? currentValue[optionTitle] + 1 : 1 })
+    };
+
+    this.nativeModules.storage.setItem(this.STORAGE_KEY, nextHistory);
   }
 
 }

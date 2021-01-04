@@ -59,10 +59,15 @@ export default class App extends React.Component<Props, State> {
 
     this.subscriptions.push(
       this.props.registries.plugins.options$.pipe(
-        tap(options => {
+        tap(async options => {
+          const history = await this.props.registries.history.getHistory();
+          const sortedOptionsByFrequently = options.sort((a, b) =>
+            (history[b.title] ?? 0) - (history[a.title] ?? 0)
+          );
+
           this.setState({
             selectedIndex: 0,
-            options,
+            options: sortedOptionsByFrequently,
           });
         }),
       ).subscribe(),
@@ -110,6 +115,7 @@ export default class App extends React.Component<Props, State> {
 
     option.action();
     this.props.nativeModules.panel.close();
+    this.props.registries.history.increaseHistoryItem(option.title);
     this.resetValue();
     this.setState({
       selectedIndex: 0,
