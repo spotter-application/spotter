@@ -10,6 +10,7 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
 * 🔌&nbsp;&nbsp;&nbsp;<b>Plugin system</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
+* ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
 [Download beta versions](https://github.com/spotter-application/spotter/releases)
@@ -29,7 +30,7 @@ Saving / restoring positions and sizes of running applications
 * `Restore application positions`
 
 ### Timer
-* ```t 15m``` (set a timer for 15 minutes)
+* ```15m```
 
 ### Spotify
 * ```Play```
