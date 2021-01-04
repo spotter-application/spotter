@@ -43,7 +43,7 @@ export const Settings: FC<Props> = ({ nativeModules, registries }) => {
           ></HotkeyInput>
         </View>
         <View style={{
-          backgroundColor: 'rgba(0, 0, 0, 0.20)',
+          backgroundColor: 'rgba(0, 0, 0, 0.1)',
           padding: 15,
         }}>
           <Text style={{ fontSize: 18 }}>spotter</Text>
