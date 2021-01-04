@@ -1,10 +1,14 @@
-import { search } from '../helpers';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
+import {
+  SpotterOption,
+  SpotterPlugin,
+  SpotterPluginLifecycle,
+  spotterSearch,
+} from '../core';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
   onQuery(query: string): SpotterOption[] {
-    return search(query, this.options);
+    return spotterSearch(query, this.options);
   }
 
   private get options(): SpotterOption[] {

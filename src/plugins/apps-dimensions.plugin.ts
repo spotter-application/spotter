@@ -1,9 +1,9 @@
-import { search } from '../helpers';
 import {
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   SystemApplicationDimensions,
+  spotterSearch,
 } from '../core';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
@@ -17,7 +17,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
   }
 
   onQuery(query: string): SpotterOption[] {
-    return search(query, this.options);
+    return spotterSearch(query, this.options);
   }
 
   private get options(): SpotterOption[] {

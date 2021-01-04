@@ -1,6 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, skip } from 'rxjs/operators';
-import { generateId } from '../helpers';
 import {
   SpotterNativeModules,
   SpotterOption,
@@ -8,6 +7,7 @@ import {
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
+  spotterGenerateId,
 } from '../core';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
@@ -34,7 +34,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
     plugins.forEach(pluginConstructor => {
       const plugin = new pluginConstructor(this.nativeModules);
-      this.registry.set(generateId(), plugin);
+      this.registry.set(spotterGenerateId(), plugin);
       if (plugin.onInit) {
         plugin.onInit();
       }
@@ -59,7 +59,10 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
   private setOptionsToRender = (pluginId: string) => (options: SpotterOption[]) => {
     const currentOptionsToRender = this.optionsToRenderSubject$.value;
-    this.optionsToRenderSubject$.next({ ...currentOptionsToRender, [pluginId]: options.map(o => ({ ...o, id: generateId() })) });
+    this.optionsToRenderSubject$.next({
+      ...currentOptionsToRender,
+      [pluginId]: options.map(o => ({ ...o, id: spotterGenerateId() })),
+    });
   }
 
   private get list(): SpotterPluginLifecycle[] {

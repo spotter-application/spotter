@@ -1,8 +1,8 @@
-import { search } from '../helpers';
 import {
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
+  spotterSearch,
 } from '../core';
 
 interface Application {
@@ -47,7 +47,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   }
 
   onQuery(query: string): SpotterOption[] {
-    return search(query, this.applications);
+    return spotterSearch(query, this.applications);
   }
 
 }

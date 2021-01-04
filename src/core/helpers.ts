@@ -1,8 +1,8 @@
-import { SpotterOption } from './core';
+import { SpotterOption } from './interfaces';
 
-export const generateId = (): string => Math.random().toString(36).substr(2, 9);
+export const spotterGenerateId = (): string => Math.random().toString(36).substr(2, 9);
 
-export const search = (query: string, options: SpotterOption[]): SpotterOption[] => {
+export const spotterSearch = (query: string, options: SpotterOption[]): SpotterOption[] => {
   if (query === '' || !options?.length) {
     return [];
   }
