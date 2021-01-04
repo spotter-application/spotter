@@ -1,25 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { HotkeyInput } from './core/native/hotkey-input.native';
-import { SettingsRegistry } from './core/settings.registry';
-import { SpotterHotkey, SpotterNativeModules } from './core/shared';
+import { HotkeyInput } from '../native/hotkey-input.native';
+import { SpotterHotkey, SpotterNativeModules, SpotterRegistries } from '../core';
 
-const settingsRegistry = new SettingsRegistry();
+type Props = {
+  nativeModules: SpotterNativeModules,
+  registries: SpotterRegistries,
+}
 
-export const Settings = ({ nativeModules }: { nativeModules: SpotterNativeModules }) => {
+export const Settings: FC<Props> = ({ nativeModules, registries }) => {
 
   const [currentHotkey, setCurrentHotkey] = useState<SpotterHotkey | null>(null);
 
   const onPressHotkey = useCallback(async (hotkey: SpotterHotkey) => {
     const nextHotkey = hotkey.keyCode === null ? null : hotkey;
-    await settingsRegistry.patchSettings({ hotkey: nextHotkey });
+    await registries.settings.patchSettings({ hotkey: nextHotkey });
     nativeModules.globalHotKey.register(nextHotkey);
     nativeModules.globalHotKey.onPress(() => nativeModules.panel.open());
   }, []);
 
   useEffect(() => {
     const setSettings = async () => {
-      const settings = await settingsRegistry.getSettings()
+      const settings = await registries.settings.getSettings()
       setCurrentHotkey(settings?.hotkey);
     };
 

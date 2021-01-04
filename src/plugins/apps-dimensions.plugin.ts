@@ -1,10 +1,10 @@
-import { search } from '../core/helpers';
+import { search } from '../helpers';
 import {
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   SystemApplicationDimensions,
-} from '../core/shared';
+} from '../core';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 

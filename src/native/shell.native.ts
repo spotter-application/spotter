@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterShell } from '../shared';
+import { SpotterShell } from '../core';
 
 export class ShellNative implements SpotterShell {
   private shell = NativeModules.Shell;

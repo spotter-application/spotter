@@ -1,8 +1,8 @@
 import React from 'react';
-import { AppRegistry } from 'react-native';
-import App from './src/spotter.tsx';
+import { AppRegistry, YellowBox } from 'react-native';
+import App from './src/containers/spotter.tsx';
 import { name as appName } from './app.json';
-import { Settings } from './src/settings';
+import { Settings } from './src/containers';
 import {
   AppsDimensionsNative,
   ClipboardNative,
@@ -12,8 +12,12 @@ import {
   StorageNative,
   ShellNative,
   PanelNative,
-} from './src/core/native';
-import { YellowBox } from 'react-native';
+} from './src/native';
+import {
+  PluginsRegistry,
+  SettingsRegistry,
+  HistoryRegistry,
+} from './src/registries';
 
 // TODO: Check
 YellowBox.ignoreWarnings([
@@ -40,8 +44,18 @@ const nativeModules = {
   panel,
 };
 
-const AppWithModules = () => (<App nativeModules={nativeModules}/>);
-const SettingsWithModules = () => (<Settings nativeModules={nativeModules}/>);
+const plugins = new PluginsRegistry(nativeModules);
+const settings = new SettingsRegistry(nativeModules);
+const history = new HistoryRegistry(nativeModules);
+
+const registries = {
+  plugins,
+  settings,
+  history,
+};
+
+const AppWithModules = () => (<App nativeModules={nativeModules} registries={registries}/>);
+const SettingsWithModules = () => (<Settings nativeModules={nativeModules} registries={registries}/>);
 
 AppRegistry.registerComponent(appName, () => AppWithModules);
 

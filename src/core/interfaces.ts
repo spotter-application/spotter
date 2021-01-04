@@ -1,4 +1,4 @@
-/* Native modules */
+import { Observable } from 'rxjs';
 
 export interface SpotterNativeModules {
   storage: SpotterStorage,
@@ -9,6 +9,29 @@ export interface SpotterNativeModules {
   shell: SpotterShell,
   appsDimensions: SpotterAppsDimensions,
   panel: SpotterPanel,
+}
+
+export interface SpotterRegistries {
+  plugins: SpotterPluginsRegistry,
+  settings: SpotterSettingsRegistry,
+  history?: SpotterHistoryRegistry,
+}
+
+export declare abstract class SpotterPluginsRegistry {
+  abstract options$: Observable<SpotterOptionWithId[]>;
+  abstract register(plugins: SpotterPluginConstructor[]): void;
+  abstract destroy(): void;
+  abstract findOptionsForQuery(query: string): void;
+}
+
+export declare abstract class SpotterSettingsRegistry {
+  abstract getSettings(): Promise<SpotterSettings>;
+  abstract patchSettings(settings: Partial<SpotterSettings>): void;
+}
+
+export declare abstract class SpotterHistoryRegistry {
+  abstract getHistory(): Promise<SpotterHistory>;
+  abstract patchHistory(history: Partial<SpotterHistory>): void;
 }
 
 export declare abstract class SpotterShell {
@@ -103,4 +126,10 @@ export interface SpotterHotkey {
 
 export interface SpotterSettings {
   hotkey: SpotterHotkey | null;
+}
+
+export type SpotterHistoryExecutionsTotal = number;
+
+export type SpotterHistory = {
+  [optionTitle: string]: SpotterHistoryExecutionsTotal;
 }

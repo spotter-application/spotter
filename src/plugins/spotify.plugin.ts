@@ -1,5 +1,5 @@
-import { search } from '../core/helpers';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
+import { search } from '../helpers';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 

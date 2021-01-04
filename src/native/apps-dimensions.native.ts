@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterAppsDimensions } from '../shared';
+import { SpotterAppsDimensions } from '../core';
 
 export class AppsDimensionsNative implements SpotterAppsDimensions {
   private appsDimensions = NativeModules.AppsDimensions;

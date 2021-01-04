@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
 
 export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 

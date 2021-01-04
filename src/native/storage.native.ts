@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SpotterStorage } from '../shared';
+import { SpotterStorage } from '../core';
 
 export class StorageNative implements SpotterStorage {
 

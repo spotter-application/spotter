@@ -4,12 +4,11 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Subject, Subscription } from 'rxjs';
-import { distinctUntilChanged, tap } from 'rxjs/operators';
-import { Options } from './core/components/options.component';
-import { SpotterNativeModules, SpotterOptionWithId } from './core/shared';
-import SpotterPluginsInitializations from './core/plugins.initializations';
-import { InputNative } from './core/native';
+import { Subscription } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { Options } from '../components/options.component';
+import { SpotterNativeModules, SpotterOption, SpotterOptionWithId, SpotterRegistries } from '../core';
+import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
   AppsDimensionsPlugin,
@@ -17,11 +16,20 @@ import {
   GooglePlugin,
   SpotifyPlugin,
   TimerPlugin,
-} from './plugins';
-import { SettingsRegistry } from './core/settings.registry';
+} from '../plugins';
+
+const plugins = [
+  ApplicationsPlugin,
+  SpotifyPlugin,
+  CalculatorPlugin,
+  TimerPlugin,
+  GooglePlugin,
+  AppsDimensionsPlugin,
+];
 
 type Props = {
-  nativeModules: SpotterNativeModules
+  nativeModules: SpotterNativeModules,
+  registries: SpotterRegistries,
 }
 
 type State = {
@@ -30,17 +38,7 @@ type State = {
   selectedIndex: number;
 }
 export default class App extends React.Component<Props, State> {
-  private settingsRegistry = new SettingsRegistry();
   private subscriptions: Subscription[] = [];
-  private query$ = new Subject<string>();
-  private plugins = new SpotterPluginsInitializations([
-    ApplicationsPlugin,
-    SpotifyPlugin,
-    CalculatorPlugin,
-    TimerPlugin,
-    GooglePlugin,
-    AppsDimensionsPlugin,
-  ], this.props.nativeModules);
 
   constructor(props: Props) {
     super(props);
@@ -54,23 +52,19 @@ export default class App extends React.Component<Props, State> {
   }
 
   private async init() {
-    const settings = await this.settingsRegistry.getSettings();
+    this.props.registries.plugins.register(plugins);
+    const settings = await this.props.registries.settings.getSettings();
     this.props.nativeModules.globalHotKey.register(settings?.hotkey);
     this.props.nativeModules.globalHotKey.onPress(() => this.props.nativeModules.panel.open());
 
     this.subscriptions.push(
-      this.plugins.options$.pipe(
+      this.props.registries.plugins.options$.pipe(
         tap(options => {
           this.setState({
             selectedIndex: 0,
             options,
           });
         }),
-      ).subscribe(),
-
-      this.query$.pipe(
-        distinctUntilChanged(),
-        tap(query => this.plugins.onQuery(query))
       ).subscribe(),
     );
   };
@@ -97,7 +91,7 @@ export default class App extends React.Component<Props, State> {
   };
 
   onChangeText(query: string) {
-    this.query$.next(query);
+    this.props.registries.plugins.findOptionsForQuery(query)
   };
 
   onSubmitEditing() {
@@ -109,7 +103,7 @@ export default class App extends React.Component<Props, State> {
     this.execAction(options[selectedIndex]);
   };
 
-  execAction(option: any) {
+  execAction(option: SpotterOption) {
     if (!option?.action) {
       return;
     };
@@ -125,7 +119,7 @@ export default class App extends React.Component<Props, State> {
 
   componentWillUnmount() {
     this.subscriptions.forEach(s => s.unsubscribe());
-    this.plugins.destroy();
+    this.props.registries.plugins.destroy();
   };
 
   resetValue() {

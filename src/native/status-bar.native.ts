@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterStatusBar } from '../shared';
+import { SpotterStatusBar } from '../core';
 
 export class StatusBarNative implements SpotterStatusBar {
   private statusBar = NativeModules.StatusBar;

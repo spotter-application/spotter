@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterPanel } from '../shared';
+import { SpotterPanel } from '../core';
 
 export class PanelNative implements SpotterPanel {
 

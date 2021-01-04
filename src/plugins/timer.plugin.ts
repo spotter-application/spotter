@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
 
 interface Time {
   hours: number;

@@ -1,9 +1,9 @@
-import { search } from '../core/helpers';
+import { search } from '../helpers';
 import {
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
-} from '../core/shared';
+} from '../core';
 
 interface Application {
   title: string,

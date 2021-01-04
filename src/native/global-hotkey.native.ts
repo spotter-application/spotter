@@ -2,7 +2,7 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
-import { SpotterActionId, SpotterGlobalHotkey, SpotterHotkey } from '../shared';
+import { SpotterActionId, SpotterGlobalHotkey, SpotterHotkey } from '../core';
 
 export class GlobalHotkeyNative implements SpotterGlobalHotkey {
   private hotkey = NativeModules.GlobalHotkey;

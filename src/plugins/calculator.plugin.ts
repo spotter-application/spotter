@@ -1,5 +1,5 @@
 import Mexp from 'math-expression-evaluator';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core/shared';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
 
 export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
