@@ -27,6 +27,9 @@
 		925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 925D5853259F4AA300A8FE7C /* Clipboard.m */; };
 		9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A125A48A8E002F1432 /* Bluetooth.swift */; };
 		9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A425A48A9C002F1432 /* Bluetooth.m */; };
+		928070F125A5260000F6363F /* IconImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928070F025A5260000F6363F /* IconImage.swift */; };
+		928070F525A5260A00F6363F /* IconImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 928070F425A5260A00F6363F /* IconImage.m */; };
+		928070FB25A529D900F6363F /* CustomIconImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928070FA25A529D900F6363F /* CustomIconImage.swift */; };
 		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
 		92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3524CEC6740049B6B3 /* Shell.swift */; };
@@ -60,6 +63,9 @@
 		925D5853259F4AA300A8FE7C /* Clipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Clipboard.m; path = "Spotter-macOS/Clipboard/Clipboard.m"; sourceTree = SOURCE_ROOT; };
 		9275A7A125A48A8E002F1432 /* Bluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Bluetooth.swift; path = "Spotter-macOS/Bluetooth/Bluetooth.swift"; sourceTree = SOURCE_ROOT; };
 		9275A7A425A48A9C002F1432 /* Bluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Bluetooth.m; path = "Spotter-macOS/Bluetooth/Bluetooth.m"; sourceTree = SOURCE_ROOT; };
+		928070F025A5260000F6363F /* IconImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconImage.swift; sourceTree = "<group>"; };
+		928070F425A5260A00F6363F /* IconImage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IconImage.m; sourceTree = "<group>"; };
+		928070FA25A529D900F6363F /* CustomIconImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomIconImage.swift; sourceTree = "<group>"; };
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
 		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
@@ -108,6 +114,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				928070EF25A525EF00F6363F /* IconImage */,
 				9275A7A025A48A50002F1432 /* Bluetooth */,
 				92F41E5A25A24A8B00D6EAD6 /* HotkeyInput */,
 				925D584F259F4A7600A8FE7C /* Clipboard */,
@@ -236,6 +243,16 @@
 				9275A7A425A48A9C002F1432 /* Bluetooth.m */,
 			);
 			path = Bluetooth;
+			sourceTree = "<group>";
+		};
+		928070EF25A525EF00F6363F /* IconImage */ = {
+			isa = PBXGroup;
+			children = (
+				928070F025A5260000F6363F /* IconImage.swift */,
+				928070F425A5260A00F6363F /* IconImage.m */,
+				928070FA25A529D900F6363F /* CustomIconImage.swift */,
+			);
+			path = IconImage;
 			sourceTree = "<group>";
 		};
 		92BE4F3424CEC64F0049B6B3 /* Shell */ = {
@@ -392,8 +409,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				9245EB672598ACAD0032CB6D /* Input.swift in Sources */,
+				928070F125A5260000F6363F /* IconImage.swift in Sources */,
 				925CF3F42596267E00D71A76 /* Hotkey.m in Sources */,
 				9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */,
+				928070F525A5260A00F6363F /* IconImage.m in Sources */,
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
 				924CFDFA259CC9B7002FF7D3 /* StatusBar.swift in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
@@ -412,6 +431,7 @@
 				925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
+				928070FB25A529D900F6363F /* CustomIconImage.swift in Sources */,
 				924CFDF7259CC9AF002FF7D3 /* StatusBar.m in Sources */,
 				92AB4F7224B98DF80094195D /* Panel.m in Sources */,
 			);

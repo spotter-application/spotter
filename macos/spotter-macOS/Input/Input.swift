@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 
 @objc(RNInput)
-class RNInput: RCTViewManager, NSTextFieldDelegate {
+class RNInput: RCTViewManager {
   
   var textField = CustomNSTextField(frame: NSMakeRect(200,20,200,20));
   

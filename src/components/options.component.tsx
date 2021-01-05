@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { SpotterOption, SpotterOptionWithId } from '../core';
+import { IconImageNative } from '../native';
 
 type OptionsProps = {
   options: SpotterOptionWithId[];
@@ -39,8 +40,13 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
         onTouchEnd={() => onSubmit(option)}
         onLayout={(e) => onLayout(e, index)}
       >
-        <Text>{option.title}</Text>
-        <Text style={styles.subtitle}>{option.subtitle}</Text>
+        <View>
+          <Text>{option.title}</Text>
+          <Text style={styles.subtitle}>{option.subtitle}</Text>
+        </View>
+        <View>
+          {(option.image && option.image.endsWith('.app')) && <IconImageNative source={option.image}></IconImageNative>}
+        </View>
       </View>
     ))}
   </ScrollView>
@@ -48,12 +54,20 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
 
 const styles = StyleSheet.create({
   activeOption: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
     padding: 10,
     borderBottomColor: 'transparent',
     borderBottomWidth: 1,
   },
   option: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
     borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     borderBottomWidth: 1,

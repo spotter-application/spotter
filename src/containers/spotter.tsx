@@ -11,22 +11,22 @@ import { SpotterNativeModules, SpotterOption, SpotterOptionWithId, SpotterRegist
 import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
-  AppsDimensionsPlugin,
-  BluetoothPlugin,
-  CalculatorPlugin,
-  GooglePlugin,
-  SpotifyPlugin,
-  TimerPlugin,
+  // AppsDimensionsPlugin,
+  // BluetoothPlugin,
+  // CalculatorPlugin,
+  // GooglePlugin,
+  // SpotifyPlugin,
+  // TimerPlugin,
 } from '../plugins';
 
 const plugins = [
   ApplicationsPlugin,
-  SpotifyPlugin,
-  CalculatorPlugin,
-  TimerPlugin,
-  GooglePlugin,
-  AppsDimensionsPlugin,
-  BluetoothPlugin,
+  // SpotifyPlugin,
+  // CalculatorPlugin,
+  // TimerPlugin,
+  // GooglePlugin,
+  // AppsDimensionsPlugin,
+  // BluetoothPlugin,
 ];
 
 type Props = {
