@@ -13,7 +13,7 @@ import {
   ApplicationsPlugin,
   // AppsDimensionsPlugin,
   // BluetoothPlugin,
-  // CalculatorPlugin,
+  CalculatorPlugin,
   // GooglePlugin,
   // SpotifyPlugin,
   // TimerPlugin,
@@ -22,7 +22,7 @@ import {
 const plugins = [
   ApplicationsPlugin,
   // SpotifyPlugin,
-  // CalculatorPlugin,
+  CalculatorPlugin,
   // TimerPlugin,
   // GooglePlugin,
   // AppsDimensionsPlugin,

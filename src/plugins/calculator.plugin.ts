@@ -20,7 +20,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
       return [{
         title: result,
         subtitle: `Copy to ${result} clipboard`,
-        image: '',
+        image: '/System/Applications/Calculator.app',
         action: () => this.copyToClipboard(result),
       }];
     } catch (_) {

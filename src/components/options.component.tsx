@@ -45,7 +45,10 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
           <Text style={styles.subtitle}>{option.subtitle}</Text>
         </View>
         <View>
-          {(option.image && option.image.endsWith('.app')) && <IconImageNative source={option.image}></IconImageNative>}
+          {(option.image && option.image.endsWith('.app'))
+            ? <IconImageNative source={option.image}></IconImageNative>
+            : null
+          }
         </View>
       </View>
     ))}
