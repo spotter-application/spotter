@@ -12,6 +12,7 @@ import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
   AppsDimensionsPlugin,
+  BluetoothPlugin,
   CalculatorPlugin,
   GooglePlugin,
   SpotifyPlugin,
@@ -25,6 +26,7 @@ const plugins = [
   TimerPlugin,
   GooglePlugin,
   AppsDimensionsPlugin,
+  BluetoothPlugin,
 ];
 
 type Props = {

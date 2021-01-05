@@ -25,6 +25,8 @@
 		925CF3F42596267E00D71A76 /* Hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3F32596267E00D71A76 /* Hotkey.m */; };
 		925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925D5850259F4A9000A8FE7C /* Clipboard.swift */; };
 		925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 925D5853259F4AA300A8FE7C /* Clipboard.m */; };
+		9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A125A48A8E002F1432 /* Bluetooth.swift */; };
+		9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A425A48A9C002F1432 /* Bluetooth.m */; };
 		92AB4F7024B98D870094195D /* Panel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F6F24B98D870094195D /* Panel.swift */; };
 		92AB4F7224B98DF80094195D /* Panel.m in Sources */ = {isa = PBXBuildFile; fileRef = 92AB4F7124B98DF80094195D /* Panel.m */; };
 		92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3524CEC6740049B6B3 /* Shell.swift */; };
@@ -56,6 +58,8 @@
 		925CF4322596443100D71A76 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 		925D5850259F4A9000A8FE7C /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Clipboard.swift; path = "Spotter-macOS/Clipboard/Clipboard.swift"; sourceTree = SOURCE_ROOT; };
 		925D5853259F4AA300A8FE7C /* Clipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Clipboard.m; path = "Spotter-macOS/Clipboard/Clipboard.m"; sourceTree = SOURCE_ROOT; };
+		9275A7A125A48A8E002F1432 /* Bluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Bluetooth.swift; path = "Spotter-macOS/Bluetooth/Bluetooth.swift"; sourceTree = SOURCE_ROOT; };
+		9275A7A425A48A9C002F1432 /* Bluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Bluetooth.m; path = "Spotter-macOS/Bluetooth/Bluetooth.m"; sourceTree = SOURCE_ROOT; };
 		92AB4F6E24B98D870094195D /* spotter-macOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spotter-macOS-Bridging-Header.h"; sourceTree = "<group>"; };
 		92AB4F6F24B98D870094195D /* Panel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Panel.swift; sourceTree = "<group>"; };
 		92AB4F7124B98DF80094195D /* Panel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Panel.m; sourceTree = "<group>"; };
@@ -104,6 +108,7 @@
 		5142014A2437B4B30078DB4F /* spotter-macOS */ = {
 			isa = PBXGroup;
 			children = (
+				9275A7A025A48A50002F1432 /* Bluetooth */,
 				92F41E5A25A24A8B00D6EAD6 /* HotkeyInput */,
 				925D584F259F4A7600A8FE7C /* Clipboard */,
 				924CFDF5259CC987002FF7D3 /* StatusBar */,
@@ -222,6 +227,15 @@
 				925D5853259F4AA300A8FE7C /* Clipboard.m */,
 			);
 			path = Clipboard;
+			sourceTree = "<group>";
+		};
+		9275A7A025A48A50002F1432 /* Bluetooth */ = {
+			isa = PBXGroup;
+			children = (
+				9275A7A125A48A8E002F1432 /* Bluetooth.swift */,
+				9275A7A425A48A9C002F1432 /* Bluetooth.m */,
+			);
+			path = Bluetooth;
 			sourceTree = "<group>";
 		};
 		92BE4F3424CEC64F0049B6B3 /* Shell */ = {
@@ -379,12 +393,14 @@
 			files = (
 				9245EB672598ACAD0032CB6D /* Input.swift in Sources */,
 				925CF3F42596267E00D71A76 /* Hotkey.m in Sources */,
+				9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */,
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
 				924CFDFA259CC9B7002FF7D3 /* StatusBar.swift in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
 				923C275024D01BF1006C67F3 /* ApplicationsDimensions.m in Sources */,
 				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
+				9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */,
 				92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */,
 				9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,

@@ -12,6 +12,7 @@ import {
   StorageNative,
   ShellNative,
   PanelNative,
+  BluetoothNative,
 } from './src/native';
 import {
   PluginsRegistry,
@@ -32,6 +33,7 @@ const statusBar = new StatusBarNative();
 const clipboard = new ClipboardNative();
 const shell = new ShellNative();
 const panel = new PanelNative();
+const bluetooth = new BluetoothNative();
 
 const nativeModules = {
   appsDimensions,
@@ -42,6 +44,7 @@ const nativeModules = {
   clipboard,
   shell,
   panel,
+  bluetooth,
 };
 
 const plugins = new PluginsRegistry(nativeModules);

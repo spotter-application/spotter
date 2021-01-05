@@ -4,3 +4,4 @@ export * from './google.plugin';
 export * from './spotify.plugin';
 export * from './timer.plugin';
 export * from './apps-dimensions.plugin';
+export * from './bluetooth.plugin';

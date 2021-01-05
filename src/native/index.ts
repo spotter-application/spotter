@@ -7,3 +7,4 @@ export * from './status-bar.native';
 export * from './storage.native';
 export * from './clipboard.native';
 export * from './shell.native';
+export * from './bluetooth.native';

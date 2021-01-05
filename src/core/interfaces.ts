@@ -9,6 +9,7 @@ export interface SpotterNativeModules {
   shell: SpotterShell,
   appsDimensions: SpotterAppsDimensions,
   panel: SpotterPanel,
+  bluetooth: SpotterBluetooth,
 }
 
 export interface SpotterRegistries {
@@ -36,6 +37,12 @@ export declare abstract class SpotterHistoryRegistry {
 
 export declare abstract class SpotterShell {
   abstract execute(command: string): Promise<string>;
+}
+
+export declare abstract class SpotterBluetooth {
+  abstract getDevices(): Promise<SpotterBluetoothItem[]>;
+  abstract connectDevice(address: string): void;
+  abstract disconnectDevice(address: string): void;
 }
 
 export declare abstract class SpotterClipboard {
@@ -81,9 +88,9 @@ export declare type SpotterAction = () => void;
 
 export interface SpotterOption {
   title: string;
-  subtitle: string;
-  image: string;
   action: SpotterAction;
+  subtitle?: string;
+  image?: string;
 }
 
 export interface SpotterOptionWithId extends SpotterOption {
@@ -132,4 +139,11 @@ export type SpotterHistoryExecutionsTotal = number;
 
 export type SpotterHistory = {
   [optionTitle: string]: SpotterHistoryExecutionsTotal;
+}
+
+export interface SpotterBluetoothItem {
+  name: string,
+  connected: boolean,
+  paired: boolean,
+  address: string,
 }
