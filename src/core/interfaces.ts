@@ -18,7 +18,7 @@ export interface SpotterRegistries {
 
 export declare abstract class SpotterPluginsRegistry {
   abstract register(plugins: SpotterPluginConstructor[]): void;
-  abstract destroy(): void;
+  abstract destroyPlugins(): void;
   abstract findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void): void;
 }
 

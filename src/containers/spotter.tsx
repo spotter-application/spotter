@@ -137,7 +137,7 @@ export default class App extends React.Component<Props, State> {
   }
 
   componentWillUnmount() {
-    this.props.registries.plugins.destroy();
+    this.props.registries.plugins.destroyPlugins();
   };
 
   resetValue() {

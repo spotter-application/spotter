@@ -4,7 +4,6 @@ import {
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
-  spotterGenerateId,
 } from '../core';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
@@ -26,7 +25,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
     plugins.forEach(pluginConstructor => {
       const plugin = new pluginConstructor(this.nativeModules);
-      this.registry.set(spotterGenerateId(), plugin);
+      this.registry.set(pluginConstructor.name, plugin);
       if (plugin.onInit) {
         plugin.onInit();
       }
@@ -51,7 +50,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
-  public destroy() {
+  public destroyPlugins() {
     Object.entries(this.plugins).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
   }
 
