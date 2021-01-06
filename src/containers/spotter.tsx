@@ -4,10 +4,8 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { Options } from '../components/options.component';
-import { SpotterNativeModules, SpotterOption, SpotterOptionWithId, SpotterRegistries } from '../core';
+import { SpotterNativeModules, SpotterOption, SpotterRegistries } from '../core';
 import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
@@ -36,11 +34,11 @@ type Props = {
 
 type State = {
   value: string;
-  options: SpotterOptionWithId[];
+  options: SpotterOption[];
   selectedIndex: number;
+  executing: boolean,
 }
 export default class App extends React.Component<Props, State> {
-  private subscriptions: Subscription[] = [];
 
   constructor(props: Props) {
     super(props);
@@ -49,6 +47,7 @@ export default class App extends React.Component<Props, State> {
       value: '',
       options: [],
       selectedIndex: 0,
+      executing: false,
     }
     this.init();
   }
@@ -58,22 +57,6 @@ export default class App extends React.Component<Props, State> {
     const settings = await this.props.registries.settings.getSettings();
     this.props.nativeModules.globalHotKey.register(settings?.hotkey);
     this.props.nativeModules.globalHotKey.onPress(() => this.props.nativeModules.panel.open());
-
-    this.subscriptions.push(
-      this.props.registries.plugins.options$.pipe(
-        tap(async options => {
-          const history = await this.props.registries.history.getHistory();
-          const sortedOptionsByFrequently = options.sort((a, b) =>
-            (history[b.title] ?? 0) - (history[a.title] ?? 0)
-          );
-
-          this.setState({
-            selectedIndex: 0,
-            options: sortedOptionsByFrequently,
-          });
-        }),
-      ).subscribe(),
-    );
   };
 
   onArrowUp() {
@@ -97,8 +80,23 @@ export default class App extends React.Component<Props, State> {
     });
   };
 
-  onChangeText(query: string) {
-    this.props.registries.plugins.findOptionsForQuery(query)
+  async onChangeText(query: string) {
+    if (this.state.executing) {
+      return;
+    }
+
+    const history = await this.props.registries.history.getHistory();
+
+    this.props.registries.plugins.findOptionsForQuery(query, (options) => {
+      const sortedOptionsByFrequently = options.sort((a, b) =>
+        (history[b.title] ?? 0) - (history[a.title] ?? 0)
+      );
+
+      this.setState({
+        selectedIndex: 0,
+        options: sortedOptionsByFrequently,
+      });
+    });
   };
 
   onSubmitEditing() {
@@ -110,23 +108,35 @@ export default class App extends React.Component<Props, State> {
     this.execAction(options[selectedIndex]);
   };
 
-  execAction(option: SpotterOption) {
+  async execAction(option: SpotterOption) {
     if (!option?.action) {
       return;
     };
 
-    option.action();
-    this.props.nativeModules.panel.close();
     this.props.registries.history.increaseHistoryItem(option.title);
+
+    this.setState({ executing: true });
+
+    const success = await option.action();
+
+    if (success || typeof success !== 'boolean') {
+      this.closeSpotter();
+    }
+
+    this.setState({ executing: false });
+  };
+
+  private closeSpotter() {
+    this.props.nativeModules.panel.close();
     this.resetValue();
     this.setState({
       selectedIndex: 0,
       options: [],
+      executing: false,
     });
-  };
+  }
 
   componentWillUnmount() {
-    this.subscriptions.forEach(s => s.unsubscribe());
     this.props.registries.plugins.destroy();
   };
 
@@ -141,13 +151,14 @@ export default class App extends React.Component<Props, State> {
   };
 
   render() {
-    const { value, options, selectedIndex } = this.state;
+    const { value, options, selectedIndex, executing } = this.state;
     return <>
       <SafeAreaView>
         <View style={options?.length ? styles.inputWithResults : styles.input}>
           <InputNative
             value={value}
             placeholder="Query..."
+            disabled={executing}
             onChangeText={text => this.onChangeText(text)}
             onSubmit={() => this.onSubmitEditing()}
             onArrowDown={() => this.onArrowDown()}
@@ -159,6 +170,7 @@ export default class App extends React.Component<Props, State> {
         <Options
           style={styles.options}
           selectedIndex={selectedIndex}
+          executing={executing}
           options={options}
           onSubmit={option => this.execAction(option)}
         ></Options>

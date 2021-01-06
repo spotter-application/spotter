@@ -21,6 +21,11 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.font = NSFont.systemFont(ofSize: CGFloat(truncating: val))
   }
   
+  @objc func setDisabled(_ val: Bool) {
+    self.isEnabled = !val
+    self.becomeFirstResponder()
+  }
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
 

@@ -6,6 +6,7 @@ const RNInput = requireNativeComponent<any>('RNInput');
 type InputProps = {
   value: string,
   placeholder: string,
+  disabled?: boolean,
   fontSize?: number,
   style?: TextStyle,
   onChangeText?: (text: string) => void,

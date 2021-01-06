@@ -1,5 +1,3 @@
-import { from } from 'rxjs';
-
 export * from './apps-dimensions.native';
 export * from './global-hotkey.native';
 export * from './input.native';

@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-
 export interface SpotterNativeModules {
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
@@ -19,10 +17,9 @@ export interface SpotterRegistries {
 }
 
 export declare abstract class SpotterPluginsRegistry {
-  abstract options$: Observable<SpotterOptionWithId[]>;
   abstract register(plugins: SpotterPluginConstructor[]): void;
   abstract destroy(): void;
-  abstract findOptionsForQuery(query: string): void;
+  abstract findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void): void;
 }
 
 export declare abstract class SpotterSettingsRegistry {
@@ -84,7 +81,7 @@ export declare abstract class SpotterStorage {
 
 export declare type SpotterActionId = string;
 
-export declare type SpotterAction = () => void;
+export declare type SpotterAction = () => void | Promise<boolean>;
 
 export type SpotterOptionImage = string | number;
 
@@ -93,10 +90,6 @@ export interface SpotterOption {
   action: SpotterAction;
   subtitle?: string;
   image?: SpotterOptionImage;
-}
-
-export interface SpotterOptionWithId extends SpotterOption {
-  id: string;
 }
 
 export interface SystemApplication {
