@@ -20,6 +20,9 @@ Default hotkey to run the app ```double shift```
 
 ## Plugins usage
 
+### Bluetooth
+* ```b <device_name>```
+
 ### Google
 * ```g<space>``` (will get data from clipboard)
 * ```g "your query"```
