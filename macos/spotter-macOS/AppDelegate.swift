@@ -7,7 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var bridge: RCTBridge!
   var statusBarItem: NSStatusItem!
   var jsCodeLocation: URL!
-  var panel: NSPanel!
+  var spotterPanel: NSPanel!
   var settingsPanel: NSPanel!
   var isActiveSettingsPanel = false
 
@@ -24,8 +24,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     #endif
     
     self.setupMenubar()
-    self.setupPanel()
-    self.setupWindow()
+    self.setupSpotterPanel()
+    self.setupSettingsPanel()
   }
   
   func setStatusBarTitle(_ title: NSString) {
@@ -50,7 +50,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     statusBarItem.menu = statusBarMenu
     statusBarMenu.addItem(
       withTitle: "Toggle Spotter",
-      action: #selector(AppDelegate.togglePanel),
+      action: #selector(AppDelegate.toggleSpotter),
       keyEquivalent: "")
     statusBarMenu.addItem(
       withTitle: "Settings",
@@ -62,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       keyEquivalent: "q")
   }
   
-  private func setupWindow() {
+  private func setupSettingsPanel() {
     let width = 600
     let height = 500
   
@@ -74,7 +74,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     ], backing: .buffered, defer: true)
     settingsPanel.title = "Settings"
     settingsPanel.level = .mainMenu
-//    let rootView = RCTRootView(bundleURL: jsCodeLocation, moduleName: "settings", initialProperties: nil, launchOptions: nil)
     let rootView = RCTRootView(bridge: self.bridge, moduleName: "settings", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
@@ -99,49 +98,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     settingsPanel.close()
   }
   
-  private func setupPanel() {
+  private func setupSpotterPanel() {
     let width = 500
     let height = 300
     
-    panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
+    spotterPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
       .nonactivatingPanel,
       .titled,
       .fullSizeContentView,
     ], backing: .buffered, defer: true)
-    panel.titleVisibility = .hidden
-    panel.level = .mainMenu
-    panel.titlebarAppearsTransparent = true
+    spotterPanel.titleVisibility = .hidden
+    spotterPanel.level = .mainMenu
+    spotterPanel.titlebarAppearsTransparent = true
     
     let rootView = RCTRootView(bridge: self.bridge, moduleName: "spotter", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
     
-    panel.contentViewController = rootViewController
+    spotterPanel.contentViewController = rootViewController
     
     let newSize = NSSize(width: width, height: height)
-    guard var frame = panel.contentView?.window?.frame else { return }
+    guard var frame = spotterPanel.contentView?.window?.frame else { return }
     frame.size = newSize
-    panel.contentView?.setFrameSize(newSize)
-    panel.contentView?.window?.setFrame(frame, display: true)
-    panel.contentView?.window?.backgroundColor = NSColor.clear
+    spotterPanel.contentView?.setFrameSize(newSize)
+    spotterPanel.contentView?.window?.setFrame(frame, display: true)
+    spotterPanel.contentView?.window?.backgroundColor = NSColor.clear
   }
   
-  @objc func openPanel() {
+  @objc func openSpotter() {
     if (!settingsPanel.isVisible) {
-      panel.makeKeyAndOrderFront(nil)
-      panel.center()
+      spotterPanel.makeKeyAndOrderFront(nil)
+      spotterPanel.center()
     }
   }
   
-  @objc func closePanel() {
-    panel.close()
+  @objc func closeSpotter() {
+    spotterPanel.close()
   }
   
-  @objc func togglePanel() {
-    if panel.isVisible {
-      self.closePanel()
+  @objc func toggleSpotter() {
+    if spotterPanel.isVisible {
+      self.closeSpotter()
     } else {
-      self.openPanel()
+      self.openSpotter()
     }
   }
 

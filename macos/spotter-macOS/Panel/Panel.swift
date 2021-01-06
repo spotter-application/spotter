@@ -12,19 +12,19 @@ class Panel: RCTEventEmitter {
 
   @objc func open() {
     DispatchQueue.main.async {
-      self.appDelegate.openPanel()
+      self.appDelegate.openSpotter()
     }
   }
 
   @objc func close() {
     DispatchQueue.main.async {
-      self.appDelegate.closePanel()
+      self.appDelegate.closeSpotter()
     }
   }
 
   @objc func toggle() {
     DispatchQueue.main.async {
-      self.appDelegate.togglePanel()
+      self.appDelegate.toggleSpotter()
     }
   }
   

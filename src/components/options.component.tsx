@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { FlatList, LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { SpotterOption, SpotterOptionWithId } from '../core';
 import { IconImageNative } from '../native';
 
@@ -7,12 +7,12 @@ type OptionsProps = {
   options: SpotterOptionWithId[];
   selectedIndex: number;
   onSubmit: (option: SpotterOption) => void;
-  style: StyleProp<ViewStyle>;
+  style: ViewStyle;
 }
 
 export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProps) => {
 
-  const [ref, setRef] = useState<ScrollView | null>(null);
+  const [ref, setRef] = useState<FlatList | null>(null);
   const [dataSourceCords, setDataSourceCords] = useState<number[]>([]);
 
   useEffect(() => {
@@ -20,9 +20,17 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
       return;
     }
 
-    ref.scrollTo({
-      y: dataSourceCords[selectedIndex - 2],
-    });
+    const nextSelectedIndex = selectedIndex - 1 < 0
+      ? 0
+      : selectedIndex - 1;
+    ref.scrollToIndex({ index: nextSelectedIndex, animated: true })
+
+
+    ref.flashScrollIndicators()
+
+    // ref.scrollTo({
+    //   y: dataSourceCords[selectedIndex - 2],
+    // });
 
   }, [dataSourceCords, selectedIndex])
 
@@ -32,27 +40,35 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
     setDataSourceCords(dataSourceCords);
   }, [dataSourceCords])
 
-  return <ScrollView contentInsetAdjustmentBehavior="automatic" style={style} ref={setRef}>
-    {options.map((option, index) => (
-      <View
-        key={option.id}
-        style={selectedIndex === index ? styles.activeOption : styles.option}
-        onTouchEnd={() => onSubmit(option)}
-        onLayout={(e) => onLayout(e, index)}
-      >
-        <View>
-          <Text>{option.title}</Text>
-          <Text style={styles.subtitle}>{option.subtitle}</Text>
-        </View>
-        <View>
-          {(option.image && option.image.endsWith('.app'))
-            ? <IconImageNative source={option.image}></IconImageNative>
-            : null
-          }
-        </View>
-      </View>
-    ))}
-  </ScrollView>
+  return <>
+    {options.length ?
+      <FlatList
+        style={style}
+        data={options}
+        ref={setRef}
+        keyExtractor={item => item.id}
+        persistentScrollbar={true}
+        renderItem={({ item, index }) => (
+          <View
+            key={item.id}
+            style={selectedIndex === index ? styles.activeOption : styles.option}
+            onTouchEnd={() => onSubmit(item)}
+            onLayout={(e) => onLayout(e, index)}
+          >
+            <View>
+              <Text>{item.title}</Text>
+              <Text style={styles.subtitle}>{item.subtitle}</Text>
+            </View>
+            <View>
+              {(item.image && item.image.endsWith('.app'))
+                ? <IconImageNative source={item.image}></IconImageNative>
+                : null
+              }
+            </View>
+          </View>
+      )} />
+    : null}
+  </>
 };
 
 const styles = StyleSheet.create({
