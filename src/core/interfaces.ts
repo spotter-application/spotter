@@ -86,11 +86,13 @@ export declare type SpotterActionId = string;
 
 export declare type SpotterAction = () => void;
 
+export type SpotterOptionImage = string | number;
+
 export interface SpotterOption {
   title: string;
   action: SpotterAction;
   subtitle?: string;
-  image?: string;
+  image?: SpotterOptionImage;
 }
 
 export interface SpotterOptionWithId extends SpotterOption {

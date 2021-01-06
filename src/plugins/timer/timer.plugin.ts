@@ -1,4 +1,5 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import icon from './icon.png';
 
 interface Time {
   hours: number;
@@ -30,7 +31,7 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       title: `${stringTime}`,
       subtitle: `Set a timer for ${stringTime}`,
       action: () => this.setTimer(seconds, stringTime),
-      image: '',
+      image: icon,
     }];
   }
 

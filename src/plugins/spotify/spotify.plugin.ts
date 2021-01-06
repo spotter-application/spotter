@@ -3,7 +3,8 @@ import {
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
-} from '../core';
+} from '../../core';
+import icon from './icon.png';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -16,43 +17,43 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
       {
         title: 'Previous',
         subtitle: 'Spotify Previous track',
-        image: '',
+        image: icon,
         action: () => this.previous(),
       },
       {
         title: 'Next',
         subtitle: 'Spotify Next track',
-        image: '',
+        image: icon,
         action: () => this.next(),
       },
       {
         title: 'Pause',
         subtitle: 'Spotify Pause',
-        image: '',
+        image: icon,
         action: () => this.pause(),
       },
       {
         title: 'Play',
         subtitle: 'Spotify Play',
-        image: '',
+        image: icon,
         action: () => this.play(),
       },
       {
         title: 'Mute',
         subtitle: 'Spotify Mute',
-        image: '',
+        image: icon,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
         subtitle: 'Spotify Unmute',
-        image: '',
+        image: icon,
         action: () => this.unmute(),
       },
       {
         title: 'Toggle play/pause',
         subtitle: 'Spotify Toggle play/pause',
-        image: '',
+        image: icon,
         action: () => this.togglePlayPause(),
       },
     ];

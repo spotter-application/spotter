@@ -1,4 +1,5 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../core';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
+import icon from './icon.png';
 
 export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -15,6 +16,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
         action: () => device.connected
           ? this.nativeModules.bluetooth.disconnectDevice(device.address)
           : this.nativeModules.bluetooth.connectDevice(device.address),
+        image: icon,
       })),
       'bluetooth',
     );

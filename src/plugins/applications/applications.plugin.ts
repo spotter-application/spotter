@@ -3,7 +3,7 @@ import {
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
-} from '../core';
+} from '../../core';
 
 interface Application {
   title: string,

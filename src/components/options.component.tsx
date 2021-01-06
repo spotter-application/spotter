@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, LayoutChangeEvent, ScrollView, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { FlatList, Image, LayoutChangeEvent, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { SpotterOption, SpotterOptionWithId } from '../core';
 import { IconImageNative } from '../native';
 
@@ -23,14 +23,8 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
     const nextSelectedIndex = selectedIndex - 1 < 0
       ? 0
       : selectedIndex - 1;
-    ref.scrollToIndex({ index: nextSelectedIndex, animated: true })
 
-
-    ref.flashScrollIndicators()
-
-    // ref.scrollTo({
-    //   y: dataSourceCords[selectedIndex - 2],
-    // });
+    ref.scrollToIndex({ index: nextSelectedIndex, animated: true });
 
   }, [dataSourceCords, selectedIndex])
 
@@ -48,28 +42,36 @@ export const Options = ({ options, selectedIndex, onSubmit, style }: OptionsProp
         ref={setRef}
         keyExtractor={item => item.id}
         persistentScrollbar={true}
-        renderItem={({ item, index }) => (
-          <View
-            key={item.id}
-            style={selectedIndex === index ? styles.activeOption : styles.option}
-            onTouchEnd={() => onSubmit(item)}
-            onLayout={(e) => onLayout(e, index)}
-          >
-            <View>
-              <Text>{item.title}</Text>
-              <Text style={styles.subtitle}>{item.subtitle}</Text>
-            </View>
-            <View>
-              {(item.image && item.image.endsWith('.app'))
-                ? <IconImageNative source={item.image}></IconImageNative>
-                : null
-              }
-            </View>
-          </View>
-      )} />
+        renderItem={({ item, index }: { item: SpotterOptionWithId, index: number }) => (
+          <Option item={item} selected={selectedIndex === index} onSubmit={onSubmit}/>
+        )}
+      />
     : null}
   </>
 };
+
+const Option = ({ item, selected, onSubmit }: { item: SpotterOptionWithId, selected: boolean, onSubmit: (option: SpotterOption) => void }) => (
+  <View
+    key={item.id}
+    style={selected ? styles.activeOption : styles.option}
+    onTouchEnd={() => onSubmit(item)}
+  >
+    <View>
+      <Text>{item.title}</Text>
+      <Text style={styles.subtitle}>{item.subtitle}</Text>
+    </View>
+    <View>
+      {item?.image
+        ? typeof item?.image === 'string' && item?.image.endsWith('.app')
+          ? <IconImageNative style={{ width: 25, height: 25 }} source={item?.image}></IconImageNative>
+          : typeof item?.image === 'number'
+            ? <Image style={{ width: 22, height: 22 }} source={item?.image}></Image>
+            : null
+        : null
+      }
+    </View>
+  </View>
+);
 
 const styles = StyleSheet.create({
   activeOption: {

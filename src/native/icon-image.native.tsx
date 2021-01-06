@@ -1,10 +1,11 @@
 import React from 'react';
-import { requireNativeComponent } from 'react-native';
+import { ImageStyle, requireNativeComponent } from 'react-native';
 
 const RNIconImage = requireNativeComponent<any>('RNIconImage');
 
 type Props = {
   source: string,
+  style: ImageStyle,
 }
 
 export class IconImageNative extends React.PureComponent<Props> {
@@ -16,7 +17,7 @@ export class IconImageNative extends React.PureComponent<Props> {
 
     return <RNIconImage
       {...nativeProps}
-      style={{ padding: 17, backgroundColor: 'transparent'}}
+      style={{ width: 25, height: 25, ...this.props.style }}
     />
   }
 }

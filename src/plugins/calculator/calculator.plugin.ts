@@ -1,5 +1,6 @@
 import Mexp from 'math-expression-evaluator';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import icon from './icon.png';
 
 export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -20,7 +21,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
       return [{
         title: result,
         subtitle: `Copy to ${result} clipboard`,
-        image: '/System/Applications/Calculator.app',
+        image: icon,
         action: () => this.copyToClipboard(result),
       }];
     } catch (_) {

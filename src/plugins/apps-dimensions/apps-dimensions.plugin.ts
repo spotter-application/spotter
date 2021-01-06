@@ -4,7 +4,8 @@ import {
   SpotterPluginLifecycle,
   SystemApplicationDimensions,
   spotterSearch,
-} from '../core';
+} from '../../core';
+import icon from './icon.png';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
@@ -25,7 +26,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
       {
         title: 'Save application positions',
         subtitle: 'Save sizes and positions of all open applications',
-        image: '',
+        image: icon,
         action: async () => {
           const dimensions = await this.nativeModules.appsDimensions.getValue();
           this.saveApplicationDimensions(dimensions);
@@ -34,7 +35,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
       ...(this.storedApplicationDimensions?.length ? [{
         title: 'Restore application positions',
         subtitle: 'Restore sizes and positions of all open applications',
-        image: '',
+        image: icon,
         action: async () => {
           this.storedApplicationDimensions?.forEach(dimensions => {
             this.nativeModules.appsDimensions.setValue(

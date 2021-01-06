@@ -1,10 +1,8 @@
 import Foundation
 import IOBluetooth
-import CoreBluetooth
 
 @objc(NativeBluetooth)
 class NativeBluetooth: RCTEventEmitter {
-  let centralManager = CBCentralManager()
   
   func pairedDevices() -> [NSDictionary] {
     guard let devices = IOBluetoothDevice.pairedDevices() else {

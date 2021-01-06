@@ -1,4 +1,5 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../core';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import icon from './icon.png';
 
 export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -21,13 +22,13 @@ export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycl
         title: `g ${googleQuery}`,
         subtitle: `Search google for ${googleQuery}`,
         action: () => this.openSuggestion(googleQuery),
-        image: '',
+        image: icon,
       },
       ...suggestions.map(suggestion => ({
         title: `g ${suggestion}`,
         subtitle: `Search google for ${suggestion}`,
         action: () => this.openSuggestion(suggestion),
-        image: '',
+        image: icon,
       }))
     ];
   }
