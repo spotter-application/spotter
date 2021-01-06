@@ -13,23 +13,23 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
       bluetoothDevices.map(device => ({
         title: device.name,
         subtitle: device.connected ? 'Connected' : 'Disconnected',
-        action: () => device.connected
-          ? this.disconnectDevice(device.address)
-          : this.connectDevice(device.address),
+        action: device.connected
+          ? () => this.disconnect(device.address)
+          : () => this.connect(device.address),
         image: icon,
       })),
       'bluetooth',
     );
   }
 
-  private connectDevice(address: string): Promise<boolean> {
+  private connect(address: string): Promise<boolean> {
     this.nativeModules.bluetooth.connectDevice(address);
     return this.executeCommandWithTimer(
       devices => devices.find(d => d.address === address)?.connected,
     );
   }
 
-  private disconnectDevice(address: string) {
+  private disconnect(address: string): Promise<boolean> {
     this.nativeModules.bluetooth.disconnectDevice(address);
     return this.executeCommandWithTimer(
       devices => !devices.find(d => d.address === address)?.connected,
