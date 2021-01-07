@@ -81,7 +81,7 @@ export declare abstract class SpotterStorage {
 
 export declare type SpotterActionId = string;
 
-export declare type SpotterAction = () => void | Promise<boolean>;
+export declare type SpotterAction = () => void | Promise<boolean | void>;
 
 export type SpotterOptionImage = string | number;
 
