@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppRegistry, YellowBox } from 'react-native';
-import App from './src/containers/spotter.tsx';
+import { App } from './src/containers/spotter.tsx';
 import { name as appName } from './app.json';
 import { Settings } from './src/containers';
 import {

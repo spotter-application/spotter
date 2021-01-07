@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -38,146 +38,122 @@ type State = {
   selectedIndex: number;
   executing: boolean,
 }
-export default class App extends React.Component<Props, State> {
 
-  constructor(props: Props) {
-    super(props);
+export const App: FC<Props> = ({ nativeModules, registries }) => {
 
-    this.state = {
-      value: '',
-      options: [],
-      selectedIndex: 0,
-      executing: false,
-    }
-    this.init();
-  }
+  const [query, setQuery] = useState<string>('');
+  const [options, setOptions] = useState<SpotterOption[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [executing, setExecuting] = useState<boolean>(false);
 
-  private async init() {
-    this.props.registries.plugins.register(plugins);
-    const settings = await this.props.registries.settings.getSettings();
-    this.props.nativeModules.globalHotKey.register(settings?.hotkey);
-    this.props.nativeModules.globalHotKey.onPress(() => this.props.nativeModules.panel.open());
+  useEffect(() => {
+    init();
+  }, []);
+
+  const init = async () => {
+    registries.plugins.register(plugins);
+    const settings = await registries.settings.getSettings();
+    nativeModules.globalHotKey.register(settings?.hotkey);
+    nativeModules.globalHotKey.onPress(() => nativeModules.panel.open());
   };
 
-  onArrowUp() {
-    const { options, selectedIndex } = this.state;
-    const nextSelectedIndex = selectedIndex - 1;
-    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1 });
-  };
-
-  onArrowDown() {
-    const { options, selectedIndex } = this.state;
-    const nextSelectedIndex = selectedIndex + 1;
-    this.setState({ selectedIndex: options[nextSelectedIndex] ? nextSelectedIndex : 0 })
-  };
-
-  onEscape() {
-    this.props.nativeModules.panel.close();
-    this.resetValue();
-    this.setState({
-      selectedIndex: 0,
-      options: [],
-    });
-  };
-
-  async onChangeText(query: string) {
-    if (this.state.executing) {
+  const onChangeText = useCallback(async query => {
+    if (executing) {
       return;
     }
 
-    const history = await this.props.registries.history.getHistory();
+    const history = await registries.history.getHistory();
 
-    this.props.registries.plugins.findOptionsForQuery(query, (options) => {
+    registries.plugins.findOptionsForQuery(query, (options) => {
       const sortedOptionsByFrequently = options.sort((a, b) =>
         (history[b.title] ?? 0) - (history[a.title] ?? 0)
       );
 
-      this.setState({
-        selectedIndex: 0,
-        options: sortedOptionsByFrequently,
-      });
+      setSelectedIndex(0);
+      setOptions(sortedOptionsByFrequently);
     });
-  };
+  }, [executing]);
 
-  onSubmitEditing() {
-    const { options, selectedIndex } = this.state;
+  const onSubmitEditing = useCallback(() => {
     if (!options[selectedIndex]) {
       return;
     };
 
-    this.execAction(options[selectedIndex]);
-  };
+    execAction(options[selectedIndex]);
+  }, [options, selectedIndex]);
 
-  async execAction(option: SpotterOption) {
+  const execAction = async (option: SpotterOption) => {
     if (!option?.action) {
       return;
     };
 
-    this.props.registries.history.increaseHistoryItem(option.title);
-
-    this.setState({ executing: true });
+    registries.history.increaseHistoryItem(option.title);
+    setExecuting(true);
 
     const success = await option.action();
 
     if (success || typeof success !== 'boolean') {
-      this.closeSpotter();
+      nativeModules.panel.close();
+      resetQuery();
     }
 
-    this.setState({ executing: false });
+    setExecuting(false);
   };
 
-  private closeSpotter() {
-    this.props.nativeModules.panel.close();
-    this.resetValue();
-    this.setState({
-      selectedIndex: 0,
-      options: [],
-      executing: false,
-    });
-  }
+  const onArrowUp = useCallback(() => {
+    const nextSelectedIndex = selectedIndex - 1;
+    setSelectedIndex(options[nextSelectedIndex] ? nextSelectedIndex : options.length - 1);
+  }, [selectedIndex, options]);
 
-  componentWillUnmount() {
-    this.props.registries.plugins.destroyPlugins();
-  };
+  const onArrowDown = useCallback(() => {
+    const nextSelectedIndex = selectedIndex + 1;
+    setSelectedIndex(options[nextSelectedIndex] ? nextSelectedIndex : 0);
+  }, [selectedIndex, options]);
 
-  resetValue() {
+  const onEscape = useCallback(() => {
+    nativeModules.panel.close();
+    resetQuery();
+  }, []);
+
+  const onCommandComma = useCallback(() => {
+    onEscape();
+    nativeModules.panel.openSettings();
+  }, []);
+
+  const resetQuery = () => {
+    setQuery('_');
     // TODO: Implement resetValue method for Input
-    this.setState({ value: '_' }, () => this.setState({ value: '' }));
+    setTimeout(() => setQuery(''));
+    setSelectedIndex(0);
+    setOptions([]);
+    setExecuting(false);
   };
 
-  onCommandComma() {
-    this.onEscape();
-    this.props.nativeModules.panel.openSettings();
-  };
-
-  render() {
-    const { value, options, selectedIndex, executing } = this.state;
-    return <>
-      <SafeAreaView>
-        <View style={options?.length ? styles.inputWithResults : styles.input}>
-          <InputNative
-            value={value}
-            placeholder="Query..."
-            disabled={executing}
-            onChangeText={text => this.onChangeText(text)}
-            onSubmit={() => this.onSubmitEditing()}
-            onArrowDown={() => this.onArrowDown()}
-            onArrowUp={() => this.onArrowUp()}
-            onEscape={() => this.onEscape()}
-            onCommandComma={() => this.onCommandComma()}
-          ></InputNative>
-        </View>
-        <Options
-          style={styles.options}
-          selectedIndex={selectedIndex}
-          executing={executing}
-          options={options}
-          onSubmit={option => this.execAction(option)}
-        ></Options>
-      </SafeAreaView>
-    </>
-  };
-};
+  return <>
+    <SafeAreaView>
+      <View style={options?.length ? styles.inputWithResults : styles.input}>
+        <InputNative
+          value={query}
+          placeholder="Query..."
+          disabled={executing}
+          onChangeText={onChangeText}
+          onSubmit={onSubmitEditing}
+          onArrowDown={onArrowDown}
+          onArrowUp={onArrowUp}
+          onEscape={onEscape}
+          onCommandComma={onCommandComma}
+        ></InputNative>
+      </View>
+      <Options
+        style={styles.options}
+        selectedIndex={selectedIndex}
+        executing={executing}
+        options={options}
+        onSubmit={execAction}
+      ></Options>
+    </SafeAreaView>
+  </>
+}
 
 const styles = StyleSheet.create({
   inputWithResults: {
