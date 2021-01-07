@@ -1,5 +1,7 @@
 import { SpotterBluetoothItem, SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
 import icon from './icon.png';
+import iconInactive from './icon_inactive.png';
+
 
 export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -16,10 +18,18 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
         action: device.connected
           ? () => this.disconnect(device.address)
           : () => this.connect(device.address),
-        image: icon,
+        image: device?.connected ? this.getIcon() : this.getIconInactive(),
       })),
       'bluetooth',
     );
+  }
+
+  getIcon() {
+    return icon;
+  }
+
+  getIconInactive() {
+    return iconInactive;
   }
 
   private connect(address: string): Promise<boolean> {
