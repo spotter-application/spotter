@@ -95,7 +95,7 @@ Contributions are always welcome, no matter how large or small.
 
 #### The application “spotter” can’t be opened.
 
-```chmod +x "/Applications/spotter.app/Contents/MacOS/Spotter```
+```chmod +x "/Applications/spotter.app/Contents/MacOS/Spotter"```
 
 #### spotter can’t be opened because Apple cannot check it for malicious software.
 
