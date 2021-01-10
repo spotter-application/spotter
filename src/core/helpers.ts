@@ -16,7 +16,7 @@ export const spotterSearch = (
   const [ prefixFromQuery, ...restQuery ] = query.split(' ');
   const queryWithoutPrefix = restQuery.join(' ');
 
-  if (prefix.includes(prefixFromQuery)) {
+  if (prefix.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
     return search(queryWithoutPrefix, options);
   };
 
