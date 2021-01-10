@@ -24,7 +24,7 @@ export declare abstract class SpotterPluginsRegistry {
 
 export declare abstract class SpotterSettingsRegistry {
   abstract getSettings(): Promise<SpotterSettings>;
-  abstract patchSettings(settings: Partial<SpotterSettings>): void;
+  abstract patchSettings(settings: Partial<SpotterSettings>): Promise<void>;
 }
 
 export declare abstract class SpotterHistoryRegistry {
@@ -141,4 +141,17 @@ export interface SpotterBluetoothItem {
   connected: boolean,
   paired: boolean,
   address: string,
+}
+
+export interface SpotterThemeColors {
+  background: string,
+  border: string,
+  text: string,
+  description: string,
+  active: {
+    background: string,
+    border: string,
+    text: string,
+    description: string,
+  },
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { SpotterOption } from '../core';
 import { IconImageNative } from '../native';
+import { useTheme } from './theme.component';
 
 type OptionsProps = {
   options: SpotterOption[];
@@ -59,30 +60,47 @@ const Option = ({
   selected: boolean,
   executing: boolean,
   onSubmit: (option: SpotterOption) => void,
-}) => (
-  <View
-    key={item.title + item.subtitle}
-    style={selected ? styles.activeOption : styles.option}
-    onTouchEnd={() => onSubmit(item)}
-  >
-    {item?.image
-      ? <View style={styles.imageContainer}>
-        {typeof item?.image === 'string' && item?.image.endsWith('.app')
+}) => {
+
+  const { colors } = useTheme();
+
+  return (
+    <View
+      key={item.title + item.subtitle}
+      style={{
+        ...styles.option,
+        ...(selected ? styles.activeOption : {}),
+        backgroundColor: colors.background,
+        ...(selected ? { backgroundColor: colors.active.background } : {}),
+      }}
+      onTouchEnd={() => onSubmit(item)}
+    >
+      {item?.image
+        ? <View style={styles.imageContainer}>
+          {typeof item?.image === 'string' && item?.image.endsWith('.app')
             ? <IconImageNative style={{ width: 25, height: 25 }} source={item?.image}></IconImageNative>
             : typeof item?.image === 'number'
               ? <Image style={{ width: 22, height: 22 }} source={item?.image}></Image>
               : null
-        }
+          }
+        </View>
+        : null
+      }
+      <View>
+        <Text style={{
+          color: colors.text,
+          ...(selected ? { color: colors.active.text } : {}) }
+        }>{item.title}</Text>
+        <Text style={{
+          color: colors.description,
+          ...styles.subtitle,
+          ...(selected ? { color: colors.active.description } : {}),
+        }}>{item.subtitle}</Text>
       </View>
-      : null
-    }
-    <View>
-      <Text>{item.title}</Text>
-      <Text style={styles.subtitle}>{item.subtitle}</Text>
+      {executing && selected ? <ActivityIndicator size='small' color='#ffffff' style={styles.spinner} /> : null}
     </View>
-    {executing && selected ? <ActivityIndicator size="small" color="#ffffff" style={styles.spinner} /> : null}
-  </View>
-);
+  )
+};
 
 const styles = StyleSheet.create({
   spinner: {
@@ -90,14 +108,7 @@ const styles = StyleSheet.create({
     right: 10,
   },
   activeOption: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 10,
     borderBottomColor: 'transparent',
-    borderBottomWidth: 1,
   },
   option: {
     position: 'relative',
@@ -116,7 +127,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.3)',
     marginTop: 5
-  }
+  },
 });

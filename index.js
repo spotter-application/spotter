@@ -19,6 +19,7 @@ import {
   SettingsRegistry,
   HistoryRegistry,
 } from './src/registries';
+import { ThemeProvider } from './src/components';
 
 // TODO: Check
 YellowBox.ignoreWarnings([
@@ -57,8 +58,16 @@ const registries = {
   history,
 };
 
-const AppWithModules = () => (<App nativeModules={nativeModules} registries={registries}/>);
-const SettingsWithModules = () => (<Settings nativeModules={nativeModules} registries={registries}/>);
+const AppWithModules = () => (
+  <ThemeProvider>
+    <App nativeModules={nativeModules} registries={registries}/>
+  </ThemeProvider>
+);
+const SettingsWithModules = () => (
+  <ThemeProvider>
+    <Settings nativeModules={nativeModules} registries={registries}/>
+  </ThemeProvider>
+);
 
 AppRegistry.registerComponent(appName, () => AppWithModules);
 

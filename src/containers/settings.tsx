@@ -64,5 +64,5 @@ const styles = StyleSheet.create({
     marginRight: 15,
     borderRadius: 15,
     overflow: 'hidden',
-  }
+  },
 });

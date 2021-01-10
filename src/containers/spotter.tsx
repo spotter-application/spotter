@@ -4,6 +4,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { useTheme } from '../components';
 import { Options } from '../components/options.component';
 import { SpotterNativeModules, SpotterOption, SpotterRegistries } from '../core';
 import { InputNative } from '../native';
@@ -32,25 +33,21 @@ type Props = {
   registries: SpotterRegistries,
 }
 
-type State = {
-  value: string;
-  options: SpotterOption[];
-  selectedIndex: number;
-  executing: boolean,
-}
-
 export const App: FC<Props> = ({ nativeModules, registries }) => {
 
   const [query, setQuery] = useState<string>('');
   const [options, setOptions] = useState<SpotterOption[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [executing, setExecuting] = useState<boolean>(false);
+  const { colors } = useTheme();
 
   useEffect(() => {
     init();
-  }, []);
+  }, [colors]);
 
   const init = async () => {
+    console.log('colors: ', colors);
+
     registries.plugins.register(plugins);
     const settings = await registries.settings.getSettings();
     nativeModules.globalHotKey.register(settings?.hotkey);
@@ -131,7 +128,12 @@ export const App: FC<Props> = ({ nativeModules, registries }) => {
 
   return <>
     <SafeAreaView>
-      <View style={options?.length ? styles.inputWithResults : styles.input}>
+      <View style={{
+        backgroundColor: colors.background,
+        borderColor: colors.border,
+        ...styles.input,
+        ...(options?.length ? styles.inputWithResults : {}),
+      }}>
         <InputNative
           value={query}
           placeholder="Query..."
@@ -157,15 +159,11 @@ export const App: FC<Props> = ({ nativeModules, registries }) => {
 
 const styles = StyleSheet.create({
   inputWithResults: {
-    backgroundColor: '#212121',
-    padding: 10,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
     borderBottomWidth: 1,
   },
   input: {
-    backgroundColor: '#212121',
     padding: 10,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
