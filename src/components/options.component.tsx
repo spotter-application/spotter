@@ -75,12 +75,12 @@ const Option = ({
       }}
       onTouchEnd={() => onSubmit(item)}
     >
-      {item?.image
+      {item?.icon
         ? <View style={styles.imageContainer}>
-          {typeof item?.image === 'string' && item?.image.endsWith('.app')
-            ? <IconImageNative style={{ width: 25, height: 25 }} source={item?.image}></IconImageNative>
-            : typeof item?.image === 'number'
-              ? <Image style={{ width: 22, height: 22 }} source={item?.image}></Image>
+          {typeof item?.icon === 'string' && item?.icon.endsWith('.app')
+            ? <IconImageNative style={{ width: 25, height: 25 }} source={item?.icon}></IconImageNative>
+            : typeof item?.icon === 'number'
+              ? <Image style={{ width: 22, height: 22 }} source={item?.icon}></Image>
               : null
           }
         </View>

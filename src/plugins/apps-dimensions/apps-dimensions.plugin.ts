@@ -26,7 +26,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
       {
         title: 'Save application positions',
         subtitle: 'Save sizes and positions of all open applications',
-        image: icon,
+        icon,
         action: async () => {
           const dimensions = await this.nativeModules.appsDimensions.getValue();
           this.saveApplicationDimensions(dimensions);
@@ -35,7 +35,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
       ...(this.storedApplicationDimensions?.length ? [{
         title: 'Restore application positions',
         subtitle: 'Restore sizes and positions of all open applications',
-        image: icon,
+        icon,
         action: async () => {
           this.storedApplicationDimensions?.forEach(dimensions => {
             this.nativeModules.appsDimensions.setValue(

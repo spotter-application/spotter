@@ -21,7 +21,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
       return [{
         title: result,
         subtitle: `Copy to ${result} clipboard`,
-        image: icon,
+        icon,
         action: () => this.copyToClipboard(result),
       }];
     } catch (_) {

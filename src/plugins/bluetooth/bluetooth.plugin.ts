@@ -18,7 +18,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
         action: device.connected
           ? () => this.disconnect(device.address)
           : () => this.connect(device.address),
-        image: device?.connected ? this.getIcon() : this.getIconInactive(),
+        icon: device?.connected ? this.getIcon() : this.getIconInactive(),
       })),
       'bluetooth',
     );

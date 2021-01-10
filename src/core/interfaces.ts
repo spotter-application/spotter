@@ -90,7 +90,7 @@ export interface SpotterOption {
   title: string;
   action: SpotterAction;
   subtitle?: string;
-  image?: SpotterOptionImage;
+  icon?: SpotterOptionImage;
 }
 
 export interface SystemApplication {

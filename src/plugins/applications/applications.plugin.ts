@@ -40,7 +40,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
     this.applications = (await this.getAllApplications()).map(app => ({
       title: app.title,
       subtitle: app.path,
-      image: app.path,
+      icon: app.path,
       action: async () => await this.nativeModules.shell.execute(`open "${app.path}"`),
     }));
   }

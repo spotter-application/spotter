@@ -22,7 +22,7 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
     const options: SpotterOption[] = (await this.getRunningApps()).map(app => ({
       title: `kill ${app}`,
       subtitle: `Kill all instances of ${app} application`,
-      image: icon,
+      icon,
       action: () => this.nativeModules.shell.execute(`killall ${app}`),
     }));
 

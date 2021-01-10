@@ -31,7 +31,7 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       title: `${stringTime}`,
       subtitle: `Set a timer for ${stringTime}`,
       action: () => this.setTimer(seconds, stringTime),
-      image: icon,
+      icon,
     }];
   }
 

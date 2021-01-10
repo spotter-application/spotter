@@ -22,13 +22,13 @@ export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycl
         title: `g ${googleQuery}`,
         subtitle: `Search google for ${googleQuery}`,
         action: () => this.openSuggestion(googleQuery),
-        image: icon,
+        icon,
       },
       ...suggestions.map(suggestion => ({
         title: `g ${suggestion}`,
         subtitle: `Search google for ${suggestion}`,
         action: () => this.openSuggestion(suggestion),
-        image: icon,
+        icon,
       }))
     ];
   }

@@ -17,25 +17,25 @@ export class SystemCommandsPlugin extends SpotterPlugin implements SpotterPlugin
       {
         title: 'Shutdown',
         subtitle: 'Shut down the computer',
-        image: icon,
+        icon,
         action: () => this.shutdown(),
       },
       {
         title: 'Restart',
         subtitle: 'Restart the computer',
-        image: icon,
+        icon,
         action: () => this.restart(),
       },
       {
         title: 'Logout',
         subtitle: 'Logout the current user',
-        image: icon,
+        icon,
         action: () => this.logout(),
       },
       {
         title: 'Sleep',
         subtitle: 'Sleep the computer',
-        image: icon,
+        icon,
         action: () => this.sleep(),
       },
     ];
