@@ -13,7 +13,7 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
-[Download beta versions](https://github.com/spotter-application/spotter/releases)
+[Download](https://github.com/spotter-application/spotter/releases)
 
 ## Hotkeys
 Default hotkey to run the app ```double shift```
@@ -27,25 +27,35 @@ Default hotkey to run the app ```double shift```
 * ```g<space>``` (will get data from clipboard)
 * ```g "your query"```
 
+### System commands
+* ```sleep```
+* ```shutdown```
+* ```restart```
+* ```logout```
+
+### Kill applications
+* ```k <app_name>```
+
 ### Applications dimensions
 Saving / restoring positions and sizes of running applications
-* `Save application positions`
-* `Restore application positions`
+* `save application positions`
+* `restore application positions`
 
 ### Timer
 * ```15m```
 
 ### Spotify
-* ```Play```
-* ```Pause```
-* ```Next```
-* ```Previous```
-* ```Mute```
-* ```Unmute```
-* ```Toggle play/pause```
+* ```play```
+* ```pause```
+* ```next```
+* ```previous```
+* ```mute```
+* ```unmute```
+* ```toggle play/pause```
 
 ### Calculator
 * ```cos(0)```
+* ```256/8```
 
 ### Applications
 Search by all installed applications
