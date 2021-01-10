@@ -37,7 +37,6 @@ Default hotkey to run the app ```double shift```
 * ```k <app_name>```
 
 ### Applications dimensions
-Saving / restoring positions and sizes of running applications
 * `save application positions`
 * `restore application positions`
 
@@ -58,7 +57,7 @@ Saving / restoring positions and sizes of running applications
 * ```256/8```
 
 ### Applications
-Search by all installed applications
+* ```<app_name>```  (search by all installed applications)
 
 ## The main idea
 
