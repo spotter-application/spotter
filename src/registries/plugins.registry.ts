@@ -50,6 +50,14 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
+  public onOpenSpotter() {
+    Object.values(this.plugins).forEach(plugin => {
+      if (plugin.onOpenSpotter) {
+        plugin.onOpenSpotter();
+      }
+    });
+  }
+
   public destroyPlugins() {
     Object.entries(this.plugins).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
   }

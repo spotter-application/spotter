@@ -5,3 +5,5 @@ export * from './spotify/spotify.plugin';
 export * from './timer/timer.plugin';
 export * from './apps-dimensions/apps-dimensions.plugin';
 export * from './bluetooth/bluetooth.plugin';
+export * from './system-commands/system-commands.plugin';
+export * from './kill-apps/kill-apps.plugin';

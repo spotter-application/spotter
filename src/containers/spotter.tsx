@@ -16,6 +16,8 @@ import {
   GooglePlugin,
   SpotifyPlugin,
   TimerPlugin,
+  SystemCommandsPlugin,
+  KillAppsPlugin,
 } from '../plugins';
 
 const plugins = [
@@ -26,6 +28,8 @@ const plugins = [
   GooglePlugin,
   SpotifyPlugin,
   TimerPlugin,
+  SystemCommandsPlugin,
+  KillAppsPlugin,
 ];
 
 type Props = {
@@ -43,15 +47,16 @@ export const App: FC<Props> = ({ nativeModules, registries }) => {
 
   useEffect(() => {
     init();
-  }, [colors]);
+  }, []);
 
   const init = async () => {
-    console.log('colors: ', colors);
-
     registries.plugins.register(plugins);
     const settings = await registries.settings.getSettings();
     nativeModules.globalHotKey.register(settings?.hotkey);
-    nativeModules.globalHotKey.onPress(() => nativeModules.panel.open());
+    nativeModules.globalHotKey.onPress(() => {
+      registries.plugins.onOpenSpotter();
+      nativeModules.panel.open();
+    });
   };
 
   const onChangeText = useCallback(async query => {
