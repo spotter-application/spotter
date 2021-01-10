@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { SpotterOption } from '../core';
 import { IconImageNative } from '../native';
-import { useTheme } from './theme.component';
+import { useTheme } from './theme.provider';
 
 type OptionsProps = {
   options: SpotterOption[];

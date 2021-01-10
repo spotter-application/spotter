@@ -1,2 +1,3 @@
 export * from './options.component';
-export * from './theme.component';
+export * from './theme.provider';
+export * from './api.provider';

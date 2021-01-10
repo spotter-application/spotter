@@ -109,6 +109,8 @@ export interface SystemApplicationDimensions {
 
 export declare abstract class SpotterPluginLifecycle {
 
+  public requiredApp?: string;
+
   abstract onInit?(): void;
 
   abstract onOpenSpotter?(): void;

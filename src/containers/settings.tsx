@@ -1,15 +1,12 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { HotkeyInput } from '../native/hotkey-input.native';
-import { SpotterHotkey, SpotterNativeModules, SpotterRegistries } from '../core';
+import { SpotterHotkey } from '../core';
+import { useApi } from '../components';
 
-type Props = {
-  nativeModules: SpotterNativeModules,
-  registries: SpotterRegistries,
-}
+export const Settings: FC<{}> = () => {
 
-export const Settings: FC<Props> = ({ nativeModules, registries }) => {
-
+  const { nativeModules, registries } = useApi();
   const [currentHotkey, setCurrentHotkey] = useState<SpotterHotkey | null>(null);
 
   const onPressHotkey = useCallback(async (hotkey: SpotterHotkey) => {

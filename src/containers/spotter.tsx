@@ -4,9 +4,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { useTheme } from '../components';
+import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
-import { SpotterNativeModules, SpotterOption, SpotterRegistries } from '../core';
+import { SpotterOption } from '../core';
 import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
@@ -32,13 +32,9 @@ const plugins = [
   KillAppsPlugin,
 ];
 
-type Props = {
-  nativeModules: SpotterNativeModules,
-  registries: SpotterRegistries,
-}
+export const App: FC<{}> = () => {
 
-export const App: FC<Props> = ({ nativeModules, registries }) => {
-
+  const { nativeModules, registries } = useApi();
   const [query, setQuery] = useState<string>('');
   const [options, setOptions] = useState<SpotterOption[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
