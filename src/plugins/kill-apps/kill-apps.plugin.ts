@@ -8,25 +8,38 @@ import icon from './icon.png';
 
 export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  private options: SpotterOption[] = [];
+  private killOptions: SpotterOption[] = [];
+  private reopenOptions: SpotterOption[] = [];
 
   async onOpenSpotter() {
-    this.options = await this.getOptions();
+    const runningApps = await this.getRunningApps();
+    this.killOptions = this.getKillOptions(runningApps);
+    this.reopenOptions = this.getReopenOptions(runningApps);
   }
 
-  async onQuery(query: string): Promise<SpotterOption[]> {
-    return spotterSearch(query, this.options, 'kill');
+  onQuery(query: string): SpotterOption[] {
+    return [
+      ...spotterSearch(query, this.killOptions, 'kill'),
+      ...spotterSearch(query, this.reopenOptions, 'reopen'),
+    ];
   }
 
-  private async getOptions(): Promise<SpotterOption[]> {
-    const options: SpotterOption[] = (await this.getRunningApps()).map(app => ({
+  private getKillOptions(runningApps: string[]): SpotterOption[] {
+    return runningApps.map(app => ({
       title: `kill ${app}`,
       subtitle: `Kill all instances of ${app} application`,
       icon,
       action: () => this.nativeModules.shell.execute(`killall ${app}`),
     }));
+  }
 
-    return options;
+  private getReopenOptions(runningApps: string[]): SpotterOption[] {
+    return runningApps.map(app => ({
+      title: `reopen ${app}`,
+      subtitle: `Kill and open ${app}`,
+      icon,
+      action: () => this.nativeModules.shell.execute(`killall ${app} && open -a ${app}`),
+    }));
   }
 
   private async getRunningApps(): Promise<string[]> {
