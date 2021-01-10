@@ -36,19 +36,24 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
   }
 
   private setTimer(seconds: number, stringTime: string) {
-    let counter = seconds;
+    const currentDate = new Date();
+    const startTime = currentDate.getSeconds();
+    const endTime = startTime + seconds;
+
     this.resetTimer();
 
     this.timer = setInterval(() => {
-      if (!counter) {
+      const currentTime = new Date().getSeconds();
+      if (currentTime >= endTime) {
         this.resetTimer();
         this.nativeModules.notifications.show('Complete', `Timer for ${stringTime} has been completed`);
         this.nativeModules.statusBar.changeTitle('');
         return;
       }
 
-      this.nativeModules.statusBar.changeTitle(`${this.getStringISOTime(counter--)}`);
-    }, 1000)
+      const timeLeft = endTime - currentTime;
+      this.nativeModules.statusBar.changeTitle(`${this.getStringISOTime(timeLeft)}`);
+    }, 500)
   }
 
   private resetTimer() {
