@@ -29,7 +29,7 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
       title: `kill ${app}`,
       subtitle: `Kill all instances of ${app} application`,
       icon,
-      action: () => this.nativeModules.shell.execute(`killall ${app}`),
+      action: () => this.nativeModules.shell.execute(`killall "${app}"`),
     }));
   }
 
@@ -38,7 +38,7 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
       title: `reopen ${app}`,
       subtitle: `Kill and open ${app}`,
       icon,
-      action: () => this.nativeModules.shell.execute(`killall ${app} && open -a ${app}`),
+      action: () => this.nativeModules.shell.execute(`killall "${app}" && open -a "${app}"`),
     }));
   }
 
