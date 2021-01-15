@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterOption } from '../core';
+import { SpotterOption, SpotterOptionImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
 
@@ -75,17 +75,7 @@ const Option = ({
       }}
       onTouchEnd={() => onSubmit(item)}
     >
-      {item?.icon
-        ? <View style={styles.imageContainer}>
-          {typeof item?.icon === 'string' && item?.icon.endsWith('.app')
-            ? <IconImageNative style={{ width: 25, height: 25 }} source={item?.icon}></IconImageNative>
-            : typeof item?.icon === 'number'
-              ? <Image style={{ width: 22, height: 22 }} source={item?.icon}></Image>
-              : null
-          }
-        </View>
-        : null
-      }
+      <OptionIcon icon={item?.icon}/>
       <View>
         <Text style={{
           color: colors.text,
@@ -100,6 +90,22 @@ const Option = ({
       {executing && selected ? <ActivityIndicator size='small' color='#ffffff' style={styles.spinner} /> : null}
     </View>
   )
+};
+
+export const OptionIcon = ({ icon }: { icon: SpotterOptionImage }) => {
+  return <>
+    {icon
+      ? <View style={styles.imageContainer}>
+        {typeof icon === 'string' && icon.endsWith('.app')
+          ? <IconImageNative style={{ width: 25, height: 25 }} source={icon}></IconImageNative>
+          : typeof icon === 'number'
+            ? <Image style={{ width: 22, height: 22 }} source={icon}></Image>
+            : null
+        }
+      </View>
+      : null
+  }
+  </>
 };
 
 const styles = StyleSheet.create({

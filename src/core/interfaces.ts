@@ -21,6 +21,7 @@ export declare abstract class SpotterPluginsRegistry {
   abstract onOpenSpotter(): void;
   abstract destroyPlugins(): void;
   abstract findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void): void;
+  abstract options: {[plugin: string]: SpotterOption[]};
 }
 
 export declare abstract class SpotterSettingsRegistry {
@@ -84,7 +85,7 @@ export declare type SpotterActionId = string;
 
 export declare type SpotterAction = () => any | Promise<any>;
 
-export type SpotterOptionImage = string | number;
+export type SpotterOptionImage = string | number | undefined;
 
 export interface SpotterOption {
   title: string;
@@ -111,6 +112,8 @@ export declare abstract class SpotterPluginLifecycle {
 
   public requiredApp?: string;
 
+  public options?: SpotterOption[];
+
   abstract onInit?(): void;
 
   abstract onOpenSpotter?(): void;
@@ -131,8 +134,13 @@ export interface SpotterHotkey {
   doubledModifiers: boolean;
 }
 
+export type SpotterPluginHotkeys = {
+  [plugin: string]: { [option: string]: SpotterHotkey | null };
+}
+
 export interface SpotterSettings {
   hotkey: SpotterHotkey | null;
+  pluginHotkeys: SpotterPluginHotkeys;
 }
 
 export type SpotterHistoryExecutionsTotal = number;

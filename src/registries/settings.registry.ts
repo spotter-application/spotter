@@ -5,6 +5,7 @@ export class SettingsRegistry implements SpotterSettingsRegistry {
   private STORAGE_KEY = 'STORAGE_KEY';
   private defaultValue: SpotterSettings = {
     hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
+    pluginHotkeys: {},
   }
 
   constructor(nativeModules: SpotterNativeModules) {
@@ -22,3 +23,4 @@ export class SettingsRegistry implements SpotterSettingsRegistry {
   }
 
 }
+

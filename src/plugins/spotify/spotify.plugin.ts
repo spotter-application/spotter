@@ -14,7 +14,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     return spotterSearch(query, this.options);
   }
 
-  private get options(): SpotterOption[] {
+  public get options(): SpotterOption[] {
     return [
       {
         title: 'Previous',
@@ -89,3 +89,4 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to playpause'")
   }
 }
+

@@ -8,7 +8,8 @@ import {
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
-  private readonly registry = new Map<string, SpotterPluginLifecycle>();
+  private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
+  private readonly optionsRegistry = new Map<string, SpotterOption[]>();
   private nativeModules: SpotterNativeModules;
   private currentQueryOptionsWithPluginIds = new Map<string, SpotterOption[]>();
 
@@ -25,9 +26,13 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
     plugins.forEach(pluginConstructor => {
       const plugin = new pluginConstructor(this.nativeModules);
-      this.registry.set(pluginConstructor.name, plugin);
-      if (plugin.onInit) {
+      this.pluginsRegistry.set(pluginConstructor.name, plugin);
+      if (plugin?.onInit) {
         plugin.onInit();
+      }
+
+      if (plugin?.options?.length) {
+        this.optionsRegistry.set(pluginConstructor.name, plugin.options);
       }
     });
   }
@@ -63,7 +68,12 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   private get plugins(): { [pluginId: string]: SpotterPluginLifecycle } {
-    return Array.from(this.registry.entries()).reduce((acc, [key, plugin]) => ({ ...acc, [key]: plugin }), {});
+    return Array.from(this.pluginsRegistry.entries()).reduce((acc, [key, plugin]) => ({ ...acc, [key]: plugin }), {});
+  }
+
+  public get options(): { [pluginId: string]: SpotterOption[] } {
+    return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
   }
 
 }
+

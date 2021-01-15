@@ -6,10 +6,8 @@ import Magnet
 @objc(RNHotkeyInput)
 class RNHotkeyInput: RCTViewManager, NSTextFieldDelegate {
   
-  var hotkeyInput = HotkeyInputView(frame: CGRect.zero);
-  
   override func view() -> NSView! {
-    return self.hotkeyInput;
+    return HotkeyInputView(frame: CGRect.zero);
   }
   
   override static func requiresMainQueueSetup() -> Bool {

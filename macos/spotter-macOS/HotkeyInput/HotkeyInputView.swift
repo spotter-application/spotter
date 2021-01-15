@@ -26,12 +26,17 @@ class HotkeyInputView: RecordView, RecordViewDelegate {
   }
   
   @objc func setHotkey(_ val: NSDictionary) {
-    print(val)
-    let keyCombo = val["doubledModifiers"] as! Bool
-      ? KeyCombo(doubledCarbonModifiers: val["modifiers"] as! Int)
-      : KeyCombo(QWERTYKeyCode: val["keyCode"] as! Int, carbonModifiers: val["modifiers"] as! Int)
+    if let keyCode = (val["keyCode"] as! Int?) {
+      let keyCombo = val["doubledModifiers"] as! Bool
+        ? KeyCombo(doubledCarbonModifiers: val["modifiers"] as! Int)
+        : KeyCombo(QWERTYKeyCode: keyCode, carbonModifiers: val["modifiers"] as! Int)
 
-    self.keyCombo = keyCombo
+      self.keyCombo = keyCombo
+    } else {
+      
+    }
+
+
   }
   
   override init(frame: CGRect) {
