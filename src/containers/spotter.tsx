@@ -18,6 +18,7 @@ import {
   TimerPlugin,
   SystemCommandsPlugin,
   KillAppsPlugin,
+  MusicPlugin,
 } from '../plugins';
 
 const plugins = [
@@ -30,6 +31,7 @@ const plugins = [
   TimerPlugin,
   SystemCommandsPlugin,
   KillAppsPlugin,
+  MusicPlugin
 ];
 
 export const App: FC<{}> = () => {
