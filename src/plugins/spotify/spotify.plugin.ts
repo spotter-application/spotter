@@ -1,23 +1,23 @@
 import {
+  Application,
   getAllApplications,
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
 } from '../../core';
-import icon from './icon.png';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
   public title = 'Spotify';
 
-  private enabled = false;
+  private app: Application | null = null;
   private currentTrackURL: string | null = null;
   private currentTrackRequired = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
 
   async onInit() {
     const apps = await getAllApplications(this.nativeModules.shell);
-    this.enabled = !!apps.find(app => app.title === 'Spotify');
+    this.app = apps.find(app => app.title === 'Spotify') ?? null;
   }
 
   async onOpenSpotter() {
@@ -25,7 +25,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   onQuery(query: string): SpotterOption[] {
-    if (!this.enabled) {
+    if (!this.app) {
       return [];
     }
 
@@ -38,7 +38,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
         ? [{
           title: 'Share',
           subtitle: 'Copy current track url',
-          icon,
+          icon: this.app.path,
           action: () => this.nativeModules.clipboard.setValue(this.currentTrackURL ?? '')
         }] : []
       )
@@ -48,7 +48,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   public get options(): SpotterOption[] {
-    if (!this.enabled) {
+    if (!this.app) {
       return [];
     }
 
@@ -56,37 +56,37 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
       {
         title: 'Previous',
         subtitle: 'Spotify Previous track',
-        icon,
+        icon: this.app.path,
         action: () => this.previous(),
       },
       {
         title: 'Next',
         subtitle: 'Spotify Next track',
-        icon,
+        icon: this.app.path,
         action: () => this.next(),
       },
       {
         title: 'Pause',
         subtitle: 'Spotify Pause',
-        icon,
+        icon: this.app.path,
         action: () => this.pause(),
       },
       {
         title: 'Play',
         subtitle: 'Spotify Play',
-        icon,
+        icon: this.app.path,
         action: () => this.play(),
       },
       {
         title: 'Mute',
         subtitle: 'Spotify Mute',
-        icon,
+        icon: this.app.path,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
         subtitle: 'Spotify Unmute',
-        icon,
+        icon: this.app.path,
         action: () => this.unmute(),
       },
     ];
