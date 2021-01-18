@@ -110,8 +110,6 @@ export declare abstract class SpotterPluginLifecycle {
 
   public title?: string;
 
-  public requiredApp?: string;
-
   public options?: SpotterOption[];
 
   abstract onInit?(): void;
@@ -167,4 +165,9 @@ export interface SpotterThemeColors {
     text: string,
     description: string,
   },
+}
+
+export interface Application {
+  title: string,
+  path: string,
 }

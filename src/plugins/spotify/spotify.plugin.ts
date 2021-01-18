@@ -1,4 +1,5 @@
 import {
+  getAllApplications,
   SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
@@ -9,13 +10,48 @@ import icon from './icon.png';
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
   public title = 'Spotify';
-  public requiredApp = 'Spotify';
+
+  private enabled = false;
+  private currentTrackURL: string | null = null;
+  private currentTrackRequired = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
+
+  async onInit() {
+    const apps = await getAllApplications(this.nativeModules.shell);
+    this.enabled = !!apps.find(app => app.title === 'Spotify');
+  }
+
+  async onOpenSpotter() {
+    this.currentTrackURL = await this.getCurrentTrackURL()
+  }
 
   onQuery(query: string): SpotterOption[] {
-    return spotterSearch(query, this.options);
+    if (!this.enabled) {
+      return [];
+    }
+
+    const options = [
+      ...(this.currentTrackURL
+        ? this.options
+        : this.options.filter(option => !this.currentTrackRequired.find(title => option.title === title))
+      ),
+      ...(this.currentTrackURL
+        ? [{
+          title: 'Share',
+          subtitle: 'Copy current track url',
+          icon,
+          action: () => this.nativeModules.clipboard.setValue(this.currentTrackURL ?? '')
+        }] : []
+      )
+    ];
+
+    return spotterSearch(query, options);
   }
 
   public get options(): SpotterOption[] {
+    if (!this.enabled) {
+      return [];
+    }
+
     return [
       {
         title: 'Previous',
@@ -53,12 +89,6 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
         icon,
         action: () => this.unmute(),
       },
-      {
-        title: 'Toggle play/pause',
-        subtitle: 'Spotify Toggle play/pause',
-        icon,
-        action: () => this.togglePlayPause(),
-      },
     ];
   }
 
@@ -86,8 +116,30 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
   }
 
-  private async togglePlayPause() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to playpause'")
+  private async getCurrentTrackURL(): Promise<string | null> {
+    const meta = await this.nativeModules.shell.execute(`osascript -e '
+      if application "Spotify" is running then
+        tell application "Spotify"
+        if player state is playing then
+          return (get id of current track) as text
+        else
+          return "0"
+        end if
+          end tell
+        end if
+      return
+    '`);
+
+    if (!meta || meta === '0') {
+      return null;
+    }
+
+    const id = meta.split(':')[2];
+
+    if (!id) {
+      return null;
+    }
+
+    return `https://open.spotify.com/track/${id}`;
   }
 }
-

@@ -28,7 +28,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       const plugin = new pluginConstructor(this.nativeModules);
       const pluginTitle = plugin?.title ?? pluginConstructor.name;
       if (this.pluginsRegistry.get(pluginTitle)) {
-        throw new Error(`Duplicated plugin title: ${pluginTitle}`);
+        // throw new Error(`Duplicated plugin title: ${pluginTitle}`);
       }
 
       this.pluginsRegistry.set(pluginTitle, plugin);
