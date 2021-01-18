@@ -6,11 +6,11 @@ import {
 } from 'react-native';
 import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
-import { SpotterOption } from '../core';
+import { SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
-  AppsDimensionsPlugin,
+  AppDimensionsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
   GooglePlugin,
@@ -22,7 +22,7 @@ import {
 
 const plugins = [
   ApplicationsPlugin,
-  AppsDimensionsPlugin,
+  AppDimensionsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
   GooglePlugin,
@@ -48,10 +48,26 @@ export const App: FC<{}> = () => {
   const init = async () => {
     registries.plugins.register(plugins);
     const settings = await registries.settings.getSettings();
-    nativeModules.globalHotKey.register(settings?.hotkey);
-    nativeModules.globalHotKey.onPress(() => {
-      registries.plugins.onOpenSpotter();
-      nativeModules.panel.open();
+
+    /* Register global hotkeys for spotter and plugins */
+    nativeModules.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
+    Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
+      Object.entries(options).forEach(([option, hotkey]) => {
+        nativeModules.globalHotKey.register(hotkey, `${plugin}#${option}`);
+      });
+    });
+    nativeModules.globalHotKey.onPress(async (e) => {
+      if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+        registries.plugins.onOpenSpotter();
+        nativeModules.panel.open();
+        return;
+      }
+
+      const [plugin, option] = e.identifier.split('#');
+      const options = registries.plugins.options[plugin];
+      if (options?.length) {
+        await options.find(o => o.title === option)?.action();
+      }
     });
   };
 

@@ -11,18 +11,23 @@ import Carbon
 class GlobalHotkey: RCTEventEmitter {
 
   @objc
-  func register(_ hotkey: NSDictionary) {
-    HotKeyCenter.shared.unregisterAll()
+  func register(_ hotkey: NSDictionary?, withIdentifier identifier: NSString) {
+    HotKeyCenter.shared.unregisterHotKey(with: identifier as String)
+    
+    if (hotkey == nil) {
+      return
+    }
 
-    guard let keyCombo = hotkey["doubledModifiers"] as! Bool
-      ? KeyCombo(doubledCarbonModifiers: hotkey["modifiers"] as! Int)
-      : KeyCombo(QWERTYKeyCode: hotkey["keyCode"] as! Int, carbonModifiers: hotkey["modifiers"] as! Int)
+    guard let keyCombo = hotkey?["doubledModifiers"] as! Bool
+            ? KeyCombo(doubledCarbonModifiers: hotkey!["modifiers"] as! Int)
+            : KeyCombo(QWERTYKeyCode: hotkey!["keyCode"] as! Int, carbonModifiers: hotkey!["modifiers"] as! Int)
     else { return }
 
-    let hotKey = HotKey(identifier: "Spotter",
+    let hotKey = HotKey(identifier: identifier as String,
                          keyCombo: keyCombo,
                          target: self,
                          action: #selector(self.onPressHotkey))
+    
     hotKey.register()
   }
 
@@ -34,8 +39,17 @@ class GlobalHotkey: RCTEventEmitter {
     return false
   }
   
-  @objc func onPressHotkey() {
-    self.sendEvent(withName: Events.press, body: "")
+  @objc func onPressHotkey(_ sender: HotKey) {
+    let body: NSDictionary = [
+      "hotkey": [
+        "keyCode": sender.keyCombo.QWERTYKeyCode,
+        "modifiers": sender.keyCombo.modifiers,
+        "doubledModifiers": sender.keyCombo.doubledModifiers,
+      ],
+      "identifier": sender.identifier
+    ];
+    
+    self.sendEvent(withName: Events.press, body: body)
   }
 
 }

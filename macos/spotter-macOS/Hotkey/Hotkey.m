@@ -3,6 +3,6 @@
 
 @interface RCT_EXTERN_MODULE(GlobalHotkey, RCTEventEmitter)
 
-RCT_EXTERN_METHOD(register: (NSDictionary)hotkey)
+RCT_EXTERN_METHOD(register: (NSDictionary)hotkey withIdentifier:(NSString)identifier)
 
 @end

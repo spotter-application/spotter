@@ -9,7 +9,9 @@ import icon from './icon.png';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
-export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+
+  title = 'App Dimensions';
 
   private storedApplicationDimensions: SystemApplicationDimensions[] | null = null;
 
@@ -21,7 +23,7 @@ export class AppsDimensionsPlugin extends SpotterPlugin implements SpotterPlugin
     return spotterSearch(query, this.options);
   }
 
-  private get options(): SpotterOption[] {
+  get options(): SpotterOption[] {
     return [
       {
         title: 'Save application positions',

@@ -3,7 +3,7 @@ export * from './calculator/calculator.plugin';
 export * from './google/google.plugin';
 export * from './spotify/spotify.plugin';
 export * from './timer/timer.plugin';
-export * from './apps-dimensions/apps-dimensions.plugin';
+export * from './app-dimensions/app-dimensions.plugin';
 export * from './bluetooth/bluetooth.plugin';
 export * from './system-commands/system-commands.plugin';
 export * from './kill-apps/kill-apps.plugin';

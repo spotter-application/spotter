@@ -8,6 +8,7 @@ import icon from './icon.png';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
+  public title = 'Spotify';
   public requiredApp = 'Spotify';
 
   onQuery(query: string): SpotterOption[] {

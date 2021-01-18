@@ -5,14 +5,14 @@ import iconInactive from './icon_inactive.png';
 
 export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  private options: SpotterOption[] = [];
+  private bluetoothDevices: SpotterOption[] = [];
 
   async onOpenSpotter() {
     const bluetoothDevices = await this.nativeModules.bluetooth
       .getDevices()
       .then(devices => devices.sort((a, b) => Number(b.connected) - Number(a.connected)));
 
-    this.options = bluetoothDevices.map(device => ({
+    this.bluetoothDevices = bluetoothDevices.map(device => ({
       title: device.name,
       subtitle: device.connected ? 'Connected' : 'Disconnected',
       action: device.connected ? () => this.disconnect(device.address) : () => this.connect(device.address),
@@ -21,7 +21,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
   }
 
   async onQuery(query: string): Promise<SpotterOption[]> {
-    return spotterSearch(query, this.options, 'bluetooth');
+    return spotterSearch(query, this.bluetoothDevices, 'bluetooth');
   }
 
   getIcon() {

@@ -8,11 +8,13 @@ import icon from './icon.png';
 
 export class SystemCommandsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
+  title = 'System Commands';
+
   onQuery(query: string): SpotterOption[] {
     return spotterSearch(query, this.options);
   }
 
-  private get options(): SpotterOption[] {
+  get options(): SpotterOption[] {
     return [
       {
         title: 'Shutdown',

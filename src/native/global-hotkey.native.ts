@@ -2,18 +2,18 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
-import { SpotterActionId, SpotterGlobalHotkey, SpotterHotkey } from '../core';
+import { SpotterGlobalHotkey, SpotterHotkey } from '../core';
 
 export class GlobalHotkeyNative implements SpotterGlobalHotkey {
   private hotkey = NativeModules.GlobalHotkey;
 
   private panelEventEmitter = new NativeEventEmitter(this.hotkey);
 
-  register(hotkey: SpotterHotkey | null) {
-    this.hotkey.register(hotkey);
+  register(hotkey: SpotterHotkey | null, identifier: string) {
+    this.hotkey.register(hotkey, identifier);
   }
 
-  onPress(callback: (option: SpotterActionId) => void) {
+  onPress(callback: (event: { hotkey: SpotterHotkey, identifier: string }) => void) {
     this.panelEventEmitter.addListener('onPress', (event) => callback(event));
   }
 

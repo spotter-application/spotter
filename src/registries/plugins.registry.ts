@@ -26,13 +26,18 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
     plugins.forEach(pluginConstructor => {
       const plugin = new pluginConstructor(this.nativeModules);
-      this.pluginsRegistry.set(pluginConstructor.name, plugin);
+      const pluginTitle = plugin?.title ?? pluginConstructor.name;
+      if (this.pluginsRegistry.get(pluginTitle)) {
+        throw new Error(`Duplicated plugin title: ${pluginTitle}`);
+      }
+
+      this.pluginsRegistry.set(pluginTitle, plugin);
       if (plugin?.onInit) {
         plugin.onInit();
       }
 
       if (plugin?.options?.length) {
-        this.optionsRegistry.set(pluginConstructor.name, plugin.options);
+        this.optionsRegistry.set(pluginTitle, plugin.options);
       }
     });
   }
@@ -76,4 +81,3 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
 }
-

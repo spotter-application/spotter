@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { HotkeyInput } from '../native/hotkey-input.native';
-import { SpotterHotkey, SpotterPluginHotkeys, SpotterSettings } from '../core';
+import { SpotterHotkey, SpotterPluginHotkeys, SpotterSettings, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { OptionIcon, useApi, useTheme } from '../components';
 import spotterIcon from './icon.png';
 
@@ -15,8 +15,14 @@ export const Settings: FC<{}> = () => {
     const nextHotkey = hotkey.keyCode === null ? null : hotkey;
     if (!plugin) {
       await registries.settings.patchSettings({ hotkey: nextHotkey });
-      nativeModules.globalHotKey.register(nextHotkey);
-      nativeModules.globalHotKey.onPress(() => nativeModules.panel.open());
+      nativeModules.globalHotKey.register(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
+      nativeModules.globalHotKey.onPress((e) => {
+        if (e.identifier !== SPOTTER_HOTKEY_IDENTIFIER) {
+          return;
+        }
+
+        nativeModules.panel.open();
+      });
       return;
     }
 
@@ -36,6 +42,19 @@ export const Settings: FC<{}> = () => {
     };
 
     await registries.settings.patchSettings({ pluginHotkeys });
+
+    nativeModules.globalHotKey.register(nextHotkey, `${plugin}#${option}`);
+    nativeModules.globalHotKey.onPress(async (e) => {
+      if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+        return;
+      }
+
+      const [plugin, option] = e.identifier.split('#');
+      const options = registries.plugins.options[plugin];
+      if (options?.length) {
+        await options.find(o => o.title === option)?.action();
+      }
+    });
 
   }, []);
 
@@ -73,7 +92,7 @@ export const Settings: FC<{}> = () => {
         </View>
 
         { Object.keys(registries.plugins.options).map((plugin: string) => (
-          <View style={{ marginTop: 25 }}>
+          <View style={{ marginTop: 25 }} key={plugin}>
             <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
               <OptionIcon icon={registries.plugins.options[plugin][0]?.icon} />
               <Text style={{ fontSize: 20, marginLeft: -5 }}>
@@ -81,7 +100,7 @@ export const Settings: FC<{}> = () => {
               </Text>
             </View>
             { registries.plugins.options[plugin].map(option => (
-              <View style={{ marginLeft: 0, marginBottom: 15 }}>
+              <View style={{ marginLeft: 0, marginBottom: 15 }} key={plugin + option.title}>
                 <Text style={{ fontSize: 16, marginLeft: 3 }}>{option.title}</Text>
                 <View style={{ flex: 1, backgroundColor: colors.background, marginTop: 5, borderRadius: 15 }}>
                   <HotkeyInput
@@ -98,16 +117,3 @@ export const Settings: FC<{}> = () => {
     </ScrollView>
   )
 };
-
-const styles = StyleSheet.create({
-  hotkeyContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.15)',
-    borderRadius: 15,
-    overflow: 'hidden',
-  },
-});
-

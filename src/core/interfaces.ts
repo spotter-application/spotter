@@ -65,8 +65,8 @@ export declare abstract class SpotterNotifications {
 }
 
 export declare abstract class SpotterGlobalHotkey {
-  abstract register(hotkey: SpotterHotkey | null): void;
-  abstract onPress(callback: (option: SpotterActionId) => void): void;
+  abstract register(hotkey: SpotterHotkey | null, identifier: string): void;
+  abstract onPress(callback: (event: { hotkey: SpotterHotkey, identifier: string }) => void): void;
 }
 
 export declare abstract class SpotterAppsDimensions {
@@ -80,8 +80,6 @@ export declare abstract class SpotterStorage {
 }
 
 /* Base interfaces */
-
-export declare type SpotterActionId = string;
 
 export declare type SpotterAction = () => any | Promise<any>;
 
@@ -109,6 +107,8 @@ export interface SystemApplicationDimensions {
 }
 
 export declare abstract class SpotterPluginLifecycle {
+
+  public title?: string;
 
   public requiredApp?: string;
 
