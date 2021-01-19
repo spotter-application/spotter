@@ -81,9 +81,12 @@ export const App: FC<{}> = () => {
     const history = await registries.history.getHistory();
 
     registries.plugins.findOptionsForQuery(query, (options) => {
-      const sortedOptionsByFrequently = options.sort((a, b) =>
-        (history[`${b.plugin}#${b.title}`] ?? 0) - (history[`${a.plugin}#${a.title}`] ?? 0)
-      );
+      const sortedOptionsByFrequently = options
+        .sort((a, b) =>
+          (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
+          (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
+        )
+        .sort((a, b) => (history[`${b.plugin}#${b.title}`] ?? 0) - (history[`${a.plugin}#${a.title}`] ?? 0));
 
       setSelectedIndex(0);
       setOptions(sortedOptionsByFrequently);
