@@ -15,7 +15,8 @@ Spotter is a productivity tool, the main function is to search and launch extern
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
-[Download](https://github.com/spotter-application/spotter/releases)
+## Installation
+Installation instructions and alternatives are available on https://spotter-application.github.io/getspotterapp
 
 ## Hotkeys
 Default hotkey to run the app ```double shift```
