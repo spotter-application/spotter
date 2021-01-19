@@ -7,6 +7,7 @@ import {
 import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
 import { SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
+import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
   ApplicationsPlugin,
@@ -78,13 +79,15 @@ export const App: FC<{}> = () => {
       return;
     }
 
+    const convertedLayoutQuery = spotterConvertLayout(query);
+
     const history = await registries.history.getHistory();
 
-    registries.plugins.findOptionsForQuery(query, (options) => {
+    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (options) => {
       const sortedOptionsByFrequently = options
         .sort((a, b) =>
-          (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
-          (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
+          (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
+          (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0)
         )
         .sort((a, b) => (history[`${b.plugin}#${b.title}`] ?? 0) - (history[`${a.plugin}#${a.title}`] ?? 0));
 
