@@ -1,5 +1,5 @@
 import {
-  SpotterOption,
+  SpotterOptionBase,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -8,13 +8,13 @@ import icon from './icon.png';
 
 export class SystemCommandsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  title = 'System Commands';
+  identifier = 'System Commands';
 
-  onQuery(query: string): SpotterOption[] {
+  onQuery(query: string): SpotterOptionBase[] {
     return spotterSearch(query, this.options);
   }
 
-  get options(): SpotterOption[] {
+  get options(): SpotterOptionBase[] {
     return [
       {
         title: 'Shutdown',

@@ -1,10 +1,10 @@
-import { Application, SpotterOption, SpotterShell } from './interfaces';
+import { Application, SpotterOptionBase, SpotterShell } from './interfaces';
 
 export const spotterSearch = (
   query: string,
-  options: SpotterOption[],
+  options: SpotterOptionBase[],
   prefix?: string,
-): SpotterOption[] => {
+): SpotterOptionBase[] => {
   if (!query || !options?.length) {
     return [];
   };
@@ -23,7 +23,7 @@ export const spotterSearch = (
   return [];
 };
 
-const search = (query: string, options: SpotterOption[]): SpotterOption[] => {
+const search = (query: string, options: SpotterOptionBase[]): SpotterOptionBase[] => {
   if (!query && options?.length) {
     return options;
   };
@@ -33,7 +33,7 @@ const search = (query: string, options: SpotterOption[]): SpotterOption[] => {
   };
 
   return options
-    .filter((item: SpotterOption) => item.title?.toLowerCase().includes(query?.toLowerCase()))
+    .filter((item: SpotterOptionBase) => item.title?.toLowerCase().includes(query?.toLowerCase()))
     .sort((a, b) => a.title?.indexOf(query) - b.title?.indexOf(query));
 }
 

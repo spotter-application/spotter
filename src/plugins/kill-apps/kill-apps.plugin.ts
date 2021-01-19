@@ -1,5 +1,5 @@
 import {
-  SpotterOption,
+  SpotterOptionBase,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -8,8 +8,10 @@ import icon from './icon.png';
 
 export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  private killOptions: SpotterOption[] = [];
-  private reopenOptions: SpotterOption[] = [];
+  identifier = 'Kill Apps';
+
+  private killOptions: SpotterOptionBase[] = [];
+  private reopenOptions: SpotterOptionBase[] = [];
 
   async onOpenSpotter() {
     const runningApps = await this.getRunningApps();
@@ -17,14 +19,14 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
     this.reopenOptions = this.getReopenOptions(runningApps);
   }
 
-  onQuery(query: string): SpotterOption[] {
+  onQuery(query: string): SpotterOptionBase[] {
     return [
       ...spotterSearch(query, this.killOptions, 'kill'),
       ...spotterSearch(query, this.reopenOptions, 'reopen'),
     ];
   }
 
-  private getKillOptions(runningApps: string[]): SpotterOption[] {
+  private getKillOptions(runningApps: string[]): SpotterOptionBase[] {
     return runningApps.map(app => ({
       title: `kill ${app}`,
       subtitle: `Kill all instances of ${app} application`,
@@ -33,7 +35,7 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
     }));
   }
 
-  private getReopenOptions(runningApps: string[]): SpotterOption[] {
+  private getReopenOptions(runningApps: string[]): SpotterOptionBase[] {
     return runningApps.map(app => ({
       title: `reopen ${app}`,
       subtitle: `Kill and open ${app}`,

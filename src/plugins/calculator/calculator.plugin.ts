@@ -1,10 +1,12 @@
 import Mexp from 'math-expression-evaluator';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
 export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  onQuery(query: string): SpotterOption[] {
+  identifier = 'Calculator';
+
+  onQuery(query: string): SpotterOptionBase[] {
     const isMathExpression = (/(?:[0-9-+*/^()x]|abs|e\^x|ln|log|a?(?:sin|cos|tan)h?)+/).test(query);
 
     if (!isMathExpression) {

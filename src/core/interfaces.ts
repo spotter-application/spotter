@@ -21,7 +21,7 @@ export declare abstract class SpotterPluginsRegistry {
   abstract onOpenSpotter(): void;
   abstract destroyPlugins(): void;
   abstract findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void): void;
-  abstract options: {[plugin: string]: SpotterOption[]};
+  abstract options: {[plugin: string]: SpotterOptionBase[]};
 }
 
 export declare abstract class SpotterSettingsRegistry {
@@ -83,13 +83,17 @@ export declare abstract class SpotterStorage {
 
 export declare type SpotterAction = () => any | Promise<any>;
 
-export type SpotterOptionImage = string | number | undefined;
+export type SpotterOptionBaseImage = string | number | undefined;
 
-export interface SpotterOption {
+export interface SpotterOptionBase {
   title: string;
   action: SpotterAction;
   subtitle?: string;
-  icon?: SpotterOptionImage;
+  icon?: SpotterOptionBaseImage;
+}
+
+export type SpotterOption = SpotterOptionBase & {
+  plugin: string;
 }
 
 export interface SystemApplication {
@@ -108,15 +112,16 @@ export interface SystemApplicationDimensions {
 
 export declare abstract class SpotterPluginLifecycle {
 
-  public title?: string;
+  public identifier: string;
 
-  public options?: SpotterOption[];
+  abstract onQuery(query: string): SpotterOptionBase[] | Promise<SpotterOptionBase[]>;
+
+
+  public options?: SpotterOptionBase[];
 
   abstract onInit?(): void;
 
   abstract onOpenSpotter?(): void;
-
-  abstract onQuery(query: string): SpotterOption[] | Promise<SpotterOption[]>;
 
   abstract onDestroy?(): void;
 

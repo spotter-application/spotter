@@ -82,7 +82,7 @@ export const App: FC<{}> = () => {
 
     registries.plugins.findOptionsForQuery(query, (options) => {
       const sortedOptionsByFrequently = options.sort((a, b) =>
-        (history[b.title] ?? 0) - (history[a.title] ?? 0)
+        (history[`${b.plugin}#${b.title}`] ?? 0) - (history[`${a.plugin}#${a.title}`] ?? 0)
       );
 
       setSelectedIndex(0);
@@ -103,7 +103,7 @@ export const App: FC<{}> = () => {
       return;
     };
 
-    registries.history.increaseHistoryItem(option.title);
+    registries.history.increaseHistoryItem(`${option.plugin}#${option.title}`);
     setExecuting(true);
 
     const success = await option.action();

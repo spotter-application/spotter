@@ -1,7 +1,7 @@
 import {
   Application,
   getAllApplications,
-  SpotterOption,
+  SpotterOptionBase,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -9,7 +9,7 @@ import {
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  public title = 'Spotify';
+  identifier = 'Spotify';
 
   private app: Application | null = null;
   private currentTrackURL: string | null = null;
@@ -24,7 +24,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     this.currentTrackURL = await this.getCurrentTrackURL()
   }
 
-  onQuery(query: string): SpotterOption[] {
+  onQuery(query: string): SpotterOptionBase[] {
     if (!this.app) {
       return [];
     }
@@ -48,7 +48,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     return spotterSearch(query, options);
   }
 
-  public get options(): SpotterOption[] {
+  public get options(): SpotterOptionBase[] {
     if (!this.app) {
       return [];
     }

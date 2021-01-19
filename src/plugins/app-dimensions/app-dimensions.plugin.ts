@@ -1,5 +1,5 @@
 import {
-  SpotterOption,
+  SpotterOptionBase,
   SpotterPlugin,
   SpotterPluginLifecycle,
   SystemApplicationDimensions,
@@ -11,7 +11,7 @@ const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
 export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  title = 'App Dimensions';
+  identifier = 'App Dimensions';
 
   private storedApplicationDimensions: SystemApplicationDimensions[] | null = null;
 
@@ -19,11 +19,11 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
     this.storedApplicationDimensions = await this.getApplicationDimensions();
   }
 
-  onQuery(query: string): SpotterOption[] {
+  onQuery(query: string): SpotterOptionBase[] {
     return spotterSearch(query, this.options);
   }
 
-  get options(): SpotterOption[] {
+  get options(): SpotterOptionBase[] {
     return [
       {
         title: 'Save application positions',

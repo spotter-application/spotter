@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterOption, SpotterOptionImage } from '../core';
+import { SpotterOption, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
 
@@ -92,7 +92,7 @@ const Option = ({
   )
 };
 
-export const OptionIcon = ({ icon }: { icon: SpotterOptionImage }) => {
+export const OptionIcon = ({ icon }: { icon: SpotterOptionBaseImage }) => {
   return <>
     {icon
       ? <View style={styles.imageContainer}>

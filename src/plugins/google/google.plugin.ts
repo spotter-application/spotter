@@ -1,9 +1,11 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
 export class GooglePlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  async onQuery(query: string): Promise<SpotterOption[]> {
+  identifier = 'Google';
+
+  async onQuery(query: string): Promise<SpotterOptionBase[]> {
     const [prefix, ...googleQueryArray ] = query.split(' ');
     const googleQueryString = googleQueryArray.join(' ');
 
