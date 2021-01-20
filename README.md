@@ -6,7 +6,7 @@
 
 <a href="https://www.producthunt.com/posts/spotter-4?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-spotter-4" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=280842&theme=dark&period=daily" alt="Spotter - Productivity tool that allows you to launch everything | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
-Spotter is a productivity tool, the main function is to search and launch external application actions and applications themselves. (e.g. switch the next song or set a timer...) so you can stay focused on your current task. Kind of Spotlight or Alfred alternative.
+Productivity tool that allows to launch everything (e.g. switch the next song, connect bluetooth device, set a timer, etc.) so you can stay focused on your current task.
 
 * ❤️&nbsp;&nbsp;&nbsp;<b>Open source</b>
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
@@ -21,7 +21,7 @@ Installation instructions and alternatives are available on https://spotter-appl
 ## Hotkeys
 Default hotkey to run the app ```double shift```
 
-## Plugins usage
+## Plugins
 
 ### Bluetooth
 * ```b <device_name>```
@@ -46,14 +46,14 @@ Default hotkey to run the app ```double shift```
 ### Timer
 * ```15m```
 
-### Spotify
+### Spotify / Apple Music
 * ```play```
 * ```pause```
 * ```next```
 * ```previous```
 * ```mute```
 * ```unmute```
-* ```toggle play/pause```
+* ```share```
 
 ### Calculator
 * ```cos(0)```
