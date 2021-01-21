@@ -1,5 +1,6 @@
 import Foundation
 import Cocoa
+import Sparkle
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -26,8 +27,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     self.setupMenubar()
     self.setupSpotterPanel()
     self.setupSettingsPanel()
+    self.checkForUpdates()
   }
   
+  func checkForUpdates() {
+    let updater = SUUpdater.shared()
+    updater?.feedURL = URL(string: "https://s3.amazonaws.com/com.sparklesetupguide.tutorial/spottercast.xml")
+    updater?.checkForUpdates(self)
+  }
+
   func setStatusBarTitle(_ title: NSString) {
     if (title.length == 0) {
       self.statusBarItem.button?.title = ""
