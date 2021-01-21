@@ -17,7 +17,7 @@ import {
   GooglePlugin,
   SpotifyPlugin,
   TimerPlugin,
-  SystemCommandsPlugin,
+  PreferencesPlugin,
   KillAppsPlugin,
   MusicPlugin,
 } from '../plugins';
@@ -30,7 +30,7 @@ const plugins = [
   GooglePlugin,
   SpotifyPlugin,
   TimerPlugin,
-  SystemCommandsPlugin,
+  PreferencesPlugin,
   KillAppsPlugin,
   MusicPlugin
 ];

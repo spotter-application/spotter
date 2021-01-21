@@ -96,7 +96,7 @@ export const OptionIcon = ({ icon }: { icon: SpotterOptionBaseImage }) => {
   return <>
     {icon
       ? <View style={styles.imageContainer}>
-        {typeof icon === 'string' && icon.endsWith('.app')
+        {typeof icon === 'string' && (icon.endsWith('.app') || icon.endsWith('.prefPane'))
           ? <IconImageNative style={{ width: 25, height: 25 }} source={icon}></IconImageNative>
           : typeof icon === 'number'
             ? <Image style={{ width: 22, height: 22 }} source={icon}></Image>
