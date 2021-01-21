@@ -5,6 +5,6 @@ export * from './spotify/spotify.plugin';
 export * from './timer/timer.plugin';
 export * from './app-dimensions/app-dimensions.plugin';
 export * from './bluetooth/bluetooth.plugin';
-export * from './system-commands/system-commands.plugin';
+export * from './preferences/preferences.plugin';
 export * from './kill-apps/kill-apps.plugin';
 export * from './music/music.plugin';
