@@ -32,7 +32,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   
   func checkForUpdates() {
     let updater = SUUpdater.shared()
-    updater?.feedURL = URL(string: "https://s3.amazonaws.com/com.sparklesetupguide.tutorial/spottercast.xml")
+    updater?.feedURL = URL(string: "https://raw.githubusercontent.com/spotter-application/spotter/master/spottercast.xml")
     updater?.checkForUpdates(self)
   }
 
