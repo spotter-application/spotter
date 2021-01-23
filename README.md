@@ -16,6 +16,9 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
 ## Installation
+
+```brew install --cask spotter```
+
 Installation instructions and alternatives are available on https://spotter-application.github.io/getspotterapp
 
 ## Hotkeys
