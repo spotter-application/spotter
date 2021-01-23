@@ -44,7 +44,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   private func setupMenubar() {
     let statusBar = NSStatusBar.system
     self.statusBarItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
-    self.statusBarItem.button?.image = NSImage(named: NSImage.Name("Icon"))
+    self.statusBarItem.button?.image = NSImage(named: NSImage.Name("TrayIcon"))
     
     let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
     statusBarItem.menu = statusBarMenu
