@@ -15,8 +15,6 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
 
-[![GitHub followers](https://img.shields.io/github/followers/Naereen.svg?style=social&label=Follow&maxAge=2592000)](https://github.com/jet8a?tab=followers)
-
 ## Installation
 
 ```brew install --cask spotter```
