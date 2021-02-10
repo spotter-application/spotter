@@ -2,7 +2,7 @@
   <img src="/preview/icon.png?raw=true" alt="" height="100" />
 </p>
 
-# Spotter
+# Spotter [![Thanks](https://bit.ly/saythankss)](https://github.com/sponsors/jet8a)
 
 <a href="https://www.producthunt.com/posts/spotter-4?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-spotter-4" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=280842&theme=dark&period=daily" alt="Spotter - Productivity tool that allows you to launch everything | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
