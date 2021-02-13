@@ -1,4 +1,3 @@
-import Mexp from 'math-expression-evaluator';
 import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
@@ -6,17 +5,19 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
 
   identifier = 'Calculator';
 
-  onQuery(query: string): SpotterOptionBase[] {
-    const isMathExpression = (/(?:[0-9-+*/^()x]|abs|e\^x|ln|log|a?(?:sin|cos|tan)h?)+/).test(query);
+  async onQuery(query: string): Promise<SpotterOptionBase[]> {
+    const normalizedQuery = query.replaceAll('|', '/');
+    const isMathExpression = (/(?:[0-9-+*/^()x]|abs|e\^x|ln|log|a?(?:sin|cos|tan)h?)+/).test(normalizedQuery);
+    const hasRequiredSymbols = normalizedQuery.split('').find(q => ['+', '-', '*', '/', 'sin', 'cos', 'tan'].find(s => s === q));
 
-    if (!isMathExpression) {
+    if (!isMathExpression || !hasRequiredSymbols) {
       return [];
     }
 
     try {
-      const result = Mexp.eval(query).toString();
+      const result = eval(normalizedQuery).toString();
 
-      if (!result || result === query) {
+      if (!result) {
         return [];
       }
 
