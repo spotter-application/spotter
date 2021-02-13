@@ -20,6 +20,7 @@ import {
   PreferencesPlugin,
   KillAppsPlugin,
   MusicPlugin,
+  FinderPlugin,
 } from '../plugins';
 
 const plugins = [
@@ -32,7 +33,8 @@ const plugins = [
   TimerPlugin,
   PreferencesPlugin,
   KillAppsPlugin,
-  MusicPlugin
+  MusicPlugin,
+  FinderPlugin,
 ];
 
 export const App: FC<{}> = () => {
