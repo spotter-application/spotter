@@ -1,6 +1,8 @@
 import Foundation
 
 class CustomNSTextField: NSTextField, NSTextFieldDelegate {
+  
+  let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
   @objc var onChangeText: RCTDirectEventBlock?
   @objc var onSubmit: RCTDirectEventBlock?
@@ -40,6 +42,18 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     // TODO: Find a way to add listener for "command + ," event
     NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) {
       return self.hotkeyDown(with: $0)
+    }
+    
+    /* OnEscape event on click outside */
+    NSEvent.addGlobalMonitorForEvents(matching: [
+      NSEvent.EventTypeMask.leftMouseDown,
+      NSEvent.EventTypeMask.rightMouseDown,
+      NSEvent.EventTypeMask.otherMouseDown,
+    ]) { (event: NSEvent) -> Void in
+      
+      if (self.appDelegate.spotterPanel.isVisible) {
+        self.onEscape!(["text": ""])
+      }
     }
   }
   
