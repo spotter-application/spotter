@@ -8528,7 +8528,8 @@
     "left_arrow",
     "blue-square",
     "previous",
-    "back"
+    "back",
+    "prefix"
   ],
   "↖️": [
     "up_left_arrow",
@@ -8584,7 +8585,8 @@
     "sync",
     "cycle",
     "round",
-    "repeat"
+    "repeat",
+    "sort"
   ],
   "🔄": [
     "counterclockwise_arrows_button",

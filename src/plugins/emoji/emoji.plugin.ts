@@ -36,9 +36,16 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       return [];
     }
 
-    const result = await this.queryOnDB(query);
+    const [prefix, ...queryArray] = query.split(' ');
+    const queryString = queryArray.join(' ');
+
+    if (!'emoji'.includes(prefix) || !queryString.trim()?.length) {
+      return [];
+    }
+
+    const result = await this.queryOnDB(queryString);
     return result.map((emj: any) => ({
-      title: 'Emoji',
+      title: `Emoji ${emj.value}`,
       icon: emj.value,
       subtitle: 'Copy to clipboard',
       action: () => this.nativeModules.clipboard.setValue(emj.value),
