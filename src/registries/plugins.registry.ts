@@ -6,6 +6,7 @@ import {
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
 } from '../core';
+import CPromise from 'c-promise2';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
@@ -43,21 +44,37 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
+  /* Need it to cancel promises if have a new query but still waiting for an old query result */
+  private queryPromises: { [key: string]: any } = {};
+
   public async findOptionsForQuery(query: string, callback: (query: string, options: SpotterOption[]) => void) {
     Object.entries(this.plugins).forEach(async ([pluginIdentifier, plugin]) => {
       if (!plugin.onQuery) {
         return;
       }
 
-      const pluginOptions: SpotterOption[] = (await plugin.onQuery(query)).map(o => ({ ...o, plugin: pluginIdentifier}));
+      if (this.queryPromises[pluginIdentifier]) {
+        this.queryPromises[pluginIdentifier].cancel();
+      }
 
-      this.currentQueryOptionsWithPluginIds.set(pluginIdentifier, pluginOptions);
+      this.queryPromises[pluginIdentifier] = new CPromise((resolve: any, reject: any) => {
+        const onQuery = plugin.onQuery(query);
 
-      const accumulatedOptions: SpotterOption[] = Array.from(
-        this.currentQueryOptionsWithPluginIds.values()
-      ).reduce<SpotterOption[]>((acc, opts) => ([...acc, ...opts]), []);
+        return (onQuery instanceof Promise ? onQuery : new Promise(r => r(onQuery)))
+          .then(resolve, reject)
+      }).then((opts: SpotterOptionBase[]) => {
+        const pluginOptions: SpotterOption[] = opts?.map(o => ({ ...o, plugin: pluginIdentifier}));
 
-      callback(query, accumulatedOptions);
+        this.currentQueryOptionsWithPluginIds.set(pluginIdentifier, pluginOptions);
+
+        const accumulatedOptions: SpotterOption[] = Array.from(
+          this.currentQueryOptionsWithPluginIds.values()
+        ).reduce<SpotterOption[]>((acc, opts) => ([...acc, ...opts]), []);
+
+        callback(query, accumulatedOptions);
+
+        this.queryPromises[pluginIdentifier] = null;
+      })
     });
   }
 

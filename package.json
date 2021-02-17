@@ -20,6 +20,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@types/math-expression-evaluator": "^1.2.0",
+    "c-promise2": "^0.10.8",
     "react": "16.13.1",
     "react-native": "0.63.2",
     "react-native-macos": "^0.62.2",

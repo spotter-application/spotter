@@ -84,12 +84,11 @@ export const App: FC<{}> = () => {
     }
 
     const convertedLayoutQuery = spotterConvertLayout(q);
-    setQuery(convertedLayoutQuery);
 
     const history = await registries.history.getHistory();
 
     registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, options) => {
-      if (q !== forQuery) {
+      if (convertedLayoutQuery !== forQuery) {
         setSelectedIndex(0);
         setOptions([]);
         return;
