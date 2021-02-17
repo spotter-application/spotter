@@ -10,31 +10,33 @@ import { SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
-  ApplicationsPlugin,
   AppDimensionsPlugin,
+  ApplicationsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
+  EmojiPlugin,
+  FinderPlugin,
   GooglePlugin,
-  SpotifyPlugin,
-  TimerPlugin,
-  PreferencesPlugin,
   KillAppsPlugin,
   MusicPlugin,
-  FinderPlugin,
+  PreferencesPlugin,
+  SpotifyPlugin,
+  TimerPlugin,
 } from '../plugins';
 
 const plugins = [
-  ApplicationsPlugin,
   AppDimensionsPlugin,
+  ApplicationsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
+  EmojiPlugin,
+  FinderPlugin,
   GooglePlugin,
-  SpotifyPlugin,
-  TimerPlugin,
-  PreferencesPlugin,
   KillAppsPlugin,
   MusicPlugin,
-  FinderPlugin,
+  PreferencesPlugin,
+  SpotifyPlugin,
+  TimerPlugin,
 ];
 
 export const App: FC<{}> = () => {
@@ -76,16 +78,23 @@ export const App: FC<{}> = () => {
     });
   };
 
-  const onChangeText = useCallback(async query => {
+  const onChangeText = useCallback(async q => {
     if (executing) {
       return;
     }
 
-    const convertedLayoutQuery = spotterConvertLayout(query);
+    const convertedLayoutQuery = spotterConvertLayout(q);
+    setQuery(convertedLayoutQuery);
 
     const history = await registries.history.getHistory();
 
-    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (options) => {
+    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, options) => {
+      if (q !== forQuery) {
+        setSelectedIndex(0);
+        setOptions([]);
+        return;
+      }
+
       const sortedOptionsByFrequently = options
         .sort((a, b) =>
           (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
@@ -202,3 +211,4 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 });
+

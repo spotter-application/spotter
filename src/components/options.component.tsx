@@ -35,7 +35,7 @@ export const Options = ({ options, selectedIndex, executing, onSubmit, style }: 
         style={style}
         data={options}
         ref={setRef}
-        keyExtractor={item => item.title + item.subtitle}
+        keyExtractor={(item, i) => item.title + item.subtitle + i}
         persistentScrollbar={true}
         renderItem={({ item, index }: { item: SpotterOption, index: number }) => (
           <Option
@@ -100,7 +100,7 @@ export const OptionIcon = ({ icon }: { icon: SpotterOptionBaseImage }) => {
           ? <IconImageNative style={{ width: 25, height: 25 }} source={icon}></IconImageNative>
           : typeof icon === 'number'
             ? <Image style={{ width: 22, height: 22 }} source={icon}></Image>
-            : null
+            : <Text>{icon}</Text>
         }
       </View>
       : null

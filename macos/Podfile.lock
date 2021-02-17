@@ -247,6 +247,8 @@ PODS:
     - ReactCommon/callinvoker (= 0.62.16)
   - RNCAsyncStorage (1.13.2):
     - React
+  - RNSqlite2 (1.0.0):
+    - React-Core
   - Sauce (2.1.0)
   - ShellOut (2.0.0)
   - Yoga (1.14.0)
@@ -283,6 +285,7 @@ DEPENDENCIES:
   - ReactCommon/callinvoker (from `../node_modules/react-native-macos/ReactCommon`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native-macos/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - RNSqlite2 (from `../node_modules/react-native-sqlite-2`)
   - ShellOut
   - Yoga (from `../node_modules/react-native-macos/ReactCommon/yoga`)
 
@@ -346,6 +349,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-macos/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNSqlite2:
+    :path: "../node_modules/react-native-sqlite-2"
   Yoga:
     :path: "../node_modules/react-native-macos/ReactCommon/yoga"
 
@@ -378,6 +383,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 92859bffe23ec2514f4e3650442d0cc14feb4b0c
   ReactCommon: 6985b9148dc9e4f4fdaaa9cc7027f42553e1fe66
   RNCAsyncStorage: 05bae7ecfab1cbd5441993f1ca098f7c3b3f8d0e
+  RNSqlite2: aba98937d707abaf15d97f7bdeaf99335268c283
   Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
   ShellOut: 1393eefc56892e80d85339e233d3935e2e1ff6f9
   Yoga: 0f98dd1219266759167df8e5c7ae102d4a2ae4c5

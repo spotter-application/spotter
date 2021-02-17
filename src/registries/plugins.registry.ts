@@ -43,7 +43,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
-  public async findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void) {
+  public async findOptionsForQuery(query: string, callback: (query: string, options: SpotterOption[]) => void) {
     Object.entries(this.plugins).forEach(async ([pluginIdentifier, plugin]) => {
       if (!plugin.onQuery) {
         return;
@@ -57,7 +57,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         this.currentQueryOptionsWithPluginIds.values()
       ).reduce<SpotterOption[]>((acc, opts) => ([...acc, ...opts]), []);
 
-      callback(accumulatedOptions);
+      callback(query, accumulatedOptions);
     });
   }
 

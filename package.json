@@ -1,6 +1,6 @@
 {
   "name": "spotter",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Productivity tool that allows to launch external application actions and applications themselves. Supports plugins, cross platform, written without electron.",
   "keywords": [
     "Spotter",
@@ -22,7 +22,8 @@
     "@types/math-expression-evaluator": "^1.2.0",
     "react": "16.13.1",
     "react-native": "0.63.2",
-    "react-native-macos": "^0.62.2"
+    "react-native-macos": "^0.62.2",
+    "react-native-sqlite-2": "^3.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
