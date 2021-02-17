@@ -17,13 +17,13 @@ export const Options = ({ options, selectedIndex, executing, onSubmit, style }: 
   const [ref, setRef] = useState<FlatList | null>(null);
 
   useEffect(() => {
-    if (!ref) {
+    if (!ref || options?.length <= 4) {
       return;
     }
 
-    const nextSelectedIndex = selectedIndex - 1 < 0
+    const nextSelectedIndex = selectedIndex - 3 < 0
       ? 0
-      : selectedIndex - 1;
+      : selectedIndex - 3;
 
     ref.scrollToIndex({ index: nextSelectedIndex, animated: true });
 
