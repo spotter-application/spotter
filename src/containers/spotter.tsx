@@ -99,7 +99,6 @@ export const App: FC<{}> = () => {
     // const history = await registries.history.getHistory();
 
     registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
-
       const nextOptionsValues = Object.values(nextOptions);
       const selectedPluginNextOptions = nextOptionsValues[selectedPlugin];
 
@@ -316,7 +315,7 @@ export const App: FC<{}> = () => {
         backgroundColor: colors.background,
         borderColor: colors.border,
         ...styles.input,
-        ...(options?.length ? styles.inputWithResults : {}),
+        ...(Object.keys(options).length ? styles.inputWithResults : {}),
       }}>
         <InputNative
           value={query}
@@ -332,28 +331,31 @@ export const App: FC<{}> = () => {
           onShiftTab={onShiftTab}
         ></InputNative>
       </View>
+      {Object.keys(options).length ?
+        <Options
+          style={{ ...styles.options, backgroundColor: colors.background }}
+          selectedPlugin={selectedPlugin}
+          selectedOption={selectedOption}
+          executingOption={executingOption}
+          displayOptions={displayOptions}
+          options={options}
+          expandedPlugins={expandedPlugins}
+          onSubmit={execAction}
+        ></Options> : null
+      }
 
-      <Options
-        style={{ ...styles.options, backgroundColor: colors.background }}
-        selectedPlugin={selectedPlugin}
-        selectedOption={selectedOption}
-        executingOption={executingOption}
-        displayOptions={displayOptions}
-        options={options}
-        expandedPlugins={expandedPlugins}
-        onSubmit={execAction}
-      ></Options>
     </SafeAreaView>
   </>
 }
 
 const styles = StyleSheet.create({
   inputWithResults: {
-    // borderBottomLeftRadius: 0,
-    // borderBottomRightRadius: 0,
-    // borderBottomWidth: 1,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
   },
   input: {
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
     padding: 10,
   },
   options: {
