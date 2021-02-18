@@ -16,12 +16,23 @@ export interface SpotterRegistries {
   history: SpotterHistoryRegistry,
 }
 
+// TODO: Rename
+export type SpotterCallbackOptions = {
+  [pluginIdentifier: string]: SpotterOptionBase[] | null,
+}
+
+export type SpotterQueryCallback = (query: string, options: SpotterCallbackOptions) => void;
+
 export declare abstract class SpotterPluginsRegistry {
   abstract register(plugins: SpotterPluginConstructor[]): void;
   abstract onOpenSpotter(): void;
   abstract destroyPlugins(): void;
-  abstract findOptionsForQuery(query: string, callback: (query: string, options: SpotterOption[]) => void): void;
-  abstract options: {[plugin: string]: SpotterOptionBase[]};
+  abstract findOptionsForQuery(
+    query: string,
+    callback: SpotterQueryCallback,
+  ): void;
+  // abstract options: {[plugin: string]: SpotterOptionBase[]};
+  abstract list: {[pluginId: string]: SpotterPluginLifecycle};
 }
 
 export declare abstract class SpotterSettingsRegistry {

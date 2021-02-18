@@ -9,7 +9,7 @@ import {
 
 export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
-  identifier = 'Music';
+  identifier = 'Apple Music';
 
   private app: Application | null = null;
   private playing: boolean = false;
@@ -45,37 +45,31 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     return [
       {
         title: 'Previous',
-        subtitle: 'Apple Music previous track',
         icon: this.app.path,
         action: () => this.previous(),
       },
       {
         title: 'Next',
-        subtitle: 'Apple Music next track',
         icon: this.app.path,
         action: () => this.next(),
       },
       {
         title: 'Pause',
-        subtitle: 'Apple Music pause',
         icon: this.app.path,
         action: () => this.pause(),
       },
       {
         title: 'Play',
-        subtitle: 'Apple Music play',
         icon: this.app.path,
         action: () => this.play(),
       },
       {
         title: 'Mute',
-        subtitle: 'Apple Music mute',
         icon: this.app.path,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
-        subtitle: 'Apple Music unmute',
         icon: this.app.path,
         action: () => this.unmute(),
       },

@@ -1,24 +1,38 @@
 import {
+  omit,
+  SpotterCallbackOptions,
   SpotterNativeModules,
   SpotterOption,
   SpotterOptionBase,
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
+  SpotterQueryCallback,
 } from '../core';
-import CPromise from 'c-promise2';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
   private readonly optionsRegistry = new Map<string, SpotterOptionBase[]>();
   private nativeModules: SpotterNativeModules;
-  private currentQueryOptionsWithPluginIds = new Map<string, SpotterOption[]>();
+
+  // private currentQueryOptionsWithPluginIds = new Map<string, SpotterOption[]>();
+
+  private currentOptionsSubject$: BehaviorSubject<SpotterCallbackOptions> = new BehaviorSubject({});
 
   constructor(
     nativeModules: SpotterNativeModules,
   ) {
     this.nativeModules = nativeModules;
+  }
+
+  public get options(): SpotterCallbackOptions {
+    return this.currentOptionsSubject$.getValue();
+  }
+
+  public get options$(): Observable<SpotterCallbackOptions> {
+    return this.currentOptionsSubject$.asObservable();
   }
 
   public register(plugins: SpotterPluginConstructor[]): void {
@@ -45,41 +59,45 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   /* Need it to cancel promises if have a new query but still waiting for an old query result */
-  private queryPromises: { [key: string]: any } = {};
+  // private queryPromises: { [key: string]: any } = {};
 
-  public async findOptionsForQuery(query: string, callback: (query: string, options: SpotterOption[]) => void) {
-    Object.entries(this.plugins).forEach(async ([pluginIdentifier, plugin]) => {
+
+  private currentOptions: SpotterCallbackOptions = {};
+
+  public findOptionsForQuery(q: string, callback: SpotterQueryCallback) {
+
+    const query: string = q.trim();
+
+    Object.entries(this.list).forEach(([pluginIdentifier, plugin]) => {
       if (!plugin.onQuery) {
+        this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: [] };
+        callback(query, this.currentOptions);
         return;
       }
 
-      if (this.queryPromises[pluginIdentifier]) {
-        this.queryPromises[pluginIdentifier].cancel();
-      }
+      this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: 'loading' };
+      callback(query, this.currentOptions);
 
-      this.queryPromises[pluginIdentifier] = new CPromise((resolve: any, reject: any) => {
-        const onQuery = plugin.onQuery(query);
+      const onQuery = plugin.onQuery(query);
+      const promisedOnQuery: Promise<SpotterOptionBase[]> = onQuery instanceof Promise
+        ? onQuery
+        : new Promise(res => res(onQuery));
 
-        return (onQuery instanceof Promise ? onQuery : new Promise(r => r(onQuery)))
-          .then(resolve, reject)
-      }).then((opts: SpotterOptionBase[]) => {
-        const pluginOptions: SpotterOption[] = opts?.map(o => ({ ...o, plugin: pluginIdentifier}));
-
-        this.currentQueryOptionsWithPluginIds.set(pluginIdentifier, pluginOptions);
-
-        const accumulatedOptions: SpotterOption[] = Array.from(
-          this.currentQueryOptionsWithPluginIds.values()
-        ).reduce<SpotterOption[]>((acc, opts) => ([...acc, ...opts]), []);
-
-        callback(query, accumulatedOptions);
-
-        this.queryPromises[pluginIdentifier] = null;
+      promisedOnQuery.then(options => {
+        this.currentOptions = options?.length
+          ? { ...this.currentOptions, [pluginIdentifier]: options }
+          : omit([pluginIdentifier], this.currentOptions);
+        callback(query, this.currentOptions);
       })
+
+      // const options = await plugin.onQuery(query);
+      // this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: options };
+      // callback(query, this.currentOptions);
     });
   }
 
   public onOpenSpotter() {
-    Object.values(this.plugins).forEach(plugin => {
+    Object.values(this.list).forEach(plugin => {
       if (plugin.onOpenSpotter) {
         plugin.onOpenSpotter();
       }
@@ -87,15 +105,15 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   public destroyPlugins() {
-    Object.entries(this.plugins).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
+    Object.entries(this.list).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
   }
 
-  private get plugins(): { [pluginId: string]: SpotterPluginLifecycle } {
+  public get list(): { [pluginId: string]: SpotterPluginLifecycle } {
     return Array.from(this.pluginsRegistry.entries()).reduce((acc, [key, plugin]) => ({ ...acc, [key]: plugin }), {});
   }
 
-  public get options(): { [pluginId: string]: SpotterOptionBase[] } {
-    return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
-  }
+  // public get options(): { [pluginId: string]: SpotterOptionBase[] } {
+  //   return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
+  // }
 
 }

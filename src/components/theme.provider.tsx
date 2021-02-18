@@ -28,7 +28,7 @@ const themes: { [theme: string]: SpotterThemeColors } = {
     description: 'rgba(255, 255, 255, 0.3)',
     active: {
       background: '#1877dd',
-      border: 'rgba(255, 255, 255, 0.05)',
+      border: 'rgba(255, 255, 255, 0.01)',
       text: '#ffffff',
       description: 'rgba(255, 255, 255, 0.5)',
     },

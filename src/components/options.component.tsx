@@ -1,101 +1,172 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterOption, SpotterOptionBaseImage } from '../core';
+import { SpotterCallbackOptions, SpotterOption, SpotterOptionBase, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
 
 type OptionsProps = {
-  options: SpotterOption[];
-  selectedIndex: number;
-  executing: boolean,
+  options: SpotterCallbackOptions;
+  selectedPlugin: number;
+  selectedOption: number;
+  executingOption: boolean,
+  expandedPlugins: number[],
   onSubmit: (option: SpotterOption) => void;
+  displayOptions: number,
   style: ViewStyle;
 }
 
-export const Options = ({ options, selectedIndex, executing, onSubmit, style }: OptionsProps) => {
+const dimensions = {
+  option: 40,
+  expand: 20,
+  pluginTitle: 20,
+  pluginMarginTop: 15,
+};
+
+export const Options = ({
+  options,
+  selectedPlugin,
+  selectedOption,
+  executingOption,
+  expandedPlugins,
+  onSubmit,
+  displayOptions,
+  style,
+}: OptionsProps) => {
 
   const [ref, setRef] = useState<FlatList | null>(null);
 
+  const { colors } = useTheme();
+
   useEffect(() => {
-    if (!ref || options?.length <= 4) {
+    if (!ref || !Object.values(options).length) {
       return;
     }
 
-    const nextSelectedIndex = selectedIndex - 3 < 0
-      ? 0
-      : selectedIndex - 3;
+    const optionsAbove = getOptionsAbove(
+      selectedPlugin,
+      selectedOption,
+      expandedPlugins,
+      options,
+      displayOptions,
+    );
 
-    ref.scrollToIndex({ index: nextSelectedIndex, animated: true });
+    const unexpandedPluginsAbove = [...Array(selectedPlugin).keys()].reduce((acc, pluginIndex) => {
+      const expanded = expandedPlugins.filter(p => p === pluginIndex).length;
+      return expanded ? acc : acc + 1;
+    }, 0);
 
-  }, [selectedIndex])
+    const offset = (
+      (optionsAbove * dimensions.option) +
+      (unexpandedPluginsAbove * dimensions.expand) +
+      (selectedPlugin * dimensions.pluginTitle) +
+      (selectedPlugin * dimensions.pluginMarginTop)
+    );
 
-  return <>
-    {options.length ?
-      <FlatList
-        style={style}
-        data={options}
-        ref={setRef}
-        keyExtractor={(item, i) => item.title + item.subtitle + i}
-        persistentScrollbar={true}
-        renderItem={({ item, index }: { item: SpotterOption, index: number }) => (
-          <Option
-            item={item}
-            selected={selectedIndex === index}
-            executing={executing}
-            onSubmit={onSubmit}
-          />
-        )}
-      />
-    : null}
-  </>
-};
+    if (offset === 0) {
+      ref.scrollToOffset({ offset: offset })
+    }
 
-const Option = ({
-  item,
-  selected,
-  executing,
-  onSubmit,
-}: {
-  item: SpotterOption,
-  selected: boolean,
-  executing: boolean,
-  onSubmit: (option: SpotterOption) => void,
-}) => {
+    if (offset > 200) {
+      ref.scrollToOffset({ offset: offset - 200 })
+    }
 
-  const { colors } = useTheme();
+  }, [selectedPlugin, selectedOption])
 
-  return (
-    <View
-      key={item.title + item.subtitle}
-      style={{
-        ...styles.option,
-        ...(selected ? styles.activeOption : {}),
-        backgroundColor: colors.background,
-        ...(selected ? { backgroundColor: colors.active.background } : {}),
-      }}
-      onTouchEnd={() => onSubmit(item)}
-    >
-      <OptionIcon icon={item?.icon}/>
-      <View>
-        <Text style={{
-          color: colors.text,
-          ...(selected ? { color: colors.active.text } : {}) }
-        }>{item.title}</Text>
-        <Text style={{
-          color: colors.description,
-          ...styles.subtitle,
-          ...(selected ? { color: colors.active.description } : {}),
-        }}>{item.subtitle}</Text>
+  const getOptionsAbove = (
+    selectedPlugin: number,
+    selectedOption: number,
+    expandedPlugins: number[],
+    options: SpotterCallbackOptions,
+    displayOptions: number,
+  ) => {
+    return Object.values(options).reduce((acc, opts, index) => {
+      if (!opts || index > selectedPlugin) {
+        return acc;
+      }
+
+      if (index === selectedPlugin) {
+        return acc + selectedOption;
+      }
+
+      const pluginExpanded = expandedPlugins.filter(p => p === index).length;
+      return acc + (pluginExpanded
+        ? opts.length
+        : (opts.length < displayOptions ? opts.length : displayOptions)
+      );
+    }, 0);
+  }
+
+  return <FlatList
+     style={style}
+     data={Object.entries(options)}
+     ref={setRef}
+     keyExtractor={(item, i) => item[0] + i}
+     persistentScrollbar={true}
+     renderItem={({ item, index }) => (
+       <View
+        key={item[0]}
+       >
+        {(item[1] === 'loading' || item[1]?.length) ?
+         <View key={item[0]} style={{ paddingLeft: 10, paddingRight: 10 }}>
+           <View style={{
+             height: dimensions.pluginTitle,
+             marginTop: index ? dimensions.pluginMarginTop : 0,
+             display: 'flex',
+             alignItems: 'center',
+             flexDirection: 'row',
+           }}>
+              <Text style={{ fontSize: 11, paddingLeft: 10, paddingBottom: 5, opacity: 0.3 }}>{item[0]}</Text>
+           </View>
+          {item[1] === 'loading'
+            // ? <ActivityIndicator size="small" color="#ffffff" />
+            ? null
+            : item[1]?.map((option: SpotterOptionBase, optionIndex: number) => (
+                optionIndex < (expandedPlugins.filter(p => p === index).length ? 1000 : displayOptions) ?
+                  <View
+                    key={item[0] + option.title}
+                    style={{
+                      height: dimensions.option,
+                      paddingLeft: 10,
+                      paddingRight: 10,
+                      backgroundColor: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.background : 'transparent', borderRadius: 10,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <OptionIcon icon={option?.icon} style={{ marginRight: 5 }}/>
+                    <Text style={{ fontSize: 13 }}>{option.title}</Text>
+                    <Text style={{ fontSize: 13, opacity: 0.3, marginLeft: 'auto' }}>{option.subtitle}</Text>
+                  </View>
+                  : null
+              ))
+          }
+        </View> : null}
+          {item[1] !== 'loading' && item[1]?.length > displayOptions && !expandedPlugins.filter(e => e === index).length
+            ? <View style={{
+              backgroundColor: selectedOption === displayOptions && selectedPlugin === index ? colors.active.background : colors.active.border,
+              borderRadius: 10,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginLeft: 10,
+              marginRight: 10,
+              height: dimensions.expand,
+            }}>
+              <Text style={{ fontSize: 10, opacity: 0.5 }}>•••</Text>
+            </View>
+            : null
+          }
       </View>
-      {executing && selected ? <ActivityIndicator size='small' color='#ffffff' style={styles.spinner} /> : null}
-    </View>
-  )
+     )}
+  />
 };
 
-export const OptionIcon = ({ icon }: { icon: SpotterOptionBaseImage }) => {
+export const OptionIcon = ({ style, icon }: { style: ViewStyle, icon: SpotterOptionBaseImage }) => {
   return <>
     {icon
-      ? <View style={styles.imageContainer}>
+      ? <View style={style}>
         {typeof icon === 'string' && (icon.endsWith('.app') || icon.endsWith('.prefPane'))
           ? <IconImageNative style={{ width: 25, height: 25 }} source={icon}></IconImageNative>
           : typeof icon === 'number'

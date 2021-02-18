@@ -56,37 +56,31 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     return [
       {
         title: 'Previous',
-        subtitle: 'Spotify previous track',
         icon: this.app.path,
         action: () => this.previous(),
       },
       {
         title: 'Next',
-        subtitle: 'Spotify next track',
         icon: this.app.path,
         action: () => this.next(),
       },
       {
         title: 'Pause',
-        subtitle: 'Spotify pause',
         icon: this.app.path,
         action: () => this.pause(),
       },
       {
         title: 'Play',
-        subtitle: 'Spotify play',
         icon: this.app.path,
         action: () => this.play(),
       },
       {
         title: 'Mute',
-        subtitle: 'Spotify mute',
         icon: this.app.path,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
-        subtitle: 'Spotify unmute',
         icon: this.app.path,
         action: () => this.unmute(),
       },
@@ -106,6 +100,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   private async play() {
+    console.log('PLAY!!!!!!!!!!')
     await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
   }
 

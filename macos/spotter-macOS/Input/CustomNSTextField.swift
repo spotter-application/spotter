@@ -10,6 +10,8 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onArrowDown: RCTDirectEventBlock?
   @objc var onArrowUp: RCTDirectEventBlock?
   @objc var onCommandComma: RCTDirectEventBlock?
+  @objc var onTab: RCTDirectEventBlock?
+  @objc var onShiftTab: RCTDirectEventBlock?
   
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
@@ -62,6 +64,12 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
       self.onCommandComma!(["text": self.stringValue]);
       return nil
     }
+    
+    if (event.keyCode == 48 && event.modifierFlags.contains(NSEvent.ModifierFlags.shift)) {
+      self.onShiftTab!(["text": self.stringValue]);
+      return nil
+    }
+
     return event
   }
   
@@ -84,7 +92,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
         return true
       } else if (commandSelector == #selector(NSResponder.insertTab(_:))) {
         // TAB key
-        self.onArrowDown!(["text": self.stringValue])
+        self.onTab!(["text": self.stringValue])
         return true
       } else if (commandSelector == #selector(NSResponder.cancelOperation(_:))) {
         // ESCAPE key

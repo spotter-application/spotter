@@ -15,6 +15,8 @@ type InputProps = {
   onArrowDown?: () => void,
   onArrowUp?: () => void,
   onCommandComma?: () => void,
+  onTab?: () => void,
+  onShiftTab?: () => void,
 }
 
 export class InputNative extends React.PureComponent<InputProps> {
@@ -61,6 +63,20 @@ export class InputNative extends React.PureComponent<InputProps> {
     this.props.onCommandComma()
   }
 
+  _onTab = () => {
+    if (!this.props.onTab) {
+      return;
+    }
+    this.props.onTab()
+  }
+
+  _onShiftTab = () => {
+    if (!this.props.onShiftTab) {
+      return;
+    }
+    this.props.onShiftTab()
+  }
+
   render() {
     const nativeProps = {
       ...this.props,
@@ -70,6 +86,8 @@ export class InputNative extends React.PureComponent<InputProps> {
       onArrowDown: this._onArrowDown,
       onArrowUp: this._onArrowUp,
       onCommandComma: this._onCommandComma,
+      onTab: this._onTab,
+      onShiftTab: this._onShiftTab,
     }
 
     return <RNInput
