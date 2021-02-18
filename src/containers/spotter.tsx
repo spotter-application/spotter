@@ -98,10 +98,20 @@ export const App: FC<{}> = () => {
 
     // const history = await registries.history.getHistory();
 
-    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, options) => {
-      setOptions(options)
+    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
 
+      const nextOptionsValues = Object.values(nextOptions);
+      const selectedPluginNextOptions = nextOptionsValues[selectedPlugin];
 
+      if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOption]) {
+        setSelectedOption(0);
+      }
+
+      if (selectedPlugin >= nextOptionsValues.length) {
+        setSelectedPlugin(0);
+      }
+
+      setOptions(nextOptions)
 
       // if (convertedLayoutQuery !== forQuery) {
       //   setSelectedIndex(0);
@@ -119,7 +129,7 @@ export const App: FC<{}> = () => {
       // setSelectedIndex(0);
       // setOptions(sortedOptionsByFrequently);
     });
-  }, [executingOption]);
+  }, [executingOption, selectedPlugin, selectedOption]);
 
   const onSubmit = useCallback(() => {
     const selectedPluginExpanded = expandedPlugins.filter(p => p === selectedPlugin).length;
@@ -131,8 +141,6 @@ export const App: FC<{}> = () => {
     }
 
     const pluginOptions = Object.values(options)[selectedPlugin];
-
-    console.log(Object.keys(options)[selectedPlugin])
 
     if (!pluginOptions) {
       return;
