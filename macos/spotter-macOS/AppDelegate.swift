@@ -99,8 +99,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
   
   private func setupSpotterPanel() {
-    let width = 500
-    let height = 300
+    let width = 600
+    let height = 600
     
     spotterPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
       .nonactivatingPanel,

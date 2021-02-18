@@ -21,8 +21,8 @@ export class KillAppsPlugin extends SpotterPlugin implements SpotterPluginLifecy
 
   onQuery(query: string): SpotterOptionBase[] {
     return [
-      ...spotterSearch(query, this.killOptions, 'kill'),
-      ...spotterSearch(query, this.reopenOptions, 'reopen'),
+      ...spotterSearch(query, this.killOptions, this.identifier),
+      ...spotterSearch(query, this.reopenOptions, this.identifier),
     ];
   }
 

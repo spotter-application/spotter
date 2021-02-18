@@ -1,23 +1,39 @@
 import {
+  omit,
+  SpotterCallbackOptions,
+  SpotterHistoryRegistry,
   SpotterNativeModules,
-  SpotterOption,
   SpotterOptionBase,
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
+  SpotterQueryCallback,
 } from '../core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
   private readonly optionsRegistry = new Map<string, SpotterOptionBase[]>();
   private nativeModules: SpotterNativeModules;
-  private currentQueryOptionsWithPluginIds = new Map<string, SpotterOption[]>();
+  private historyRegistry: SpotterHistoryRegistry;
+
+  private currentOptionsSubject$: BehaviorSubject<SpotterCallbackOptions> = new BehaviorSubject({});
 
   constructor(
     nativeModules: SpotterNativeModules,
+    history: SpotterHistoryRegistry,
   ) {
     this.nativeModules = nativeModules;
+    this.historyRegistry = history;
+  }
+
+  public get options(): SpotterCallbackOptions {
+    return this.currentOptionsSubject$.getValue();
+  }
+
+  public get options$(): Observable<SpotterCallbackOptions> {
+    return this.currentOptionsSubject$.asObservable();
   }
 
   public register(plugins: SpotterPluginConstructor[]): void {
@@ -43,26 +59,67 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
-  public async findOptionsForQuery(query: string, callback: (options: SpotterOption[]) => void) {
-    Object.entries(this.plugins).forEach(async ([pluginIdentifier, plugin]) => {
+  private currentOptions: SpotterCallbackOptions = {};
+
+  public async findOptionsForQuery(query: string, callback: SpotterQueryCallback) {
+    // const query: string = q.trim();
+
+    const history = await this.historyRegistry.getHistory();
+    const maxPluginsExecutions: { [pluginIdentifier: string]: number } = {};
+
+    Object.entries(this.list).forEach(([pluginIdentifier, plugin]) => {
       if (!plugin.onQuery) {
+        this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: [] };
+        callback(query, this.currentOptions);
         return;
       }
 
-      const pluginOptions: SpotterOption[] = (await plugin.onQuery(query)).map(o => ({ ...o, plugin: pluginIdentifier}));
+      const onQuery = plugin.onQuery(query);
+      const promisedOnQuery: Promise<SpotterOptionBase[]> = onQuery instanceof Promise
+        ? onQuery
+        : new Promise(res => res(onQuery));
 
-      this.currentQueryOptionsWithPluginIds.set(pluginIdentifier, pluginOptions);
+      promisedOnQuery.then(options => {
+        if (!options.length) {
+          this.currentOptions = omit([pluginIdentifier], this.currentOptions);
+          callback(query, this.currentOptions);
+          return;
+        }
 
-      const accumulatedOptions: SpotterOption[] = Array.from(
-        this.currentQueryOptionsWithPluginIds.values()
-      ).reduce<SpotterOption[]>((acc, opts) => ([...acc, ...opts]), []);
 
-      callback(accumulatedOptions);
+
+        const maxExecutions = Math.max(...options.map(o => history[`${pluginIdentifier}#${o.title}`] ?? 0));
+        maxPluginsExecutions[pluginIdentifier] = maxExecutions;
+
+        const sortedByFrequentlyOptions = options
+          // .sort((a, b) =>
+          //   (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
+          //   (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0)
+          // )
+          .sort((a, b) => (history[`${pluginIdentifier}#${b.title}`] ?? 0) - (history[`${pluginIdentifier}#${a.title}`] ?? 0));
+        const nextOptions = { ...this.currentOptions, [pluginIdentifier]: sortedByFrequentlyOptions };
+
+
+
+
+        const orderedPlugins = Object.keys(nextOptions)
+          .sort((a, b) => maxPluginsExecutions[b] - maxPluginsExecutions[a])
+          .reduce(
+            (obj: any, key: string) => {
+              obj[key] = nextOptions[key];
+              return obj;
+            },
+            {}
+          );
+
+        this.currentOptions = orderedPlugins;
+        callback(query, this.currentOptions);
+      })
     });
   }
 
   public onOpenSpotter() {
-    Object.values(this.plugins).forEach(plugin => {
+    Object.values(this.list).forEach(plugin => {
       if (plugin.onOpenSpotter) {
         plugin.onOpenSpotter();
       }
@@ -70,15 +127,15 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   public destroyPlugins() {
-    Object.entries(this.plugins).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
+    Object.entries(this.list).forEach(async ([_, plugin]) => plugin.onDestroy ? plugin.onDestroy() : null);
   }
 
-  private get plugins(): { [pluginId: string]: SpotterPluginLifecycle } {
+  public get list(): { [pluginId: string]: SpotterPluginLifecycle } {
     return Array.from(this.pluginsRegistry.entries()).reduce((acc, [key, plugin]) => ({ ...acc, [key]: plugin }), {});
   }
 
-  public get options(): { [pluginId: string]: SpotterOptionBase[] } {
-    return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
-  }
+  // public get options(): { [pluginId: string]: SpotterOptionBase[] } {
+  //   return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
+  // }
 
 }

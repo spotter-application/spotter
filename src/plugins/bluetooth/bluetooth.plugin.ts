@@ -23,7 +23,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
   }
 
   async onQuery(query: string): Promise<SpotterOptionBase[]> {
-    return spotterSearch(query, this.bluetoothDevices, 'bluetooth');
+    return spotterSearch(query, this.bluetoothDevices, this.identifier);
   }
 
   getIcon() {
