@@ -90,6 +90,10 @@ export const App: FC<{}> = () => {
   /* CALLBACKS --------------------------------- */
 
   const onChangeText = useCallback(async q => {
+    if (q === '') {
+      resetQuery();
+    }
+
     if (executingOption) {
       return;
     }
