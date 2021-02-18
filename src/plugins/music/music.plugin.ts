@@ -34,7 +34,7 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       return this.playing ? !playingRequired : playingRequired;
     });
 
-    return spotterSearch(query, options);
+    return spotterSearch(query, options, this.identifier);
   }
 
   public get options(): SpotterOptionBase[] {

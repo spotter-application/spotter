@@ -20,7 +20,7 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
   }
 
   onQuery(query: string): SpotterOptionBase[] {
-    return spotterSearch(query, this.options);
+    return spotterSearch(query, this.options, this.identifier);
   }
 
   get options(): SpotterOptionBase[] {

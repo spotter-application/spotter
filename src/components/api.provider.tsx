@@ -40,9 +40,9 @@ const nativeModules = {
   bluetooth,
 };
 
-const plugins = new PluginsRegistry(nativeModules);
-const settings = new SettingsRegistry(nativeModules);
 const history = new HistoryRegistry(nativeModules);
+const plugins = new PluginsRegistry(nativeModules, history);
+const settings = new SettingsRegistry(nativeModules);
 
 const registries = {
   plugins,

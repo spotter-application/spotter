@@ -17,8 +17,19 @@ export const spotterSearch = (
   const queryWithoutPrefix = restQuery.join(' ');
 
   if (prefix.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
+    // Display all
+    if (prefixFromQuery && !queryWithoutPrefix) {
+      return search('', options);
+    }
+
     return search(queryWithoutPrefix, options);
   };
+
+  // Search without prefix
+  if (prefixFromQuery && !queryWithoutPrefix) {
+    return search(query, options);
+  }
+
 
   return [];
 };

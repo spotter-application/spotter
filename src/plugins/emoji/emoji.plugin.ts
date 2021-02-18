@@ -1,4 +1,4 @@
-import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
 import SQLite from 'react-native-sqlite-2';
 import emoji from './emoji-en-US.json';
 
@@ -31,18 +31,21 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     return database;
   }
 
-  async onQuery(query: string): Promise<SpotterOptionBase[]> {
-    if (!query?.length) {
-      return [];
-    }
+  async onQuery(q: string): Promise<SpotterOptionBase[]> {
+    const [ prefixFromQuery, ...restQuery ] = q.split(' ');
+    const queryWithoutPrefix = restQuery.join(' ');
+
+    const query = queryWithoutPrefix ?? q;
 
     const result = await this.queryOnDB(query);
-    return result.map((emj: any) => ({
+    const options = result.map((emj: any) => ({
       title: emj.keywords.split(';')[0],
       icon: emj.value,
       subtitle: 'Copy to clipboard',
       action: () => this.nativeModules.clipboard.setValue(emj.value),
-    }))
+    }));
+
+    return spotterSearch(q, options, this.identifier);
   }
 
   private queryOnDB(query: string): Promise<SpotterOptionBase[]> {

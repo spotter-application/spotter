@@ -1,8 +1,8 @@
 import {
   omit,
   SpotterCallbackOptions,
+  SpotterHistoryRegistry,
   SpotterNativeModules,
-  SpotterOption,
   SpotterOptionBase,
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
@@ -16,15 +16,16 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
   private readonly optionsRegistry = new Map<string, SpotterOptionBase[]>();
   private nativeModules: SpotterNativeModules;
-
-  // private currentQueryOptionsWithPluginIds = new Map<string, SpotterOption[]>();
+  private historyRegistry: SpotterHistoryRegistry;
 
   private currentOptionsSubject$: BehaviorSubject<SpotterCallbackOptions> = new BehaviorSubject({});
 
   constructor(
     nativeModules: SpotterNativeModules,
+    history: SpotterHistoryRegistry,
   ) {
     this.nativeModules = nativeModules;
+    this.historyRegistry = history;
   }
 
   public get options(): SpotterCallbackOptions {
@@ -58,15 +59,13 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
-  /* Need it to cancel promises if have a new query but still waiting for an old query result */
-  // private queryPromises: { [key: string]: any } = {};
-
-
   private currentOptions: SpotterCallbackOptions = {};
 
-  public findOptionsForQuery(q: string, callback: SpotterQueryCallback) {
+  public async findOptionsForQuery(query: string, callback: SpotterQueryCallback) {
+    // const query: string = q.trim();
 
-    const query: string = q.trim();
+    const history = await this.historyRegistry.getHistory();
+    const maxPluginsExecutions: { [pluginIdentifier: string]: number } = {};
 
     Object.entries(this.list).forEach(([pluginIdentifier, plugin]) => {
       if (!plugin.onQuery) {
@@ -75,24 +74,47 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         return;
       }
 
-      this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: 'loading' };
-      callback(query, this.currentOptions);
-
       const onQuery = plugin.onQuery(query);
       const promisedOnQuery: Promise<SpotterOptionBase[]> = onQuery instanceof Promise
         ? onQuery
         : new Promise(res => res(onQuery));
 
       promisedOnQuery.then(options => {
-        this.currentOptions = options?.length
-          ? { ...this.currentOptions, [pluginIdentifier]: options }
-          : omit([pluginIdentifier], this.currentOptions);
+        if (!options.length) {
+          this.currentOptions = omit([pluginIdentifier], this.currentOptions);
+          callback(query, this.currentOptions);
+          return;
+        }
+
+
+
+        const maxExecutions = Math.max(...options.map(o => history[`${pluginIdentifier}#${o.title}`] ?? 0));
+        maxPluginsExecutions[pluginIdentifier] = maxExecutions;
+
+        const sortedByFrequentlyOptions = options
+          // .sort((a, b) =>
+          //   (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
+          //   (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0)
+          // )
+          .sort((a, b) => (history[`${pluginIdentifier}#${b.title}`] ?? 0) - (history[`${pluginIdentifier}#${a.title}`] ?? 0));
+        const nextOptions = { ...this.currentOptions, [pluginIdentifier]: sortedByFrequentlyOptions };
+
+
+
+
+        const orderedPlugins = Object.keys(nextOptions)
+          .sort((a, b) => maxPluginsExecutions[b] - maxPluginsExecutions[a])
+          .reduce(
+            (obj: any, key: string) => {
+              obj[key] = nextOptions[key];
+              return obj;
+            },
+            {}
+          );
+
+        this.currentOptions = orderedPlugins;
         callback(query, this.currentOptions);
       })
-
-      // const options = await plugin.onQuery(query);
-      // this.currentOptions = { ...this.currentOptions, [pluginIdentifier]: options };
-      // callback(query, this.currentOptions);
     });
   }
 

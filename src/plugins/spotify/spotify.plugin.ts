@@ -45,7 +45,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
       )
     ];
 
-    return spotterSearch(query, options);
+    return spotterSearch(query, options, this.identifier);
   }
 
   public get options(): SpotterOptionBase[] {

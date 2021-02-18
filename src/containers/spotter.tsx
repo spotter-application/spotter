@@ -1,15 +1,12 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
-import { SpotterCallbackOptions, SpotterOption, SpotterOptionBase, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
+import { SpotterCallbackOptions, SpotterOptionBase, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
@@ -100,8 +97,6 @@ export const App: FC<{}> = () => {
 
     const convertedLayoutQuery = spotterConvertLayout(q);
 
-    // const history = await registries.history.getHistory();
-
     registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
       const nextOptionsValues = Object.values(nextOptions);
       const selectedPluginNextOptions = nextOptionsValues[selectedPlugin];
@@ -115,22 +110,6 @@ export const App: FC<{}> = () => {
       }
 
       setOptions(nextOptions)
-
-      // if (convertedLayoutQuery !== forQuery) {
-      //   setSelectedIndex(0);
-      //   setOptions([]);
-      //   return;
-      // }
-
-      // const sortedOptionsByFrequently = options
-      //   .sort((a, b) =>
-      //     (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
-      //     (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0)
-      //   )
-      //   .sort((a, b) => (history[`${b.plugin}#${b.title}`] ?? 0) - (history[`${a.plugin}#${a.title}`] ?? 0));
-
-      // setSelectedIndex(0);
-      // setOptions(sortedOptionsByFrequently);
     });
   }, [executingOption, selectedPlugin, selectedOption]);
 
@@ -151,7 +130,7 @@ export const App: FC<{}> = () => {
 
     const option: SpotterOptionBase = pluginOptions[selectedOption];
     if (option) {
-      execAction(option);
+      execAction(option, options, selectedPlugin);
     }
   }, [options, selectedOption, selectedPlugin, expandedPlugins]);
 
@@ -284,12 +263,19 @@ export const App: FC<{}> = () => {
 
   /* ------------------------------------------- */
 
-  const execAction = async (option: SpotterOptionBase) => {
+  const execAction = async (
+    option: SpotterOptionBase,
+    options: SpotterCallbackOptions,
+    selectedPlugin: number,
+  ) => {
     if (!option?.action) {
        return;
     };
 
-    // registries.history.increaseHistoryItem(`${option.plugin}#${option.title}`);
+    const pluginIdentifier: string = Object.keys(options)[selectedPlugin];
+
+    registries.history.increaseHistoryItem(`${pluginIdentifier}#${option.title}`);
+
     setExecutingOption(true);
 
     const success = await option.action();
@@ -344,7 +330,7 @@ export const App: FC<{}> = () => {
           displayOptions={displayOptions}
           options={options}
           expandedPlugins={expandedPlugins}
-          onSubmit={execAction}
+          onSubmit={o => execAction(o, options, selectedPlugin)}
         ></Options> : null
       }
 

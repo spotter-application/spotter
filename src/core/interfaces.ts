@@ -104,6 +104,7 @@ export interface SpotterOptionBase {
   icon?: SpotterOptionBaseImage;
 }
 
+// TODO: remove
 export type SpotterOption = SpotterOptionBase & {
   plugin: string;
 }

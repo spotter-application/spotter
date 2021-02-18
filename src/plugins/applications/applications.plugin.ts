@@ -22,7 +22,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   }
 
   onQuery(query: string): SpotterOptionBase[] {
-    return spotterSearch(query, this.applications);
+    return spotterSearch(query, this.applications, this.identifier);
   }
 
 }
