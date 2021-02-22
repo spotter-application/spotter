@@ -1,21 +1,21 @@
-import { SpotterHistory, SpotterHistoryRegistry, SpotterNativeModules } from '../core';
+import { SpotterOptionExecutionCounter, SpotterHistoryRegistry, SpotterNativeModules } from '../core';
 
 export class HistoryRegistry implements SpotterHistoryRegistry {
   private nativeModules: SpotterNativeModules;
   private STORAGE_KEY = 'SPOTTER_HISTORY';
-  private defaultValue: SpotterHistory = {};
+  private defaultValue: SpotterOptionExecutionCounter = {};
 
   constructor(nativeModules: SpotterNativeModules) {
     this.nativeModules = nativeModules;
   }
 
-  async getHistory(): Promise<SpotterHistory> {
-    const history = await this.nativeModules.storage.getItem<SpotterHistory>(this.STORAGE_KEY);
+  async getOptionExecutionCounter(): Promise<SpotterOptionExecutionCounter> {
+    const history = await this.nativeModules.storage.getItem<SpotterOptionExecutionCounter>(this.STORAGE_KEY);
     return history ?? this.defaultValue;
   }
 
-  async increaseHistoryItem(optionTitle: string) {
-    const currentValue = await this.getHistory();
+  async increaseOptionExecutionCounter(optionTitle: string) {
+    const currentValue = await this.getOptionExecutionCounter();
     const nextHistory = {
       ...currentValue,
       ...({ [optionTitle]: currentValue[optionTitle] ? currentValue[optionTitle] + 1 : 1 })

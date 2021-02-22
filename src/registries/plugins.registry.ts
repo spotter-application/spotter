@@ -64,7 +64,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   public async findOptionsForQuery(query: string, callback: SpotterQueryCallback) {
     // const query: string = q.trim();
 
-    const history = await this.historyRegistry.getHistory();
+    const optionExecutionCounter = await this.historyRegistry.getOptionExecutionCounter();
     const maxPluginsExecutions: { [pluginIdentifier: string]: number } = {};
 
     Object.entries(this.list).forEach(([pluginIdentifier, plugin]) => {
@@ -86,7 +86,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
           return;
         }
 
-        const maxExecutions = Math.max(...options.map(o => history[`${pluginIdentifier}#${o.title}`] ?? 0));
+        const maxExecutions = Math.max(...options.map(o => optionExecutionCounter[`${pluginIdentifier}#${o.title}`] ?? 0));
         maxPluginsExecutions[pluginIdentifier] = maxExecutions;
 
         const sortedByFrequentlyOptions = options
@@ -94,7 +94,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
             (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
             (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
           )
-          .sort((a, b) => (history[`${pluginIdentifier}#${b.title}`] ?? 0) - (history[`${pluginIdentifier}#${a.title}`] ?? 0));
+          .sort((a, b) => (optionExecutionCounter[`${pluginIdentifier}#${b.title}`] ?? 0) - (optionExecutionCounter[`${pluginIdentifier}#${a.title}`] ?? 0));
         const nextOptions = { ...this.currentOptions, [pluginIdentifier]: sortedByFrequentlyOptions };
 
 

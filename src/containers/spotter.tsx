@@ -272,7 +272,7 @@ export const App: FC<{}> = () => {
 
     const pluginIdentifier: string = Object.keys(options)[selectedPlugin];
 
-    registries.history.increaseHistoryItem(`${pluginIdentifier}#${option.title}`);
+    registries.history.increaseOptionExecutionCounter(`${pluginIdentifier}#${option.title}`);
 
     setExecutingOption(true);
 

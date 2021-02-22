@@ -41,8 +41,8 @@ export declare abstract class SpotterSettingsRegistry {
 }
 
 export declare abstract class SpotterHistoryRegistry {
-  abstract getHistory(): Promise<SpotterHistory>;
-  abstract increaseHistoryItem(query: string): void;
+  abstract getOptionExecutionCounter(): Promise<SpotterOptionExecutionCounter>;
+  abstract increaseOptionExecutionCounter(query: string): void;
 }
 
 export declare abstract class SpotterShell {
@@ -155,7 +155,7 @@ export interface SpotterSettings {
 
 export type SpotterHistoryExecutionsTotal = number;
 
-export type SpotterHistory = {
+export type SpotterOptionExecutionCounter = {
   [optionTitle: string]: SpotterHistoryExecutionsTotal;
 }
 
