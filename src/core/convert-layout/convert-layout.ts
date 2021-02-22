@@ -1,5 +1,10 @@
 import { ru } from './ru';
 
-export const spotterConvertLayout = (query: string): string => {
-  return query.split('').map(symbol => (ru[symbol] ?? symbol)).join('');
+const ignoreSymbols = ['/', '.', '*', ','];
+
+export const spotterConvertLayout = (originalQuery: string): string => {
+  return originalQuery.split('').map(symbol => (
+    ignoreSymbols.find(s => s === symbol) ? symbol : (ru[symbol] ?? symbol)
+  )).join('');
 }
+

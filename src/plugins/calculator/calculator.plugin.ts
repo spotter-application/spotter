@@ -1,3 +1,4 @@
+import { evaluate } from 'mathjs';
 import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
@@ -15,7 +16,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
     }
 
     try {
-      const result = eval(normalizedQuery).toString();
+      const result = evaluate(normalizedQuery).toLocaleString();
 
       if (!result) {
         return [];
@@ -23,7 +24,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
 
       return [{
         title: result,
-        subtitle: `Copy to ${result} clipboard`,
+        subtitle: `Copy ${result} to clipboard`,
         icon,
         action: () => this.copyToClipboard(result),
       }];
@@ -37,3 +38,4 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
   }
 
 }
+
