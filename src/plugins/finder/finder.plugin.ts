@@ -1,5 +1,5 @@
 import {
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -9,7 +9,7 @@ export class FinderPlugin extends SpotterPlugin implements SpotterPluginLifecycl
 
   identifier = 'Finder';
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     return [];
     // return spotterSearch(query, [{
     //   title: 'Finder',

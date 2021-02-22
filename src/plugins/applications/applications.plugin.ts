@@ -1,6 +1,6 @@
 import {
   getAllApplications,
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -10,7 +10,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
 
   identifier = 'Applications'
 
-  private applications: SpotterOptionBase[] = [];
+  private applications: SpotterOption[] = [];
 
   async onOpenSpotter() {
     const apps = await getAllApplications(this.nativeModules.shell);
@@ -21,7 +21,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
     }));
   }
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     return spotterSearch(query, this.applications, this.identifier);
   }
 

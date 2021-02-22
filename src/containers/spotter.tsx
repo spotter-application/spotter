@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
-import { SpotterCallbackOptions, SpotterOptionBase, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
+import { SpotterCallbackOptions, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
@@ -126,7 +126,7 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    const option: SpotterOptionBase = pluginOptions[selectedOption];
+    const option: SpotterOption = pluginOptions[selectedOption];
     if (option) {
       execAction(option, options, selectedPlugin);
     }
@@ -262,7 +262,7 @@ export const App: FC<{}> = () => {
   /* ------------------------------------------- */
 
   const execAction = async (
-    option: SpotterOptionBase,
+    option: SpotterOption,
     options: SpotterCallbackOptions,
     selectedPlugin: number,
   ) => {

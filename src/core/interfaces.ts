@@ -18,7 +18,7 @@ export interface SpotterRegistries {
 
 // TODO: Rename
 export type SpotterCallbackOptions = {
-  [pluginIdentifier: string]: SpotterOptionBase[] | null,
+  [pluginIdentifier: string]: SpotterOption[] | null,
 }
 
 export type SpotterQueryCallback = (query: string, options: SpotterCallbackOptions) => void;
@@ -96,17 +96,12 @@ export declare type SpotterAction = () => any | Promise<any>;
 
 export type SpotterOptionBaseImage = string | number | undefined;
 
-export interface SpotterOptionBase {
+export interface SpotterOption {
   title: string;
   action: SpotterAction;
   subtitle?: string;
   keywords?: string[];
   icon?: SpotterOptionBaseImage;
-}
-
-// TODO: remove
-export type SpotterOption = SpotterOptionBase & {
-  plugin: string;
 }
 
 export interface SystemApplication {
@@ -127,9 +122,9 @@ export declare abstract class SpotterPluginLifecycle {
 
   public identifier: string;
 
-  abstract onQuery(query: string): SpotterOptionBase[] | Promise<SpotterOptionBase[]>;
+  abstract onQuery(query: string): SpotterOption[] | Promise<SpotterOption[]>;
 
-  public options?: SpotterOptionBase[];
+  public options?: SpotterOption[];
 
   abstract onInit?(): void;
 

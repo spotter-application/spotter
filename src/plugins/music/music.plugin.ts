@@ -1,7 +1,7 @@
 import {
   Application,
   getAllApplications,
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -24,7 +24,7 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     this.playing = await this.getPlayingState();
   }
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     if (!this.app) {
       return [];
     }
@@ -37,7 +37,7 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     return spotterSearch(query, options, this.identifier);
   }
 
-  public get options(): SpotterOptionBase[] {
+  public get options(): SpotterOption[] {
     if (!this.app) {
       return [];
     }

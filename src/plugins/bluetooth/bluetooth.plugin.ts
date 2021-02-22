@@ -1,4 +1,4 @@
-import { SpotterBluetoothItem, SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
+import { SpotterBluetoothItem, SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
 import icon from './icon.png';
 import iconInactive from './icon_inactive.png';
 
@@ -7,7 +7,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
 
   identifier = 'Bluetooth';
 
-  private bluetoothDevices: SpotterOptionBase[] = [];
+  private bluetoothDevices: SpotterOption[] = [];
 
   async onOpenSpotter() {
     const bluetoothDevices = await this.nativeModules.bluetooth
@@ -22,7 +22,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
     }));
   }
 
-  async onQuery(query: string): Promise<SpotterOptionBase[]> {
+  async onQuery(query: string): Promise<SpotterOption[]> {
     return spotterSearch(query, this.bluetoothDevices, this.identifier);
   }
 

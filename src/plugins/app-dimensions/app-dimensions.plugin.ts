@@ -1,5 +1,5 @@
 import {
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   SystemApplicationDimensions,
@@ -19,11 +19,11 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
     this.storedApplicationDimensions = await this.getApplicationDimensions();
   }
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     return spotterSearch(query, this.options, this.identifier);
   }
 
-  get options(): SpotterOptionBase[] {
+  get options(): SpotterOption[] {
     return [
       {
         title: 'Save application positions',

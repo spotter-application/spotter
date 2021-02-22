@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterCallbackOptions, SpotterOption, SpotterOptionBase, SpotterOptionBaseImage } from '../core';
+import { SpotterCallbackOptions, SpotterOption, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
 
@@ -120,7 +120,7 @@ export const Options = ({
           {item[1] === 'loading'
             // ? <ActivityIndicator size="small" color="#ffffff" />
             ? null
-            : item[1]?.map((option: SpotterOptionBase, optionIndex: number) => (
+            : item[1]?.map((option: SpotterOption, optionIndex: number) => (
                 optionIndex < (expandedPlugins.filter(p => p === index).length ? 1000 : displayOptions) ?
                   <View
                     key={item[0] + option.title}

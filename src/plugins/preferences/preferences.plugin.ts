@@ -1,5 +1,5 @@
 import {
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPlugin,
   SpotterPluginLifecycle,
   spotterSearch,
@@ -9,11 +9,11 @@ export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLif
 
   identifier = 'Preferences';
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     return spotterSearch(query, this.options, this.identifier);
   }
 
-  get options(): SpotterOptionBase[] {
+  get options(): SpotterOption[] {
     return [
       {
         title: 'System Preferences Accounts',

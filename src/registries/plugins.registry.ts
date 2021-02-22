@@ -3,7 +3,7 @@ import {
   SpotterCallbackOptions,
   SpotterHistoryRegistry,
   SpotterNativeModules,
-  SpotterOptionBase,
+  SpotterOption,
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
@@ -14,7 +14,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
-  private readonly optionsRegistry = new Map<string, SpotterOptionBase[]>();
+  private readonly optionsRegistry = new Map<string, SpotterOption[]>();
   private nativeModules: SpotterNativeModules;
   private historyRegistry: SpotterHistoryRegistry;
 
@@ -75,7 +75,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       }
 
       const onQuery = plugin.onQuery(query);
-      const promisedOnQuery: Promise<SpotterOptionBase[]> = onQuery instanceof Promise
+      const promisedOnQuery: Promise<SpotterOption[]> = onQuery instanceof Promise
         ? onQuery
         : new Promise(res => res(onQuery));
 

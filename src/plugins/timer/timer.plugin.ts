@@ -1,4 +1,4 @@
-import { SpotterOptionBase, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
 interface Time {
@@ -13,7 +13,7 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
 
   timer: NodeJS.Timeout | null = null;
 
-  onQuery(query: string): SpotterOptionBase[] {
+  onQuery(query: string): SpotterOption[] {
     const startsWithNumber = /^\d/.test(query);
 
     if (!startsWithNumber) {
