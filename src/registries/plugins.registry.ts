@@ -86,20 +86,16 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
           return;
         }
 
-
-
         const maxExecutions = Math.max(...options.map(o => history[`${pluginIdentifier}#${o.title}`] ?? 0));
         maxPluginsExecutions[pluginIdentifier] = maxExecutions;
 
         const sortedByFrequentlyOptions = options
-          // .sort((a, b) =>
-          //   (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0) -
-          //   (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(convertedLayoutQuery.toLocaleLowerCase())) ? 1 : 0)
-          // )
+          .sort((a, b) =>
+            (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
+            (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
+          )
           .sort((a, b) => (history[`${pluginIdentifier}#${b.title}`] ?? 0) - (history[`${pluginIdentifier}#${a.title}`] ?? 0));
         const nextOptions = { ...this.currentOptions, [pluginIdentifier]: sortedByFrequentlyOptions };
-
-
 
 
         const orderedPlugins = Object.keys(nextOptions)
