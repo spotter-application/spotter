@@ -68,7 +68,13 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
 
   const applications = applicationsStrings.reduce((acc, apps) => ([...acc, ...apps]), []);
 
-  return applications;
+  return [
+    ...applications,
+    {
+      title: 'Finder',
+      path: '/System/Library/CoreServices/Finder.app',
+    }
+  ];
 }
 
 export const omit = (keys: string[], obj: { [key: string]: any }) =>

@@ -10,12 +10,13 @@ export class FinderPlugin extends SpotterPlugin implements SpotterPluginLifecycl
   identifier = 'Finder';
 
   onQuery(query: string): SpotterOptionBase[] {
-    return spotterSearch(query, [{
-      title: 'Finder',
-      subtitle: '/System/Library/CoreServices/Finder.app',
-      icon: '/System/Library/CoreServices/Finder.app',
-      action: () => this.nativeModules.shell.execute('open ~'),
-    }]);
+    return [];
+    // return spotterSearch(query, [{
+    //   title: 'Finder',
+    //   subtitle: '/System/Library/CoreServices/Finder.app',
+    //   icon: '/System/Library/CoreServices/Finder.app',
+    //   action: () => this.nativeModules.shell.execute('open ~'),
+    // }]);
   }
 
 }
