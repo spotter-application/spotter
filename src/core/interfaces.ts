@@ -94,7 +94,7 @@ export declare abstract class SpotterStorage {
 
 export declare type SpotterAction = () => any | Promise<any>;
 
-export type SpotterOptionBaseImage = string | number | undefined;
+export type SpotterOptionBaseImage = string | number | { uri: string } | undefined;
 
 export interface SpotterOption {
   title: string;
