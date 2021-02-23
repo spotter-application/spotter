@@ -7,7 +7,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
   identifier = 'Calculator';
 
   async onQuery(query: string): Promise<SpotterOption[]> {
-    const normalizedQuery = query.replaceAll('|', '/');
+    const normalizedQuery = query.replaceAll('=', '');
     const isMathExpression = (/(?:[0-9-+*/^()x]|abs|e\^x|ln|log|a?(?:sin|cos|tan)h?)+/).test(normalizedQuery);
     const hasRequiredSymbols = normalizedQuery.split('').find(q => ['+', '-', '*', '/', 'sin', 'cos', 'tan'].find(s => s === q));
 
