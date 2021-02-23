@@ -135,8 +135,21 @@ export const Options = ({
                     }}
                   >
                     <OptionIcon icon={option?.icon} style={{ marginRight: 5 }}/>
-                    <Text style={{ fontSize: 13 }}>{option.title}</Text>
-                    <Text style={{ fontSize: 13, opacity: 0.3, marginLeft: 'auto' }}>{option.subtitle}</Text>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.text : colors.text,
+                          borderRadius: 10,
+                        }}
+                      >{option.title}</Text>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.text : colors.text,
+                          opacity: 0.3,
+                          marginLeft: 'auto'
+                        }}
+                      >{option.subtitle}</Text>
                   </View>
                   : null
               ))
@@ -154,7 +167,11 @@ export const Options = ({
               marginRight: 10,
               height: dimensions.expand,
             }}>
-              <Text style={{ fontSize: 10, opacity: 0.5 }}>•••</Text>
+              <Text style={{
+                fontSize: 10,
+                opacity: 0.5,
+                color: selectedOption === displayOptions && selectedPlugin === index ? colors.active.text : colors.text,
+              }}>•••</Text>
             </View>
             : null
           }
