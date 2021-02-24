@@ -80,9 +80,10 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
   ];
 }
 
-export const omit = (keys: string[], obj: { [key: string]: any }) =>
-  Object.fromEntries(
+export function omit<T>(keys: string[], obj: { [key: string]: any }): T  {
+  return Object.fromEntries(
     Object.entries(obj)
       .filter(([k]) => !keys.includes(k))
-  )
+  ) as T;
+}
 

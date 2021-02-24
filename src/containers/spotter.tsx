@@ -4,9 +4,10 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import {Subscription} from 'rxjs';
 import { useApi, useTheme } from '../components';
 import { Options } from '../components/options.component';
-import { SpotterCallbackOptions, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
+import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
 import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
@@ -37,6 +38,8 @@ const plugins = [
   TimerPlugin,
 ];
 
+const subscriptions: Subscription[] = [];
+
 interface NextPluginOption {
   option: number;
   plugin: number;
@@ -47,18 +50,19 @@ export const App: FC<{}> = () => {
   const { nativeModules, registries } = useApi();
   const { colors } = useTheme();
   const [query, setQuery] = useState<string>('');
-  const [options, setOptions] = useState<SpotterCallbackOptions>({});
-  const [selectedPlugin, setSelectedPlugin] = useState<number>(0);
+  const [optionsMap, setOptionsMap] = useState<SpotterOptionWithPluginIdentifierMap>({});
+  const [selectedPluginIndex, setSelectedPluginIndex] = useState<number>(0);
   const [expandedPlugins, setExpandedPlugins] = useState<number[]>([]);
-  const [selectedOption, setSelectedOption] = useState<number>(0);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
   const [executingOption, setExecutingOption] = useState<boolean>(false);
-  const [displayOptions] = useState<number>(3);
+  const [displayOptionsLimit] = useState<number>(3);
 
   useEffect(() => {
     init();
-  }, []);
+  }, [selectedPluginIndex, selectedOptionIndex]);
 
   const init = async () => {
+    console.log('INIT');
     registries.plugins.register(plugins);
     const settings = await registries.settings.getSettings();
 
@@ -67,19 +71,38 @@ export const App: FC<{}> = () => {
     Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
       Object.entries(options).forEach(([option, hotkey]) => {
         nativeModules.globalHotKey.register(hotkey, `${plugin}#${option}`);
-      }); }); nativeModules.globalHotKey.onPress(async (e) => {
+      });
+    });
+
+    nativeModules.globalHotKey.onPress(async (e) => {
       if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
         registries.plugins.onOpenSpotter();
         nativeModules.panel.open();
         return;
+      };
+    });
+
+
+    subscriptions.forEach(s => s.unsubscribe());
+
+    subscriptions.push(registries.plugins.currentOptionsMap$.subscribe(nextOptionsMap => {
+      // console.log(nextOptionsMap);
+      const nextOptionsValues = Object.values(nextOptionsMap);
+      const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
+
+      setExecutingOption(false);
+
+      if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOptionIndex]) {
+        setSelectedOptionIndex(0);
       }
 
-      // const [plugin, option] = e.identifier.split('#');
-      // const options = registries.plugins.options[plugin];
-      // if (options?.length) {
-      //   await options.find(o => o.title === option)?.action();
-      // }
-    });
+      if (selectedPluginIndex >= nextOptionsValues.length) {
+        setSelectedPluginIndex(0);
+      }
+
+      setOptionsMap(nextOptionsMap)
+    }));
+
   };
 
   /* CALLBACKS --------------------------------- */
@@ -95,54 +118,69 @@ export const App: FC<{}> = () => {
 
     const convertedLayoutQuery = spotterConvertLayout(q);
 
-    registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
-      const nextOptionsValues = Object.values(nextOptions);
-      const selectedPluginNextOptions = nextOptionsValues[selectedPlugin];
+    registries.plugins.findOptionsForQuery(convertedLayoutQuery);
 
-      if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOption]) {
-        setSelectedOption(0);
-      }
+    // registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
+    //   const nextOptionsValues = Object.values(nextOptions);
+    //   const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
 
-      if (selectedPlugin >= nextOptionsValues.length) {
-        setSelectedPlugin(0);
-      }
+    //   if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOptionIndex]) {
+    //     setSelectedOptionIndex(0);
+    //   }
 
-      setOptions(nextOptions)
-    });
-  }, [executingOption, selectedPlugin, selectedOption]);
+    //   if (selectedPluginIndex >= nextOptionsValues.length) {
+    //     setSelectedPluginIndex(0);
+    //   }
+
+    //   setOptions(nextOptions)
+    // });
+  }, [executingOption, selectedPluginIndex, selectedOptionIndex]);
 
   const onSubmit = useCallback(() => {
-    const selectedPluginExpanded = expandedPlugins.filter(p => p === selectedPlugin).length;
-    const selectedExpandAction = !selectedPluginExpanded && selectedOption >= displayOptions;
+    const selectedPluginExpanded = expandedPlugins.filter(p => p === selectedPluginIndex).length;
+    const selectedExpandAction = !selectedPluginExpanded && selectedOptionIndex >= displayOptionsLimit;
 
     if (selectedExpandAction) {
-      setExpandedPlugins([...expandedPlugins ,selectedPlugin]);
+      setExpandedPlugins([...expandedPlugins ,selectedPluginIndex]);
       return;
     }
 
-    const pluginOptions = Object.values(options)[selectedPlugin];
+    const pluginOptions = Object.values(optionsMap)[selectedPluginIndex];
 
     if (!pluginOptions) {
       return;
     }
 
-    const option: SpotterOption = pluginOptions[selectedOption];
-    if (option) {
-      execAction(option, options, selectedPlugin);
+    const selectedOption: SpotterOption = pluginOptions[selectedOptionIndex];
+
+    if (!selectedOption) {
+      return;
     }
-  }, [options, selectedOption, selectedPlugin, expandedPlugins]);
+
+    setExecutingOption(true);
+
+    const pluginIdentifier: string = Object.keys(optionsMap)[selectedPluginIndex];
+    registries.plugins.selectOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
+      if (success || typeof success !== 'boolean') {
+        nativeModules.panel.close();
+        resetQuery();
+      }
+
+      setExecutingOption(false);
+    });
+  }, [optionsMap, selectedOptionIndex, selectedPluginIndex, expandedPlugins]);
 
   const onArrowUp = useCallback(() => {
-    const { option, plugin } = getPrevOption(selectedOption, selectedPlugin, expandedPlugins, options, displayOptions);
-    setSelectedOption(option);
-    setSelectedPlugin(plugin);
-  }, [selectedOption, selectedPlugin, expandedPlugins, options, displayOptions]);
+    const { option, plugin } = getPrevOption(selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit);
+    setSelectedOptionIndex(option);
+    setSelectedPluginIndex(plugin);
+  }, [selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit]);
 
   const onArrowDown = useCallback(() => {
-    const { option, plugin } = getNextOption(selectedOption, selectedPlugin, expandedPlugins, options, displayOptions);
-    setSelectedOption(option);
-    setSelectedPlugin(plugin);
-  }, [selectedOption, selectedPlugin, expandedPlugins, options, displayOptions]);
+    const { option, plugin } = getNextOption(selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit);
+    setSelectedOptionIndex(option);
+    setSelectedPluginIndex(plugin);
+  }, [selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit]);
 
   const onEscape = useCallback(() => {
     nativeModules.panel.close();
@@ -155,18 +193,18 @@ export const App: FC<{}> = () => {
   }, []);
 
   const onTab = useCallback(() => {
-    setSelectedOption(0);
-    setSelectedPlugin(getNextPlugin(selectedPlugin, options));
-  }, [selectedPlugin, options]);
+    setSelectedOptionIndex(0);
+    setSelectedPluginIndex(getNextPlugin(selectedPluginIndex, optionsMap));
+  }, [selectedPluginIndex, optionsMap]);
 
   const onShiftTab = useCallback(() => {
-    setSelectedOption(0);
-    setSelectedPlugin(getPrevPlugin(selectedPlugin, options));
-  }, [selectedPlugin, options]);
+    setSelectedOptionIndex(0);
+    setSelectedPluginIndex(getPrevPlugin(selectedPluginIndex, optionsMap));
+  }, [selectedPluginIndex, optionsMap]);
 
   /* OPTIONS NAVIGATON --------------------------------- */
 
-  const getNextPlugin = (selectedPlugin: number, options: SpotterCallbackOptions): number => {
+  const getNextPlugin = (selectedPlugin: number, options: SpotterOptionWithPluginIdentifierMap): number => {
     const pluginsLength = Object.keys(options).length;
     const nextSelectedPlugin = selectedPlugin + 1 >= pluginsLength
       ? 0
@@ -175,7 +213,7 @@ export const App: FC<{}> = () => {
     return nextSelectedPlugin;
   };
 
-  const getPrevPlugin = (selectedPlugin: number, options: SpotterCallbackOptions): number => {
+  const getPrevPlugin = (selectedPlugin: number, options: SpotterOptionWithPluginIdentifierMap): number => {
     const pluginsLength = Object.keys(options).length;
     const nextSelectedPlugin = selectedPlugin - 1 < 0
       ? pluginsLength - 1
@@ -188,7 +226,7 @@ export const App: FC<{}> = () => {
     selectedOption: number,
     selectedPlugin: number,
     expandedPlugins: number[],
-    options: SpotterCallbackOptions,
+    options: SpotterOptionWithPluginIdentifierMap,
     displayOptions: number,
   ): NextPluginOption => {
     const selectedPluginOptions = Object.values(options)[selectedPlugin];
@@ -216,7 +254,7 @@ export const App: FC<{}> = () => {
     selectedOption: number,
     selectedPlugin: number,
     expandedPlugins: number[],
-    options: SpotterCallbackOptions,
+    options: SpotterOptionWithPluginIdentifierMap,
     displayOptions: number,
   ): NextPluginOption => {
     const nextSelectedIndex = selectedOption - 1;
@@ -242,7 +280,7 @@ export const App: FC<{}> = () => {
   const getLastPluginOption = (
     selectedPlugin: number,
     expandedPlugins: number[],
-    options: SpotterCallbackOptions,
+    options: SpotterOptionWithPluginIdentifierMap,
     displayOptions: number,
   ): number => {
     const prevPlugin = getPrevPlugin(selectedPlugin, options);
@@ -261,39 +299,44 @@ export const App: FC<{}> = () => {
 
   /* ------------------------------------------- */
 
-  const execAction = async (
-    option: SpotterOption,
-    options: SpotterCallbackOptions,
-    selectedPlugin: number,
-  ) => {
-    if (!option?.action) {
-       return;
-    };
+  // const execAction = async (
+  //   option: SpotterOption,
+  //   options: SpotterCallbackOptions,
+  //   selectedPlugin: number,
+  // ) => {
+  //   if (!option?.action) {
+  //      return;
+  //   };
 
-    const pluginIdentifier: string = Object.keys(options)[selectedPlugin];
+  //   const pluginIdentifier: string = Object.keys(options)[selectedPlugin];
 
-    registries.history.increaseOptionExecutionCounter(`${pluginIdentifier}#${option.title}`);
+  //   registries.history.increaseOptionExecutionCounter(`${pluginIdentifier}#${option.title}`);
 
-    setExecutingOption(true);
+  //   setExecutingOption(true);
 
-    const success = await option.action();
+  //   const success = await option.action();
 
-    if (success || typeof success !== 'boolean') {
-      nativeModules.panel.close();
-      resetQuery();
-    }
+  //   if (typeof success === 'function') {
+  //     console.log(success())
+  //     return;
+  //   }
 
-    setExecutingOption(false);
-  };
+  //   if (success || typeof success !== 'boolean') {
+  //     nativeModules.panel.close();
+  //     resetQuery();
+  //   }
+
+  //   setExecutingOption(false);
+  // };
 
   const resetQuery = () => {
     setQuery('_');
     // TODO: Implement resetValue method for Input
     setTimeout(() => setQuery(''));
     setExpandedPlugins([]);
-    setSelectedPlugin(0);
-    setSelectedOption(0);
-    setOptions({});
+    setSelectedPluginIndex(0);
+    setSelectedOptionIndex(0);
+    setOptionsMap({});
     setExecutingOption(false);
   };
 
@@ -303,7 +346,7 @@ export const App: FC<{}> = () => {
         backgroundColor: colors.background,
         borderColor: colors.border,
         ...styles.input,
-        ...(Object.keys(options).length ? styles.inputWithResults : {}),
+        ...(Object.keys(optionsMap).length ? styles.inputWithResults : {}),
       }}>
         <InputNative
           value={query}
@@ -319,16 +362,16 @@ export const App: FC<{}> = () => {
           onShiftTab={onShiftTab}
         ></InputNative>
       </View>
-      {Object.keys(options).length ?
+      {Object.keys(optionsMap).length ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
-          selectedPlugin={selectedPlugin}
-          selectedOption={selectedOption}
+          selectedPlugin={selectedPluginIndex}
+          selectedOption={selectedOptionIndex}
           executingOption={executingOption}
-          displayOptions={displayOptions}
-          options={options}
+          displayOptions={displayOptionsLimit}
+          options={optionsMap}
           expandedPlugins={expandedPlugins}
-          onSubmit={o => execAction(o, options, selectedPlugin)}
+          onSubmit={o => null}
         ></Options> : null
       }
 

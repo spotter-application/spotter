@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs';
+
 export interface SpotterNativeModules {
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
@@ -16,23 +18,24 @@ export interface SpotterRegistries {
   history: SpotterHistoryRegistry,
 }
 
-// TODO: Rename
-export type SpotterCallbackOptions = {
+export type SpotterOptionWithPluginIdentifierMap = {
   [pluginIdentifier: string]: SpotterOption[] | null,
 }
 
-export type SpotterQueryCallback = (query: string, options: SpotterCallbackOptions) => void;
+export type SpotterQueryCallback = (query: string, optionsMap: SpotterOptionWithPluginIdentifierMap ) => void;
 
 export declare abstract class SpotterPluginsRegistry {
   abstract register(plugins: SpotterPluginConstructor[]): void;
   abstract onOpenSpotter(): void;
   abstract destroyPlugins(): void;
-  abstract findOptionsForQuery(
-    query: string,
-    callback: SpotterQueryCallback,
-  ): void;
-  // abstract options: {[plugin: string]: SpotterOptionBase[]};
+  abstract findOptionsForQuery(query: string): void;
   abstract list: {[pluginId: string]: SpotterPluginLifecycle};
+  abstract get currentOptionsMap(): SpotterOptionWithPluginIdentifierMap;
+  abstract get currentOptionsMap$(): Observable<SpotterOptionWithPluginIdentifierMap>;
+  abstract selectOption(
+    option: SpotterOptionWithPluginIdentifier,
+    callback: (success: boolean) => void,
+  ): void;
 }
 
 export declare abstract class SpotterSettingsRegistry {
@@ -102,6 +105,10 @@ export interface SpotterOption {
   subtitle?: string;
   keywords?: string[];
   icon?: SpotterOptionBaseImage;
+}
+
+export interface SpotterOptionWithPluginIdentifier extends SpotterOption {
+  pluginIdentifier: string;
 }
 
 export interface SystemApplication {

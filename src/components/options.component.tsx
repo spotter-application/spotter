@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import { SpotterCallbackOptions, SpotterOption, SpotterOptionBaseImage } from '../core';
+import { ActivityIndicator, FlatList, Image, Text, View, ViewStyle } from 'react-native';
+import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
 
 type OptionsProps = {
-  options: SpotterCallbackOptions;
+  options: SpotterOptionWithPluginIdentifierMap;
   selectedPlugin: number;
   selectedOption: number;
   executingOption: boolean,
@@ -76,7 +76,7 @@ export const Options = ({
     selectedPlugin: number,
     selectedOption: number,
     expandedPlugins: number[],
-    options: SpotterCallbackOptions,
+    options: SpotterOptionWithPluginIdentifierMap,
     displayOptions: number,
   ) => {
     return Object.values(options).reduce((acc, opts, index) => {
@@ -196,31 +196,3 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle, icon: SpotterOpt
   </>
 };
 
-const styles = StyleSheet.create({
-  spinner: {
-    position: 'absolute',
-    right: 10,
-  },
-  activeOption: {
-    borderBottomColor: 'transparent',
-  },
-  option: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
-    borderBottomWidth: 1,
-  },
-  imageContainer: {
-    marginRight: 10,
-  },
-  title: {
-    fontSize: 16,
-  },
-  subtitle: {
-    fontSize: 12,
-    marginTop: 5
-  },
-});

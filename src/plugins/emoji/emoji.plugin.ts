@@ -51,8 +51,19 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       keywords: emj.keywords.split(KEYWORDS_SEPARATOR),
       icon: emj.value,
       action: () => {
-        this.nativeModules.clipboard.setValue(emj.value);
-        this.nativeModules.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
+        // this.nativeModules.clipboard.setValue(emj.value);
+        // this.nativeModules.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
+
+        return (additionalQuery: string) => {
+
+          return [
+            {
+              title: 'Test',
+              action: () => console.log('test'),
+            }
+          ]
+
+        }
       }
     }));
 

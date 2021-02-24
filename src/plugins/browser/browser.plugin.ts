@@ -6,15 +6,16 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
 
   identifier = 'Browser';
 
-  private historyUrls: string[] | null = null;
+  private historyUrls: string[] = [];
 
   async onOpenSpotter() {
-    this.historyUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY);
+    const historyUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY);
+    this.historyUrls = historyUrls ?? [];
   }
 
   async onQuery(query: string): Promise<SpotterOption[]> {
 
-    const options = this.historyUrls?.map(url => ({
+    const options = this.historyUrls.map(url => ({
       title: url,
       subtitle: 'Open',
       action: () => this.openUrl(url),
@@ -22,14 +23,14 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     }));
 
 
-    if (!this.validateUrl(query) || this.historyUrls?.find(u => u === query)) {
-      return spotterSearch(query, options ?? [], this.identifier);
+    if (!this.validateUrl(query) || this.historyUrls.find(u => u === query)) {
+      return spotterSearch(query, options, this.identifier);
     }
 
     return spotterSearch(
       query,
       [
-        ...(options ?? []),
+        ...options,
         {
           title: query,
           subtitle: 'Open',
@@ -45,14 +46,14 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   private async addUrlToHistory(url: string) {
-    const currentHistoryUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY);
-    if (currentHistoryUrls?.find(u => u === url)) {
+    const currentHistoryUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY) ?? [];
+    if (currentHistoryUrls.find(u => u === url)) {
       return;
     }
 
     await this.nativeModules.storage.setItem(
       HISTORY_URLS_STORAGE_KEY,
-      [...(currentHistoryUrls ?? []), url],
+      [...currentHistoryUrls, url],
     );
   }
 

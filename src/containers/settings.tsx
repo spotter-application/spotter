@@ -50,10 +50,10 @@ export const Settings: FC<{}> = () => {
       }
 
       const [plugin, option] = e.identifier.split('#');
-      const options = registries.plugins.options[plugin];
-      if (options?.length) {
-        await options.find(o => o.title === option)?.action();
-      }
+      // const options = registries.plugins.options[plugin];
+      // if (options?.length) {
+      //   await options.find(o => o.title === option)?.action();
+      // }
     });
 
   }, []);
@@ -91,29 +91,30 @@ export const Settings: FC<{}> = () => {
           </View>
         </View>
 
-        { Object.keys(registries.plugins.options).map((plugin: string) => (
-          <View style={{ marginTop: 25 }} key={plugin}>
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-              <OptionIcon icon={registries.plugins.options[plugin][0]?.icon} />
-              <Text style={{ fontSize: 20, marginLeft: -5 }}>
-                {plugin.replace('Plugin', '').replace(/([A-Z])/g, ' $1')}
-              </Text>
-            </View>
-            { registries.plugins.options[plugin].map(option => (
-              <View style={{ marginLeft: 0, marginBottom: 15 }} key={plugin + option.title}>
-                <Text style={{ fontSize: 16, marginLeft: 3 }}>{option.title}</Text>
-                <View style={{ flex: 1, backgroundColor: colors.background, marginTop: 5, borderRadius: 15 }}>
-                  <HotkeyInput
-                    styles={{ padding: 20, backgroundColor: 'transparent' }}
-                    hotkey={spotterSettings?.pluginHotkeys && spotterSettings?.pluginHotkeys[plugin] ? spotterSettings?.pluginHotkeys[plugin][option.title] : null}
-                    onPressHotkey={hotkey => onPressHotkey(hotkey, plugin, option.title)}
-                  ></HotkeyInput>
-                </View>
-              </View>
-            )) }
-          </View>
-        )) }
       </View>
     </ScrollView>
   )
 };
+
+        // { Object.keys(registries.plugins.options).map((plugin: string) => (
+        //   <View style={{ marginTop: 25 }} key={plugin}>
+        //     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+        //       <OptionIcon icon={registries.plugins.options[plugin][0]?.icon} />
+        //       <Text style={{ fontSize: 20, marginLeft: -5 }}>
+        //         {plugin.replace('Plugin', '').replace(/([A-Z])/g, ' $1')}
+        //       </Text>
+        //     </View>
+        //     { registries.plugins.options[plugin].map(option => (
+        //       <View style={{ marginLeft: 0, marginBottom: 15 }} key={plugin + option.title}>
+        //         <Text style={{ fontSize: 16, marginLeft: 3 }}>{option.title}</Text>
+        //         <View style={{ flex: 1, backgroundColor: colors.background, marginTop: 5, borderRadius: 15 }}>
+        //           <HotkeyInput
+        //             styles={{ padding: 20, backgroundColor: 'transparent' }}
+        //             hotkey={spotterSettings?.pluginHotkeys && spotterSettings?.pluginHotkeys[plugin] ? spotterSettings?.pluginHotkeys[plugin][option.title] : null}
+        //             onPressHotkey={hotkey => onPressHotkey(hotkey, plugin, option.title)}
+        //           ></HotkeyInput>
+        //         </View>
+        //       </View>
+        //     )) }
+        //   </View>
+        // )) }
