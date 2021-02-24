@@ -50,6 +50,12 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
+  private activeOptionSubject$ = new BehaviorSubject<SpotterOptionWithPluginIdentifier | null>(null);
+
+  get activeOption$(): Observable<SpotterOptionWithPluginIdentifier | null> {
+    return this.activeOptionSubject$.asObservable();
+  }
+
   private currentOptionsMapSubject$ = new BehaviorSubject<SpotterOptionWithPluginIdentifierMap>({});
 
   get currentOptionsMap(): SpotterOptionWithPluginIdentifierMap {
@@ -61,7 +67,19 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   public async findOptionsForQuery(q: string) {
-    const [ query, ...additionalQueries ] = q.split('>');
+    if (this.activeOptionSubject$.value && this.activeOptionSubject$.value.onQuery) {
+      const options = await this.activeOptionSubject$.value.onQuery(q);
+
+      this.currentOptionsMapSubject$.next({
+        [this.activeOptionSubject$.value.pluginIdentifier]: options,
+      });
+
+      return;
+    }
+
+
+    const [ firstQ, additionalQ ] = q.split('>');
+    const query = firstQ.trim();
 
     const optionsMap = await Object
       .entries(this.list)
@@ -81,6 +99,23 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         return { ...acc, [pluginIdentifier]: options };
 
       }, Promise.resolve({}));
+
+    // console.log(additionalQuery)
+      //
+    const pluginIdentifiers = Object.keys(optionsMap);
+    const pluginOptions: SpotterOption[][] = Object.values(optionsMap);
+
+    // const hasOnlyOneOption = pluginIdentifiers.length === 1 && pluginOptions[0].length === 1;
+    // if (hasOnlyOneOption) {
+    //   const option: SpotterOption = pluginOptions[0][0];
+
+    //   if (option.onQuery) {
+    //     this.currentOptionsMapSubject$.next({[pluginIdentifiers[0]]: option.onQuery('')});
+    //     return;
+    //   }
+    //   // await this.selectOption({...pluginOptions[0][0], pluginIdentifier: Object.keys(optionsMap)[0]}, (success) => null)
+    //   // return;
+    // }
 
     const sortedOptionsMap = await this.sortOptionsMap(optionsMap);
     this.currentOptionsMapSubject$.next(sortedOptionsMap);
@@ -107,7 +142,10 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         //   (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
         //   (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
         // )
-        .sort((a, b) => (optionExecutionCounter[`${pluginIdentifier}#${b.title}`] ?? 0) - (optionExecutionCounter[`${pluginIdentifier}#${a.title}`] ?? 0));
+        .sort((a, b) => (
+          (optionExecutionCounter[`${pluginIdentifier}#${b.title}`] ?? 0) -
+          (optionExecutionCounter[`${pluginIdentifier}#${a.title}`] ?? 0))
+        )
 
       const nextOptions = { ...optionsMap, [pluginIdentifier]: sortedByFrequentlyOptions };
 
@@ -124,8 +162,18 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
   public async selectOption(
     optionWithIdentifier: SpotterOptionWithPluginIdentifier,
+  ) {
+    this.activeOptionSubject$.next(optionWithIdentifier);
+  }
+
+  public async executeOption(
+    optionWithIdentifier: SpotterOptionWithPluginIdentifier,
     callback: (success: boolean) => void,
   ) {
+    // if (this.activeOptionSubject$.value) {
+    //   this.activeOptionSubject$.value.onQuery
+    // }
+
     if (!optionWithIdentifier?.action) {
       callback(false);
       return;

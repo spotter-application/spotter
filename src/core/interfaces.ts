@@ -32,9 +32,13 @@ export declare abstract class SpotterPluginsRegistry {
   abstract list: {[pluginId: string]: SpotterPluginLifecycle};
   abstract get currentOptionsMap(): SpotterOptionWithPluginIdentifierMap;
   abstract get currentOptionsMap$(): Observable<SpotterOptionWithPluginIdentifierMap>;
-  abstract selectOption(
+  abstract get activeOption$(): Observable<SpotterOptionWithPluginIdentifier | null>;
+  abstract executeOption(
     option: SpotterOptionWithPluginIdentifier,
     callback: (success: boolean) => void,
+  ): void;
+  abstract selectOption(
+    option: SpotterOptionWithPluginIdentifier | null,
   ): void;
 }
 
@@ -102,6 +106,7 @@ export type SpotterOptionBaseImage = string | number | { uri: string } | undefin
 export interface SpotterOption {
   title: string;
   action: SpotterAction;
+  onQuery?: (query: string) => Promise<SpotterOption[]> | SpotterOption[];
   subtitle?: string;
   keywords?: string[];
   icon?: SpotterOptionBaseImage;

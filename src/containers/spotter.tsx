@@ -2,12 +2,13 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import {Subscription} from 'rxjs';
 import { useApi, useTheme } from '../components';
-import { Options } from '../components/options.component';
-import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER } from '../core';
+import { OptionIcon, Options } from '../components/options.component';
+import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER, SpotterOptionWithPluginIdentifier } from '../core';
 import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
@@ -57,9 +58,11 @@ export const App: FC<{}> = () => {
   const [executingOption, setExecutingOption] = useState<boolean>(false);
   const [displayOptionsLimit] = useState<number>(3);
 
+  const [activeOption, setActiveOption] = useState<SpotterOptionWithPluginIdentifier | null>(null)
+
   useEffect(() => {
     init();
-  }, [selectedPluginIndex, selectedOptionIndex]);
+  }, []);
 
   const init = async () => {
     console.log('INIT');
@@ -103,6 +106,8 @@ export const App: FC<{}> = () => {
       setOptionsMap(nextOptionsMap)
     }));
 
+    subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
+
   };
 
   /* CALLBACKS --------------------------------- */
@@ -116,9 +121,9 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    const convertedLayoutQuery = spotterConvertLayout(q);
+    // const convertedLayoutQuery = spotterConvertLayout(q);
 
-    registries.plugins.findOptionsForQuery(convertedLayoutQuery);
+    registries.plugins.findOptionsForQuery(q);
 
     // registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
     //   const nextOptionsValues = Object.values(nextOptions);
@@ -160,7 +165,8 @@ export const App: FC<{}> = () => {
     setExecutingOption(true);
 
     const pluginIdentifier: string = Object.keys(optionsMap)[selectedPluginIndex];
-    registries.plugins.selectOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
+
+    registries.plugins.executeOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
       if (success || typeof success !== 'boolean') {
         nativeModules.panel.close();
         resetQuery();
@@ -193,13 +199,48 @@ export const App: FC<{}> = () => {
   }, []);
 
   const onTab = useCallback(() => {
+    // setSelectedOptionIndex(0);
+    // setSelectedPluginIndex(getNextPlugin(selectedPluginIndex, optionsMap));
+
+    const pluginOptions = Object.values(optionsMap)[selectedPluginIndex];
+
+    if (!pluginOptions) {
+      return;
+    }
+
+    const selectedOption: SpotterOption = pluginOptions[selectedOptionIndex];
+
+    if (!selectedOption || !selectedOption.onQuery) {
+      return;
+    }
+
+    const pluginIdentifier: string = Object.keys(optionsMap)[selectedPluginIndex];
+
+    registries.plugins.selectOption({...selectedOption, pluginIdentifier });
+
+    setQuery(' ');
+    // TODO: Implement resetValue method for Input
+    setTimeout(() => setQuery(''));
+
+    registries.plugins.findOptionsForQuery('');
     setSelectedOptionIndex(0);
-    setSelectedPluginIndex(getNextPlugin(selectedPluginIndex, optionsMap));
+    setSelectedPluginIndex(0);
+
   }, [selectedPluginIndex, optionsMap]);
 
   const onShiftTab = useCallback(() => {
     setSelectedOptionIndex(0);
     setSelectedPluginIndex(getPrevPlugin(selectedPluginIndex, optionsMap));
+  }, [selectedPluginIndex, optionsMap]);
+
+  const onBackspace = useCallback((prevText: string) => {
+    if (prevText.length) {
+      return;
+    }
+
+    registries.plugins.selectOption(null);
+
+    resetQuery();
   }, [selectedPluginIndex, optionsMap]);
 
   /* OPTIONS NAVIGATON --------------------------------- */
@@ -299,36 +340,6 @@ export const App: FC<{}> = () => {
 
   /* ------------------------------------------- */
 
-  // const execAction = async (
-  //   option: SpotterOption,
-  //   options: SpotterCallbackOptions,
-  //   selectedPlugin: number,
-  // ) => {
-  //   if (!option?.action) {
-  //      return;
-  //   };
-
-  //   const pluginIdentifier: string = Object.keys(options)[selectedPlugin];
-
-  //   registries.history.increaseOptionExecutionCounter(`${pluginIdentifier}#${option.title}`);
-
-  //   setExecutingOption(true);
-
-  //   const success = await option.action();
-
-  //   if (typeof success === 'function') {
-  //     console.log(success())
-  //     return;
-  //   }
-
-  //   if (success || typeof success !== 'boolean') {
-  //     nativeModules.panel.close();
-  //     resetQuery();
-  //   }
-
-  //   setExecutingOption(false);
-  // };
-
   const resetQuery = () => {
     setQuery('_');
     // TODO: Implement resetValue method for Input
@@ -338,6 +349,7 @@ export const App: FC<{}> = () => {
     setSelectedOptionIndex(0);
     setOptionsMap({});
     setExecutingOption(false);
+    registries.plugins.selectOption(null);
   };
 
   return <>
@@ -347,8 +359,28 @@ export const App: FC<{}> = () => {
         borderColor: colors.border,
         ...styles.input,
         ...(Object.keys(optionsMap).length ? styles.inputWithResults : {}),
+        display: 'flex',
+        flexDirection: 'row',
       }}>
+        {
+          activeOption ?
+            <View style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.active.border,
+            paddingLeft: 10,
+            paddingRight: 10,
+            borderRadius: 10,
+            marginRight: 5,
+            }}>
+              <OptionIcon style={{ paddingRight: 3 }} icon={activeOption.icon}></OptionIcon>
+              <Text style={{ fontSize: 16 }}>{activeOption.title}</Text>
+            </View>
+          : null
+        }
         <InputNative
+          style={{ flex: 1 }}
           value={query}
           placeholder="Query..."
           disabled={executingOption}
@@ -360,6 +392,7 @@ export const App: FC<{}> = () => {
           onCommandComma={onCommandComma}
           onTab={onTab}
           onShiftTab={onShiftTab}
+          onBackspace={onBackspace}
         ></InputNative>
       </View>
       {Object.keys(optionsMap).length ?
@@ -395,6 +428,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
     overflow: 'hidden',
     marginBottom: 150,
+    paddingBottom: 10,
   },
 });
 

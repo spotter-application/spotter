@@ -17,6 +17,8 @@ type InputProps = {
   onCommandComma?: () => void,
   onTab?: () => void,
   onShiftTab?: () => void,
+  onShiftEnter?: () => void,
+  onBackspace?: (text: string) => void,
 }
 
 export class InputNative extends React.PureComponent<InputProps> {
@@ -77,6 +79,20 @@ export class InputNative extends React.PureComponent<InputProps> {
     this.props.onShiftTab()
   }
 
+  _onShiftEnter = () => {
+    if (!this.props.onShiftEnter) {
+      return;
+    }
+    this.props.onShiftEnter()
+  }
+
+  _onBackspace = (event: { nativeEvent: { text: string } }) => {
+    if (!this.props.onBackspace) {
+      return;
+    }
+    this.props.onBackspace(event.nativeEvent.text)
+  }
+
   render() {
     const nativeProps = {
       ...this.props,
@@ -88,6 +104,8 @@ export class InputNative extends React.PureComponent<InputProps> {
       onCommandComma: this._onCommandComma,
       onTab: this._onTab,
       onShiftTab: this._onShiftTab,
+      onShiftEnter: this._onShiftEnter,
+      onBackspace: this._onBackspace,
     }
 
     return <RNInput

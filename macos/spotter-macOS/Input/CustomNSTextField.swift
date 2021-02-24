@@ -12,6 +12,8 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onCommandComma: RCTDirectEventBlock?
   @objc var onTab: RCTDirectEventBlock?
   @objc var onShiftTab: RCTDirectEventBlock?
+  @objc var onShiftEnter: RCTDirectEventBlock?
+  @objc var onBackspace: RCTDirectEventBlock?
   
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
@@ -60,13 +62,21 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   }
   
   func hotkeyDown(with event: NSEvent) -> NSEvent? {
+    // Command + Comma
     if (event.keyCode == 43 && event.modifierFlags.contains(NSEvent.ModifierFlags.command)) {
       self.onCommandComma!(["text": self.stringValue]);
       return nil
     }
     
+    // Shift + Tab
     if (event.keyCode == 48 && event.modifierFlags.contains(NSEvent.ModifierFlags.shift)) {
       self.onShiftTab!(["text": self.stringValue]);
+      return nil
+    }
+    
+    // Shift + Enter
+    if (event.keyCode == 13 && event.modifierFlags.contains(NSEvent.ModifierFlags.shift)) {
+      self.onShiftEnter!(["text": self.stringValue]);
       return nil
     }
 
@@ -106,6 +116,10 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
         // UP_ARROW key
         self.onArrowUp!(["text": self.stringValue])
         return true
+      } else if (commandSelector == #selector(NSResponder.deleteBackward(_:))) {
+        // BACKSPACE key
+        self.onBackspace!(["text": self.stringValue])
+        return false
       }
 
       return false

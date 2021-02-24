@@ -128,28 +128,51 @@ export const Options = ({
                       height: dimensions.option,
                       paddingLeft: 10,
                       paddingRight: 10,
-                      backgroundColor: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.background : 'transparent', borderRadius: 10,
+                      backgroundColor: (index === selectedPlugin && optionIndex === selectedOption)
+                        ? colors.active.background
+                        : 'transparent', borderRadius: 10,
                       display: 'flex',
                       flexDirection: 'row',
                       alignItems: 'center',
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <OptionIcon icon={option?.icon} style={{ marginRight: 5 }}/>
+                    <View style={{
+                      display: 'flex',
+                      flex: 1,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                    }}>
+                      <OptionIcon icon={option?.icon} style={{ marginRight: 5 }}/>
                       <Text
                         style={{
                           fontSize: 13,
-                          color: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.text : colors.text,
+                          color: (index === selectedPlugin && optionIndex === selectedOption)
+                            ? colors.active.text
+                            : colors.text,
                           borderRadius: 10,
                         }}
                       >{option.title}</Text>
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          color: (index === selectedPlugin && optionIndex === selectedOption) ? colors.active.text : colors.text,
-                          opacity: 0.3,
-                          marginLeft: 'auto'
-                        }}
-                      >{option.subtitle}</Text>
+                    </View>
+                    {
+                      (index === selectedPlugin && optionIndex === selectedOption)
+                        ? <>
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              color: (index === selectedPlugin && optionIndex === selectedOption)
+                                ? colors.active.text
+                                : colors.text,
+                              opacity: 0.3,
+                              marginLeft: 'auto',
+                              // marginLeft: 10,
+                            }}
+                          >{option.subtitle}</Text>
+                          <OptionKey style={{ marginLeft: 5, marginRight: 5 }} placeholder={'enter'}></OptionKey>
+                          { option.onQuery ? <OptionKey placeholder={'tab'}></OptionKey> : null }
+                        </>
+                        : null
+                    }
                   </View>
                   : null
               ))
@@ -157,7 +180,9 @@ export const Options = ({
         </View> : null}
           {item[1] !== 'loading' && item[1]?.length > displayOptions && !expandedPlugins.filter(e => e === index).length
             ? <View style={{
-              backgroundColor: selectedOption === displayOptions && selectedPlugin === index ? colors.active.background : colors.active.border,
+              backgroundColor: selectedOption === displayOptions && selectedPlugin === index
+                ? colors.active.background
+                : colors.active.border,
               borderRadius: 10,
               display: 'flex',
               flexDirection: 'row',
@@ -170,7 +195,9 @@ export const Options = ({
               <Text style={{
                 fontSize: 10,
                 opacity: 0.5,
-                color: selectedOption === displayOptions && selectedPlugin === index ? colors.active.text : colors.text,
+                color: selectedOption === displayOptions && selectedPlugin === index
+                  ? colors.active.text
+                  : colors.text,
               }}>•••</Text>
             </View>
             : null
@@ -194,5 +221,20 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle, icon: SpotterOpt
       : null
   }
   </>
+};
+
+export const OptionKey = ({ style = {}, placeholder }: { style?: ViewStyle, placeholder: string }) => {
+  const { colors } = useTheme();
+
+  return <View style={{
+    backgroundColor: colors.border,
+    padding: 5,
+    paddingLeft: 7,
+    paddingRight: 7,
+    borderRadius: 5,
+    ...style,
+  }}>
+    <Text style={{ fontSize: 8, color: colors.text, opacity: 0.5 }}>{placeholder}</Text>
+  </View>
 };
 

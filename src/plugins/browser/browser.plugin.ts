@@ -17,11 +17,16 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
 
     const options = this.historyUrls.map(url => ({
       title: url,
-      subtitle: 'Open',
+      subtitle: `Open ${url}`,
       action: () => this.openUrl(url),
       icon: {uri: `https://api.faviconkit.com/${url}/57`},
+      onQuery: (q: string) => {
+        return [{
+          title: `Translate ${q}`,
+          action: () => this.openUrl(`https://www.deepl.com/translator#en/ru/${encodeURI(q)}`),
+        }];
+      }
     }));
-
 
     if (!this.validateUrl(query) || this.historyUrls.find(u => u === query)) {
       return spotterSearch(query, options, this.identifier);

@@ -48,27 +48,45 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
     const emojis: Emoji[] = await this.queryOnDB(query);
     const options = emojis.map((emj: Emoji) => ({
       title: emj.keywords.split(KEYWORDS_SEPARATOR)[0],
+      subtitle: 'Copy to clipboard and paste to the last focused place',
       keywords: emj.keywords.split(KEYWORDS_SEPARATOR),
       icon: emj.value,
-      action: () => {
-        // this.nativeModules.clipboard.setValue(emj.value);
-        // this.nativeModules.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
+      action: () => this.paste(emj.value),
+      onQuery: (q: string) => {
+        console.log(q, q?.length);
+        const options = [
+          {
+            title: 'Paste',
+            subtitle: 'Paste to the last focused place',
+            action: () => this.paste(emj.value, true),
+          },
+          {
+            title: 'Copy',
+            subtitle: 'Copy to clipboard',
+            action: () => this.nativeModules.clipboard.setValue(emj.value),
+          },
+        ];
 
-        return (additionalQuery: string) => {
-
-          return [
-            {
-              title: 'Test',
-              action: () => console.log('test'),
-            }
-          ]
-
+        if (!q?.length) {
+          return options;
         }
-      }
+
+        return spotterSearch(q, options);
+      },
     }));
 
     // return options;
     return spotterSearch(q, options, this.identifier);
+  }
+
+  private async paste(emoji: string, restore = false) {
+    const prevClipboard = await this.nativeModules.clipboard.getValue();
+    this.nativeModules.clipboard.setValue(emoji);
+    this.nativeModules.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
+
+    if (restore) {
+      setTimeout(() => this.nativeModules.clipboard.setValue(prevClipboard), 1000)
+    }
   }
 
   private queryOnDB(query: string): Promise<Emoji[]> {
