@@ -16,7 +16,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
     }
 
     try {
-      const result = evaluate(normalizedQuery).toLocaleString();
+      const result = evaluate(normalizedQuery);
 
       if (!result) {
         return [];
