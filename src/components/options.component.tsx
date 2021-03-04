@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
 import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
@@ -10,7 +10,7 @@ type OptionsProps = {
   selectedOption: number;
   executingOption: boolean,
   expandedPlugins: number[],
-  onSubmit: (option: SpotterOption) => void;
+  onSubmit: (pluginIndex: number, optionIndex: number) => void;
   displayOptions: number,
   style: ViewStyle;
 }
@@ -137,7 +137,7 @@ export const Options = ({
                       justifyContent: 'space-between',
                     }}
                   >
-                    <View style={{
+                    <TouchableOpacity onPress={() => onSubmit(index, optionIndex)} style={{
                       display: 'flex',
                       flex: 1,
                       flexDirection: 'row',
@@ -153,7 +153,7 @@ export const Options = ({
                           borderRadius: 10,
                         }}
                       >{option.title}</Text>
-                    </View>
+                    </TouchableOpacity>
                     {
                       (index === selectedPlugin && optionIndex === selectedOption)
                         ? <>
@@ -179,7 +179,7 @@ export const Options = ({
           }
         </View> : null}
           {item[1] !== 'loading' && item[1]?.length > displayOptions && !expandedPlugins.filter(e => e === index).length
-            ? <View style={{
+            ? <TouchableOpacity onPress={() => onSubmit(index, displayOptions)} style={{
               backgroundColor: selectedOption === displayOptions && selectedPlugin === index
                 ? colors.active.background
                 : colors.active.border,
@@ -199,7 +199,7 @@ export const Options = ({
                   ? colors.active.text
                   : colors.text,
               }}>•••</Text>
-            </View>
+            </TouchableOpacity>
             : null
           }
       </View>

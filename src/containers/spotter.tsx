@@ -9,7 +9,6 @@ import {Subscription} from 'rxjs';
 import { useApi, useTheme } from '../components';
 import { OptionIcon, Options } from '../components/options.component';
 import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER, SpotterOptionWithPluginIdentifier } from '../core';
-import { spotterConvertLayout } from '../core/convert-layout/convert-layout';
 import { InputNative } from '../native';
 import {
   AppDimensionsPlugin,
@@ -65,7 +64,6 @@ export const App: FC<{}> = () => {
   }, []);
 
   const init = async () => {
-    console.log('INIT');
     registries.plugins.register(plugins);
     const settings = await registries.settings.getSettings();
 
@@ -121,42 +119,28 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    // const convertedLayoutQuery = spotterConvertLayout(q);
-
     registries.plugins.findOptionsForQuery(q);
-
-    // registries.plugins.findOptionsForQuery(convertedLayoutQuery, (forQuery, nextOptions) => {
-    //   const nextOptionsValues = Object.values(nextOptions);
-    //   const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
-
-    //   if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOptionIndex]) {
-    //     setSelectedOptionIndex(0);
-    //   }
-
-    //   if (selectedPluginIndex >= nextOptionsValues.length) {
-    //     setSelectedPluginIndex(0);
-    //   }
-
-    //   setOptions(nextOptions)
-    // });
   }, [executingOption, selectedPluginIndex, selectedOptionIndex]);
 
-  const onSubmit = useCallback(() => {
-    const selectedPluginExpanded = expandedPlugins.filter(p => p === selectedPluginIndex).length;
-    const selectedExpandAction = !selectedPluginExpanded && selectedOptionIndex >= displayOptionsLimit;
+  const onSubmit = useCallback((p?: number, o?: number) => {
+    const pluginIndex = typeof p === 'number' ? p : selectedPluginIndex;
+    const optionIndex = typeof o === 'number' ? o : selectedOptionIndex;
+
+    const selectedPluginExpanded = expandedPlugins.filter(p => p === pluginIndex).length;
+    const selectedExpandAction = !selectedPluginExpanded && optionIndex >= displayOptionsLimit;
 
     if (selectedExpandAction) {
-      setExpandedPlugins([...expandedPlugins ,selectedPluginIndex]);
+      setExpandedPlugins([...expandedPlugins, pluginIndex]);
       return;
     }
 
-    const pluginOptions = Object.values(optionsMap)[selectedPluginIndex];
+    const pluginOptions = Object.values(optionsMap)[pluginIndex];
 
     if (!pluginOptions) {
       return;
     }
 
-    const selectedOption: SpotterOption = pluginOptions[selectedOptionIndex];
+    const selectedOption: SpotterOption = pluginOptions[optionIndex];
 
     if (!selectedOption) {
       return;
@@ -164,7 +148,7 @@ export const App: FC<{}> = () => {
 
     setExecutingOption(true);
 
-    const pluginIdentifier: string = Object.keys(optionsMap)[selectedPluginIndex];
+    const pluginIdentifier: string = Object.keys(optionsMap)[pluginIndex];
 
     registries.plugins.executeOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
       if (success || typeof success !== 'boolean') {
@@ -199,9 +183,6 @@ export const App: FC<{}> = () => {
   }, []);
 
   const onTab = useCallback(() => {
-    // setSelectedOptionIndex(0);
-    // setSelectedPluginIndex(getNextPlugin(selectedPluginIndex, optionsMap));
-
     const pluginOptions = Object.values(optionsMap)[selectedPluginIndex];
 
     if (!pluginOptions) {
@@ -242,6 +223,13 @@ export const App: FC<{}> = () => {
 
     resetQuery();
   }, [selectedPluginIndex, optionsMap]);
+
+  const onSelectAndSubmit = useCallback((pluginIndex, optionIndex) => {
+    console.log('onSelectAndSubmit: ', optionIndex)
+    setSelectedOptionIndex(optionIndex);
+    setSelectedPluginIndex(pluginIndex);
+    onSubmit(pluginIndex, optionIndex);
+  }, [optionsMap, selectedOptionIndex, selectedPluginIndex, expandedPlugins]);
 
   /* OPTIONS NAVIGATON --------------------------------- */
 
@@ -404,7 +392,7 @@ export const App: FC<{}> = () => {
           displayOptions={displayOptionsLimit}
           options={optionsMap}
           expandedPlugins={expandedPlugins}
-          onSubmit={o => null}
+          onSubmit={(p, o) => onSelectAndSubmit(p, o)}
         ></Options> : null
       }
 

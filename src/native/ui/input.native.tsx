@@ -10,7 +10,7 @@ type InputProps = {
   fontSize?: number,
   style?: TextStyle,
   onChangeText?: (text: string) => void,
-  onSubmit?: (text: string) => void,
+  onSubmit?: () => void,
   onEscape?: () => void,
   onArrowDown?: () => void,
   onArrowUp?: () => void,
@@ -30,11 +30,11 @@ export class InputNative extends React.PureComponent<InputProps> {
     this.props.onChangeText(event?.nativeEvent?.text)
   }
 
-  _onSubmit = (event: { nativeEvent: { text: string } }) => {
+  _onSubmit = () => {
     if (!this.props.onSubmit) {
       return;
     }
-    this.props.onSubmit(event?.nativeEvent?.text)
+    this.props.onSubmit()
   }
 
   _onEscape = () => {
