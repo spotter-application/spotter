@@ -87,7 +87,6 @@ export const App: FC<{}> = () => {
     subscriptions.forEach(s => s.unsubscribe());
 
     subscriptions.push(registries.plugins.currentOptionsMap$.subscribe(nextOptionsMap => {
-      // console.log(nextOptionsMap);
       const nextOptionsValues = Object.values(nextOptionsMap);
       const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
 
@@ -225,7 +224,6 @@ export const App: FC<{}> = () => {
   }, [selectedPluginIndex, optionsMap]);
 
   const onSelectAndSubmit = useCallback((pluginIndex, optionIndex) => {
-    console.log('onSelectAndSubmit: ', optionIndex)
     setSelectedOptionIndex(optionIndex);
     setSelectedPluginIndex(pluginIndex);
     onSubmit(pluginIndex, optionIndex);
