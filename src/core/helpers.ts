@@ -59,14 +59,7 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
   ];
 
   const applicationsStrings: Application[][] = await Promise.all(
-    paths.map(async path =>
-      await shell
-        .execute(`cd ${path} && ls`)
-        .then(res => res.split('\n')
-          .filter(title => title.endsWith('.app') && title !== 'spotter.app')
-          .map(title => ({ title: title.replace('.app', ''), path: `${path}/${title}` }))
-        )
-    ),
+    paths.map(async path => await getDeepApplicationsStrings(shell, path)),
   );
 
   const applications = applicationsStrings.reduce((acc, apps) => ([...acc, ...apps]), []);
@@ -78,6 +71,31 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
       path: '/System/Library/CoreServices/Finder.app',
     }
   ];
+}
+
+async function getDeepApplicationsStrings(shell: SpotterShell, path: string): Promise<Application[]> {
+  const applicationsStrings = await shell
+    .execute(`cd ${path} && ls`)
+    .then(res => res.split('\n')
+    .reduce<Promise<Application[]>>(async (acc, title) => {
+      const resolvedAcc = await acc;
+
+      if (title.endsWith('.app')) {
+        return [
+          ...resolvedAcc,
+          { title: title.replace('.app', ''), path: `${path}/${title}` },
+        ];
+      }
+
+      if (path.split('/').length > 2) {
+        return resolvedAcc;
+      }
+
+      const deepApplicationsStrings = await getDeepApplicationsStrings(shell, `${path}/${title}`);
+      return [...resolvedAcc, ...deepApplicationsStrings];
+    }, Promise.resolve([])));
+
+  return applicationsStrings;
 }
 
 export function omit<T>(keys: string[], obj: { [key: string]: any }): T  {
