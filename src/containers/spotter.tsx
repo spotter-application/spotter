@@ -23,6 +23,7 @@ import {
   SpotifyPlugin,
   TimerPlugin,
 } from '../plugins';
+import { ConverterPlugin } from '../plugins/converter/converter.plugin';
 
 const plugins = [
   AppDimensionsPlugin,
@@ -36,6 +37,7 @@ const plugins = [
   PreferencesPlugin,
   SpotifyPlugin,
   TimerPlugin,
+  ConverterPlugin
 ];
 
 const subscriptions: Subscription[] = [];
