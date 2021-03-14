@@ -26,12 +26,7 @@ export const spotterSearch = (
   };
 
   // Search without prefix
-  if (prefixFromQuery && !queryWithoutPrefix) {
-    return search(query, options);
-  }
-
-
-  return [];
+  return search(query, options);
 };
 
 const search = (query: string, options: SpotterOption[]): SpotterOption[] => {

@@ -77,7 +77,6 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       return;
     }
 
-
     const [ firstQ, additionalQ ] = q.split('>');
     const query = firstQ.trim();
 
@@ -99,23 +98,6 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         return { ...acc, [pluginIdentifier]: options };
 
       }, Promise.resolve({}));
-
-    // console.log(additionalQuery)
-      //
-    const pluginIdentifiers = Object.keys(optionsMap);
-    const pluginOptions: SpotterOption[][] = Object.values(optionsMap);
-
-    // const hasOnlyOneOption = pluginIdentifiers.length === 1 && pluginOptions[0].length === 1;
-    // if (hasOnlyOneOption) {
-    //   const option: SpotterOption = pluginOptions[0][0];
-
-    //   if (option.onQuery) {
-    //     this.currentOptionsMapSubject$.next({[pluginIdentifiers[0]]: option.onQuery('')});
-    //     return;
-    //   }
-    //   // await this.selectOption({...pluginOptions[0][0], pluginIdentifier: Object.keys(optionsMap)[0]}, (success) => null)
-    //   // return;
-    // }
 
     const sortedOptionsMap = await this.sortOptionsMap(optionsMap);
     this.currentOptionsMapSubject$.next(sortedOptionsMap);
