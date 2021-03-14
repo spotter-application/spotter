@@ -23,10 +23,10 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
       }
 
       return [{
-        title: result,
+        title: `${result}`,
         subtitle: `Copy ${result} to clipboard`,
         icon,
-        action: () => this.copyToClipboard(result),
+        action: () => this.copyToClipboard(`${result}`),
       }];
     } catch (_) {
       return [];

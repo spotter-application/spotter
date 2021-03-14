@@ -83,7 +83,6 @@ export const App: FC<{}> = () => {
       };
     });
 
-
     subscriptions.forEach(s => s.unsubscribe());
 
     subscriptions.push(registries.plugins.currentOptionsMap$.subscribe(nextOptionsMap => {
@@ -104,7 +103,6 @@ export const App: FC<{}> = () => {
     }));
 
     subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
-
   };
 
   /* CALLBACKS --------------------------------- */

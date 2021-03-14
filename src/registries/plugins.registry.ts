@@ -99,16 +99,18 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
       }, Promise.resolve({}));
 
-    const sortedOptionsMap = await this.sortOptionsMap(optionsMap);
+    const sortedOptionsMap = await this.sortOptionsMap(optionsMap, query);
     this.currentOptionsMapSubject$.next(sortedOptionsMap);
   }
 
   private async sortOptionsMap(
-    optionsMap: SpotterOptionWithPluginIdentifierMap
+    optionsMap: SpotterOptionWithPluginIdentifierMap,
+    query: string,
   ): Promise<SpotterOptionWithPluginIdentifierMap> {
 
     const optionExecutionCounter = await this.historyRegistry.getOptionExecutionCounter();
     const maxPluginsExecutions: { [pluginIdentifier: string]: number } = {};
+    const startWithQueryPluginMap: { [pluginIdentifier: string]: number } = {};
 
     return Object.entries(optionsMap).reduce((acc, [pluginIdentifier, options]) => {
 
@@ -119,11 +121,10 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       const maxExecutions = Math.max(...options.map(o => optionExecutionCounter[`${pluginIdentifier}#${o.title}`] ?? 0));
       maxPluginsExecutions[pluginIdentifier] = maxExecutions;
 
+      const startWithQuery = Math.max(...options.map(o => o.title.toLowerCase().startsWith(query.toLowerCase()) ? 1 : 0));
+      startWithQueryPluginMap[pluginIdentifier] = startWithQuery;
+
       const sortedByFrequentlyOptions = options
-        // .sort((a, b) =>
-        //   (b.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0) -
-        //   (a.title.split(' ').find(t => t.toLocaleLowerCase().startsWith(query.toLocaleLowerCase())) ? 1 : 0)
-        // )
         .sort((a, b) => (
           (optionExecutionCounter[`${pluginIdentifier}#${b.title}`] ?? 0) -
           (optionExecutionCounter[`${pluginIdentifier}#${a.title}`] ?? 0))
@@ -133,6 +134,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
       const orderedPlugins = Object.keys(nextOptions)
         .sort((a, b) => maxPluginsExecutions[b] - maxPluginsExecutions[a])
+        .sort((a, b) => startWithQueryPluginMap[b] - startWithQueryPluginMap[a])
         .reduce<SpotterOptionWithPluginIdentifierMap>((acc: SpotterOptionWithPluginIdentifierMap, key: string) => {
           acc[key] = nextOptions[key] ?? [];
           return acc;

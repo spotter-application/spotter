@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
+import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
 import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SpotterOptionBaseImage } from '../core';
 import { IconImageNative } from '../native';
 import { useTheme } from './theme.provider';
@@ -234,7 +234,7 @@ export const OptionKey = ({ style = {}, placeholder }: { style?: ViewStyle, plac
     borderRadius: 5,
     ...style,
   }}>
-    <Text style={{ fontSize: 8, color: colors.text, opacity: 0.5 }}>{placeholder}</Text>
+    <Text style={{ fontSize: 8, color: colors.active.text, opacity: 0.5 }}>{placeholder}</Text>
   </View>
 };
 

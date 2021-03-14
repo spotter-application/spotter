@@ -41,6 +41,14 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
 
   async onQuery(q: string): Promise<SpotterOption[]> {
     const [ prefixFromQuery, ...restQuery ] = q.split(' ');
+
+    /*
+     * Remove after found a way to lazyload and sort options
+    * */
+    if (!this.identifier.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
+      return [];
+    }
+
     const queryWithoutPrefix = restQuery.join(' ');
 
     const query = queryWithoutPrefix ?? q;
