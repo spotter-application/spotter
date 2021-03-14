@@ -26,12 +26,12 @@ Default hotkey to run the app ```double shift```
 
 ## Plugins
 
-### Bluetooth
-* ```b <device_name>```
+### Applications
+* ```<app_name>```
 
-### Google
-* ```g<space>``` (will get data from clipboard)
-* ```g "your query"```
+### Bluetooth
+* ```bluetooth```
+* ```<device_name>```
 
 ### System commands
 * ```sleep```
@@ -39,15 +39,19 @@ Default hotkey to run the app ```double shift```
 * ```restart```
 * ```logout```
 
+### Timer
+* ```15m```
+
+### Emoji
+* ```e rocket```
+
 ### Kill applications
+* ```kill```
 * ```k <app_name>```
 
 ### Applications dimensions
-* `save application positions`
-* `restore application positions`
-
-### Timer
-* ```15m```
+* ```save application positions```
+* ```restore application positions```
 
 ### Spotify / Apple Music
 * ```play```
@@ -59,11 +63,10 @@ Default hotkey to run the app ```double shift```
 * ```share```
 
 ### Calculator
-* ```cos(0)```
 * ```256/8```
 
-### Applications
-* ```<app_name>```  (search by all installed applications)
+### Browser
+* ```github.com```
 
 ## The main idea
 
@@ -91,7 +94,6 @@ Contributions are always welcome, no matter how large or small.
 
 * Install  [Watchman](https://facebook.github.io/watchman)
 `brew install watchman`
-
 
 **Project**
 * Clone repo
