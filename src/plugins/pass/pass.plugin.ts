@@ -42,7 +42,6 @@ export class PassPlugin extends SpotterPlugin implements SpotterPluginLifecycle 
           ];
         }, Promise.resolve([]))
       );
-
     return gpgs;
   }
 }
