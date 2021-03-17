@@ -116,7 +116,7 @@ Contributions are always welcome, no matter how large or small.
 
 #### spotter can’t be opened because Apple cannot check it for malicious software.
 
-Go to System Preference -> Privacity and Security -> General -> And Press "Open Anyway"
+Go to System Preference -> Security & Privacy -> General -> And Press "Open Anyway"
 
 ## License
 GNU General Public License
