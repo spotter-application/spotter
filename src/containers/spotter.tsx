@@ -22,6 +22,7 @@ import {
   PreferencesPlugin,
   SpotifyPlugin,
   TimerPlugin,
+  PassPlugin,
 } from '../plugins';
 
 const plugins = [
@@ -36,6 +37,7 @@ const plugins = [
   PreferencesPlugin,
   SpotifyPlugin,
   TimerPlugin,
+  PassPlugin,
 ];
 
 const subscriptions: Subscription[] = [];
