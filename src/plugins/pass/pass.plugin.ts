@@ -23,6 +23,12 @@ export class PassPlugin extends SpotterPlugin implements SpotterPluginLifecycle 
   }
 
   async onQuery(query: string): Promise<SpotterOption[]> {
+    const [ prefixFromQuery, ] = query.split(' ');
+
+    if (!this.identifier.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
+      return [];
+    }
+
     return spotterSearch(query, this.passes, this.identifier);
   }
 
