@@ -113,8 +113,10 @@ Contributions are always welcome, no matter how large or small.
 
 ## Troubleshooting
 
-#### The application “spotter” can’t be opened.
+### "spotter.app" is damaged and can’t be opened.
+```xattr -cr /Applications/spotter.app```
 
+#### The application "spotter" can’t be opened.
 ```chmod +x "/Applications/spotter.app/Contents/MacOS/Spotter"```
 
 #### spotter can’t be opened because Apple cannot check it for malicious software.
