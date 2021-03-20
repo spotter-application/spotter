@@ -61,7 +61,6 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
       icon: emj.value,
       action: () => this.paste(emj.value),
       onQuery: (q: string) => {
-        console.log(q, q?.length);
         const options = [
           {
             title: 'Paste',

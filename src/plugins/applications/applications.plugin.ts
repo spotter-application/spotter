@@ -11,6 +11,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   identifier = 'Applications'
 
   private applications: SpotterOption[] = [];
+  private runnedApps: string[] = [];
 
   async onOpenSpotter() {
     const apps = await getAllApplications(this.nativeModules.shell);
@@ -18,11 +19,45 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
       title: app.title,
       icon: app.path,
       action: async () => await this.nativeModules.shell.execute(`open "${app.path}"`),
+      onQuery: (q: string) => {
+        const runnedApp = !!this.runnedApps.find(a => a === app.title);
+        const runnedAppOptions: SpotterOption[] = [
+          {
+            title: 'Close',
+            subtitle: `Kill all instances of ${app.title}`,
+            action: () => this.nativeModules.shell.execute(`killall "${app.title}"`),
+          },
+          {
+            title: 'Reopen',
+            subtitle: `Close and open ${app.title}`,
+            action: () => this.nativeModules.shell.execute(`killall "${app.title}" && open "${app.path}"`),
+          },
+        ];
+
+        const options = [
+          {
+            title: runnedApp ? 'Show' : 'Open',
+            action: async () => await this.nativeModules.shell.execute(`open "${app.path}"`),
+          },
+          ...(runnedApp ? runnedAppOptions : []),
+        ];
+
+        return q.length
+          ? spotterSearch(q, options)
+          : options;
+      }
     }));
+    this.runnedApps = await this.getRunnedApps();
   }
 
   onQuery(query: string): SpotterOption[] {
     return spotterSearch(query, this.applications, this.identifier);
+  }
+
+  private async getRunnedApps(): Promise<string[]> {
+    return await this.nativeModules.shell
+      .execute("osascript -e 'tell application \"System Events\" to get name of (processes where background only is false)'")
+      .then(r => r.split(', '))
   }
 
 }
