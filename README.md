@@ -68,6 +68,9 @@ Default hotkey to run the app ```double shift```
 ### Browser
 * ```github.com```
 
+### [Pass](https://www.passwordstore.org/)
+* ```p email/gmail```
+
 ## The main idea
 
 * 🔮&nbsp;&nbsp;&nbsp;Provide an api on the native level
