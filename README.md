@@ -78,6 +78,9 @@ Default hotkey to run the app ```double shift```
 
 It will allow the application to remain native and be available for developing javascript/typescript plugins.
 
+## Requirements
+* macOS Big Sur
+
 ## Contributing
 After cloning & setting up the local project you can push the changes to your github fork and make a pull request.
 
