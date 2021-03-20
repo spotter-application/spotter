@@ -121,7 +121,9 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       const maxExecutions = Math.max(...options.map(o => optionExecutionCounter[`${pluginIdentifier}#${o.title}`] ?? 0));
       maxPluginsExecutions[pluginIdentifier] = maxExecutions;
 
-      const startWithQuery = Math.max(...options.map(o => o.title.toLowerCase().startsWith(query.toLowerCase()) ? 1 : 0));
+      const startWithQuery = Math.max(...options.map(o =>
+        o.title.toLowerCase().split(' ').find(t => t.startsWith(query.toLowerCase())) ? 1 : 0
+      ));
       startWithQueryPluginMap[pluginIdentifier] = startWithQuery;
 
       const sortedByFrequentlyOptions = options
