@@ -39,7 +39,6 @@ export class TerminalPlugin extends SpotterPlugin implements SpotterPluginLifecy
         },
         onQuery: async (_: string) => {
           const result = await this.api.shell.execute(`${command}`);
-          console.log(result);
           return [
             {
               title: `${result.trim()}`,
