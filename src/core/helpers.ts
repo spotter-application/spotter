@@ -16,7 +16,7 @@ export const spotterSearch = (
   const [ prefixFromQuery, ...restQuery ] = query.split(' ');
   const queryWithoutPrefix = restQuery.join(' ');
 
-  if (prefix.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
+  if (prefix.toLowerCase().startsWith(prefixFromQuery.toLowerCase())) {
     // Display all
     if (prefixFromQuery && !queryWithoutPrefix) {
       return search('', options);
@@ -40,8 +40,8 @@ const search = (query: string, options: SpotterOption[]): SpotterOption[] => {
 
   return options
     .filter((item: SpotterOption) => (
-      item.title?.toLowerCase().includes(query?.toLowerCase()) ||
-      (item.keywords?.join(' ')?.toLowerCase().includes(query?.toLowerCase()))
+      (item.title?.split(' ')?.find(t => t.toLowerCase().startsWith(query.toLocaleLowerCase()))) ||
+      (item.keywords?.find(k => k.toLowerCase().startsWith(query.toLocaleLowerCase())))
     ))
     .sort((a, b) => a.title?.indexOf(query) - b.title?.indexOf(query));
 }
