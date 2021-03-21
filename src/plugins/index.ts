@@ -10,4 +10,5 @@ export * from './music/music.plugin';
 export * from './finder/finder.plugin';
 export * from './emoji/emoji.plugin';
 export * from './pass/pass.plugin';
+export * from './terminal/terminal.plugin';
 
