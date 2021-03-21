@@ -1,4 +1,4 @@
-import { evaluate } from 'mathjs';
+import { evaluate, format } from 'mathjs';
 import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
 import icon from './icon.png';
 
@@ -16,22 +16,22 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
     }
 
     try {
-      const result: number = evaluate(normalizedQuery);
+      const result: string = format(evaluate(normalizedQuery), {precision: 14})
 
-      if (!result && result !== 0) {
+      if (!result) {
         return [];
       }
 
       if (query.endsWith('=')) {
-        this.api.queryInput.setValue(`${result}`);
+        this.api.queryInput.setValue(result);
         return [];
       }
 
       return [{
-        title: `${result}`,
+        title: result,
         subtitle: 'Copy to clipboard',
         icon,
-        action: () => this.copyToClipboard(`${result}`),
+        action: () => this.copyToClipboard(result),
       }];
     } catch (_) {
       return [];
