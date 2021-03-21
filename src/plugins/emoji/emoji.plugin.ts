@@ -70,7 +70,7 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
           {
             title: 'Copy',
             subtitle: 'Copy to clipboard',
-            action: () => this.nativeModules.clipboard.setValue(emj.value),
+            action: () => this.api.clipboard.setValue(emj.value),
           },
         ];
 
@@ -87,12 +87,12 @@ export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle
   }
 
   private async paste(emoji: string, restore = false) {
-    const prevClipboard = await this.nativeModules.clipboard.getValue();
-    this.nativeModules.clipboard.setValue(emoji);
-    this.nativeModules.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
+    const prevClipboard = await this.api.clipboard.getValue();
+    this.api.clipboard.setValue(emoji);
+    this.api.shell.execute(`osascript -e 'tell application "System Events" to keystroke "v" using command down'`)
 
     if (restore) {
-      setTimeout(() => this.nativeModules.clipboard.setValue(prevClipboard), 1000)
+      setTimeout(() => this.api.clipboard.setValue(prevClipboard), 1000)
     }
   }
 

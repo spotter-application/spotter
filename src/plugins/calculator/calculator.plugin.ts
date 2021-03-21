@@ -16,15 +16,20 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
     }
 
     try {
-      const result = evaluate(normalizedQuery);
+      const result: number = evaluate(normalizedQuery);
 
       if (!result && result !== 0) {
         return [];
       }
 
+      if (query.endsWith('=')) {
+        this.api.queryInput.setValue(`${result}`);
+        return [];
+      }
+
       return [{
         title: `${result}`,
-        subtitle: `Copy ${result} to clipboard`,
+        subtitle: 'Copy to clipboard',
         icon,
         action: () => this.copyToClipboard(`${result}`),
       }];
@@ -34,7 +39,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
   }
 
   private copyToClipboard(value: string) {
-    this.nativeModules.clipboard.setValue(value);
+    this.api.clipboard.setValue(value);
   }
 
 }

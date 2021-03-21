@@ -9,7 +9,7 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   private historyUrls: string[] = [];
 
   async onOpenSpotter() {
-    const historyUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY);
+    const historyUrls = await this.api.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY);
     this.historyUrls = historyUrls ?? [];
   }
 
@@ -51,19 +51,19 @@ export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   private async addUrlToHistory(url: string) {
-    const currentHistoryUrls = await this.nativeModules.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY) ?? [];
+    const currentHistoryUrls = await this.api.storage.getItem<string[]>(HISTORY_URLS_STORAGE_KEY) ?? [];
     if (currentHistoryUrls.find(u => u === url)) {
       return;
     }
 
-    await this.nativeModules.storage.setItem(
+    await this.api.storage.setItem(
       HISTORY_URLS_STORAGE_KEY,
       [...currentHistoryUrls, url],
     );
   }
 
   private openUrl(url: string) {
-    this.nativeModules.shell.execute(`open "${this.addHTTP(url)}"`);
+    this.api.shell.execute(`open "${this.addHTTP(url)}"`);
   }
 
   private validateUrl(str: string): boolean {

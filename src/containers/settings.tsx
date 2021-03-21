@@ -7,7 +7,7 @@ import spotterIcon from './icon.png';
 
 export const Settings: FC<{}> = () => {
 
-  const { nativeModules, registries } = useApi();
+  const { api, registries } = useApi();
   const { colors } = useTheme();
   const [spotterSettings, setSpotterSettings] = useState<SpotterSettings | null>(null);
 
@@ -15,13 +15,13 @@ export const Settings: FC<{}> = () => {
     const nextHotkey = hotkey.keyCode === null ? null : hotkey;
     if (!plugin) {
       await registries.settings.patchSettings({ hotkey: nextHotkey });
-      nativeModules.globalHotKey.register(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
-      nativeModules.globalHotKey.onPress((e) => {
+      api.globalHotKey.register(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
+      api.globalHotKey.onPress((e) => {
         if (e.identifier !== SPOTTER_HOTKEY_IDENTIFIER) {
           return;
         }
 
-        nativeModules.panel.open();
+        api.panel.open();
       });
       return;
     }
@@ -43,8 +43,8 @@ export const Settings: FC<{}> = () => {
 
     await registries.settings.patchSettings({ pluginHotkeys });
 
-    nativeModules.globalHotKey.register(nextHotkey, `${plugin}#${option}`);
-    nativeModules.globalHotKey.onPress(async (e) => {
+    api.globalHotKey.register(nextHotkey, `${plugin}#${option}`);
+    api.globalHotKey.onPress(async (e) => {
       if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
         return;
       }

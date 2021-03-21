@@ -13,12 +13,12 @@ export class PassPlugin extends SpotterPlugin implements SpotterPluginLifecycle 
   private passes: SpotterOption[] = [];
 
   async onOpenSpotter() {
-    const passes = await this.getAllGpgFiles(this.nativeModules.shell);
+    const passes = await this.getAllGpgFiles(this.api.shell);
     this.passes = passes.map(pass => ({
       title: pass.title,
       subtitle: 'Copy to clipboard',
       icon,
-      action: async () => await this.nativeModules.shell.execute(`pass -c ${pass.title}`),
+      action: async () => await this.api.shell.execute(`pass -c ${pass.title}`),
     }));
   }
 

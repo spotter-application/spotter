@@ -30,7 +30,7 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
         subtitle: 'Save sizes and positions of all open applications',
         icon,
         action: async () => {
-          const dimensions = await this.nativeModules.appsDimensions.getValue();
+          const dimensions = await this.api.appsDimensions.getValue();
           this.saveApplicationDimensions(dimensions);
         }
       },
@@ -40,7 +40,7 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
         icon,
         action: async () => {
           this.storedApplicationDimensions?.forEach(dimensions => {
-            this.nativeModules.appsDimensions.setValue(
+            this.api.appsDimensions.setValue(
               dimensions.appName,
               dimensions.x,
               dimensions.y,
@@ -55,11 +55,11 @@ export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginL
 
   private async saveApplicationDimensions(dimensions: SystemApplicationDimensions[]) {
     this.storedApplicationDimensions = dimensions;
-    await this.nativeModules.storage.setItem(APPLICATION_POSITIONS_STORAGE_KEY, dimensions);
+    await this.api.storage.setItem(APPLICATION_POSITIONS_STORAGE_KEY, dimensions);
   }
 
   private async getApplicationDimensions() {
-    return await this.nativeModules.storage.getItem<SystemApplicationDimensions[]>(APPLICATION_POSITIONS_STORAGE_KEY);
+    return await this.api.storage.getItem<SystemApplicationDimensions[]>(APPLICATION_POSITIONS_STORAGE_KEY);
   }
 
 }

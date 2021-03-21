@@ -1,11 +1,11 @@
-import { SpotterOptionExecutionCounter, SpotterHistoryRegistry, SpotterNativeModules } from '../core';
+import { SpotterOptionExecutionCounter, SpotterHistoryRegistry, SpotterApi } from '../core';
 
 export class HistoryRegistry implements SpotterHistoryRegistry {
-  private nativeModules: SpotterNativeModules;
+  private nativeModules: SpotterApi;
   private STORAGE_KEY = 'SPOTTER_HISTORY';
   private defaultValue: SpotterOptionExecutionCounter = {};
 
-  constructor(nativeModules: SpotterNativeModules) {
+  constructor(nativeModules: SpotterApi) {
     this.nativeModules = nativeModules;
   }
 

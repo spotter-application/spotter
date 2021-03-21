@@ -1,6 +1,6 @@
 
 import React, { FC } from 'react';
-import { SpotterNativeModules, SpotterRegistries } from '../core';
+import { SpotterApi, SpotterRegistries } from '../core';
 import {
   AppsDimensionsNative,
   ClipboardNative,
@@ -11,6 +11,7 @@ import {
   ShellNative,
   PanelNative,
   BluetoothNative,
+  QueryInput,
 } from '../native';
 import {
   PluginsRegistry,
@@ -27,8 +28,9 @@ const clipboard = new ClipboardNative();
 const shell = new ShellNative();
 const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
+const queryInput = new QueryInput();
 
-const nativeModules = {
+const api = {
   appsDimensions,
   storage,
   globalHotKey,
@@ -38,11 +40,12 @@ const nativeModules = {
   shell,
   panel,
   bluetooth,
+  queryInput,
 };
 
-const history = new HistoryRegistry(nativeModules);
-const plugins = new PluginsRegistry(nativeModules, history);
-const settings = new SettingsRegistry(nativeModules);
+const history = new HistoryRegistry(api);
+const plugins = new PluginsRegistry(api, history);
+const settings = new SettingsRegistry(api);
 
 const registries = {
   plugins,
@@ -51,24 +54,24 @@ const registries = {
 };
 
 type Context = {
-  nativeModules: SpotterNativeModules,
+  api: SpotterApi,
   registries: SpotterRegistries,
 };
 
 export const ApiContext = React.createContext<Context>({
-  nativeModules,
+  api,
   registries,
 });
 
 export const ApiProvider: FC<{}> = (props) => {
 
-  const api = {
-    nativeModules,
+  const value = {
+    api,
     registries,
   };
 
   return (
-    <ApiContext.Provider value={api}>
+    <ApiContext.Provider value={value}>
       {props.children}
     </ApiContext.Provider>
   );

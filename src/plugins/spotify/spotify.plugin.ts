@@ -16,7 +16,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   private currentTrackRequiredFor = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
 
   async onInit() {
-    const apps = await getAllApplications(this.nativeModules.shell);
+    const apps = await getAllApplications(this.api.shell);
     this.app = apps.find(app => app.title === 'Spotify') ?? null;
   }
 
@@ -40,7 +40,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
           title: 'Share',
           subtitle: 'Copy current track url',
           icon: this.app.path,
-          action: () => this.nativeModules.clipboard.setValue(this.currentTrackURL ?? '')
+          action: () => this.api.clipboard.setValue(this.currentTrackURL ?? '')
         }] : []
       )
     ];
@@ -88,32 +88,31 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   private async previous() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" \n set player position to 0\n previous track\n end tell'")
   }
 
   private async next() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to next track'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to next track'")
   }
 
   private async pause() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to pause'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to pause'")
   }
 
   private async play() {
-    console.log('PLAY!!!!!!!!!!')
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
   }
 
   private async mute() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 0'")
   }
 
   private async unmute() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
   }
 
   private async getCurrentTrackURL(): Promise<string | null> {
-    const meta = await this.nativeModules.shell.execute(`osascript -e '
+    const meta = await this.api.shell.execute(`osascript -e '
       if application "Spotify" is running then
         tell application "Spotify"
         if player state is playing then

@@ -14,30 +14,30 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   private runnedApps: string[] = [];
 
   async onOpenSpotter() {
-    const apps = await getAllApplications(this.nativeModules.shell);
+    const apps = await getAllApplications(this.api.shell);
     this.applications = apps.map(app => ({
       title: app.title,
       icon: app.path,
-      action: async () => await this.nativeModules.shell.execute(`open "${app.path}"`),
+      action: async () => await this.api.shell.execute(`open "${app.path}"`),
       onQuery: (q: string) => {
         const runnedApp = !!this.runnedApps.find(a => a === app.title);
         const runnedAppOptions: SpotterOption[] = [
           {
             title: 'Close',
             subtitle: `Kill all instances of ${app.title}`,
-            action: () => this.nativeModules.shell.execute(`killall "${app.title}"`),
+            action: () => this.api.shell.execute(`killall "${app.title}"`),
           },
           {
             title: 'Reopen',
             subtitle: `Close and open ${app.title}`,
-            action: () => this.nativeModules.shell.execute(`killall "${app.title}" && open "${app.path}"`),
+            action: () => this.api.shell.execute(`killall "${app.title}" && open "${app.path}"`),
           },
         ];
 
         const options = [
           {
             title: runnedApp ? 'Show' : 'Open',
-            action: async () => await this.nativeModules.shell.execute(`open "${app.path}"`),
+            action: async () => await this.api.shell.execute(`open "${app.path}"`),
           },
           ...(runnedApp ? runnedAppOptions : []),
         ];
@@ -55,7 +55,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   }
 
   private async getRunnedApps(): Promise<string[]> {
-    return await this.nativeModules.shell
+    return await this.api.shell
       .execute("osascript -e 'tell application \"System Events\" to get name of (processes where background only is false)'")
       .then(r => r.split(', '))
   }

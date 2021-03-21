@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-export interface SpotterNativeModules {
+export interface SpotterApi {
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
   notifications: SpotterNotifications,
@@ -10,6 +10,7 @@ export interface SpotterNativeModules {
   appsDimensions: SpotterAppsDimensions,
   panel: SpotterPanel,
   bluetooth: SpotterBluetooth,
+  queryInput: SpotterQueryInput,
 }
 
 export interface SpotterRegistries {
@@ -97,6 +98,12 @@ export declare abstract class SpotterStorage {
   abstract getItem<T>(key: string): Promise<T | null>
 }
 
+export declare abstract class SpotterQueryInput {
+  abstract get value(): string;
+  abstract get value$(): Observable<string>;
+  abstract setValue(value: string): void;
+}
+
 /* Base interfaces */
 
 export declare type SpotterAction = () => any | Promise<any>;
@@ -147,7 +154,7 @@ export declare abstract class SpotterPluginLifecycle {
 }
 
 export interface SpotterPluginConstructor {
-  new(nativeModules: SpotterNativeModules): SpotterPluginLifecycle;
+  new(nativeModules: SpotterApi): SpotterPluginLifecycle;
 }
 
 export interface SpotterHotkey {

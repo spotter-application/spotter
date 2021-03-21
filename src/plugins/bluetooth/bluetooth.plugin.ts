@@ -9,7 +9,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
   private bluetoothDevices: SpotterOption[] = [];
 
   async onOpenSpotter() {
-    const bluetoothDevices = await this.nativeModules.bluetooth
+    const bluetoothDevices = await this.api.bluetooth
       .getDevices()
       .then(devices => devices.sort((a, b) => Number(b.connected) - Number(a.connected)));
 
@@ -34,14 +34,14 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
   }
 
   private connect(address: string): Promise<boolean> {
-    this.nativeModules.bluetooth.connectDevice(address);
+    this.api.bluetooth.connectDevice(address);
     return this.executeCommandWithTimer(
       devices => devices.find(d => d.address === address)?.connected,
     );
   }
 
   private disconnect(address: string): Promise<boolean> {
-    this.nativeModules.bluetooth.disconnectDevice(address);
+    this.api.bluetooth.disconnectDevice(address);
     return this.executeCommandWithTimer(
       devices => !devices.find(d => d.address === address)?.connected,
     );
@@ -55,7 +55,7 @@ export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifec
       const maxSeconds = 5;
       const interval = setInterval(async () => {
         seconds++;
-        const connectedDevices = await this.nativeModules.bluetooth.getDevices();
+        const connectedDevices = await this.api.bluetooth.getDevices();
         if (check(connectedDevices)) {
           clearInterval(interval);
           res(true);

@@ -5,7 +5,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import {Subscription} from 'rxjs';
+import { Subscription } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { useApi, useTheme } from '../components';
 import { OptionIcon, Options } from '../components/options.component';
 import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER, SpotterOptionWithPluginIdentifier } from '../core';
@@ -47,7 +48,7 @@ interface NextPluginOption {
 
 export const App: FC<{}> = () => {
 
-  const { nativeModules, registries } = useApi();
+  const { api, registries } = useApi();
   const { colors } = useTheme();
   const [query, setQuery] = useState<string>('');
   const [optionsMap, setOptionsMap] = useState<SpotterOptionWithPluginIdentifierMap>({});
@@ -68,17 +69,17 @@ export const App: FC<{}> = () => {
     const settings = await registries.settings.getSettings();
 
     /* Register global hotkeys for spotter and plugins */
-    nativeModules.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
+    api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
     Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
       Object.entries(options).forEach(([option, hotkey]) => {
-        nativeModules.globalHotKey.register(hotkey, `${plugin}#${option}`);
+        api.globalHotKey.register(hotkey, `${plugin}#${option}`);
       });
     });
 
-    nativeModules.globalHotKey.onPress(async (e) => {
+    api.globalHotKey.onPress(async (e) => {
       if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
         registries.plugins.onOpenSpotter();
-        nativeModules.panel.open();
+        api.panel.open();
         return;
       };
     });
@@ -103,6 +104,11 @@ export const App: FC<{}> = () => {
     }));
 
     subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
+
+    subscriptions.push(api.queryInput.value$.pipe(distinctUntilChanged()).subscribe(query => {
+      setQuery(query);
+      registries.plugins.findOptionsForQuery(query);
+    }));
   };
 
   /* CALLBACKS --------------------------------- */
@@ -116,7 +122,7 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    registries.plugins.findOptionsForQuery(q);
+    api.queryInput.setValue(q);
   }, [executingOption, selectedPluginIndex, selectedOptionIndex]);
 
   const onSubmit = useCallback((p?: number, o?: number) => {
@@ -149,7 +155,7 @@ export const App: FC<{}> = () => {
 
     registries.plugins.executeOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
       if (success || typeof success !== 'boolean') {
-        nativeModules.panel.close();
+        api.panel.close();
         resetQuery();
       }
 
@@ -170,13 +176,13 @@ export const App: FC<{}> = () => {
   }, [selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit]);
 
   const onEscape = useCallback(() => {
-    nativeModules.panel.close();
+    api.panel.close();
     resetQuery();
   }, []);
 
   const onCommandComma = useCallback(() => {
     onEscape();
-    nativeModules.panel.openSettings();
+    api.panel.openSettings();
   }, []);
 
   const onTab = useCallback(() => {

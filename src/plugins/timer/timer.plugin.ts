@@ -49,12 +49,12 @@ export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle
 
       if (!secondsLeft) {
         this.resetTimer();
-        this.nativeModules.notifications.show('Complete', `Timer for ${stringTime} has been completed`);
-        this.nativeModules.statusBar.changeTitle('');
+        this.api.notifications.show('Complete', `Timer for ${stringTime} has been completed`);
+        this.api.statusBar.changeTitle('');
         return;
       }
 
-      this.nativeModules.statusBar.changeTitle(`${this.getStringISOTime(secondsLeft)}`);
+      this.api.statusBar.changeTitle(`${this.getStringISOTime(secondsLeft)}`);
     }, 1000)
   }
 

@@ -2,7 +2,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {
   omit,
   SpotterHistoryRegistry,
-  SpotterNativeModules,
+  SpotterApi,
   SpotterOption,
   SpotterOptionWithPluginIdentifier,
   SpotterOptionWithPluginIdentifierMap,
@@ -15,11 +15,11 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
   private readonly optionsRegistry = new Map<string, SpotterOption[]>();
-  private nativeModules: SpotterNativeModules;
+  private nativeModules: SpotterApi;
   private historyRegistry: SpotterHistoryRegistry;
 
   constructor(
-    nativeModules: SpotterNativeModules,
+    nativeModules: SpotterApi,
     history: SpotterHistoryRegistry,
   ) {
     this.nativeModules = nativeModules;
@@ -173,7 +173,6 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       // const option = omit<SpotterOption>(['pluginIdentifier'], optionWithIdentifier);
       const options = success();
       this.currentOptionsMapSubject$.next({[optionWithIdentifier.pluginIdentifier]: options});
-      console.log(success())
       return;
     }
 

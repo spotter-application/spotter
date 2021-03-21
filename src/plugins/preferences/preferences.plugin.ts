@@ -224,22 +224,22 @@ export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLif
   }
 
   private async openPane(path: string) {
-    return await this.nativeModules.shell.execute(`open "${path}"`)
+    return await this.api.shell.execute(`open "${path}"`)
   }
 
   private async shutdown() {
-    await this.nativeModules.shell.execute("osascript -e 'tell app \"System Events\" to shut down'")
+    await this.api.shell.execute("osascript -e 'tell app \"System Events\" to shut down'")
   }
 
   private async restart() {
-    await this.nativeModules.shell.execute("osascript -e 'tell app \"System Events\" to restart'")
+    await this.api.shell.execute("osascript -e 'tell app \"System Events\" to restart'")
   }
 
   private async logout() {
-    await this.nativeModules.shell.execute("osascript -e 'tell app \"System Events\" to log out")
+    await this.api.shell.execute("osascript -e 'tell app \"System Events\" to log out")
   }
 
   private async sleep() {
-    await this.nativeModules.shell.execute("osascript -e 'tell app \"System Events\" to sleep'")
+    await this.api.shell.execute("osascript -e 'tell app \"System Events\" to sleep'")
   }
 }

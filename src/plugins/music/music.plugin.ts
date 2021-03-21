@@ -16,7 +16,7 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
   private playingRequiredFor = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
 
   async onInit() {
-    const apps = await getAllApplications(this.nativeModules.shell);
+    const apps = await getAllApplications(this.api.shell);
     this.app = apps.find(app => app.title === 'Music') ?? null;
   }
 
@@ -77,31 +77,31 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
   }
 
   private async previous() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" \n set player position to 0\n previous track\n end tell'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" \n set player position to 0\n previous track\n end tell'")
   }
 
   private async next() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" to next track'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" to next track'")
   }
 
   private async pause() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" to pause'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" to pause'")
   }
 
   private async play() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" to play'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" to play'")
   }
 
   private async mute() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" to set sound volume to 0'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" to set sound volume to 0'")
   }
 
   private async unmute() {
-    await this.nativeModules.shell.execute("osascript -e 'tell application \"Music\" to set sound volume to 100'")
+    await this.api.shell.execute("osascript -e 'tell application \"Music\" to set sound volume to 100'")
   }
 
   private async getPlayingState(): Promise<boolean> {
-    const state = await this.nativeModules.shell.execute(`osascript -e '
+    const state = await this.api.shell.execute(`osascript -e '
       if application "Music" is running then
         tell application "Music"
         if player state is playing then

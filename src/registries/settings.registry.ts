@@ -1,14 +1,14 @@
-import { SpotterNativeModules, SpotterSettings, SpotterSettingsRegistry } from '../core';
+import { SpotterApi, SpotterSettings, SpotterSettingsRegistry } from '../core';
 
 export class SettingsRegistry implements SpotterSettingsRegistry {
-  private nativeModules: SpotterNativeModules;
+  private nativeModules: SpotterApi;
   private STORAGE_KEY = 'STORAGE_KEY';
   private defaultValue: SpotterSettings = {
     hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
     pluginHotkeys: {},
   }
 
-  constructor(nativeModules: SpotterNativeModules) {
+  constructor(nativeModules: SpotterApi) {
     this.nativeModules = nativeModules;
   }
 
