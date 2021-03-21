@@ -10,10 +10,10 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 
 * ❤️&nbsp;&nbsp;&nbsp;<b>Open source</b>
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
-* 🔌&nbsp;&nbsp;&nbsp;<b>Plugin system</b>
+* 🔌&nbsp;&nbsp;&nbsp;<b>Plugins</b>
 * ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
-* 📦&nbsp;&nbsp;&nbsp;<b>Small size</b> (less than 20mb)
+* 📦&nbsp;&nbsp;&nbsp;<b>Small size</b>
 
 ## Installation
 
