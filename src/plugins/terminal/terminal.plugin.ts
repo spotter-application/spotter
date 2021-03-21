@@ -25,7 +25,7 @@ export class TerminalPlugin extends SpotterPlugin implements SpotterPluginLifecy
     const [ prefixFromQuery, ...restQuery ] = query.split(' ');
     const command = restQuery.join(' ');
 
-    if (!this.identifier.toLowerCase().includes(prefixFromQuery.toLowerCase())) {
+    if (!this.identifier.toLowerCase().startsWith(prefixFromQuery.toLowerCase())) {
       return [];
     }
 
