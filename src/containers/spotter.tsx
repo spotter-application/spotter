@@ -59,6 +59,7 @@ export const App: FC<{}> = () => {
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
   const [executingOption, setExecutingOption] = useState<boolean>(false);
   const [displayOptionsLimit] = useState<number>(3);
+  const [firstOption, setFirstOption] = useState<SpotterOption | null>(null);
 
   const [activeOption, setActiveOption] = useState<SpotterOptionWithPluginIdentifier | null>(null)
 
@@ -89,6 +90,9 @@ export const App: FC<{}> = () => {
     subscriptions.forEach(s => s.unsubscribe());
 
     subscriptions.push(registries.plugins.currentOptionsMap$.subscribe(nextOptionsMap => {
+      const nextOptions = nextOptionsMap ? Object.values(nextOptionsMap) : [];
+      setFirstOption(nextOptions[0] && nextOptions[0][0] ? nextOptions[0][0] : null);
+
       const nextOptionsValues = Object.values(nextOptionsMap);
       const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
 
@@ -341,6 +345,7 @@ export const App: FC<{}> = () => {
     setSelectedOptionIndex(0);
     setOptionsMap({});
     setExecutingOption(false);
+    setFirstOption(null);
     registries.plugins.selectOption(null);
   };
 
@@ -376,6 +381,7 @@ export const App: FC<{}> = () => {
           value={query}
           placeholder="Query..."
           disabled={executingOption}
+          hint={firstOption?.title}
           onChangeText={onChangeText}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}
@@ -386,6 +392,11 @@ export const App: FC<{}> = () => {
           onShiftTab={onShiftTab}
           onBackspace={onBackspace}
         ></InputNative>
+        {
+          firstOption ? <>
+            <OptionIcon style={{}} icon={firstOption.icon}></OptionIcon>
+          </> : null
+        }
       </View>
       {Object.keys(optionsMap).length ?
         <Options

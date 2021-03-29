@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, TextStyle } from 'react-native';
+import { requireNativeComponent, Text, TextStyle, View } from 'react-native';
 
 const RNInput = requireNativeComponent<any>('RNInput');
 
@@ -8,6 +8,7 @@ type InputProps = {
   placeholder: string,
   disabled?: boolean,
   fontSize?: number,
+  hint?: string,
   style?: TextStyle,
   onChangeText?: (text: string) => void,
   onSubmit?: () => void,
@@ -19,9 +20,37 @@ type InputProps = {
   onShiftTab?: () => void,
   onShiftEnter?: () => void,
   onBackspace?: (text: string) => void,
-}
+};
 
-export class InputNative extends React.PureComponent<InputProps> {
+type InputState = {
+  formatedHint: string | null,
+};
+
+export class InputNative extends React.PureComponent<InputProps, InputState> {
+
+  constructor(props: InputProps) {
+    super(props);
+    this.state = { formatedHint: null };
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps: InputProps) {
+    if (!nextProps.hint) {
+      this.setState({ formatedHint: null });
+    }
+
+    if (nextProps.value && nextProps.hint) {
+      const lowerValue = nextProps.value.toLowerCase();
+      const lowerHint = nextProps.hint.toLowerCase();
+      const hintIndex = lowerHint.indexOf(lowerValue);
+
+      if (hintIndex !== -1) {
+        this.setState({
+          formatedHint: lowerHint.substring(hintIndex),
+        });
+      }
+
+    }
+  }
 
   _onChangeText = (event: { nativeEvent: { text: string }}) => {
     if (!this.props.onChangeText) {
@@ -108,9 +137,25 @@ export class InputNative extends React.PureComponent<InputProps> {
       onBackspace: this._onBackspace,
     }
 
-    return <RNInput
-      {...nativeProps}
-      style={{ padding: 17, backgroundColor: 'transparent', ...(this.props.style ? this.props.style : {})}}
-    />
+    return <View
+      style={{ position: 'relative', ...(this.props.style ? this.props.style : {})}}
+    >
+      <RNInput
+        {...nativeProps}
+        style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
+      />
+      {this.state.formatedHint ? <Text
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 2,
+          margin: 'auto',
+          fontSize: 26,
+          opacity: 0.5,
+        }}>
+          {this.state.formatedHint}
+        </Text> : null}
+    </View>
   }
 }
