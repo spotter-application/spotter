@@ -116,7 +116,7 @@ Contributions are always welcome, no matter how large or small.
 
 ## Troubleshooting
 
-### "spotter.app" is damaged and can’t be opened.
+#### "spotter.app" is damaged and can’t be opened.
 ```xattr -cr /Applications/spotter.app```
 
 #### The application "spotter" can’t be opened.
