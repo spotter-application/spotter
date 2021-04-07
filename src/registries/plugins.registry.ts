@@ -9,6 +9,7 @@ import {
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
+  SpotterHistory,
 } from '../core';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
@@ -99,18 +100,17 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
       }, Promise.resolve({}));
 
-    const sortedOptionsMap = await this.sortOptionsMap(optionsMap, query);
+    const sortedOptionsMap = await this.getSortedPluginsOptionsMap(optionsMap, query);
     this.currentOptionsMapSubject$.next(sortedOptionsMap);
   }
 
-  private async sortOptionsMap(
+  private async getSortedPluginsOptionsMap(
     optionsMap: SpotterOptionWithPluginIdentifierMap,
     query: string,
   ): Promise<SpotterOptionWithPluginIdentifierMap> {
 
-    const optionExecutionCounter = await this.historyRegistry.getOptionExecutionCounter();
-    const maxPluginsExecutions: { [pluginIdentifier: string]: number } = {};
-    const startWithQueryPluginMap: { [pluginIdentifier: string]: number } = {};
+    const pluginHistory: SpotterHistory = await this.historyRegistry.getPluginHistory();
+    const optionsHistory: SpotterHistory = await this.historyRegistry.getOptionsHistory();
 
     return Object.entries(optionsMap).reduce((acc, [pluginIdentifier, options]) => {
 
@@ -118,29 +118,42 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         return acc;
       }
 
-      const maxExecutions = Math.max(...options.map(o => optionExecutionCounter[`${pluginIdentifier}#${o.title}`] ?? 0));
-      maxPluginsExecutions[pluginIdentifier] = maxExecutions;
-
-      const startWithQuery = Math.max(...options.map(o =>
-        o.title.toLowerCase().split(' ').find(t => t.startsWith(query.toLowerCase())) ? 1 : 0
-      ));
-      startWithQueryPluginMap[pluginIdentifier] = startWithQuery;
-
       const sortedByFrequentlyOptions = options
         .sort((a, b) => (
-          (optionExecutionCounter[`${pluginIdentifier}#${b.title}`] ?? 0) -
-          (optionExecutionCounter[`${pluginIdentifier}#${a.title}`] ?? 0))
-        )
+          (pluginHistory[b.title]?.total ?? 0) -
+          (pluginHistory[a.title]?.total ?? 0)
+        ))
+        .sort((a, b) => (
+          (Object.entries(optionsHistory[b.title]?.queries ?? {})
+            .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+          ) -
+          (Object.entries(optionsHistory[a.title]?.queries ?? {})
+            .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+          )
+        ));
 
       const nextOptions = { ...optionsMap, [pluginIdentifier]: sortedByFrequentlyOptions };
 
       const orderedPlugins = Object.keys(nextOptions)
-        .sort((a, b) => maxPluginsExecutions[b] - maxPluginsExecutions[a])
-        .sort((a, b) => startWithQueryPluginMap[b] - startWithQueryPluginMap[a])
-        .reduce<SpotterOptionWithPluginIdentifierMap>((acc: SpotterOptionWithPluginIdentifierMap, key: string) => {
-          acc[key] = nextOptions[key] ?? [];
-          return acc;
-        }, {});
+        .sort((a, b) => (
+          (pluginHistory[b]?.total ?? 0) -
+          (pluginHistory[a]?.total ?? 0)
+        ))
+        .sort((a, b) => (
+          (Object.entries(optionsHistory[b]?.queries ?? {})
+            .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+          ) -
+          (Object.entries(optionsHistory[a]?.queries ?? {})
+            .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+          )
+        ))
+        .reduce<SpotterOptionWithPluginIdentifierMap>(
+          (acc: SpotterOptionWithPluginIdentifierMap, key: string) => {
+            acc[key] = nextOptions[key] ?? [];
+            return acc;
+          },
+          {},
+        );
 
       return orderedPlugins;
     }, {});
@@ -154,23 +167,20 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
   public async executeOption(
     optionWithIdentifier: SpotterOptionWithPluginIdentifier,
+    query: string,
     callback: (success: boolean) => void,
   ) {
-    // if (this.activeOptionSubject$.value) {
-    //   this.activeOptionSubject$.value.onQuery
-    // }
-
     if (!optionWithIdentifier?.action) {
       callback(false);
       return;
     };
 
-    this.historyRegistry.increaseOptionExecutionCounter(`${optionWithIdentifier.pluginIdentifier}#${optionWithIdentifier.title}`);
+    this.historyRegistry.increasePluginHistory(optionWithIdentifier.pluginIdentifier, query);
+    this.historyRegistry.increaseOptionHistory(optionWithIdentifier.title, query);
 
     const success = await optionWithIdentifier.action();
 
     if (typeof success === 'function') {
-      // const option = omit<SpotterOption>(['pluginIdentifier'], optionWithIdentifier);
       const options = success();
       this.currentOptionsMapSubject$.next({[optionWithIdentifier.pluginIdentifier]: options});
       return;

@@ -36,6 +36,7 @@ export declare abstract class SpotterPluginsRegistry {
   abstract get activeOption$(): Observable<SpotterOptionWithPluginIdentifier | null>;
   abstract executeOption(
     option: SpotterOptionWithPluginIdentifier,
+    query: string,
     callback: (success: boolean) => void,
   ): void;
   abstract selectOption(
@@ -49,8 +50,10 @@ export declare abstract class SpotterSettingsRegistry {
 }
 
 export declare abstract class SpotterHistoryRegistry {
-  abstract getOptionExecutionCounter(): Promise<SpotterOptionExecutionCounter>;
-  abstract increaseOptionExecutionCounter(query: string): void;
+  abstract getPluginHistory(): Promise<SpotterHistory>;
+  abstract getOptionsHistory(): Promise<SpotterHistory>;
+  abstract increasePluginHistory(plugin: string, query: string): void;
+  abstract increaseOptionHistory(option: string, query: string): void;
 }
 
 export declare abstract class SpotterShell {
@@ -174,8 +177,13 @@ export interface SpotterSettings {
 
 export type SpotterHistoryExecutionsTotal = number;
 
-export type SpotterOptionExecutionCounter = {
-  [optionTitle: string]: SpotterHistoryExecutionsTotal;
+export type SpotterHistoryItem = {
+  queries: { [query: string]: SpotterHistoryExecutionsTotal };
+  total: SpotterHistoryExecutionsTotal;
+}
+
+export type SpotterHistory = {
+  [option: string]: SpotterHistoryItem;
 }
 
 export interface SpotterBluetoothItem {

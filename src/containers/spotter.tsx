@@ -159,14 +159,18 @@ export const App: FC<{}> = () => {
 
     const pluginIdentifier: string = Object.keys(optionsMap)[pluginIndex];
 
-    registries.plugins.executeOption({...selectedOption, pluginIdentifier }, (success: boolean) => {
-      if (success || typeof success !== 'boolean') {
-        api.panel.close();
-        resetQuery();
-      }
+    registries.plugins.executeOption(
+      { ...selectedOption, pluginIdentifier },
+      query,
+      (success: boolean) => {
+        if (success || typeof success !== 'boolean') {
+          api.panel.close();
+          resetQuery();
+        }
 
-      setExecutingOption(false);
-    });
+        setExecutingOption(false);
+      },
+    );
   }, [optionsMap, selectedOptionIndex, selectedPluginIndex, expandedPlugins]);
 
   const onArrowUp = useCallback(() => {
