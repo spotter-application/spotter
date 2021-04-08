@@ -166,6 +166,11 @@ export interface SpotterHotkey {
   doubledModifiers: boolean;
 }
 
+export interface SpotterWebsiteShortcut{
+  shortcut: string;
+  url: string;
+}
+
 export type SpotterPluginHotkeys = {
   [plugin: string]: { [option: string]: SpotterHotkey | null };
 }

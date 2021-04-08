@@ -1,4 +1,5 @@
 export * from './applications/applications.plugin';
+export * from './web-shortcuts/web-shortcuts.plugin';
 export * from './calculator/calculator.plugin';
 export * from './browser/browser.plugin';
 export * from './spotify/spotify.plugin';

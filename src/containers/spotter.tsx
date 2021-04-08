@@ -14,6 +14,7 @@ import { InputNative } from '../native';
 import {
   AppDimensionsPlugin,
   ApplicationsPlugin,
+  WebShortcutsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
   EmojiPlugin,
@@ -29,6 +30,7 @@ import {
 const plugins = [
   AppDimensionsPlugin,
   ApplicationsPlugin,
+  WebShortcutsPlugin,
   BluetoothPlugin,
   CalculatorPlugin,
   EmojiPlugin,
