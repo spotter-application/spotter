@@ -51,6 +51,8 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
     '/System/Applications',
     '/System/Applications/Utilities',
     '/Applications',
+    '/Users/$USER/Applications',
+    '/Users/$USER/Applications/Chrome Apps.localized',
   ];
 
   const applicationsStrings: Application[][] = await Promise.all(
