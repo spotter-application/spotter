@@ -31,16 +31,16 @@ export declare abstract class SpotterPluginsRegistry {
   abstract destroyPlugins(): void;
   abstract findOptionsForQuery(query: string): void;
   abstract list: {[pluginId: string]: SpotterPluginLifecycle};
-  abstract get currentOptionsMap(): SpotterOptionWithPluginIdentifierMap;
-  abstract get currentOptionsMap$(): Observable<SpotterOptionWithPluginIdentifierMap>;
-  abstract get activeOption$(): Observable<SpotterOptionWithPluginIdentifier | null>;
-  abstract executeOption(
-    option: SpotterOptionWithPluginIdentifier,
+  abstract get currentOptions(): SpotterPluginOption[];
+  abstract get currentOptions$(): Observable<SpotterPluginOption[]>;
+  abstract get activeOption$(): Observable<SpotterPluginOption | null>;
+  abstract submitOption(
+    option: SpotterPluginOption,
     query: string,
     callback: (success: boolean) => void,
   ): void;
-  abstract selectOption(
-    option: SpotterOptionWithPluginIdentifier | null,
+  abstract activateOption(
+    option: SpotterPluginOption | null,
   ): void;
 }
 
@@ -122,8 +122,8 @@ export interface SpotterOption {
   icon?: SpotterOptionBaseImage;
 }
 
-export interface SpotterOptionWithPluginIdentifier extends SpotterOption {
-  pluginIdentifier: string;
+export interface SpotterPluginOption extends SpotterOption {
+  plugin: string;
 }
 
 export interface SystemApplication {
@@ -145,6 +145,8 @@ export declare abstract class SpotterPluginLifecycle {
   public identifier: string;
 
   abstract onQuery(query: string): SpotterOption[] | Promise<SpotterOption[]>;
+
+  public extendableForOption?: string;
 
   public options?: SpotterOption[];
 
@@ -195,12 +197,12 @@ export interface SpotterBluetoothItem {
 
 export interface SpotterThemeColors {
   background: string,
-  border: string,
+  highlight: string,
   text: string,
   description: string,
   active: {
     background: string,
-    border: string,
+    highlight: string,
     text: string,
     description: string,
   },

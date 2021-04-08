@@ -24,11 +24,13 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
         const runnedAppOptions: SpotterOption[] = [
           {
             title: 'Close',
+            icon: app.path,
             subtitle: `Kill all instances of ${app.title}`,
             action: () => this.api.shell.execute(`killall "${app.title}"`),
           },
           {
             title: 'Reopen',
+            icon: app.path,
             subtitle: `Close and open ${app.title}`,
             action: () => this.api.shell.execute(`killall "${app.title}" && open "${app.path}"`),
           },
@@ -37,6 +39,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
         const options = [
           {
             title: runnedApp ? 'Show' : 'Open',
+            icon: app.path,
             action: async () => await this.api.shell.execute(`open "${app.path}"`),
           },
           ...(runnedApp ? runnedAppOptions : []),

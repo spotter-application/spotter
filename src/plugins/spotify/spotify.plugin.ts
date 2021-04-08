@@ -11,7 +11,10 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
 
   identifier = 'Spotify';
 
+  extendableForOption = 'Spotify';
+
   private app: Application | null = null;
+  private runned: boolean = false;
   private currentTrackURL: string | null = null;
   private currentTrackRequiredFor = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
 
@@ -21,6 +24,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   async onOpenSpotter() {
+    this.runned = !!(await this.getRunnedApps()).find(a => a === this.identifier);
     this.currentTrackURL = await this.getCurrentTrackURL()
   }
 
@@ -29,12 +33,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
       return [];
     }
 
-    const options = [
-      ...(this.options.filter(option => {
-          const playingRequired = this.currentTrackRequiredFor.find(title => option.title === title);
-          return this.currentTrackURL ? playingRequired : !playingRequired;
-        })
-      ),
+    const childOptions: SpotterOption[] = [
       ...(this.currentTrackURL
         ? [{
           title: 'Share',
@@ -42,7 +41,42 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
           icon: this.app.path,
           action: () => this.api.clipboard.setValue(this.currentTrackURL ?? '')
         }] : []
-      )
+      ),
+      ...(this.runned
+        ? [
+            {
+              icon: this.app.path,
+              title: 'Close',
+              subtitle: `Kill all instances of ${this.app.title}`,
+              action: () => this.api.shell.execute(`killall "${this.app?.title}"`),
+            },
+            ...(this.options.filter(option => {
+              const playingRequired = this.currentTrackRequiredFor.find(title => option.title === title);
+              return this.currentTrackURL ? playingRequired : !playingRequired;
+            })),
+          ]
+        : [{
+          icon: this.app.path,
+          title: 'Open',
+          action: async () => await this.api.shell.execute(`open "${this.app?.path}"`),
+        }]
+      ),
+    ];
+
+    const options: SpotterOption[] = [
+      {
+        title: 'Spotify',
+        subtitle: '',
+        icon: this.app.path,
+        action: async () => await this.api.shell.execute(`open "${this.app?.path}"`),
+        onQuery: (q: string) => {
+          if (!q?.length) {
+            return childOptions;
+          }
+
+          return spotterSearch(q, childOptions);
+        },
+      }
     ];
 
     return spotterSearch(query, options, this.identifier);
@@ -136,5 +170,11 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     }
 
     return `https://open.spotify.com/track/${id}`;
+  }
+
+  private async getRunnedApps(): Promise<string[]> {
+    return await this.api.shell
+      .execute("osascript -e 'tell application \"System Events\" to get name of (processes where background only is false)'")
+      .then(r => r.split(', '))
   }
 }

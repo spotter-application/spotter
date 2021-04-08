@@ -11,24 +11,24 @@ type Context = {
 const themes: { [theme: string]: SpotterThemeColors } = {
   light: {
     background: '#ffffff',
-    border: 'rgba(0, 0, 0, 0.05)',
+    highlight: 'rgba(0, 0, 0, 0.05)',
     text: '#000000',
     description: 'rgba(0, 0, 0, 0.3)',
     active: {
       background: '#1877dd',
-      border: 'rgba(0, 0, 0, 0.05)',
+      highlight: 'rgba(0, 0, 0, 0.1)',
       text: '#ffffff',
       description: 'rgba(255, 255, 255, 0.5)',
     },
   },
   dark: {
     background: '#212121',
-    border: 'rgba(255, 255, 255, 0.05)',
+    highlight: 'rgba(255, 255, 255, 0.05)',
     text: '#ffffff',
     description: 'rgba(255, 255, 255, 0.3)',
     active: {
       background: '#1877dd',
-      border: 'rgba(255, 255, 255, 0.01)',
+      highlight: 'rgba(255, 255, 255, 0.1)',
       text: '#ffffff',
       description: 'rgba(255, 255, 255, 0.5)',
     },

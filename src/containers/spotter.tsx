@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { useApi, useTheme } from '../components';
 import { OptionIcon, Options } from '../components/options.component';
-import { SpotterOptionWithPluginIdentifierMap, SpotterOption, SPOTTER_HOTKEY_IDENTIFIER, SpotterOptionWithPluginIdentifier } from '../core';
+import { SPOTTER_HOTKEY_IDENTIFIER, SpotterPluginOption } from '../core';
 import { InputNative } from '../native';
 import {
   AppDimensionsPlugin,
@@ -43,25 +43,15 @@ const plugins = [
 
 const subscriptions: Subscription[] = [];
 
-interface NextPluginOption {
-  option: number;
-  plugin: number;
-};
-
 export const App: FC<{}> = () => {
 
   const { api, registries } = useApi();
   const { colors } = useTheme();
   const [query, setQuery] = useState<string>('');
-  const [optionsMap, setOptionsMap] = useState<SpotterOptionWithPluginIdentifierMap>({});
-  const [selectedPluginIndex, setSelectedPluginIndex] = useState<number>(0);
-  const [expandedPlugins, setExpandedPlugins] = useState<number[]>([]);
+  const [options, setOptions] = useState<SpotterPluginOption[]>([]);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
   const [executingOption, setExecutingOption] = useState<boolean>(false);
-  const [displayOptionsLimit] = useState<number>(3);
-  const [firstOption, setFirstOption] = useState<SpotterOption | null>(null);
-
-  const [activeOption, setActiveOption] = useState<SpotterOptionWithPluginIdentifier | null>(null)
+  const [activeOption, setActiveOption] = useState<SpotterPluginOption | null>(null)
 
   useEffect(() => {
     init();
@@ -89,24 +79,10 @@ export const App: FC<{}> = () => {
 
     subscriptions.forEach(s => s.unsubscribe());
 
-    subscriptions.push(registries.plugins.currentOptionsMap$.subscribe(nextOptionsMap => {
-      const nextOptions = nextOptionsMap ? Object.values(nextOptionsMap) : [];
-      setFirstOption(nextOptions[0] && nextOptions[0][0] ? nextOptions[0][0] : null);
-
-      const nextOptionsValues = Object.values(nextOptionsMap);
-      const selectedPluginNextOptions = nextOptionsValues[selectedPluginIndex];
-
+    subscriptions.push(registries.plugins.currentOptions$.subscribe(nextOptions => {
       setExecutingOption(false);
-
-      if (!selectedPluginNextOptions || !selectedPluginNextOptions[selectedOptionIndex]) {
-        setSelectedOptionIndex(0);
-      }
-
-      if (selectedPluginIndex >= nextOptionsValues.length) {
-        setSelectedPluginIndex(0);
-      }
-
-      setOptionsMap(nextOptionsMap)
+      setSelectedOptionIndex(0);
+      setOptions(nextOptions)
     }));
 
     subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
@@ -121,7 +97,7 @@ export const App: FC<{}> = () => {
 
   const onChangeText = useCallback(async q => {
     if (q === '') {
-      resetQuery();
+      resetState();
     }
 
     if (executingOption) {
@@ -129,65 +105,42 @@ export const App: FC<{}> = () => {
     }
 
     api.queryInput.setValue(q);
-  }, [executingOption, selectedPluginIndex, selectedOptionIndex]);
+  }, [executingOption, selectedOptionIndex]);
 
-  const onSubmit = useCallback((p?: number, o?: number) => {
-    const pluginIndex = typeof p === 'number' ? p : selectedPluginIndex;
-    const optionIndex = typeof o === 'number' ? o : selectedOptionIndex;
+  const onSubmit = useCallback(() => {
+    const option: SpotterPluginOption = options[selectedOptionIndex];
 
-    const selectedPluginExpanded = expandedPlugins.filter(p => p === pluginIndex).length;
-    const selectedExpandAction = !selectedPluginExpanded && optionIndex >= displayOptionsLimit;
-
-    if (selectedExpandAction) {
-      setExpandedPlugins([...expandedPlugins, pluginIndex]);
-      return;
-    }
-
-    const pluginOptions = Object.values(optionsMap)[pluginIndex];
-
-    if (!pluginOptions) {
-      return;
-    }
-
-    const selectedOption: SpotterOption = pluginOptions[optionIndex];
-
-    if (!selectedOption) {
+    if (!option) {
       return;
     }
 
     setExecutingOption(true);
 
-    const pluginIdentifier: string = Object.keys(optionsMap)[pluginIndex];
-
-    registries.plugins.executeOption(
-      { ...selectedOption, pluginIdentifier },
+    registries.plugins.submitOption(
+      option,
       query,
       (success: boolean) => {
         if (success || typeof success !== 'boolean') {
           api.panel.close();
-          resetQuery();
+          resetState();
         }
 
         setExecutingOption(false);
       },
     );
-  }, [optionsMap, selectedOptionIndex, selectedPluginIndex, expandedPlugins]);
+  }, [options, selectedOptionIndex]);
 
   const onArrowUp = useCallback(() => {
-    const { option, plugin } = getPrevOption(selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit);
-    setSelectedOptionIndex(option);
-    setSelectedPluginIndex(plugin);
-  }, [selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit]);
+    setSelectedOptionIndex(getPrevOptionIndex(selectedOptionIndex, options));
+  }, [selectedOptionIndex, options]);
 
   const onArrowDown = useCallback(() => {
-    const { option, plugin } = getNextOption(selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit);
-    setSelectedOptionIndex(option);
-    setSelectedPluginIndex(plugin);
-  }, [selectedOptionIndex, selectedPluginIndex, expandedPlugins, optionsMap, displayOptionsLimit]);
+    setSelectedOptionIndex(getNextOptionIndex(selectedOptionIndex, options));
+  }, [selectedOptionIndex, options]);
 
   const onEscape = useCallback(() => {
     api.panel.close();
-    resetQuery();
+    resetState();
   }, []);
 
   const onCommandComma = useCallback(() => {
@@ -196,184 +149,104 @@ export const App: FC<{}> = () => {
   }, []);
 
   const onTab = useCallback(() => {
-    const pluginOptions = Object.values(optionsMap)[selectedPluginIndex];
+    const option: SpotterPluginOption = options[selectedOptionIndex];
 
-    if (!pluginOptions) {
+    if (!option || !option.onQuery) {
       return;
     }
 
-    const selectedOption: SpotterOption = pluginOptions[selectedOptionIndex];
-
-    if (!selectedOption || !selectedOption.onQuery) {
-      return;
-    }
-
-    const pluginIdentifier: string = Object.keys(optionsMap)[selectedPluginIndex];
-
-    registries.plugins.selectOption({...selectedOption, pluginIdentifier });
-
-    setQuery(' ');
-    // TODO: Implement resetValue method for Input
-    setTimeout(() => setQuery(''));
+    console.log(option)
+    registries.plugins.activateOption(option);
+    api.queryInput.setValue('');
 
     registries.plugins.findOptionsForQuery('');
     setSelectedOptionIndex(0);
-    setSelectedPluginIndex(0);
 
-  }, [selectedPluginIndex, optionsMap]);
-
-  const onShiftTab = useCallback(() => {
-    setSelectedOptionIndex(0);
-    setSelectedPluginIndex(getPrevPlugin(selectedPluginIndex, optionsMap));
-  }, [selectedPluginIndex, optionsMap]);
+  }, [options]);
 
   const onBackspace = useCallback((prevText: string) => {
     if (prevText.length) {
       return;
     }
 
-    registries.plugins.selectOption(null);
+    registries.plugins.activateOption(null);
 
-    resetQuery();
-  }, [selectedPluginIndex, optionsMap]);
+    resetState();
+  }, [options]);
 
-  const onSelectAndSubmit = useCallback((pluginIndex, optionIndex) => {
-    setSelectedOptionIndex(optionIndex);
-    setSelectedPluginIndex(pluginIndex);
-    onSubmit(pluginIndex, optionIndex);
-  }, [optionsMap, selectedOptionIndex, selectedPluginIndex, expandedPlugins]);
+  const onSelectAndSubmit = useCallback((index: number) => {
+    setSelectedOptionIndex(index);
+    onSubmit();
+  }, [options, selectedOptionIndex]);
 
   /* OPTIONS NAVIGATON --------------------------------- */
 
-  const getNextPlugin = (selectedPlugin: number, options: SpotterOptionWithPluginIdentifierMap): number => {
-    const pluginsLength = Object.keys(options).length;
-    const nextSelectedPlugin = selectedPlugin + 1 >= pluginsLength
+  const getNextOptionIndex = (currentIndex: number, options: SpotterPluginOption[]): number => {
+    return currentIndex + 1 >= options.length
       ? 0
-      : selectedPlugin + 1;
-
-    return nextSelectedPlugin;
+      : currentIndex + 1;
   };
 
-  const getPrevPlugin = (selectedPlugin: number, options: SpotterOptionWithPluginIdentifierMap): number => {
-    const pluginsLength = Object.keys(options).length;
-    const nextSelectedPlugin = selectedPlugin - 1 < 0
-      ? pluginsLength - 1
-      : selectedPlugin - 1;
-
-    return nextSelectedPlugin;
-  };
-
-  const getNextOption = (
-    selectedOption: number,
-    selectedPlugin: number,
-    expandedPlugins: number[],
-    options: SpotterOptionWithPluginIdentifierMap,
-    displayOptions: number,
-  ): NextPluginOption => {
-    const selectedPluginOptions = Object.values(options)[selectedPlugin];
-
-    if (!selectedPluginOptions) {
-      return { option: selectedOption, plugin: selectedPlugin };
-    }
-
-    const nextSelectedIndex = selectedOption + 1;
-    const selectedPluginExpanded = expandedPlugins.filter(p => p === selectedPlugin).length;
-
-    const maxSelectedOption = selectedPluginExpanded
-      ? selectedPluginOptions.length - 1
-      : (selectedPluginOptions.length <= displayOptions ? selectedPluginOptions.length - 1 : displayOptions);
-
-    if (nextSelectedIndex > maxSelectedOption) {
-      const plugin = getNextPlugin(selectedPlugin, options);
-      return { option: 0, plugin };
-    }
-
-    return { option: nextSelectedIndex, plugin: selectedPlugin };
-  };
-
-  const getPrevOption = (
-    selectedOption: number,
-    selectedPlugin: number,
-    expandedPlugins: number[],
-    options: SpotterOptionWithPluginIdentifierMap,
-    displayOptions: number,
-  ): NextPluginOption => {
-    const nextSelectedIndex = selectedOption - 1;
-
-    if (nextSelectedIndex < 0) {
-      const prevPlugin = getPrevPlugin(
-        selectedPlugin,
-        options,
-      );
-      const lastAvailableOption = getLastPluginOption(
-        selectedPlugin,
-        expandedPlugins,
-        options,
-        displayOptions,
-      );
-
-      return { option: lastAvailableOption, plugin: prevPlugin };
-    }
-
-    return { option: nextSelectedIndex, plugin: selectedPlugin };
-  };
-
-  const getLastPluginOption = (
-    selectedPlugin: number,
-    expandedPlugins: number[],
-    options: SpotterOptionWithPluginIdentifierMap,
-    displayOptions: number,
-  ): number => {
-    const prevPlugin = getPrevPlugin(selectedPlugin, options);
-    const selectedPluginExpanded = expandedPlugins.filter(p => p === prevPlugin).length;
-    const selectedOptions = Object.values(options)[prevPlugin];
-    if (!selectedOptions) {
-      return 0;
-    }
-
-    const lastAvailableOption = selectedPluginExpanded
-      ? selectedOptions.length - 1
-      : (selectedOptions.length - 1 <= displayOptions ? selectedOptions.length - 1 : displayOptions);
-
-    return lastAvailableOption;
+  const getPrevOptionIndex = (currentIndex: number, options: SpotterPluginOption[]): number => {
+    return currentIndex - 1 < 0
+      ? options.length - 1
+      : currentIndex - 1;
   };
 
   /* ------------------------------------------- */
 
-  const resetQuery = () => {
-    setQuery('_');
-    // TODO: Implement resetValue method for Input
-    setTimeout(() => setQuery(''));
-    setExpandedPlugins([]);
-    setSelectedPluginIndex(0);
+  const resetState = () => {
     setSelectedOptionIndex(0);
-    setOptionsMap({});
+    setOptions([]);
     setExecutingOption(false);
-    setFirstOption(null);
-    registries.plugins.selectOption(null);
+    api.queryInput.setValue('')
+    registries.plugins.activateOption(null);
+    registries.plugins.findOptionsForQuery('');
   };
+
+  const getHint = () => {
+    if (!options.length || !query.length) {
+      return '';
+    }
+
+    const firstOptionSelected = selectedOptionIndex === 0;
+
+    if (!firstOptionSelected) {
+      return '';
+    }
+
+    const { title } = options[0];
+    const titleContainsQuery = title
+      .toLocaleLowerCase()
+      .startsWith(query.toLocaleLowerCase());
+
+    if (!titleContainsQuery) {
+      return '';
+    }
+
+    return title;
+  }
 
   return <>
     <SafeAreaView>
       <View style={{
         backgroundColor: colors.background,
-        borderColor: colors.border,
         ...styles.input,
-        ...(Object.keys(optionsMap).length ? styles.inputWithResults : {}),
+        ...(Object.keys(options).length ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
       }}>
         {
           activeOption ?
             <View style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: colors.active.border,
-            paddingLeft: 10,
-            paddingRight: 10,
-            borderRadius: 10,
-            marginRight: 5,
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.active.highlight,
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 10,
+              marginRight: 5,
             }}>
               <OptionIcon style={{ paddingRight: 3 }} icon={activeOption.icon}></OptionIcon>
               <Text style={{ fontSize: 16 }}>{activeOption.title}</Text>
@@ -385,7 +258,7 @@ export const App: FC<{}> = () => {
           value={query}
           placeholder="Query..."
           disabled={executingOption}
-          hint={firstOption?.title}
+          hint={getHint()}
           onChangeText={onChangeText}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}
@@ -393,25 +266,16 @@ export const App: FC<{}> = () => {
           onEscape={onEscape}
           onCommandComma={onCommandComma}
           onTab={onTab}
-          onShiftTab={onShiftTab}
           onBackspace={onBackspace}
         ></InputNative>
-        {
-          firstOption ? <>
-            <OptionIcon style={{}} icon={firstOption.icon}></OptionIcon>
-          </> : null
-        }
       </View>
-      {Object.keys(optionsMap).length ?
+      {Object.keys(options).length ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
-          selectedPlugin={selectedPluginIndex}
           selectedOption={selectedOptionIndex}
           executingOption={executingOption}
-          displayOptions={displayOptionsLimit}
-          options={optionsMap}
-          expandedPlugins={expandedPlugins}
-          onSubmit={(p, o) => onSelectAndSubmit(p, o)}
+          options={options}
+          onSubmit={onSelectAndSubmit}
         ></Options> : null
       }
 
@@ -430,11 +294,10 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   options: {
-    // width: 615,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     overflow: 'hidden',
-    marginBottom: 150,
+    paddingTop: 10,
     paddingBottom: 10,
   },
 });
