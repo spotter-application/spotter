@@ -155,7 +155,6 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    console.log(option)
     registries.plugins.activateOption(option);
     api.queryInput.setValue('');
 

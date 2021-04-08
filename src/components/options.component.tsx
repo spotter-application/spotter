@@ -38,7 +38,7 @@ export const Options = ({
     data={options}
     keyExtractor={(item) => item.title}
     persistentScrollbar={true}
-    onScrollToIndexFailed={() => console.log('SCROLL FAILED')}
+    onScrollToIndexFailed={() => null}
     renderItem={({ item, index }) => (
       <TouchableOpacity onPress={() => onSubmit(index)}>
         <Option
@@ -113,8 +113,14 @@ export const OptionHotkeyHints = ({ option }: { option: SpotterPluginOption }) =
     flexDirection: 'row',
     alignItems: 'center',
   }}>
-    <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
-    <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
+    {option.onQuery
+      ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
+      : null
+    }
+    {option.action
+      ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
+      : null
+    }
   </View>
 };
 

@@ -50,10 +50,8 @@ export declare abstract class SpotterSettingsRegistry {
 }
 
 export declare abstract class SpotterHistoryRegistry {
-  abstract getPluginHistory(): Promise<SpotterHistory>;
   abstract getOptionsHistory(): Promise<SpotterHistory>;
-  abstract increasePluginHistory(plugin: string, query: string): void;
-  abstract increaseOptionHistory(option: string, query: string): void;
+  abstract increaseOptionHistory(path: string[], query: string): void;
 }
 
 export declare abstract class SpotterShell {
@@ -115,7 +113,7 @@ export type SpotterOptionBaseImage = string | number | { uri: string } | undefin
 
 export interface SpotterOption {
   title: string;
-  action: SpotterAction;
+  action?: SpotterAction;
   onQuery?: (query: string) => Promise<SpotterOption[]> | SpotterOption[];
   subtitle?: string;
   keywords?: string[];

@@ -55,6 +55,10 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     return this.activeOptionSubject$.asObservable();
   }
 
+  get activeOption(): SpotterPluginOption | null {
+    return this.activeOptionSubject$.getValue();
+  }
+
   private currentOptionsSubject$ = new BehaviorSubject<SpotterPluginOption[]>([]);
 
   get currentOptions(): SpotterPluginOption[] {
@@ -69,7 +73,11 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     const activeOption = this.activeOptionSubject$.value;
     if (activeOption && activeOption.onQuery && activeOption.plugin) {
       const options = await activeOption.onQuery(query);
-      this.currentOptionsSubject$.next(options.map(o => ({...o, plugin: activeOption.plugin})));
+      const sortedOptions = await this.getSortedPluginOptions(
+        options.map(o => ({...o, plugin: activeOption.plugin})),
+        query,
+      );
+      this.currentOptionsSubject$.next(sortedOptions);
       return;
     }
 
@@ -102,24 +110,23 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     this.currentOptionsSubject$.next(sortedOptions);
   }
 
+  private getFullHistoryPath(option: string): string {
+    return this.activeOption ? `${this.activeOption.title}#${option}` : option;
+  }
+
   private async getSortedPluginOptions(
     options: SpotterPluginOption[],
     query: string,
   ): Promise<SpotterPluginOption[]> {
 
-    const pluginHistory: SpotterHistory = await this.historyRegistry.getPluginHistory();
     const optionsHistory: SpotterHistory = await this.historyRegistry.getOptionsHistory();
 
     return options
       .sort((a, b) => (
-        (pluginHistory[b.title]?.total ?? 0) -
-        (pluginHistory[a.title]?.total ?? 0)
-      ))
-      .sort((a, b) => (
-        (Object.entries(optionsHistory[b.title]?.queries ?? {})
+        (Object.entries(optionsHistory[this.getFullHistoryPath(b.title)]?.queries ?? {})
           .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
         ) -
-        (Object.entries(optionsHistory[a.title]?.queries ?? {})
+        (Object.entries(optionsHistory[this.getFullHistoryPath(a.title)]?.queries ?? {})
           .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
         )
       ));
@@ -132,19 +139,24 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   public async submitOption(
-    optionWithIdentifier: SpotterPluginOption,
+    option: SpotterPluginOption,
     query: string,
     callback: (success: boolean) => void,
   ) {
-    if (!optionWithIdentifier?.action) {
+    if (!option?.action) {
       callback(false);
       return;
     };
 
-    this.historyRegistry.increasePluginHistory(optionWithIdentifier.plugin, query);
-    this.historyRegistry.increaseOptionHistory(optionWithIdentifier.title, query);
+    this.historyRegistry.increaseOptionHistory(
+      [
+        ...(this.activeOption ? [this.activeOption.title] : []),
+        option.title,
+      ],
+      query,
+    );
 
-    const success = await optionWithIdentifier.action();
+    const success = await option.action();
 
     if (typeof success === 'function') {
       const options = success();
