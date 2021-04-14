@@ -106,8 +106,13 @@ export const App: FC<{}> = () => {
       return;
     }
 
+    if (q.endsWith(' ')) {
+      onTab();
+      return;
+    }
+
     api.queryInput.setValue(q);
-  }, [executingOption, selectedOptionIndex]);
+  }, [executingOption, selectedOptionIndex, options]);
 
   const onSubmit = useCallback(() => {
     const option: SpotterPluginOption = options[selectedOptionIndex];
@@ -205,8 +210,8 @@ export const App: FC<{}> = () => {
     registries.plugins.findOptionsForQuery('');
   };
 
-  const getHint = () => {
-    if (!options.length || !query.length) {
+  const getHint = useCallback(() => {
+    if (!options.length) {
       return '';
     }
 
@@ -225,8 +230,10 @@ export const App: FC<{}> = () => {
       return '';
     }
 
+    console.log(title)
     return title;
-  }
+  }, [options, selectedOptionIndex])
+
 
   return <>
     <SafeAreaView>

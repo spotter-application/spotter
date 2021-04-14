@@ -34,22 +34,26 @@ export class InputNative extends React.PureComponent<InputProps, InputState> {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: InputProps) {
+    // TODO: move logic outside
     if (!nextProps.hint) {
       this.setState({ formatedHint: null });
     }
 
-    if (nextProps.value && nextProps.hint) {
-      const lowerValue = nextProps.value.toLowerCase();
-      const lowerHint = nextProps.hint.toLowerCase();
-      const hintIndex = lowerHint.indexOf(lowerValue);
+    const lowerValue = nextProps.value?.toLowerCase();
+    const lowerHint = nextProps.hint?.toLowerCase();
+    const hintIndex = lowerHint?.indexOf(lowerValue);
 
-      if (hintIndex !== -1) {
-        this.setState({
-          formatedHint: lowerHint.substring(hintIndex),
-        });
-      }
-
+    if (!lowerValue && lowerHint) {
+      this.setState({formatedHint: lowerHint});
+      return;
     }
+
+    if (lowerHint && lowerValue && (hintIndex || hintIndex === 0) && hintIndex !== -1) {
+      this.setState({
+        formatedHint: lowerHint.substring(hintIndex),
+      });
+    }
+
   }
 
   _onChangeText = (event: { nativeEvent: { text: string }}) => {
@@ -142,6 +146,7 @@ export class InputNative extends React.PureComponent<InputProps, InputState> {
     >
       <RNInput
         {...nativeProps}
+        placeholder={this.state.formatedHint ? '' : this.props.placeholder}
         style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
       />
       {this.state.formatedHint ? <Text
