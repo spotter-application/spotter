@@ -106,7 +106,7 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    if (q.endsWith(' ')) {
+    if (q.endsWith('>')) {
       onTab();
       return;
     }
