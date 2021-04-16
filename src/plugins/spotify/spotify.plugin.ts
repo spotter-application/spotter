@@ -14,8 +14,6 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   extendableForOption = 'Spotify';
 
   private app: Application | null = null;
-  private runned: boolean = false;
-  private currentTrackURL: string | null = null;
   private currentTrackRequiredFor = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
 
   async onInit() {
@@ -23,26 +21,24 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     this.app = apps.find(app => app.title === 'Spotify') ?? null;
   }
 
-  async onOpenSpotter() {
-    this.runned = !!(await this.getRunnedApps()).find(a => a === this.identifier);
-    this.currentTrackURL = await this.getCurrentTrackURL()
-  }
-
-  onQuery(query: string): SpotterOption[] {
+  async onQuery(query: string): Promise<SpotterOption[]> {
     if (!this.app) {
       return [];
     }
 
+    const currentTrackURL: string | null = await this.getCurrentTrackURL()
+    const appOpened: boolean = await this.checkOpened();
+
     const childOptions: SpotterOption[] = [
-      ...(this.currentTrackURL
+      ...(currentTrackURL
         ? [{
           title: 'Share',
           subtitle: 'Copy current track url',
           icon: this.app.path,
-          action: () => this.api.clipboard.setValue(this.currentTrackURL ?? '')
+          action: () => this.api.clipboard.setValue(currentTrackURL ?? '')
         }] : []
       ),
-      ...(this.runned
+      ...(appOpened
         ? [
             {
               icon: this.app.path,
@@ -52,7 +48,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
             },
             ...(this.options.filter(option => {
               const playingRequired = this.currentTrackRequiredFor.find(title => option.title === title);
-              return this.currentTrackURL ? playingRequired : !playingRequired;
+              return currentTrackURL ? playingRequired : !playingRequired;
             })),
           ]
         : [{
@@ -172,9 +168,9 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     return `https://open.spotify.com/track/${id}`;
   }
 
-  private async getRunnedApps(): Promise<string[]> {
+  private async checkOpened(): Promise<boolean> {
     return await this.api.shell
-      .execute("osascript -e 'tell application \"System Events\" to get name of (processes where background only is false)'")
-      .then(r => r.split(', '))
+      .execute("pgrep Spotify || echo 0")
+      .then(result => result !== '0');
   }
 }
