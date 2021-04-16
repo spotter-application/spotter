@@ -46,21 +46,20 @@ Default hotkey to run the app ```double shift```
 * ```e rocket```
 
 ### Kill applications
-* ```kill```
-* ```k <app_name>```
+* ```<app_name> <tab> close```
 
 ### Applications dimensions
 * ```save application positions```
 * ```restore application positions```
 
-### Spotify / Apple Music
-* ```play```
-* ```pause```
-* ```next```
-* ```previous```
-* ```mute```
-* ```unmute```
-* ```share```
+### Spotify
+* ```spotify <tab> play```
+* ```spotify <tab> pause```
+* ```spotify <tab> next```
+* ```spotify <tab> previous```
+* ```spotify <tab> mute```
+* ```spotify <tab> unmute```
+* ```spotify <tab> share```
 
 ### Calculator
 * ```256/8```
