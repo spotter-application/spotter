@@ -126,10 +126,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
   
   @objc func openSpotter() {
-    if (!settingsPanel.isVisible) {
-      spotterPanel.makeKeyAndOrderFront(nil)
-      spotterPanel.center()
-    }
+    spotterPanel.makeKeyAndOrderFront(nil)
+    spotterPanel.center()
   }
   
   @objc func closeSpotter() {

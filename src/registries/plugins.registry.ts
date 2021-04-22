@@ -187,8 +187,4 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     return Array.from(this.pluginsRegistry.entries()).reduce((acc, [key, plugin]) => ({ ...acc, [key]: plugin }), {});
   }
 
-  // public get options(): { [pluginId: string]: SpotterOptionBase[] } {
-  //   return Array.from(this.optionsRegistry.entries()).reduce((acc, [key, options]) => ({ ...acc, [key]: options }), {});
-  // }
-
 }
