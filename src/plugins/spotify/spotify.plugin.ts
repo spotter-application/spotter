@@ -14,11 +14,18 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   extendableForOption = 'Spotify';
 
   private app: Application | null = null;
-  private currentTrackRequiredFor = ['Previous', 'Next', 'Pause', 'Mute', 'Unmute'];
+
+  private currentTrackURL: string | null = null;
+  private appOpened: boolean = false;
 
   async onInit() {
     const apps = await getAllApplications(this.api.shell);
     this.app = apps.find(app => app.title === 'Spotify') ?? null;
+  }
+
+  async onOpenSpotter() {
+    this.appOpened = await this.checkOpened();
+    this.currentTrackURL = await this.getCurrentTrackURL();
   }
 
   async onQuery(query: string): Promise<SpotterOption[]> {
@@ -26,19 +33,16 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
       return [];
     }
 
-    const currentTrackURL: string | null = await this.getCurrentTrackURL()
-    const appOpened: boolean = await this.checkOpened();
-
     const childOptions: SpotterOption[] = [
-      ...(currentTrackURL
+      ...(this.currentTrackURL
         ? [{
           title: 'Share',
           subtitle: 'Copy current track url',
           icon: this.app.path,
-          action: () => this.api.clipboard.setValue(currentTrackURL ?? '')
+          action: () => this.api.clipboard.setValue(this.currentTrackURL ?? '')
         }] : []
       ),
-      ...(appOpened
+      ...(this.appOpened
         ? [
             {
               icon: this.app.path,
@@ -46,10 +50,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
               subtitle: `Kill all instances of ${this.app.title}`,
               action: () => this.api.shell.execute(`killall "${this.app?.title}"`),
             },
-            ...(this.options.filter(option => {
-              const playingRequired = this.currentTrackRequiredFor.find(title => option.title === title);
-              return currentTrackURL ? playingRequired : !playingRequired;
-            })),
+            ...this.options,
           ]
         : [{
           icon: this.app.path,
