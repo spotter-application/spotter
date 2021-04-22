@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { SpotterQueryInput } from '../core';
+import { SpotterState } from '../core';
 
-export class QueryInput implements SpotterQueryInput {
+export class State implements SpotterState {
 
   private valueSubject$ = new BehaviorSubject<string>('');
 

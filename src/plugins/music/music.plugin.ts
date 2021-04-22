@@ -38,39 +38,35 @@ export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle
   }
 
   public get options(): SpotterOption[] {
-    if (!this.app) {
-      return [];
-    }
-
     return [
       {
         title: 'Previous',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.previous(),
       },
       {
         title: 'Next',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.next(),
       },
       {
         title: 'Pause',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.pause(),
       },
       {
         title: 'Play',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.play(),
       },
       {
         title: 'Mute',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.unmute(),
       },
     ];

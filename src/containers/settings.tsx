@@ -6,37 +6,73 @@ import {
   SpotterPluginHotkeys,
   SpotterSettings,
   SPOTTER_HOTKEY_IDENTIFIER,
-  SpotterWebsiteShortcut
+  SpotterWebsiteShortcut,
+  spotterGlobalHotkeyPress,
 } from '../core';
-import { OptionIcon, useApi, useTheme } from '../components';
-import spotterIcon from './icon.png';
+import { useApi, useTheme } from '../components';
+
+interface SpotterOptionShortcut {
+  title: string,
+  hotkey?: SpotterHotkey | null,
+}
 
 const WEBSTORAGE = 'WEBSHORTCUTS';
 
-export const SettingsHotkey: FC<{
-  hotkey?: SpotterHotkey | null,
-  onPressHotkey: (hotkey: SpotterHotkey) => void,
+const SettingsPluginShortcut: FC<{
+  shortcut: SpotterOptionShortcut,
+  onSaveHotkey: (hotkey: SpotterHotkey) => Promise<void>,
 }> = ({
-  hotkey,
-  onPressHotkey,
+  shortcut,
+  onSaveHotkey,
 }) => {
   const { colors } = useTheme();
 
   return <>
-    <View style={{ display: 'flex', flexDirection: 'row', alignItems: "center", marginBottom: 10 }}>
-      <OptionIcon icon={spotterIcon} style={{}}/>
-      <Text style={{ fontSize: 20, marginLeft: 5 }}>
-        Spotter
-      </Text>
+    <Text style={{
+      fontSize: 16,
+    }}>{shortcut.title}</Text>
+    <View style={{
+      flex: 1,
+      backgroundColor: colors.background,
+      marginTop: 5,
+      borderRadius: 15,
+    }}>
+      <HotkeyInput
+        styles={{
+          padding: 20,
+          backgroundColor: 'transparent',
+        }}
+        hotkey={shortcut.hotkey}
+        onPressHotkey={onSaveHotkey}
+      ></HotkeyInput>
     </View>
-    <View style={{ marginLeft: 0, marginBottom: 15 }}>
-      <Text style={{ fontSize: 16, marginLeft: 3 }}>Open</Text>
-      <View style={{ flex: 1, backgroundColor: colors.background, marginTop: 5, borderRadius: 15 }}>
-        <HotkeyInput
-          styles={{ padding: 20, backgroundColor: 'transparent' }}
-          hotkey={hotkey}
-          onPressHotkey={onPressHotkey}
-        ></HotkeyInput>
+  </>
+}
+
+const SettingsPlugin: FC<{
+  title: string,
+  shortcuts?: SpotterOptionShortcut[],
+  onSaveHotkey: (hotkey: SpotterHotkey, plugin: string, option: string) => Promise<void>,
+}> = ({
+  title,
+  shortcuts,
+  onSaveHotkey,
+}) => {
+  return <>
+    <View style={{
+      marginBottom: 30
+    }}>
+      <Text style={{ fontSize: 20, marginBottom: 10 }}>
+        {title}
+      </Text>
+      <View style={{}}>
+        {shortcuts?.map(s => (
+          <SettingsPluginShortcut
+            key={`${title}#${s.title}`}
+            shortcut={s}
+            onSaveHotkey={hotkey => onSaveHotkey(hotkey, title, s.title)}
+          />
+        ))}
       </View>
     </View>
   </>
@@ -47,22 +83,20 @@ export const Settings: FC<{}> = () => {
   const { api, registries } = useApi();
   const [spotterSettings, setSpotterSettings] = useState<SpotterSettings | null>(null);
 
-  const onPressHotkey = useCallback(async (hotkey: SpotterHotkey, plugin?: string, option?: string) => {
+  useEffect(() => {
+    const setSettings = async () => {
+      const settings = await registries.settings.getSettings()
+      setSpotterSettings(settings);
+    };
+
+    setSettings();
+  }, []);
+
+  const onSaveHotkey = useCallback(async (hotkey: SpotterHotkey, plugin: string, option: string) => {
     const nextHotkey = hotkey.keyCode === null ? null : hotkey;
-    if (!plugin) {
+    if (plugin === 'Spotter') {
       await registries.settings.patchSettings({ hotkey: nextHotkey });
-      api.globalHotKey.register(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
-      api.globalHotKey.onPress((e) => {
-        if (e.identifier !== SPOTTER_HOTKEY_IDENTIFIER) {
-          return;
-        }
-
-        api.panel.open();
-      });
-      return;
-    }
-
-    if (!option) {
+      registerNewHotkey(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
       return;
     }
 
@@ -78,72 +112,61 @@ export const Settings: FC<{}> = () => {
     };
 
     await registries.settings.patchSettings({ pluginHotkeys });
-
-    api.globalHotKey.register(nextHotkey, `${plugin}#${option}`);
-    api.globalHotKey.onPress(async (e) => {
-      if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
-        return;
-      }
-
-      const [plugin, option] = e.identifier.split('#');
-      // const options = registries.plugins.options[plugin];
-      // if (options?.length) {
-      //   await options.find(o => o.title === option)?.action();
-      // }
-    });
-
+    registerNewHotkey(nextHotkey, `${plugin}#${option}`);
   }, []);
+
+  const registerNewHotkey = (hotkey: SpotterHotkey | null, action: string) => {
+    api.globalHotKey.register(hotkey, action);
+    api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
+  };
 
   return (
     <ScrollView>
       <View style={{ margin: 15 }}>
-        <Text style={{ fontSize: 28 }}>Hotkeys</Text>
-        <SettingsHotkey hotkey={spotterSettings?.hotkey} onPressHotkey={onPressHotkey}/>
-        <SettingsWebsiteShortcuts setSpotterSettings={setSpotterSettings}/>
+        <Text style={{ fontSize: 28, marginBottom: 20 }}>Hotkeys</Text>
+        <SettingsPlugin
+          title='Spotter'
+          shortcuts={[{
+            title: 'Open',
+            hotkey: spotterSettings?.hotkey,
+          }]}
+          onSaveHotkey={onSaveHotkey}
+        />
+
+        {Object.values(registries.plugins.list)
+          .filter(p => p.options?.length)
+          .map(plugin => (
+            <SettingsPlugin
+              key={plugin.identifier}
+              title={plugin.identifier}
+              shortcuts={plugin.options?.map(o => {
+                const pluginHotkeys = spotterSettings?.pluginHotkeys[plugin.identifier];
+                return {
+                  title: o.title,
+                  hotkey: pluginHotkeys ? pluginHotkeys[o.title] : null,
+                }
+              })}
+              onSaveHotkey={onSaveHotkey}
+            />
+          ))
+        }
+
+        <SettingsWebsiteShortcuts />
       </View>
     </ScrollView>
   )
 };
 
-        // { Object.keys(registries.plugins.options).map((plugin: string) => (
-        //   <View style={{ marginTop: 25 }} key={plugin}>
-        //     <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-        //       <OptionIcon icon={registries.plugins.options[plugin][0]?.icon} />
-        //       <Text style={{ fontSize: 20, marginLeft: -5 }}>
-        //         {plugin.replace('Plugin', '').replace(/([A-Z])/g, ' $1')}
-        //       </Text>
-        //     </View>
-        //     { registries.plugins.options[plugin].map(option => (
-        //       <View style={{ marginLeft: 0, marginBottom: 15 }} key={plugin + option.title}>
-        //         <Text style={{ fontSize: 16, marginLeft: 3 }}>{option.title}</Text>
-        //         <View style={{ flex: 1, backgroundColor: colors.background, marginTop: 5, borderRadius: 15 }}>
-        //           <HotkeyInput
-        //             styles={{ padding: 20, backgroundColor: 'transparent' }}
-        //             hotkey={spotterSettings?.pluginHotkeys && spotterSettings?.pluginHotkeys[plugin] ? spotterSettings?.pluginHotkeys[plugin][option.title] : null}
-        //             onPressHotkey={hotkey => onPressHotkey(hotkey, plugin, option.title)}
-        //           ></HotkeyInput>
-        //         </View>
-        //       </View>
-        //     )) }
-        //   </View>
-        // )) }
-
 // TODO: Move to the Shortcuts plugin
-const SettingsWebsiteShortcuts: FC<{
-  setSpotterSettings: (settings: SpotterSettings) => void
-}> = ({
-  setSpotterSettings,
-}) => {
+const SettingsWebsiteShortcuts: FC<{}> = () => {
   const { colors } = useTheme();
   const [webShortcutList, setWebShortcutList] = useState<SpotterWebsiteShortcut[] | null>(null);
-  const { api, registries } = useApi();
+  const { api } = useApi();
 
   useEffect(() => {
     const setSettings = async () => {
-      const settings = await registries.settings.getSettings()
       const webShortcuts = await api.storage.getItem<SpotterWebsiteShortcut[]>(WEBSTORAGE);
       setWebShortcutList(webShortcuts);
-      setSpotterSettings(settings);
     };
 
     setSettings();

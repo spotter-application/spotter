@@ -1,4 +1,3 @@
-
 import React, { FC } from 'react';
 import { SpotterApi, SpotterRegistries } from '../core';
 import {
@@ -11,7 +10,7 @@ import {
   ShellNative,
   PanelNative,
   BluetoothNative,
-  QueryInput,
+  State,
 } from '../native';
 import {
   PluginsRegistry,
@@ -28,7 +27,7 @@ const clipboard = new ClipboardNative();
 const shell = new ShellNative();
 const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
-const queryInput = new QueryInput();
+const state = new State();
 
 const api = {
   appsDimensions,
@@ -40,7 +39,7 @@ const api = {
   shell,
   panel,
   bluetooth,
-  queryInput,
+  state,
 };
 
 const history = new HistoryRegistry(api);

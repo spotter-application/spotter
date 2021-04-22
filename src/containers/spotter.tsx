@@ -9,7 +9,11 @@ import { Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { useApi, useTheme } from '../components';
 import { OptionIcon, Options } from '../components/options.component';
-import { SPOTTER_HOTKEY_IDENTIFIER, SpotterPluginOption } from '../core';
+import {
+  SPOTTER_HOTKEY_IDENTIFIER,
+  SpotterPluginOption,
+  spotterGlobalHotkeyPress,
+} from '../core';
 import { InputNative } from '../native';
 import {
   AppDimensionsPlugin,
@@ -71,13 +75,7 @@ export const App: FC<{}> = () => {
       });
     });
 
-    api.globalHotKey.onPress(async (e) => {
-      if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
-        registries.plugins.onOpenSpotter();
-        api.panel.open();
-        return;
-      };
-    });
+    api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
 
     subscriptions.forEach(s => s.unsubscribe());
 
@@ -89,7 +87,7 @@ export const App: FC<{}> = () => {
 
     subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
 
-    subscriptions.push(api.queryInput.value$.pipe(distinctUntilChanged()).subscribe(query => {
+    subscriptions.push(api.state.value$.pipe(distinctUntilChanged()).subscribe(query => {
       setQuery(query);
       registries.plugins.findOptionsForQuery(query);
     }));
@@ -111,7 +109,7 @@ export const App: FC<{}> = () => {
       return;
     }
 
-    api.queryInput.setValue(q);
+    api.state.setValue(q);
   }, [executingOption, selectedOptionIndex, options]);
 
   const onSubmit = useCallback(() => {
@@ -163,7 +161,7 @@ export const App: FC<{}> = () => {
     }
 
     registries.plugins.activateOption(option);
-    api.queryInput.setValue('');
+    api.state.setValue('');
 
     registries.plugins.findOptionsForQuery('');
     setSelectedOptionIndex(0);
@@ -205,7 +203,7 @@ export const App: FC<{}> = () => {
     setSelectedOptionIndex(0);
     setOptions([]);
     setExecutingOption(false);
-    api.queryInput.setValue('')
+    api.state.setValue('')
     registries.plugins.activateOption(null);
     registries.plugins.findOptionsForQuery('');
   };
@@ -230,7 +228,6 @@ export const App: FC<{}> = () => {
       return '';
     }
 
-    console.log(title)
     return title;
   }, [options, selectedOptionIndex])
 

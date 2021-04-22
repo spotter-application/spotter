@@ -80,39 +80,30 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   }
 
   public get options(): SpotterOption[] {
-    if (!this.app) {
-      return [];
-    }
-
     return [
       {
         title: 'Previous',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.previous(),
       },
       {
         title: 'Next',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.next(),
       },
       {
-        title: 'Pause',
-        icon: this.app.path,
-        action: () => this.pause(),
-      },
-      {
-        title: 'Play',
-        icon: this.app.path,
-        action: () => this.play(),
+        title: 'Play / Pause',
+        icon: this.app?.path,
+        action: () => this.playPause(),
       },
       {
         title: 'Mute',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.mute(),
       },
       {
         title: 'Unmute',
-        icon: this.app.path,
+        icon: this.app?.path,
         action: () => this.unmute(),
       },
     ];
@@ -126,12 +117,8 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to next track'")
   }
 
-  private async pause() {
-    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to pause'")
-  }
-
-  private async play() {
-    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to play'")
+  private async playPause() {
+    await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to playpause'")
   }
 
   private async mute() {

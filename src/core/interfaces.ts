@@ -10,7 +10,7 @@ export interface SpotterApi {
   appsDimensions: SpotterAppsDimensions,
   panel: SpotterPanel,
   bluetooth: SpotterBluetooth,
-  queryInput: SpotterQueryInput,
+  state: SpotterState,
 }
 
 export interface SpotterRegistries {
@@ -99,10 +99,15 @@ export declare abstract class SpotterStorage {
   abstract getItem<T>(key: string): Promise<T | null>
 }
 
-export declare abstract class SpotterQueryInput {
+export declare abstract class SpotterState {
   abstract get value(): string;
   abstract get value$(): Observable<string>;
   abstract setValue(value: string): void;
+}
+
+export declare abstract class SpotterApplications {
+  abstract get value(): Application[];
+  abstract get value$(): Observable<Application[]>;
 }
 
 /* Base interfaces */
@@ -215,3 +220,9 @@ export interface Application {
   title: string,
   path: string,
 }
+
+export interface SpotterHotkeyEvent {
+  hotkey: SpotterHotkey,
+  identifier: string,
+}
+

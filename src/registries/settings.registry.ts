@@ -1,4 +1,8 @@
-import { SpotterApi, SpotterSettings, SpotterSettingsRegistry } from '../core';
+import {
+  SpotterApi,
+  SpotterSettings,
+  SpotterSettingsRegistry,
+} from '../core';
 
 export class SettingsRegistry implements SpotterSettingsRegistry {
   private nativeModules: SpotterApi;

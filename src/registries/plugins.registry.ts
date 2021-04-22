@@ -30,22 +30,24 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
       return;
     }
 
-    plugins.forEach(pluginConstructor => {
+    plugins.forEach(async pluginConstructor => {
       const plugin = new pluginConstructor(this.nativeModules);
       const pluginIdentifier = plugin?.identifier ?? pluginConstructor.name;
       if (this.pluginsRegistry.get(pluginIdentifier)) {
         // throw new Error(`Duplicated plugin title: ${pluginIdentifier}`);
         return;
-      }
+      };
 
-      this.pluginsRegistry.set(pluginIdentifier, plugin);
+      // TODO: check onInit before pushing plugin to registry
       if (plugin?.onInit) {
         plugin.onInit();
-      }
+      };
+
+      this.pluginsRegistry.set(pluginIdentifier, plugin);
 
       if (plugin?.options?.length) {
         this.optionsRegistry.set(pluginIdentifier, plugin.options);
-      }
+      };
     });
   }
 
