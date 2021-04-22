@@ -1,5 +1,13 @@
 import { Observable } from 'rxjs';
 
+/*
+* TODO:
+*
+* implement exec function instead of multiple api instances
+*   eg:
+*   exec('SHELL', 'shell_command')
+*   exec('NOTIFICATION', 'notification_text')
+* */
 export interface SpotterApi {
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
