@@ -2,7 +2,7 @@ import {
   SpotterApi,
   SpotterSettings,
   SpotterSettingsRegistry,
-} from '../core';
+} from '..';
 
 export class SettingsRegistry implements SpotterSettingsRegistry {
   private nativeModules: SpotterApi;

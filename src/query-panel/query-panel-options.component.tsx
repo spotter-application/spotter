@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
 import { SpotterOptionBaseImage, SpotterPluginOption } from '../core';
-import { IconImageNative } from '../native';
-import { useTheme } from './theme.provider';
+import { IconImageNative } from '../core/native';
+import { useTheme } from '../providers';
 
 type OptionsProps = {
   options: SpotterPluginOption[];

@@ -1,10 +1,12 @@
-import { Application, SpotterOption, SpotterShell } from './interfaces';
+import { SPOTTER_HOTKEY_IDENTIFIER } from './constants';
 import {
-  SpotterHotkeyEvent,
-  SpotterRegistries,
-  SPOTTER_HOTKEY_IDENTIFIER,
+  Application,
   SpotterApi,
-} from '../core';
+  SpotterHotkeyEvent,
+  SpotterOption,
+  SpotterRegistries,
+  SpotterShell,
+} from './interfaces';
 
 export const spotterGlobalHotkeyPress = (
   event: SpotterHotkeyEvent,
@@ -106,7 +108,7 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
 
 async function getDeepApplicationsStrings(shell: SpotterShell, path: string): Promise<Application[]> {
   const applicationsStrings = await shell
-    .execute(`cd ${path.replace(/(\s+)/g, '\\$1')} && ls`)
+    .execute(`cd ${path.replace(/(\s+)/g, '\\$1')} && ls || echo ''`)
     .then(res => res.split('\n')
       .reduce<Promise<Application[]>>(async (acc, title) => {
         const resolvedAcc = await acc;

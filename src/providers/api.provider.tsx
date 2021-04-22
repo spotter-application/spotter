@@ -11,12 +11,12 @@ import {
   PanelNative,
   BluetoothNative,
   State,
-} from '../native';
+} from '../core/native';
 import {
   PluginsRegistry,
   SettingsRegistry,
   HistoryRegistry,
-} from '../registries';
+} from '../core/registries';
 
 const globalHotKey = new GlobalHotkeyNative();
 const appsDimensions = new AppsDimensionsNative();

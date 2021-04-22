@@ -1,9 +1,9 @@
 import React from 'react';
 import { AppRegistry, YellowBox } from 'react-native';
-import { App } from './src/containers/spotter.tsx';
+import { QueryPanel } from './src/query-panel/query-panel.tsx';
 import { name as appName } from './app.json';
-import { Settings } from './src/containers';
-import { ThemeProvider, ApiProvider } from './src/components';
+import { Settings } from './src/settings/settings.tsx';
+import { ThemeProvider, ApiProvider } from './src/providers';
 
 // TODO: Check
 YellowBox.ignoreWarnings([
@@ -13,7 +13,7 @@ YellowBox.ignoreWarnings([
 const AppWithModules = () => (
   <ThemeProvider>
     <ApiProvider>
-      <App/>
+      <QueryPanel/>
     </ApiProvider>
   </ThemeProvider>
 );

@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import {Button, ScrollView, Text, TextInput, View} from 'react-native';
-import { HotkeyInput } from '../native/hotkey-input.native';
+import { HotkeyInput } from '../core/native/hotkey-input.native';
 import {
   SpotterHotkey,
   SpotterPluginHotkeys,
@@ -9,7 +9,7 @@ import {
   SpotterWebsiteShortcut,
   spotterGlobalHotkeyPress,
 } from '../core';
-import { useApi, useTheme } from '../components';
+import { useApi, useTheme } from '../providers';
 
 interface SpotterOptionShortcut {
   title: string,

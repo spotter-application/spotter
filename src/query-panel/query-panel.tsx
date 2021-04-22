@@ -7,14 +7,14 @@ import {
 } from 'react-native';
 import { Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { useApi, useTheme } from '../components';
-import { OptionIcon, Options } from '../components/options.component';
+import { useApi, useTheme } from '../providers';
+import { OptionIcon, Options } from './query-panel-options.component';
 import {
   SPOTTER_HOTKEY_IDENTIFIER,
   SpotterPluginOption,
   spotterGlobalHotkeyPress,
 } from '../core';
-import { InputNative } from '../native';
+import { InputNative } from '../core/native';
 import {
   AppDimensionsPlugin,
   ApplicationsPlugin,
@@ -49,7 +49,7 @@ const plugins = [
 
 const subscriptions: Subscription[] = [];
 
-export const App: FC<{}> = () => {
+export const QueryPanel: FC<{}> = () => {
 
   const { api, registries } = useApi();
   const { colors } = useTheme();
@@ -183,7 +183,7 @@ export const App: FC<{}> = () => {
     onSubmit();
   }, [options, selectedOptionIndex]);
 
-  /* OPTIONS NAVIGATON --------------------------------- */
+  /* OPTIONS NAVIGATION --------------------------------- */
 
   const getNextOptionIndex = (currentIndex: number, options: SpotterPluginOption[]): number => {
     return currentIndex + 1 >= options.length
@@ -261,7 +261,7 @@ export const App: FC<{}> = () => {
         <InputNative
           style={{ flex: 1 }}
           value={query}
-          placeholder="Query..."
+          placeholder='Query...'
           disabled={executingOption}
           hint={getHint()}
           onChangeText={onChangeText}

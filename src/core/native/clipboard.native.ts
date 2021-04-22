@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterClipboard } from '../core';
+import { SpotterClipboard } from '..';
 
 export class ClipboardNative implements SpotterClipboard {
   private clipboard = NativeModules.NativeClipboard;

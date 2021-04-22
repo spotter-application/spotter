@@ -1,5 +1,5 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { SpotterState } from '../core';
+import { SpotterState } from '..';
 
 export class State implements SpotterState {
 

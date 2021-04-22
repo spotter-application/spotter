@@ -1,6 +1,6 @@
 import React from 'react';
 import { requireNativeComponent, ViewStyle } from 'react-native';
-import { SpotterHotkey } from '../core';
+import { SpotterHotkey } from '..';
 
 const RNHotkeyInput = requireNativeComponent<any>('RNHotkeyInput');
 

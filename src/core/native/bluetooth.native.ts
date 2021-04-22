@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { SpotterBluetooth, SpotterBluetoothItem } from '../core';
+import { SpotterBluetooth, SpotterBluetoothItem } from '..';
 
 export class BluetoothNative implements SpotterBluetooth {
   private bluetooth = NativeModules.NativeBluetooth;

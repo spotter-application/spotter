@@ -1,4 +1,4 @@
-import { SpotterHistory, SpotterHistoryRegistry, SpotterApi } from '../core';
+import { SpotterHistory, SpotterHistoryRegistry, SpotterApi } from '..';
 
 export class HistoryRegistry implements SpotterHistoryRegistry {
   private nativeModules: SpotterApi;

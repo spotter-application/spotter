@@ -23,20 +23,20 @@ type InputProps = {
 };
 
 type InputState = {
-  formatedHint: string | null,
+  formattedHint: string | null,
 };
 
 export class InputNative extends React.PureComponent<InputProps, InputState> {
 
   constructor(props: InputProps) {
     super(props);
-    this.state = { formatedHint: null };
+    this.state = { formattedHint: null };
   }
 
   UNSAFE_componentWillReceiveProps(nextProps: InputProps) {
     // TODO: move logic outside
     if (!nextProps.hint) {
-      this.setState({ formatedHint: null });
+      this.setState({ formattedHint: null });
     }
 
     const lowerValue = nextProps.value?.toLowerCase();
@@ -44,13 +44,13 @@ export class InputNative extends React.PureComponent<InputProps, InputState> {
     const hintIndex = lowerHint?.indexOf(lowerValue);
 
     if (!lowerValue && lowerHint) {
-      this.setState({formatedHint: lowerHint});
+      this.setState({formattedHint: lowerHint});
       return;
     }
 
     if (lowerHint && lowerValue && (hintIndex || hintIndex === 0) && hintIndex !== -1) {
       this.setState({
-        formatedHint: lowerHint.substring(hintIndex),
+        formattedHint: lowerHint.substring(hintIndex),
       });
     }
 
@@ -146,10 +146,10 @@ export class InputNative extends React.PureComponent<InputProps, InputState> {
     >
       <RNInput
         {...nativeProps}
-        placeholder={this.state.formatedHint ? '' : this.props.placeholder}
+        placeholder={this.state.formattedHint ? '' : this.props.placeholder}
         style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
       />
-      {this.state.formatedHint ? <Text
+      {this.state.formattedHint ? <Text
         style={{
           position: 'absolute',
           top: 0,
@@ -159,7 +159,7 @@ export class InputNative extends React.PureComponent<InputProps, InputState> {
           fontSize: 26,
           opacity: 0.5,
         }}>
-          {this.state.formatedHint}
+          {this.state.formattedHint}
         </Text> : null}
     </View>
   }

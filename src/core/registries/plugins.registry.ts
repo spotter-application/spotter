@@ -8,7 +8,7 @@ import {
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
   SpotterHistory,
-} from '../core';
+} from '..';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
 
