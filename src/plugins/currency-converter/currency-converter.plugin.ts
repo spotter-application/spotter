@@ -20,7 +20,7 @@ const DEFAULT_CURRENCIES = [
   'KWD',
 ];
 
-const CURRENCIES_TO_HISTORY = 'CURRENCIES_TO_HISTORY_TEST_2';
+const CURRENCIES_TO_HISTORY = 'CURRENCIES_TO_HISTORY';
 
 export class CurrencyConverter extends SpotterPlugin implements SpotterPluginLifecycle {
 
