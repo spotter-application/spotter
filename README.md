@@ -33,6 +33,10 @@ Default hotkey to run the app ```double shift```
 * ```bluetooth```
 * ```<device_name>```
 
+### Currency converter
+* ```1 usd```
+* ```100 euro in usd```
+
 ### System commands
 * ```sleep```
 * ```shutdown```
