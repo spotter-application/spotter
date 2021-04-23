@@ -107,6 +107,11 @@ export const getAllApplications = async (shell: SpotterShell): Promise<Applicati
 }
 
 async function getDeepApplicationsStrings(shell: SpotterShell, path: string): Promise<Application[]> {
+  if (path.includes('$USER')) {
+    const user = await shell.execute('echo $USER');
+    path = path.replace('$USER', user);
+  }
+
   const applicationsStrings = await shell
     .execute(`cd ${path.replace(/(\s+)/g, '\\$1')} && ls || echo ''`)
     .then(res => res.split('\n')

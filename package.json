@@ -1,6 +1,6 @@
 {
   "name": "spotter",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Productivity tool that allows to launch external application actions and applications themselves. Supports plugins, cross platform, written without electron.",
   "keywords": [
     "Spotter",
