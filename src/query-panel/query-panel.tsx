@@ -5,7 +5,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Subscription } from 'rxjs';
+import { from, Subscription } from 'rxjs';
 import { distinctUntilChanged } from 'rxjs/operators';
 import { useApi, useTheme } from '../providers';
 import { OptionIcon, Options } from './query-panel-options.component';
@@ -15,37 +15,7 @@ import {
   spotterGlobalHotkeyPress,
 } from '../core';
 import { InputNative } from '../core/native';
-import {
-  AppDimensionsPlugin,
-  ApplicationsPlugin,
-  WebShortcutsPlugin,
-  BluetoothPlugin,
-  CalculatorPlugin,
-  EmojiPlugin,
-  BrowserPlugin,
-  MusicPlugin,
-  PreferencesPlugin,
-  SpotifyPlugin,
-  TimerPlugin,
-  PassPlugin,
-  TerminalPlugin,
-} from '../plugins';
-
-const plugins = [
-  AppDimensionsPlugin,
-  ApplicationsPlugin,
-  WebShortcutsPlugin,
-  BluetoothPlugin,
-  CalculatorPlugin,
-  EmojiPlugin,
-  BrowserPlugin,
-  MusicPlugin,
-  PreferencesPlugin,
-  SpotifyPlugin,
-  TimerPlugin,
-  PassPlugin,
-  TerminalPlugin,
-];
+import * as plugins from '../plugins'
 
 const subscriptions: Subscription[] = [];
 
@@ -64,7 +34,7 @@ export const QueryPanel: FC<{}> = () => {
   }, []);
 
   const init = async () => {
-    registries.plugins.register(plugins);
+    registries.plugins.register(Object.values(plugins));
     const settings = await registries.settings.getSettings();
 
     /* Register global hotkeys for spotter and plugins */
