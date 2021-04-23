@@ -67,6 +67,7 @@ Default hotkey to run the app ```double shift```
 
 ### Calculator
 * ```256/8```
+* ```256*8=```
 
 ### Browser
 * ```github.com```
