@@ -1,4 +1,3 @@
-
 import React, { FC, useEffect } from 'react';
 import { Appearance } from 'react-native';
 import { SpotterThemeColors } from '../core';

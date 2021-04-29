@@ -71,7 +71,15 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     return this.currentOptionsSubject$.asObservable();
   }
 
+  private loadingSubject$ = new BehaviorSubject<boolean>(false);
+
+  get loading$(): Observable<boolean> {
+    return this.loadingSubject$.asObservable();
+  }
+
   public async findOptionsForQuery(query: string) {
+    this.loadingSubject$.next(true);
+
     const activeOption = this.activeOptionSubject$.value;
     if (activeOption && activeOption.onQuery && activeOption.plugin) {
       const options = await activeOption.onQuery(query);
@@ -79,6 +87,8 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         options.map(o => ({...o, plugin: activeOption.plugin})),
         query,
       );
+
+      this.loadingSubject$.next(false);
       this.currentOptionsSubject$.next(sortedOptions);
       return;
     }
@@ -110,6 +120,7 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
 
     const sortedOptions = await this.getSortedPluginOptions(options, query);
     this.currentOptionsSubject$.next(sortedOptions);
+    this.loadingSubject$.next(false);
   }
 
   private getFullHistoryPath(option: string): string {

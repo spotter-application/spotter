@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
 import { SpotterOptionBaseImage, SpotterPluginOption } from '../core';
 import { IconImageNative } from '../core/native';
@@ -22,9 +22,8 @@ export const Options = ({
 
   const refContainer = useRef<FlatList | null>(null);
 
-
   useEffect(() => {
-    if(refContainer.current) {
+    if (refContainer.current && options?.length) {
       const offset = 10;
       const indexWithOffset = selectedOption - offset;
       const index = indexWithOffset < 0 ? 0 : indexWithOffset;
@@ -32,23 +31,27 @@ export const Options = ({
     }
   });
 
-  return <FlatList
-    ref={refContainer}
-    style={style}
-    data={options}
-    keyExtractor={(item) => item.title}
-    persistentScrollbar={true}
-    onScrollToIndexFailed={() => null}
-    renderItem={({ item, index }) => (
-      <TouchableOpacity onPress={() => onSubmit(index)}>
-        <Option
-          option={item}
-          active={selectedOption === index}
-          executing={selectedOption === index && executingOption}
-        />
-      </TouchableOpacity>
-    )}
-  />
+  return <>
+    {options?.length ?
+      <FlatList
+        ref={refContainer}
+        style={style}
+        data={options}
+        keyExtractor={(item) => item.title}
+        persistentScrollbar={true}
+        onScrollToIndexFailed={() => null}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity onPress={() => onSubmit(index)}>
+            <Option
+              option={item}
+              active={selectedOption === index}
+              executing={selectedOption === index && executingOption}
+            />
+          </TouchableOpacity>
+        )}
+      /> : null
+    }
+  </>
 };
 
 export const Option = ({

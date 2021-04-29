@@ -42,6 +42,7 @@ export declare abstract class SpotterPluginsRegistry {
   abstract get currentOptions(): SpotterPluginOption[];
   abstract get currentOptions$(): Observable<SpotterPluginOption[]>;
   abstract get activeOption$(): Observable<SpotterPluginOption | null>;
+  abstract get loading$(): Observable<boolean>;
   abstract submitOption(
     option: SpotterPluginOption,
     query: string,

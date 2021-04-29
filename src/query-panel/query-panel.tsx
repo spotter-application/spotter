@@ -1,12 +1,13 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { from, Subscription } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
+import { Subscription, timer } from 'rxjs';
+import { debounce, debounceTime, delay, delayWhen, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { useApi, useTheme } from '../providers';
 import { OptionIcon, Options } from './query-panel-options.component';
 import {
@@ -24,7 +25,9 @@ export const QueryPanel: FC<{}> = () => {
   const { api, registries } = useApi();
   const { colors } = useTheme();
   const [query, setQuery] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [options, setOptions] = useState<SpotterPluginOption[]>([]);
+  const [typing, setTyping] = useState<boolean>(false);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
   const [executingOption, setExecutingOption] = useState<boolean>(false);
   const [activeOption, setActiveOption] = useState<SpotterPluginOption | null>(null)
@@ -49,17 +52,33 @@ export const QueryPanel: FC<{}> = () => {
 
     subscriptions.forEach(s => s.unsubscribe());
 
-    subscriptions.push(registries.plugins.currentOptions$.subscribe(nextOptions => {
+    subscriptions.push(registries.plugins.currentOptions$.pipe(
+      debounceTime(50),
+    ).subscribe(nextOptions => {
       setExecutingOption(false);
       setSelectedOptionIndex(0);
       setOptions(nextOptions)
+    }));
+
+    subscriptions.push(api.state.value$.pipe(
+      debounceTime(500),
+    ).subscribe(() => {
+      setTyping(false);
     }));
 
     subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
 
     subscriptions.push(api.state.value$.pipe(distinctUntilChanged()).subscribe(query => {
       setQuery(query);
+      setTyping(true);
       registries.plugins.findOptionsForQuery(query);
+    }));
+
+    subscriptions.push(registries.plugins.loading$.pipe(
+      distinctUntilChanged(),
+      debounceTime(200),
+    ).subscribe(loading => {
+      setLoading(loading);
     }));
   };
 
@@ -207,12 +226,13 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(Object.keys(options).length ? styles.inputWithResults : {}),
+        ...(!typing && query?.length ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
       }}>
         {
           activeOption ?
+          // TODO: Create component
             <View style={{
               display: 'flex',
               flexDirection: 'row',
@@ -243,8 +263,14 @@ export const QueryPanel: FC<{}> = () => {
           onTab={onTab}
           onBackspace={onBackspace}
         ></InputNative>
+
+        {loading
+          ? <ActivityIndicator size="small" color={colors.active.highlight} />
+          : options.length ? <OptionIcon style={{}} icon={options[selectedOptionIndex].icon}></OptionIcon> : null
+        }
       </View>
-      {Object.keys(options).length ?
+      {/* {Object.keys(options).length ? */}
+      {query.length && !typing ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
           selectedOption={selectedOptionIndex}
@@ -274,6 +300,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     paddingTop: 10,
     paddingBottom: 10,
+    height: 510,
   },
 });
 

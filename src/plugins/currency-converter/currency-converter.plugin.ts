@@ -60,7 +60,6 @@ export class CurrencyConverter extends SpotterPlugin implements SpotterPluginLif
     if (!firstCurrency || !secondCurrency) {
       const currencyFrom = firstCurrency ?? secondCurrency;
       const suggestCurrencies = this.currencySuggestions.filter(c => c.currencyCode !== currencyFrom.currencyCode);
-      console.log('defaultCurrencies: ', this.currencySuggestions);
       return await Promise.all(suggestCurrencies.map(async suggestCurrencyTo => {
         const result = await this.convert(amount, currencyFrom.currencyCode, suggestCurrencyTo.currencyCode);
         return {
