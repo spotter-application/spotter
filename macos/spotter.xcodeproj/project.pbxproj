@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0496A360A6F874C295C73D4B /* libPods-Shared-spotter-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */; };
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
 		923C274E24D01BE3006C67F3 /* ApplicationsDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* ApplicationsDimensions.swift */; };
 		923C275024D01BF1006C67F3 /* ApplicationsDimensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* ApplicationsDimensions.m */; };
@@ -36,14 +35,18 @@
 		92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */ = {isa = PBXBuildFile; fileRef = 92BE4F3724CEC6820049B6B3 /* Shell.m */; };
 		92F41E5C25A24A9C00D6EAD6 /* HotkeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92F41E5B25A24A9C00D6EAD6 /* HotkeyInput.swift */; };
 		92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 92F41E5E25A24AA600D6EAD6 /* HotkeyInput.m */; };
+		AA6B55AC69E1C627CA273D3F /* libPods-spotter-macOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8D6B5491829CC49575992991 /* libPods-spotter-macOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		02422F9FB6FF5F34B4E63E6F /* Pods-Shared-spotter-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared-spotter-macOS.debug.xcconfig"; path = "Target Support Files/Pods-Shared-spotter-macOS/Pods-Shared-spotter-macOS.debug.xcconfig"; sourceTree = "<group>"; };
+		0EDBF190D7C4982501554381 /* Pods-spotter-macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spotter-macOS.debug.xcconfig"; path = "Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		514201492437B4B30078DB4F /* spotter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spotter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		514201542437B4B40078DB4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		514201562437B4B40078DB4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
+		89E390EC7D2722AFBF24FDC7 /* Pods-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
+		8D6B5491829CC49575992991 /* libPods-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		923C274D24D01BE3006C67F3 /* ApplicationsDimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationsDimensions.swift; sourceTree = "<group>"; };
 		923C274F24D01BF1006C67F3 /* ApplicationsDimensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplicationsDimensions.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -73,7 +76,6 @@
 		92BE4F3724CEC6820049B6B3 /* Shell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Shell.m; sourceTree = "<group>"; };
 		92F41E5B25A24A9C00D6EAD6 /* HotkeyInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HotkeyInput.swift; path = "Spotter-macOS/HotkeyInput/HotkeyInput.swift"; sourceTree = SOURCE_ROOT; };
 		92F41E5E25A24AA600D6EAD6 /* HotkeyInput.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = HotkeyInput.m; path = "Spotter-macOS/HotkeyInput/HotkeyInput.m"; sourceTree = SOURCE_ROOT; };
-		C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Shared-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Shared-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-Shared-spotter-macOS/Pods-Shared-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
@@ -84,7 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0496A360A6F874C295C73D4B /* libPods-Shared-spotter-macOS.a in Frameworks */,
+				AA6B55AC69E1C627CA273D3F /* libPods-spotter-macOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,6 +98,8 @@
 			children = (
 				02422F9FB6FF5F34B4E63E6F /* Pods-Shared-spotter-macOS.debug.xcconfig */,
 				CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */,
+				0EDBF190D7C4982501554381 /* Pods-spotter-macOS.debug.xcconfig */,
+				89E390EC7D2722AFBF24FDC7 /* Pods-spotter-macOS.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -106,7 +110,7 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				925CF4322596443100D71A76 /* JavaScriptCore.framework */,
-				C8DBC48FD7C3AEF576C57B21 /* libPods-Shared-spotter-macOS.a */,
+				8D6B5491829CC49575992991 /* libPods-spotter-macOS.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -287,6 +291,7 @@
 				514201462437B4B30078DB4F /* Frameworks */,
 				514201472437B4B30078DB4F /* Resources */,
 				381D8A6E24576A4E00465D17 /* Bundle React Native code and images */,
+				8A141BF0DCD2D5485DFADB7D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -358,7 +363,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Shared-spotter-macOS-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-spotter-macOS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -400,6 +405,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export RCT_METRO_PORT=\"${RCT_METRO_PORT:=8081}\"\necho \"export RCT_METRO_PORT=${RCT_METRO_PORT}\" > \"${SRCROOT}/../node_modules/react-native-macos/scripts/.packager.env\"\nif [ -z \"${RCT_NO_LAUNCH_PACKAGER+xxx}\" ] ; then\n  if nc -w 5 -z localhost ${RCT_METRO_PORT} ; then\n    if ! curl -s \"http://localhost:${RCT_METRO_PORT}/status\" | grep -q \"packager-status:running\" ; then\n      echo \"Port ${RCT_METRO_PORT} already in use, packager is either not running or not running correctly\"\n      exit 2\n    fi\n  else\n    open \"$SRCROOT/../node_modules/react-native-macos/scripts/launchPackager.command\" || echo \"Can't start packager automatically\"\n  fi\nfi\n";
+		};
+		8A141BF0DCD2D5485DFADB7D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -453,7 +476,7 @@
 /* Begin XCBuildConfiguration section */
 		5142015B2437B4B40078DB4F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 02422F9FB6FF5F34B4E63E6F /* Pods-Shared-spotter-macOS.debug.xcconfig */;
+			baseConfigurationReference = 0EDBF190D7C4982501554381 /* Pods-spotter-macOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -483,7 +506,7 @@
 		};
 		5142015C2437B4B40078DB4F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CE0E74F571E1F48FF00A8324 /* Pods-Shared-spotter-macOS.release.xcconfig */;
+			baseConfigurationReference = 89E390EC7D2722AFBF24FDC7 /* Pods-spotter-macOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
