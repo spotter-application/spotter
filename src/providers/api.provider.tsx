@@ -28,6 +28,9 @@ const shell = new ShellNative();
 const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
 
+// TODO:
+let setQuery: (query: string) => void = () => console.log(1);
+
 const api = {
   applications,
   storage,
@@ -38,6 +41,11 @@ const api = {
   shell,
   panel,
   bluetooth,
+  query: {
+    set value(value: string) {
+      setQuery(value);
+    }
+  }
 };
 
 const history = new HistoryRegistry(api);
@@ -51,6 +59,11 @@ const registries = {
 };
 
 const state = new State(api, registries);
+
+setQuery = (query: string) => {
+  console.log(2);
+  state.query = query;
+};
 
 type Context = {
   api: SpotterApi,

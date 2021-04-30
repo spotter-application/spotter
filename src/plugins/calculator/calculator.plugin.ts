@@ -23,7 +23,7 @@ export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLife
       }
 
       if (query.endsWith('=')) {
-        this.api.state.setValue(result);
+        this.api.query.value = result;
         return [];
       }
 

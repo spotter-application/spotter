@@ -116,9 +116,6 @@ export const Settings: FC<{}> = () => {
 
   const registerNewHotkey = (hotkey: SpotterHotkey | null, action: string) => {
     api.globalHotKey.register(hotkey, action);
-
-    // TODO: Check
-    // api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
   };
 
   return (
