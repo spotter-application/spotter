@@ -7190,11 +7190,15 @@
   ],
   "🎚️": [
     "level_slider",
-    "scale"
+    "scale",
+    "settings",
+    "preferences"
   ],
   "🎛️": [
     "control_knobs",
-    "dial"
+    "dial",
+    "settings",
+    "preferences"
   ],
   "🎤": [
     "microphone",
@@ -8056,7 +8060,9 @@
   ],
   "⚙️": [
     "gear",
-    "cog"
+    "cog",
+    "settings",
+    "preferences"
   ],
   "🗜️": [
     "clamp",
@@ -8898,7 +8904,9 @@
     "sun",
     "afternoon",
     "warm",
-    "summer"
+    "summer",
+    "settings",
+    "preferences"
   ],
   "🔆": [
     "bright_button",
