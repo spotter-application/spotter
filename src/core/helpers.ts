@@ -10,34 +10,6 @@ import {
   SpotterShell,
 } from './interfaces';
 
-export const spotterGlobalHotkeyPress = (
-  event: SpotterHotkeyEvent,
-  registries: SpotterRegistries,
-  api: SpotterApi,
-): void => {
-  if (event.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
-    registries.plugins.onOpenSpotter();
-    api.panel.open();
-    return;
-  };
-
-  const [pluginIdentifier, optionTitle] = event.identifier.split('#');
-
-  const plugin = registries.plugins.list[pluginIdentifier];
-
-  if (!plugin || !plugin.options?.length) {
-    return;
-  }
-
-  const option = plugin.options.find((o: SpotterOption) => o.title === optionTitle);
-
-  if (!option || !option.action) {
-    return;
-  }
-
-  option.action();
-};
-
 export const spotterSearch = (
   query: string,
   options: SpotterOption[],

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Subscription } from 'rxjs';
 import { useApi, useTheme } from '../providers';
-import { OptionIcon, Options } from './spotter-options.component';
+import { OptionIcon, Options } from './options.component';
 import { SpotterPluginOption } from '../core';
 import { InputNative } from '../core/native';
 

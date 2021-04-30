@@ -7,7 +7,6 @@ import {
   SpotterSettings,
   SPOTTER_HOTKEY_IDENTIFIER,
   SpotterWebsiteShortcut,
-  spotterGlobalHotkeyPress,
 } from '../core';
 import { useApi, useTheme } from '../providers';
 
@@ -117,7 +116,9 @@ export const Settings: FC<{}> = () => {
 
   const registerNewHotkey = (hotkey: SpotterHotkey | null, action: string) => {
     api.globalHotKey.register(hotkey, action);
-    api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
+
+    // TODO: Check
+    // api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
   };
 
   return (

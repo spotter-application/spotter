@@ -1,9 +1,9 @@
 import { BehaviorSubject, Observable, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
-import { SpotterApi, SpotterPluginOption, SpotterRegistries, SpotterState } from './interfaces';
+import { SpotterApi, SpotterHotkeyEvent, SpotterOption, SpotterPluginOption, SpotterRegistries, SpotterState } from './interfaces';
 import * as plugins from '../plugins'
 import { SPOTTER_HOTKEY_IDENTIFIER } from './constants';
-import { sortOptions, spotterGlobalHotkeyPress } from './helpers';
+import { sortOptions } from './helpers';
 
 export class State implements SpotterState {
 
@@ -42,7 +42,7 @@ export class State implements SpotterState {
       });
     });
 
-    this.api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, this.registries, this.api));
+    this.api.globalHotKey.onPress(e => this.onPressHotkey(e));
   }
 
   private subscribeForQuery(): Subscription {
@@ -51,15 +51,8 @@ export class State implements SpotterState {
       filter(query => !!(query?.length || this.activeOption)),
       tap(async query => {
         this.typingSubject$.next(true);
-
         this.loadingOptionsSubject$.next(true);
-
-        const options = this.activeOption
-          ? await this.registries.plugins.findOptionsForQueryWithActiveOption(query, this.activeOption)
-          : await this.registries.plugins.findOptionsForQuery(query);
-        const optionsHistory = await this.registries.history.getOptionsHistory();
-        const sortedOptions = await sortOptions(query, options, optionsHistory, this.activeOption);
-
+        const sortedOptions = await this.findAndSortOptionsForQuery(query);
         this.optionsSubject$.next(sortedOptions);
         this.loadingOptionsSubject$.next(false);
         this.executingOptionSubject$.next(false);
@@ -81,6 +74,43 @@ export class State implements SpotterState {
       })
     ).subscribe();
   }
+
+  private async findAndSortOptionsForQuery(query: string): Promise<SpotterPluginOption[]> {
+    const options = this.activeOption
+      ? await this.registries.plugins.findOptionsForQueryWithActiveOption(query, this.activeOption)
+      : await this.registries.plugins.findOptionsForQuery(query);
+    const optionsHistory = await this.registries.history.getOptionsHistory();
+    const sortedOptions = await sortOptions(query, options, optionsHistory, this.activeOption);
+    return sortedOptions;
+  }
+
+  private async onPressHotkey(event: SpotterHotkeyEvent) {
+    if (event.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+      this.registries.plugins.onOpenSpotter();
+
+      const sortedOptions = await this.findAndSortOptionsForQuery('');
+      this.optionsSubject$.next(sortedOptions);
+
+      this.api.panel.open();
+      return;
+    };
+
+    const [pluginIdentifier, optionTitle] = event.identifier.split('#');
+
+    const plugin = this.registries.plugins.list[pluginIdentifier];
+
+    if (!plugin || !plugin.options?.length) {
+      return;
+    }
+
+    const option = plugin.options.find((o: SpotterOption) => o.title === optionTitle);
+
+    if (!option || !option.action) {
+      return;
+    }
+
+    option.action();
+  };
 
   /* ------------- */
 

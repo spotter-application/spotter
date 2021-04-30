@@ -14,10 +14,7 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   private runningApps: string[] = [];
 
   async onOpenSpotter() {
-    // const runningList = await this.api.applications.getRunningList();
     this.runningApps = await this.api.applications.getRunningList();
-
-    console.log('runningList: ', this.runningApps);
 
     const apps = await getAllApplications(this.api.shell);
     this.applications = apps.map(app => ({
@@ -57,12 +54,15 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
     }));
   }
 
-  onQuery(query: string): SpotterOption[] {
-    console.log('ApplicationsPlugin query: ', query, query.length)
-    if (!query?.length) {
-      return this.runningApps.map(title => ({
-        title,
-      }))
+  async onQuery(query: string): Promise<SpotterOption[]> {
+    if (!query?.length && this.applications.length) {
+      // TODO: Make sure onQuery executes after onOpenSpotter
+      const list = await this.api.applications.getRunningList();
+      const runningApps = list.reduce<any>((acc, value) => {
+        const app = this.applications.find(a => a.title === value);
+        return app ? [...acc, app] : acc;
+      }, []);
+      return runningApps;
     }
 
     return spotterSearch(query, this.applications, this.identifier);
