@@ -55,16 +55,6 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   }
 
   async onQuery(query: string): Promise<SpotterOption[]> {
-    if (!query?.length && this.applications.length) {
-      // TODO: Make sure onQuery executes after onOpenSpotter
-      const list = await this.api.applications.getRunningList();
-      const runningApps = list.reduce<any>((acc, value) => {
-        const app = this.applications.find(a => a.title === value);
-        return app ? [...acc, app] : acc;
-      }, []);
-      return runningApps;
-    }
-
     return spotterSearch(query, this.applications, this.identifier);
   }
 

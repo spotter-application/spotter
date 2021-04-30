@@ -188,6 +188,10 @@ export class State implements SpotterState {
     return this.querySubject$.asObservable();
   }
 
+  get query(): string {
+    return this.querySubject$.getValue();
+  }
+
   set query(value: string) {
     this.querySubject$.next(value);
   }

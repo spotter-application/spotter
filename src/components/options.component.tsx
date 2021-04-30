@@ -88,9 +88,11 @@ export const Option = ({
       <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
       <Text style={{color: colors.text, fontSize: 14}}>{option.title}</Text>
     </View>
-    <View>
-      <OptionHotkeyHints option={option}></OptionHotkeyHints>
-    </View>
+    {!active &&
+      <View>
+        <OptionHotkeyHints option={option}></OptionHotkeyHints>
+      </View>
+    }
   </View>
 }
 
@@ -116,11 +118,11 @@ export const OptionHotkeyHints = ({ option }: { option: SpotterPluginOption }) =
     flexDirection: 'row',
     alignItems: 'center',
   }}>
-    {option.onQuery
+    {option?.onQuery
       ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
       : null
     }
-    {option.action
+    {option?.action
       ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
     }

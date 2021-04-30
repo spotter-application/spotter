@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Subscription } from 'rxjs';
 import { useApi, useTheme } from '../providers';
-import { OptionIcon, Options } from './options.component';
+import { OptionHotkeyHints, OptionIcon, Options } from './options.component';
 import { SpotterPluginOption } from '../core';
 import { InputNative } from '../core/native';
 
@@ -148,22 +148,19 @@ export const QueryPanel: FC<{}> = () => {
       return '';
     }
 
-    const firstOptionSelected = state.hoveredOptionIndex === 0;
+    const { title } = state.options[state.hoveredOptionIndex];
 
-    if (!firstOptionSelected) {
-      return '';
-    }
-
-    const { title } = state.options[0];
-    const titleContainsQuery = title
+    const query = state.query.toLocaleLowerCase();
+    const hint = title
       .toLocaleLowerCase()
-      .startsWith(query.toLocaleLowerCase());
+      .split(' ')
+      .find(value => value.startsWith(query));
 
-    if (!titleContainsQuery) {
+    if (!hint) {
       return '';
     }
 
-    return title;
+    return hint;
   }, [])
 
 
@@ -175,6 +172,7 @@ export const QueryPanel: FC<{}> = () => {
         ...(!typing && options?.length ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
+        alignItems: 'center',
       }}>
         {
           activeOption ?
@@ -188,6 +186,7 @@ export const QueryPanel: FC<{}> = () => {
               paddingRight: 10,
               borderRadius: 10,
               marginRight: 5,
+              padding: 5,
             }}>
               <OptionIcon style={{ paddingRight: 3 }} icon={activeOption.icon}></OptionIcon>
               <Text style={{ fontSize: 16 }}>{activeOption.title}</Text>
@@ -210,12 +209,18 @@ export const QueryPanel: FC<{}> = () => {
           onBackspace={onBackspace}
         ></InputNative>
 
-        {loadingOptions
-          ? <ActivityIndicator size="small" color={colors.active.highlight} />
-          : options.length ? <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon> : null
-        }
+        <OptionHotkeyHints option={state.options[state.hoveredOptionIndex]}></OptionHotkeyHints>
+
+        <View style={{marginLeft: 10}}>
+          {loadingOptions
+            ? <ActivityIndicator size="small" color={colors.active.highlight} />
+            : options.length && !activeOption
+              ? <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon>
+              : null
+          }
+        </View>
+
       </View>
-      {/* {Object.keys(options).length ? */}
       {!typing ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
