@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import {Button, ScrollView, Text, TextInput, View} from 'react-native';
+import {Button, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { HotkeyInput } from '../core/native/hotkey-input.native';
 import {
   SpotterHotkey,
@@ -77,7 +77,74 @@ const SettingsPlugin: FC<{
   </>
 }
 
+enum Pages {
+  general = 'general',
+  themes = 'themes',
+  hotkeys = 'hotkeys'
+}
+
 export const Settings: FC<{}> = () => {
+
+  const { colors } = useTheme();
+  const [activePage, setActivePage] = useState<Pages>(Pages.general);
+
+  const onSelectPage = useCallback(setActivePage, []);
+
+  const renderPage = (page: Pages) => {
+    switch(page) {
+      case Pages.general:
+        return <GeneralSettings />
+        case Pages.themes:
+          return <ThemesSettings />
+      case Pages.hotkeys:
+        return <HotkeysSettings />
+    }
+  }
+
+  return (
+    <>
+      <View style={{
+        display: 'flex',
+        flexDirection: 'row',
+        borderBottomColor: colors.highlight,
+        borderBottomWidth: 1,
+      }}>
+        {Object.values(Pages).map(page => (
+          <TouchableOpacity
+            style={{padding: 15}}
+            key={page}
+            onPress={() => onSelectPage(page)}
+          >
+            <Text
+              style={{
+                color: page === activePage ? colors.text : colors.description,
+              }}
+            >{page[0].toUpperCase() + page.slice(1)}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <ScrollView>
+        <View style={{margin: 15}}>
+          {renderPage(activePage)}
+        </View>
+      </ScrollView>
+    </>
+  )
+};
+
+const ThemesSettings: FC<{}> = () => {
+  return <View>
+    <Text>THEMES SETTINGS</Text>
+  </View>
+}
+
+const GeneralSettings: FC<{}> = () => {
+  return <View>
+    <Text>GENERAL SETTINGS</Text>
+  </View>
+}
+
+const HotkeysSettings: FC<{}> = () => {
 
   const { api, registries } = useApi();
   const [spotterSettings, setSpotterSettings] = useState<SpotterSettings | null>(null);
@@ -118,42 +185,38 @@ export const Settings: FC<{}> = () => {
     api.globalHotKey.register(hotkey, action);
   };
 
-  return (
-    <ScrollView>
-      <View style={{ margin: 15 }}>
-        <Text style={{ fontSize: 28, marginBottom: 20 }}>Hotkeys</Text>
+  return <View>
+    {/* <Text style={{ fontSize: 28, marginBottom: 20 }}>Hotkeys</Text> */}
+    <SettingsPlugin
+      title='Spotter'
+      shortcuts={[{
+        title: 'Open',
+        hotkey: spotterSettings?.hotkey,
+      }]}
+      onSaveHotkey={onSaveHotkey}
+    />
+
+    {Object.values(registries.plugins.list)
+      .filter(p => p.options?.length)
+      .map(plugin => (
         <SettingsPlugin
-          title='Spotter'
-          shortcuts={[{
-            title: 'Open',
-            hotkey: spotterSettings?.hotkey,
-          }]}
+          key={plugin.identifier}
+          title={plugin.identifier}
+          shortcuts={plugin.options?.map(o => {
+            const pluginHotkeys = spotterSettings?.pluginHotkeys[plugin.identifier];
+            return {
+              title: o.title,
+              hotkey: pluginHotkeys ? pluginHotkeys[o.title] : null,
+            }
+          })}
           onSaveHotkey={onSaveHotkey}
         />
+      ))
+    }
 
-        {Object.values(registries.plugins.list)
-          .filter(p => p.options?.length)
-          .map(plugin => (
-            <SettingsPlugin
-              key={plugin.identifier}
-              title={plugin.identifier}
-              shortcuts={plugin.options?.map(o => {
-                const pluginHotkeys = spotterSettings?.pluginHotkeys[plugin.identifier];
-                return {
-                  title: o.title,
-                  hotkey: pluginHotkeys ? pluginHotkeys[o.title] : null,
-                }
-              })}
-              onSaveHotkey={onSaveHotkey}
-            />
-          ))
-        }
-
-        <SettingsWebsiteShortcuts />
-      </View>
-    </ScrollView>
-  )
-};
+    <SettingsWebsiteShortcuts />
+  </View>
+}
 
 // TODO: Move to the Shortcuts plugin
 const SettingsWebsiteShortcuts: FC<{}> = () => {
