@@ -2,8 +2,10 @@ import { SPOTTER_HOTKEY_IDENTIFIER } from './constants';
 import {
   Application,
   SpotterApi,
+  SpotterHistory,
   SpotterHotkeyEvent,
   SpotterOption,
+  SpotterPluginOption,
   SpotterRegistries,
   SpotterShell,
 } from './interfaces';
@@ -143,3 +145,23 @@ export function omit<T>(keys: string[], obj: { [key: string]: any }): T  {
   ) as T;
 }
 
+function getFullHistoryPath(option: string, activeOption: SpotterPluginOption | null): string {
+  return activeOption ? `${activeOption.title}#${option}` : option;
+}
+
+export async function sortOptions(
+  query: string,
+  options: SpotterPluginOption[],
+  optionsHistory: SpotterHistory,
+  activeOption: SpotterPluginOption | null,
+): Promise<SpotterPluginOption[]> {
+  return options
+    .sort((a, b) => (
+      (Object.entries(optionsHistory[getFullHistoryPath(b.title, activeOption)]?.queries ?? {})
+        .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+      ) -
+      (Object.entries(optionsHistory[getFullHistoryPath(a.title, activeOption)]?.queries ?? {})
+        .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
+      )
+    ));
+}

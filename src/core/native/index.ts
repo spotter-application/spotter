@@ -1,4 +1,4 @@
-export * from './apps-dimensions.native';
+export * from './applications.native';
 export * from './global-hotkey.native';
 export * from './ui/input.native';
 export * from './notifications.native';
@@ -9,5 +9,3 @@ export * from './clipboard.native';
 export * from './shell.native';
 export * from './bluetooth.native';
 export * from './ui/icon-image.native';
-export * from './state.native';
-

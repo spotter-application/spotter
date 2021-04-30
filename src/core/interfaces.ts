@@ -15,10 +15,9 @@ export interface SpotterApi {
   statusBar: SpotterStatusBar,
   clipboard: SpotterClipboard,
   shell: SpotterShell,
-  appsDimensions: SpotterAppsDimensions,
+  applications: SpotterApplicationsNative,
   panel: SpotterPanel,
   bluetooth: SpotterBluetooth,
-  state: SpotterState,
 }
 
 export interface SpotterRegistries {
@@ -37,20 +36,12 @@ export declare abstract class SpotterPluginsRegistry {
   abstract register(plugins: SpotterPluginConstructor[]): void;
   abstract onOpenSpotter(): void;
   abstract destroyPlugins(): void;
-  abstract findOptionsForQuery(query: string): void;
-  abstract list: {[pluginId: string]: SpotterPluginLifecycle};
-  abstract get currentOptions(): SpotterPluginOption[];
-  abstract get currentOptions$(): Observable<SpotterPluginOption[]>;
-  abstract get activeOption$(): Observable<SpotterPluginOption | null>;
-  abstract get loading$(): Observable<boolean>;
-  abstract submitOption(
-    option: SpotterPluginOption,
+  abstract findOptionsForQuery(query: string): Promise<SpotterPluginOption[]>;
+  abstract findOptionsForQueryWithActiveOption(
     query: string,
-    callback: (success: boolean) => void,
-  ): void;
-  abstract activateOption(
-    option: SpotterPluginOption | null,
-  ): void;
+    activeOption: SpotterPluginOption,
+  ): Promise<SpotterPluginOption[]>;
+  abstract list: {[pluginId: string]: SpotterPluginLifecycle};
 }
 
 export declare abstract class SpotterSettingsRegistry {
@@ -98,9 +89,10 @@ export declare abstract class SpotterGlobalHotkey {
   abstract onPress(callback: (event: { hotkey: SpotterHotkey, identifier: string }) => void): void;
 }
 
-export declare abstract class SpotterAppsDimensions {
-  abstract setValue(appName: string, x: number, y: number, width: number, height: number): void;
-  abstract getValue(): Promise<SystemApplicationDimensions[]>;
+export declare abstract class SpotterApplicationsNative {
+  abstract setDimensions(appName: string, x: number, y: number, width: number, height: number): void;
+  abstract getDimensions(): Promise<SystemApplicationDimensions[]>;
+  abstract getRunningList(): Promise<string[]>;
 }
 
 export declare abstract class SpotterStorage {
@@ -109,9 +101,18 @@ export declare abstract class SpotterStorage {
 }
 
 export declare abstract class SpotterState {
-  abstract get value(): string;
-  abstract get value$(): Observable<string>;
-  abstract setValue(value: string): void;
+  abstract get query$(): Observable<string>;
+  abstract set query(value: string);
+  abstract get options$(): Observable<SpotterPluginOption[]>;
+  abstract get options(): SpotterPluginOption[];
+  abstract get loadingOptions$(): Observable<boolean>;
+  abstract get typing$(): Observable<boolean>;
+  abstract get activeOption$(): Observable<SpotterPluginOption | null>;
+  abstract set activeOption(options: SpotterPluginOption | null);
+  abstract get hoveredOptionIndex$(): Observable<number>;
+  abstract set hoveredOptionIndex(value: number);
+  abstract get hoveredOptionIndex(): number;
+  reset(): void;
 }
 
 export declare abstract class SpotterApplications {

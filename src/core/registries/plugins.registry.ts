@@ -1,13 +1,10 @@
-import {BehaviorSubject, Observable} from 'rxjs';
 import {
-  SpotterHistoryRegistry,
   SpotterApi,
   SpotterOption,
   SpotterPluginOption,
   SpotterPluginConstructor,
   SpotterPluginLifecycle,
   SpotterPluginsRegistry,
-  SpotterHistory,
 } from '..';
 
 export class PluginsRegistry implements SpotterPluginsRegistry {
@@ -15,14 +12,11 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   private readonly pluginsRegistry = new Map<string, SpotterPluginLifecycle>();
   private readonly optionsRegistry = new Map<string, SpotterOption[]>();
   private nativeModules: SpotterApi;
-  private historyRegistry: SpotterHistoryRegistry;
 
   constructor(
     nativeModules: SpotterApi,
-    history: SpotterHistoryRegistry,
   ) {
     this.nativeModules = nativeModules;
-    this.historyRegistry = history;
   }
 
   public register(plugins: SpotterPluginConstructor[]): void {
@@ -51,48 +45,20 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
     });
   }
 
-  private activeOptionSubject$ = new BehaviorSubject<SpotterPluginOption | null>(null);
-
-  get activeOption$(): Observable<SpotterPluginOption | null> {
-    return this.activeOptionSubject$.asObservable();
-  }
-
-  get activeOption(): SpotterPluginOption | null {
-    return this.activeOptionSubject$.getValue();
-  }
-
-  private currentOptionsSubject$ = new BehaviorSubject<SpotterPluginOption[]>([]);
-
-  get currentOptions(): SpotterPluginOption[] {
-    return this.currentOptionsSubject$.getValue();
-  }
-
-  get currentOptions$(): Observable<SpotterPluginOption[]> {
-    return this.currentOptionsSubject$.asObservable();
-  }
-
-  private loadingSubject$ = new BehaviorSubject<boolean>(false);
-
-  get loading$(): Observable<boolean> {
-    return this.loadingSubject$.asObservable();
-  }
-
-  public async findOptionsForQuery(query: string) {
-    this.loadingSubject$.next(true);
-
-    const activeOption = this.activeOptionSubject$.value;
-    if (activeOption && activeOption.onQuery && activeOption.plugin) {
-      const options = await activeOption.onQuery(query);
-      const sortedOptions = await this.getSortedPluginOptions(
-        options.map(o => ({...o, plugin: activeOption.plugin})),
-        query,
-      );
-
-      this.loadingSubject$.next(false);
-      this.currentOptionsSubject$.next(sortedOptions);
-      return;
+  public async findOptionsForQueryWithActiveOption(
+    query: string,
+    activeOption: SpotterPluginOption,
+   ): Promise<SpotterPluginOption[]> {
+    if (!activeOption || !activeOption.onQuery || !activeOption.plugin) {
+      return [];
     }
 
+    const options = await activeOption.onQuery(query);
+
+    return options.map(o => ({...o, plugin: activeOption.plugin}));
+  }
+
+  public async findOptionsForQuery(query: string): Promise<SpotterPluginOption[]> {
     const options = await Object
       .entries(this.list)
       .reduce<Promise<any>>(async (prevPromise, [pluginIdentifier, plugin]) => {
@@ -118,71 +84,8 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         return [...acc, ...options.map(o => ({...o, plugin: pluginIdentifier}))];
       }, Promise.resolve([]));
 
-    const sortedOptions = await this.getSortedPluginOptions(options, query);
-    this.currentOptionsSubject$.next(sortedOptions);
-    this.loadingSubject$.next(false);
+    return options;
   }
-
-  private getFullHistoryPath(option: string): string {
-    return this.activeOption ? `${this.activeOption.title}#${option}` : option;
-  }
-
-  private async getSortedPluginOptions(
-    options: SpotterPluginOption[],
-    query: string,
-  ): Promise<SpotterPluginOption[]> {
-
-    const optionsHistory: SpotterHistory = await this.historyRegistry.getOptionsHistory();
-
-    return options
-      .sort((a, b) => (
-        (Object.entries(optionsHistory[this.getFullHistoryPath(b.title)]?.queries ?? {})
-          .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
-        ) -
-        (Object.entries(optionsHistory[this.getFullHistoryPath(a.title)]?.queries ?? {})
-          .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
-        )
-      ));
-  }
-
-  public async activateOption(
-    optionWithIdentifier: SpotterPluginOption,
-  ) {
-    this.activeOptionSubject$.next(optionWithIdentifier);
-  }
-
-  public async submitOption(
-    option: SpotterPluginOption,
-    query: string,
-    callback: (success: boolean) => void,
-  ) {
-    if (!option?.action) {
-      callback(false);
-      return;
-    };
-
-    this.historyRegistry.increaseOptionHistory(
-      [
-        ...(this.activeOption ? [this.activeOption.title] : []),
-        option.title,
-      ],
-      query,
-    );
-
-    const success = await option.action();
-
-    if (typeof success === 'function') {
-      const options = success();
-      this.currentOptionsSubject$.next([...this.currentOptions, ...options]);
-      return;
-    }
-
-    if (success || typeof success !== 'boolean') {
-      callback(true);
-    }
-
-    callback(false);
-  };
 
   public onOpenSpotter() {
     Object.values(this.list).forEach(plugin => {
@@ -190,6 +93,8 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         plugin.onOpenSpotter();
       }
     });
+
+    this.findOptionsForQuery('');
   }
 
   public destroyPlugins() {

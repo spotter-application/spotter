@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { SpotterApi, SpotterRegistries } from '../core';
+import { SpotterApi, SpotterRegistries, SpotterState } from '../core';
 import {
-  AppsDimensionsNative,
+  ApplicationsNative,
   ClipboardNative,
   GlobalHotkeyNative,
   NotificationsNative,
@@ -10,16 +10,16 @@ import {
   ShellNative,
   PanelNative,
   BluetoothNative,
-  State,
 } from '../core/native';
 import {
   PluginsRegistry,
   SettingsRegistry,
   HistoryRegistry,
 } from '../core/registries';
+import { State } from '../core/state';
 
 const globalHotKey = new GlobalHotkeyNative();
-const appsDimensions = new AppsDimensionsNative();
+const applications = new ApplicationsNative();
 const storage = new StorageNative();
 const notifications = new NotificationsNative();
 const statusBar = new StatusBarNative();
@@ -27,10 +27,9 @@ const clipboard = new ClipboardNative();
 const shell = new ShellNative();
 const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
-const state = new State();
 
 const api = {
-  appsDimensions,
+  applications,
   storage,
   globalHotKey,
   notifications,
@@ -39,11 +38,10 @@ const api = {
   shell,
   panel,
   bluetooth,
-  state,
 };
 
 const history = new HistoryRegistry(api);
-const plugins = new PluginsRegistry(api, history);
+const plugins = new PluginsRegistry(api);
 const settings = new SettingsRegistry(api);
 
 const registries = {
@@ -52,14 +50,18 @@ const registries = {
   history,
 };
 
+const state = new State(api, registries);
+
 type Context = {
   api: SpotterApi,
   registries: SpotterRegistries,
+  state: SpotterState,
 };
 
 export const ApiContext = React.createContext<Context>({
   api,
   registries,
+  state,
 });
 
 export const ApiProvider: FC<{}> = (props) => {
@@ -67,6 +69,7 @@ export const ApiProvider: FC<{}> = (props) => {
   const value = {
     api,
     registries,
+    state,
   };
 
   return (

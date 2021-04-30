@@ -11,17 +11,22 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
   identifier = 'Applications'
 
   private applications: SpotterOption[] = [];
-  private runnedApps: string[] = [];
+  private runningApps: string[] = [];
 
   async onOpenSpotter() {
+    // const runningList = await this.api.applications.getRunningList();
+    this.runningApps = await this.api.applications.getRunningList();
+
+    console.log('runningList: ', this.runningApps);
+
     const apps = await getAllApplications(this.api.shell);
     this.applications = apps.map(app => ({
       title: app.title,
       icon: app.path,
       action: async () => await this.api.shell.execute(`open "${app.path}"`),
       onQuery: (q: string) => {
-        const runnedApp = !!this.runnedApps.find(a => a === app.title);
-        const runnedAppOptions: SpotterOption[] = [
+        const runningApp = !!this.runningApps.find(a => a === app.title);
+        const runningAppOptions: SpotterOption[] = [
           {
             title: 'Close',
             icon: app.path,
@@ -38,11 +43,11 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
 
         const options = [
           {
-            title: runnedApp ? 'Show' : 'Open',
+            title: runningApp ? 'Show' : 'Open',
             icon: app.path,
             action: async () => await this.api.shell.execute(`open "${app.path}"`),
           },
-          ...(runnedApp ? runnedAppOptions : []),
+          ...(runningApp ? runningAppOptions : []),
         ];
 
         return q.length
@@ -50,17 +55,17 @@ export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLi
           : options;
       }
     }));
-    this.runnedApps = await this.getRunnedApps();
   }
 
   onQuery(query: string): SpotterOption[] {
-    return spotterSearch(query, this.applications, this.identifier);
-  }
+    console.log('ApplicationsPlugin query: ', query, query.length)
+    if (!query?.length) {
+      return this.runningApps.map(title => ({
+        title,
+      }))
+    }
 
-  private async getRunnedApps(): Promise<string[]> {
-    return await this.api.shell
-      .execute("osascript -e 'tell application \"System Events\" to get name of (processes where background only is false)'")
-      .then(r => r.split(', '))
+    return spotterSearch(query, this.applications, this.identifier);
   }
 
 }

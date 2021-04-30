@@ -1,11 +1,29 @@
 import Foundation
 import ShellOut
 
-@objc(AppsDimensions)
-class AppsDimensions: RCTEventEmitter {
+@objc(Applications)
+class Applications: RCTEventEmitter {
   
   @objc
-  func getValue(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+  func getRunningList(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+    let workspace = NSWorkspace.shared
+    let apps = workspace.runningApplications.filter{  $0.activationPolicy == .regular }
+    
+    var runningApps = [Any]()
+    
+    for app in apps {
+      let data = [
+        "appName": app.localizedName,
+      ];
+
+      runningApps.append(data)
+    }
+    
+    resolve(runningApps)
+  }
+  
+  @objc
+  func getDimensions(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
     if !self.readPrivileges(prompt: true) {
       //  SUBSCRIBE
       DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: nil) { _ in
@@ -53,12 +71,12 @@ class AppsDimensions: RCTEventEmitter {
   }
 
   @objc
-  func setValue(_ appName: String, x: String, y: String, width: String, height: String) {
+  func setDimensions(_ appName: String, x: String, y: String, width: String, height: String) {
     if !self.readPrivileges(prompt: true) {
       //  SUBSCRIBE
       DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: nil) { _ in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-          self.setValue(appName, x: x, y: y, width: width, height: height)
+          self.setDimensions(appName, x: x, y: y, width: width, height: height)
           DistributedNotificationCenter.default().removeObserver(self)
         }
       }
@@ -102,7 +120,7 @@ class AppsDimensions: RCTEventEmitter {
     }
   }
 
-  override func supportedEvents() -> [String]! {
+  override func supportedEvents() -> [String]? {
     return []
   }
   

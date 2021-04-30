@@ -6,30 +6,24 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Subscription, timer } from 'rxjs';
-import { debounce, debounceTime, delay, delayWhen, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { useApi, useTheme } from '../providers';
-import { OptionIcon, Options } from './query-panel-options.component';
-import {
-  SPOTTER_HOTKEY_IDENTIFIER,
-  SpotterPluginOption,
-  spotterGlobalHotkeyPress,
-} from '../core';
+import { OptionIcon, Options } from './spotter-options.component';
+import { SpotterPluginOption } from '../core';
 import { InputNative } from '../core/native';
-import * as plugins from '../plugins'
 
 const subscriptions: Subscription[] = [];
 
 export const QueryPanel: FC<{}> = () => {
 
-  const { api, registries } = useApi();
+  const { api, registries, state } = useApi();
   const { colors } = useTheme();
   const [query, setQuery] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingOptions, setLoadingOptions] = useState<boolean>(false);
   const [options, setOptions] = useState<SpotterPluginOption[]>([]);
   const [typing, setTyping] = useState<boolean>(false);
-  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number>(0);
-  const [executingOption, setExecutingOption] = useState<boolean>(false);
+  const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
+  const [executingOption, setExecutingOption] = useState<boolean>(false); // TODO
   const [activeOption, setActiveOption] = useState<SpotterPluginOption | null>(null)
 
   useEffect(() => {
@@ -37,104 +31,70 @@ export const QueryPanel: FC<{}> = () => {
   }, []);
 
   const init = async () => {
-    registries.plugins.register(Object.values(plugins));
-    const settings = await registries.settings.getSettings();
-
-    /* Register global hotkeys for spotter and plugins */
-    api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
-    Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
-      Object.entries(options).forEach(([option, hotkey]) => {
-        api.globalHotKey.register(hotkey, `${plugin}#${option}`);
-      });
-    });
-
-    api.globalHotKey.onPress(e => spotterGlobalHotkeyPress(e, registries, api));
-
     subscriptions.forEach(s => s.unsubscribe());
 
-    subscriptions.push(registries.plugins.currentOptions$.pipe(
-      debounceTime(50),
-    ).subscribe(nextOptions => {
-      setExecutingOption(false);
-      setSelectedOptionIndex(0);
-      setOptions(nextOptions)
-    }));
-
-    subscriptions.push(api.state.value$.pipe(
-      debounceTime(500),
-    ).subscribe(() => {
-      setTyping(false);
-    }));
-
-    subscriptions.push(registries.plugins.activeOption$.subscribe(o => setActiveOption(o)));
-
-    subscriptions.push(api.state.value$.pipe(distinctUntilChanged()).subscribe(query => {
-      setQuery(query);
-      setTyping(true);
-      registries.plugins.findOptionsForQuery(query);
-    }));
-
-    subscriptions.push(registries.plugins.loading$.pipe(
-      distinctUntilChanged(),
-      debounceTime(200),
-    ).subscribe(loading => {
-      setLoading(loading);
-    }));
+    subscriptions.push(
+      state.query$.subscribe(value => setQuery(value)),
+      state.options$.subscribe(value => setOptions(value)),
+      state.loadingOptions$.subscribe(value => setLoadingOptions(value)),
+      state.typing$.subscribe(value => setTyping(value)),
+      state.activeOption$.subscribe(value => setActiveOption(value)),
+      state.hoveredOptionIndex$.subscribe(value => setHoveredOptionIndex(value)),
+    );
   };
 
   /* CALLBACKS --------------------------------- */
 
   const onChangeText = useCallback(async q => {
     if (q === '') {
-      resetState();
+      state.reset();
     }
 
     if (executingOption) {
       return;
     }
 
-    if (q.endsWith('>')) {
-      onTab();
-      return;
-    }
+    state.query = q;
+  }, [executingOption]);
 
-    api.state.setValue(q);
-  }, [executingOption, selectedOptionIndex, options]);
+  const onSubmit = useCallback(async () => {
+    const option: SpotterPluginOption = state.options[state.hoveredOptionIndex];
 
-  const onSubmit = useCallback(() => {
-    const option: SpotterPluginOption = options[selectedOptionIndex];
-
-    if (!option) {
+    if (!option?.action) {
       return;
     }
 
     setExecutingOption(true);
 
-    registries.plugins.submitOption(
-      option,
+    registries.history.increaseOptionHistory(
+      [
+        ...(state.activeOption ? [state.activeOption.title] : []),
+        option.title,
+      ],
       query,
-      (success: boolean) => {
-        if (success || typeof success !== 'boolean') {
-          api.panel.close();
-          resetState();
-        }
-
-        setExecutingOption(false);
-      },
     );
-  }, [options, selectedOptionIndex]);
+
+    const success = await option.action();
+
+    if (success || typeof success !== 'boolean') {
+      api.panel.close();
+      state.reset();
+    }
+
+    setExecutingOption(false);
+  }, []);
 
   const onArrowUp = useCallback(() => {
-    setSelectedOptionIndex(getPrevOptionIndex(selectedOptionIndex, options));
-  }, [selectedOptionIndex, options]);
+    state.hoveredOptionIndex = getPrevOptionIndex(state.hoveredOptionIndex, state.options);
+  }, []);
 
   const onArrowDown = useCallback(() => {
-    setSelectedOptionIndex(getNextOptionIndex(selectedOptionIndex, options));
-  }, [selectedOptionIndex, options]);
+    state.hoveredOptionIndex = getNextOptionIndex(state.hoveredOptionIndex, state.options);
+  }, []);
 
   const onEscape = useCallback(() => {
     api.panel.close();
-    resetState();
+    state.reset();
   }, []);
 
   const onCommandComma = useCallback(() => {
@@ -143,34 +103,29 @@ export const QueryPanel: FC<{}> = () => {
   }, []);
 
   const onTab = useCallback(() => {
-    const option: SpotterPluginOption = options[selectedOptionIndex];
+    const option: SpotterPluginOption = state.options[state.hoveredOptionIndex];
 
     if (!option || !option.onQuery) {
       return;
     }
 
-    registries.plugins.activateOption(option);
-    api.state.setValue('');
-
-    registries.plugins.findOptionsForQuery('');
-    setSelectedOptionIndex(0);
-
-  }, [options]);
+    state.activeOption = option;
+  }, []);
 
   const onBackspace = useCallback((prevText: string) => {
     if (prevText.length) {
       return;
     }
 
-    registries.plugins.activateOption(null);
+    state.activeOption = null;
 
-    resetState();
-  }, [options]);
+    state.reset();
+  }, []);
 
   const onSelectAndSubmit = useCallback((index: number) => {
-    setSelectedOptionIndex(index);
+    state.hoveredOptionIndex = index;
     onSubmit();
-  }, [options, selectedOptionIndex]);
+  }, []);
 
   /* OPTIONS NAVIGATION --------------------------------- */
 
@@ -188,27 +143,18 @@ export const QueryPanel: FC<{}> = () => {
 
   /* ------------------------------------------- */
 
-  const resetState = () => {
-    setSelectedOptionIndex(0);
-    setOptions([]);
-    setExecutingOption(false);
-    api.state.setValue('')
-    registries.plugins.activateOption(null);
-    registries.plugins.findOptionsForQuery('');
-  };
-
   const getHint = useCallback(() => {
-    if (!options.length) {
+    if (!state.options.length) {
       return '';
     }
 
-    const firstOptionSelected = selectedOptionIndex === 0;
+    const firstOptionSelected = state.hoveredOptionIndex === 0;
 
     if (!firstOptionSelected) {
       return '';
     }
 
-    const { title } = options[0];
+    const { title } = state.options[0];
     const titleContainsQuery = title
       .toLocaleLowerCase()
       .startsWith(query.toLocaleLowerCase());
@@ -218,7 +164,7 @@ export const QueryPanel: FC<{}> = () => {
     }
 
     return title;
-  }, [options, selectedOptionIndex])
+  }, [])
 
 
   return <>
@@ -226,7 +172,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(!typing && query?.length ? styles.inputWithResults : {}),
+        ...(!typing && options?.length ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
       }}>
@@ -264,16 +210,16 @@ export const QueryPanel: FC<{}> = () => {
           onBackspace={onBackspace}
         ></InputNative>
 
-        {loading
+        {loadingOptions
           ? <ActivityIndicator size="small" color={colors.active.highlight} />
-          : options.length ? <OptionIcon style={{}} icon={options[selectedOptionIndex].icon}></OptionIcon> : null
+          : options.length ? <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon> : null
         }
       </View>
       {/* {Object.keys(options).length ? */}
-      {query.length && !typing ?
+      {!typing ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
-          selectedOption={selectedOptionIndex}
+          hoveredOptionIndex={hoveredOptionIndex}
           executingOption={executingOption}
           options={options}
           onSubmit={onSelectAndSubmit}
@@ -303,4 +249,3 @@ const styles = StyleSheet.create({
     height: 510,
   },
 });
-
