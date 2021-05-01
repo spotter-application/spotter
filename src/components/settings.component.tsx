@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import {Button, ScrollView, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {Alert, Button, ScrollView, Switch, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import { HotkeyInput } from '../core/native/hotkey-input.native';
 import {
   SpotterHotkey,
@@ -7,6 +7,8 @@ import {
   SpotterSettings,
   SPOTTER_HOTKEY_IDENTIFIER,
   SpotterWebsiteShortcut,
+  getAllApplications,
+  Application,
 } from '../core';
 import { useApi, useTheme } from '../providers';
 
@@ -139,8 +141,49 @@ const ThemesSettings: FC<{}> = () => {
 }
 
 const GeneralSettings: FC<{}> = () => {
+
+  const { api } = useApi();
+  const [launchAtLoginEnabled, setLaunchAtLoginEnabled] = useState<boolean>(false);
+  const [spotterApp, setSpotterApp] = useState<Application | undefined>();
+
+  useEffect(() => {
+    const setSettings = async () => {
+      const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to delete login item "spotter"' || echo ''`);
+      const launchAtLoginStatus = !!loginItems.split('\n').find(item => item === 'spotter');
+      setLaunchAtLoginEnabled(launchAtLoginStatus);
+
+      const apps = await getAllApplications(api.shell);
+      const app = apps.find(app => app.title === 'spotter');
+      setSpotterApp(app);
+    };
+
+    setSettings();
+  }, []);
+
+  const onChangeLaunchAtLogin = (value: boolean) => {
+    if (value) {
+      if (!spotterApp) {
+        Alert.alert('You have to move Spotter.app to Applications folder');
+        return;
+      }
+      api.shell.execute(`osascript -e 'tell application "System Events" to make login item at end with properties {path:"${spotterApp?.path}", hidden:false}'`)
+    } else {
+      api.shell.execute(`osascript -e 'tell application "System Events" to delete login item "spotter"'`)
+    }
+    setLaunchAtLoginEnabled(value);
+  };
+
   return <View>
-    <Text>GENERAL SETTINGS</Text>
+      <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
+        <Switch
+          trackColor={{ false: "#767577", true: "#81b0ff" }}
+          thumbColor={launchAtLoginEnabled ? "#f5dd4b" : "#f4f3f4"}
+          onValueChange={onChangeLaunchAtLogin}
+          value={launchAtLoginEnabled}
+          style={{width: 25}}
+        ></Switch>
+        <Text>Auto launch</Text>
+      </View>
   </View>
 }
 

@@ -29,7 +29,7 @@ const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
 
 // TODO:
-let setQuery: (query: string) => void = () => console.log(1);
+let setQuery: (query: string) => void = () => null;
 
 const api = {
   applications,
@@ -61,7 +61,6 @@ const registries = {
 const state = new State(api, registries);
 
 setQuery = (query: string) => {
-  console.log(2);
   state.query = query;
 };
 
