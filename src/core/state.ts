@@ -1,5 +1,5 @@
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map, tap } from 'rxjs/operators';
+import { BehaviorSubject, from, Observable, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, switchMap, tap } from 'rxjs/operators';
 import { SpotterApi, SpotterHotkeyEvent, SpotterOption, SpotterPluginOption, SpotterRegistries, SpotterState } from './interfaces';
 import * as plugins from '../plugins'
 import { SPOTTER_HOTKEY_IDENTIFIER } from './constants';
@@ -49,17 +49,17 @@ export class State implements SpotterState {
     return this.query$.pipe(
       distinctUntilChanged(),
       filter(query => !!(query?.length || this.activeOption)),
-      tap(async query => {
-        this.typingSubject$.next(true);
-        this.loadingOptionsSubject$.next(true);
-        const sortedOptions = await this.findAndSortOptionsForQuery(query);
+      tap(() => this.loadingOptionsSubject$.next(true)),
+      switchMap(query => from(this.findAndSortOptionsForQuery(query))),
+      tap(sortedOptions => {
         this.optionsSubject$.next(sortedOptions);
         this.loadingOptionsSubject$.next(false);
         this.executingOptionSubject$.next(false);
         this.hoveredOptionIndexSubject$.next(0);
       }),
       debounceTime(500),
-      tap(() => this.typingSubject$.next(false)),
+      filter(sortedOptions => !!sortedOptions?.length),
+      tap(() => this.optionsDisplayedWithDelaySubject$.next(true)),
     ).subscribe();
   }
 
@@ -91,6 +91,7 @@ export class State implements SpotterState {
       const sortedOptions = await this.findAndSortOptionsForQuery('');
       this.optionsSubject$.next(sortedOptions);
 
+      this.optionsDisplayedWithDelaySubject$.next(false);
       this.api.panel.open();
       return;
     };
@@ -126,14 +127,6 @@ export class State implements SpotterState {
 
   set activeOption(value: SpotterPluginOption | null) {
     this.activeOptionSubject$.next(value);
-  }
-
-  /* ------------- */
-
-  private typingSubject$ = new BehaviorSubject<boolean>(false);
-
-  get typing$(): Observable<boolean> {
-    return this.typingSubject$.asObservable();
   }
 
   /* ------------- */
@@ -194,6 +187,14 @@ export class State implements SpotterState {
 
   set query(value: string) {
     this.querySubject$.next(value);
+  }
+
+  /* ------------- */
+
+  private optionsDisplayedWithDelaySubject$ = new BehaviorSubject<boolean>(false);
+
+  get optionsDisplayedWithDelay$(): Observable<boolean> {
+    return this.optionsDisplayedWithDelaySubject$.asObservable();
   }
 
   /* ------------- */

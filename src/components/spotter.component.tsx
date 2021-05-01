@@ -21,7 +21,7 @@ export const QueryPanel: FC<{}> = () => {
   const [query, setQuery] = useState<string>('');
   const [loadingOptions, setLoadingOptions] = useState<boolean>(false);
   const [options, setOptions] = useState<SpotterPluginOption[]>([]);
-  const [typing, setTyping] = useState<boolean>(false);
+  const [optionsDisplayedWithDelay, setOptionsDisplayedWithDelay] = useState<boolean>(false);
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
   const [executingOption, setExecutingOption] = useState<boolean>(false); // TODO
   const [activeOption, setActiveOption] = useState<SpotterPluginOption | null>(null)
@@ -37,7 +37,7 @@ export const QueryPanel: FC<{}> = () => {
       state.query$.subscribe(value => setQuery(value)),
       state.options$.subscribe(value => setOptions(value)),
       state.loadingOptions$.subscribe(value => setLoadingOptions(value)),
-      state.typing$.subscribe(value => setTyping(value)),
+      state.optionsDisplayedWithDelay$.subscribe(value => setOptionsDisplayedWithDelay(value)),
       state.activeOption$.subscribe(value => setActiveOption(value)),
       state.hoveredOptionIndex$.subscribe(value => setHoveredOptionIndex(value)),
     );
@@ -169,7 +169,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(!typing && options?.length ? styles.inputWithResults : {}),
+        ...(optionsDisplayedWithDelay && options?.length ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -221,7 +221,7 @@ export const QueryPanel: FC<{}> = () => {
         </View>
 
       </View>
-      {!typing ?
+      {optionsDisplayedWithDelay ?
         <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
           hoveredOptionIndex={hoveredOptionIndex}
@@ -230,7 +230,6 @@ export const QueryPanel: FC<{}> = () => {
           onSubmit={onSelectAndSubmit}
         ></Options> : null
       }
-
     </SafeAreaView>
   </>
 }

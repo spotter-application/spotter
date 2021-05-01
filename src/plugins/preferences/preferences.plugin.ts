@@ -161,7 +161,7 @@ export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLif
         action: () => this.openPane('/System/Library/PreferencePanes/Sound.prefPane'),
       },
       {
-        title: 'Siri',
+        title: 'Siri preferences',
         icon: '/System/Library/PreferencePanes/Speech.prefPane',
         action: () => this.openPane('/System/Library/PreferencePanes/Speech.prefPane'),
       },

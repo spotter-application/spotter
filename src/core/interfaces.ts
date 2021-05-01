@@ -107,7 +107,7 @@ export declare abstract class SpotterState {
   abstract get options$(): Observable<SpotterPluginOption[]>;
   abstract get options(): SpotterPluginOption[];
   abstract get loadingOptions$(): Observable<boolean>;
-  abstract get typing$(): Observable<boolean>;
+  abstract get optionsDisplayedWithDelay$(): Observable<boolean>;
   abstract get activeOption$(): Observable<SpotterPluginOption | null>;
   abstract set activeOption(options: SpotterPluginOption | null);
   abstract get hoveredOptionIndex$(): Observable<number>;
