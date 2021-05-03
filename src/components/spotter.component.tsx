@@ -71,7 +71,7 @@ export const QueryPanel: FC<{}> = () => {
         ...(state.activeOption ? [state.activeOption.title] : []),
         option.title,
       ],
-      query,
+      state.query,
     );
 
     const success = await option.action();
