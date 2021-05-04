@@ -150,7 +150,6 @@ const GeneralSettings: FC<{}> = () => {
     const setSettings = async () => {
       const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to get the name of every login item' || echo ''`);
       const launchAtLoginStatus = !!loginItems.split('\n').find(item => item === 'spotter');
-      console.log('launchAtLoginStatus: ', loginItems, launchAtLoginStatus);
       setLaunchAtLoginEnabled(launchAtLoginStatus);
 
       const apps = await getAllApplications(api.shell);
