@@ -81,7 +81,7 @@ const SettingsPlugin: FC<{
 
 enum Pages {
   general = 'general',
-  themes = 'themes',
+  // themes = 'themes',
   hotkeys = 'hotkeys'
 }
 
@@ -96,8 +96,8 @@ export const Settings: FC<{}> = () => {
     switch(page) {
       case Pages.general:
         return <GeneralSettings />
-        case Pages.themes:
-          return <ThemesSettings />
+        // case Pages.themes:
+        //   return <ThemesSettings />
       case Pages.hotkeys:
         return <HotkeysSettings />
     }
@@ -148,8 +148,9 @@ const GeneralSettings: FC<{}> = () => {
 
   useEffect(() => {
     const setSettings = async () => {
-      const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to delete login item "spotter"' || echo ''`);
+      const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to get the name of every login item' || echo ''`);
       const launchAtLoginStatus = !!loginItems.split('\n').find(item => item === 'spotter');
+      console.log('launchAtLoginStatus: ', loginItems, launchAtLoginStatus);
       setLaunchAtLoginEnabled(launchAtLoginStatus);
 
       const apps = await getAllApplications(api.shell);
