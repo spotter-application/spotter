@@ -23,7 +23,6 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 ### Installation
 ```brew install --cask spotter```
 
-### Hotkeys
 Default hotkey to run the app ```double shift```
 
 ### Plugins
