@@ -18,48 +18,47 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 ## 💬 Private community chat
 [invitation link](https://t.me/joinchat/gOsSBJI5pU43ZWM8)
 
-## Installation
+## Usage
 
+### Installation
 ```brew install --cask spotter```
 
-Installation instructions and alternatives are available on https://spotter-application.github.io/getspotterapp
-
-## Hotkeys
+### Hotkeys
 Default hotkey to run the app ```double shift```
 
-## Plugins
+### Plugins
 
-### Applications
+#### Applications
 * ```<app_name>```
 
-### Bluetooth
+#### Bluetooth
 * ```bluetooth```
 * ```<device_name>```
 
-### Currency converter
+#### Currency converter
 * ```1 usd```
 * ```100 euro in usd```
 
-### System commands
+#### System commands
 * ```sleep```
 * ```shutdown```
 * ```restart```
 * ```logout```
 
-### Timer
+#### Timer
 * ```15m```
 
-### Emoji
+#### Emoji
 * ```e rocket```
 
-### Kill applications
+#### Kill applications
 * ```<app_name> <tab> close```
 
-### Applications dimensions
+#### Applications dimensions
 * ```save application positions```
 * ```restore application positions```
 
-### Spotify
+#### Spotify
 * ```spotify <tab> play```
 * ```spotify <tab> pause```
 * ```spotify <tab> next```
@@ -68,14 +67,14 @@ Default hotkey to run the app ```double shift```
 * ```spotify <tab> unmute```
 * ```spotify <tab> share```
 
-### Calculator
+#### Calculator
 * ```256/8```
 * ```256*8=```
 
-### Browser
+#### Browser
 * ```github.com```
 
-### [Pass](https://www.passwordstore.org/)
+#### [Pass](https://www.passwordstore.org/)
 * ```p email/gmail```
 
 ## The main idea
