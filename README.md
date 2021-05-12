@@ -15,6 +15,9 @@ Productivity tool to launch everything (e.g. switch the next song, connect bluet
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Small size</b>
 
+## 💬 Private community chat
+[invitation link](https://t.me/joinchat/gOsSBJI5pU43ZWM8)
+
 ## Installation
 
 ```brew install --cask spotter```
