@@ -70,6 +70,28 @@ type Context = {
   state: SpotterState,
 };
 
+export enum SpotterCommands {
+  setStorageItem = 'SET_STORAGE_ITEM',
+  getStorageItem = 'GET_STORAGE_ITEM',
+}
+
+function execCommand<T>(command: SpotterCommands.getStorageItem, data: string): Promise<T>;
+function execCommand(command: SpotterCommands.setStorageItem, data: { key: string, value: string }): void;
+function execCommand(command: SpotterCommands, data: any) {
+
+  switch (command) {
+    case SpotterCommands.getStorageItem:
+      return api.storage.getItem(data);
+    case SpotterCommands.setStorageItem:
+      return api.storage.setItem(data.key, data.value);
+    default:
+      break;
+  }
+
+}
+
+// const result = execCommand<string>(SpotterCommands.getStorageItem, 'test');
+
 export const ApiContext = React.createContext<Context>({
   api,
   registries,
