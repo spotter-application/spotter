@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity } from 'react-native';
+import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity, ImageStyle } from 'react-native';
 import { SpotterOptionBaseImage, SpotterPluginOption } from '../core';
 import { IconImageNative } from '../core/native';
 import { useTheme } from '../providers';
@@ -96,14 +96,14 @@ export const Option = ({
   </View>
 }
 
-export const OptionIcon = ({ style, icon }: { style: ViewStyle, icon: SpotterOptionBaseImage }) => {
+export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon: SpotterOptionBaseImage }) => {
   return <>
     {icon
       ? <View style={style}>
         {typeof icon === 'string' && (icon.endsWith('.app') || icon.endsWith('.prefPane'))
-          ? <IconImageNative style={{ width: 25, height: 25 }} source={icon}></IconImageNative>
+          ? <IconImageNative style={{ width: 25, height: 25, ...style, }} source={icon}></IconImageNative>
           : typeof icon === 'number' || (typeof icon === 'object' && icon.uri)
-            ? <Image style={{ width: 22, height: 22 }} source={icon}></Image>
+            ? <Image style={{ width: 22, height: 22, ...style }} source={icon}></Image>
             : <Text>{icon}</Text>
         }
       </View>

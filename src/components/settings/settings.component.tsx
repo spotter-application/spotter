@@ -6,8 +6,8 @@ import { GeneralSettings } from './general-settings.component';
 import { ThemesSettings } from './themes-settings.component';
 
 enum Pages {
-  general = 'general',
   themes = 'themes',
+  general = 'general',
   hotkeys = 'hotkeys'
 }
 
