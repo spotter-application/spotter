@@ -1,16 +1,14 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import {Alert, Button, ScrollView, Switch, Text, TextInput, TouchableOpacity, View} from 'react-native';
-import { HotkeyInput } from '../core/native/hotkey-input.native';
+import { Button, Text, TextInput, View} from 'react-native';
+import { HotkeyInput } from '../../core/native/hotkey-input.native';
 import {
   SpotterHotkey,
   SpotterPluginHotkeys,
   SpotterSettings,
-  SPOTTER_HOTKEY_IDENTIFIER,
   SpotterWebsiteShortcut,
-  getAllApplications,
-  Application,
-} from '../core';
-import { useApi, useTheme } from '../providers';
+  SPOTTER_HOTKEY_IDENTIFIER,
+} from '../../core';
+import { useApi, useTheme } from '../../providers';
 
 interface SpotterOptionShortcut {
   title: string,
@@ -79,115 +77,7 @@ const SettingsPlugin: FC<{
   </>
 }
 
-enum Pages {
-  general = 'general',
-  // themes = 'themes',
-  hotkeys = 'hotkeys'
-}
-
-export const Settings: FC<{}> = () => {
-
-  const { colors } = useTheme();
-  const [activePage, setActivePage] = useState<Pages>(Pages.general);
-
-  const onSelectPage = useCallback(setActivePage, []);
-
-  const renderPage = (page: Pages) => {
-    switch(page) {
-      case Pages.general:
-        return <GeneralSettings />
-        // case Pages.themes:
-        //   return <ThemesSettings />
-      case Pages.hotkeys:
-        return <HotkeysSettings />
-    }
-  }
-
-  return (
-    <>
-      <View style={{
-        display: 'flex',
-        flexDirection: 'row',
-        borderBottomColor: colors.highlight,
-        borderBottomWidth: 1,
-      }}>
-        {Object.values(Pages).map(page => (
-          <TouchableOpacity
-            style={{padding: 15}}
-            key={page}
-            onPress={() => onSelectPage(page)}
-          >
-            <Text
-              style={{
-                color: page === activePage ? colors.text : colors.description,
-              }}
-            >{page[0].toUpperCase() + page.slice(1)}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <ScrollView>
-        <View style={{margin: 15}}>
-          {renderPage(activePage)}
-        </View>
-      </ScrollView>
-    </>
-  )
-};
-
-const ThemesSettings: FC<{}> = () => {
-  return <View>
-    <Text>THEMES SETTINGS</Text>
-  </View>
-}
-
-const GeneralSettings: FC<{}> = () => {
-
-  const { api } = useApi();
-  const [launchAtLoginEnabled, setLaunchAtLoginEnabled] = useState<boolean>(false);
-  const [spotterApp, setSpotterApp] = useState<Application | undefined>();
-
-  useEffect(() => {
-    const setSettings = async () => {
-      const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to get the name of every login item' || echo ''`);
-      const launchAtLoginStatus = !!loginItems.split('\n').find(item => item === 'spotter');
-      setLaunchAtLoginEnabled(launchAtLoginStatus);
-
-      const apps = await getAllApplications(api.shell);
-      const app = apps.find(app => app.title === 'spotter');
-      setSpotterApp(app);
-    };
-
-    setSettings();
-  }, []);
-
-  const onChangeLaunchAtLogin = (value: boolean) => {
-    if (value) {
-      if (!spotterApp) {
-        Alert.alert('You have to move Spotter.app to Applications folder');
-        return;
-      }
-      api.shell.execute(`osascript -e 'tell application "System Events" to make login item at end with properties {path:"${spotterApp?.path}", hidden:false}'`)
-    } else {
-      api.shell.execute(`osascript -e 'tell application "System Events" to delete login item "spotter"'`)
-    }
-    setLaunchAtLoginEnabled(value);
-  };
-
-  return <View>
-      <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={launchAtLoginEnabled ? "#f5dd4b" : "#f4f3f4"}
-          onValueChange={onChangeLaunchAtLogin}
-          value={launchAtLoginEnabled}
-          style={{width: 25}}
-        ></Switch>
-        <Text>Auto launch</Text>
-      </View>
-  </View>
-}
-
-const HotkeysSettings: FC<{}> = () => {
+export const HotkeysSettings: FC<{}> = () => {
 
   const { api, registries } = useApi();
   const [spotterSettings, setSpotterSettings] = useState<SpotterSettings | null>(null);
