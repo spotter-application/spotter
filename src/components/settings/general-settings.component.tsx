@@ -15,7 +15,8 @@ export const GeneralSettings: FC<{}> = () => {
   useEffect(() => {
     const setSettings = async () => {
       const loginItems = await api.shell.execute(`osascript -e 'tell application "System Events" to get the name of every login item' || echo ''`);
-      const launchAtLoginStatus = !!loginItems.split('\n').find(item => item === 'spotter');
+      const launchAtLoginStatus = !!loginItems.split(',').find(item => item === 'spotter');
+
       setLaunchAtLoginEnabled(launchAtLoginStatus);
 
       const apps = await getAllApplications(api.shell);
