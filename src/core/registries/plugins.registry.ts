@@ -93,8 +93,6 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
         plugin.onOpenSpotter();
       }
     });
-
-    this.findOptionsForQuery('');
   }
 
   public destroyPlugins() {
