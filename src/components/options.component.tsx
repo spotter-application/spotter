@@ -37,7 +37,7 @@ export const Options = ({
         ref={refContainer}
         style={style}
         data={options}
-        keyExtractor={(item) => item.title}
+        keyExtractor={(item) => item.key ? item.key : item.title}
         persistentScrollbar={true}
         onScrollToIndexFailed={() => null}
         renderItem={({ item, index }) => (
