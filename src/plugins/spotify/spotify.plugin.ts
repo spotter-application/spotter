@@ -6,9 +6,9 @@ import {
   SpotterPluginLifecycle,
   spotterSearch,
 } from '../../core';
-import SpotifyWebApi from "spotify-web-api-node";
-import fetch from "node-fetch";
-import { Buffer } from "buffer"
+import SpotifyWebApi from 'spotify-web-api-node';
+import fetch from 'node-fetch';
+import { Buffer } from 'buffer';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -35,6 +35,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     if (!this.app) {
       return [];
     }
+    const key = Buffer.from(await this.api.storage.getItem("SpotifyClientID") + ':' + await this.api.storage.getItem("SpotifyClientSecret")).toString('base64');
     const search: SpotterOption[] = [
       {
         title: 'Search',
@@ -45,7 +46,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
           //`this.spotify.clientCredentialsGrant()` Doesn't work, so implemented basic way with fetch
           const token = await (await fetch("https://accounts.spotify.com/api/token?grant_type=client_credentials", {
             headers: {
-              Authorization: "Basic " + Buffer.from(await this.api.storage.getItem("SpotifyClientID") + ':' + await this.api.storage.getItem("SpotifyClientSecret")).toString('base64'),
+              Authorization: "Basic " + key,
               "Content-Type": "application/x-www-form-urlencoded"
             },
             method: "POST"
@@ -70,7 +71,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
           search.body.tracks.items.forEach((item: any) => {
             songs.push({
               title: item.name,
-              key: `Spotify ${songs}`,
+              id: `Spotify ${songs}`,
               subtitle: "By: " + item.artists[0].name,
               icon: this.app?.path,
               action: () => this.play(item.uri),
