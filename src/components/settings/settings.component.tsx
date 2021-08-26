@@ -4,7 +4,7 @@ import { useTheme } from '../../providers';
 import { HotkeysSettings } from './hotkeys-settings.component';
 import { GeneralSettings } from './general-settings.component';
 import { ThemesSettings } from './themes-settings.component';
-import {SpotifySettings} from "./spotify-settings.component";
+import { SpotifySettings } from './spotify-settings.component';
 
 enum Pages {
   themes = 'themes',
