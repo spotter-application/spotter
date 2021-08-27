@@ -129,6 +129,7 @@ export type SpotterOptionBaseImage = string | number | { uri: string } | undefin
 
 export interface SpotterOption {
   title: string;
+  id?: string;
   action?: SpotterAction;
   onQuery?: (query: string) => Promise<SpotterOption[]> | SpotterOption[];
   subtitle?: string;

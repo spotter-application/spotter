@@ -4,12 +4,14 @@ import { useTheme } from '../../providers';
 import { HotkeysSettings } from './hotkeys-settings.component';
 import { GeneralSettings } from './general-settings.component';
 import { ThemesSettings } from './themes-settings.component';
+import { SpotifySettings } from './spotify-settings.component';
 
 enum Pages {
   themes = 'themes',
   general = 'general',
-  hotkeys = 'hotkeys'
-}
+  hotkeys = 'hotkeys',
+  spotify = 'spotify',
+ }
 
 export const Settings: FC<{}> = () => {
 
@@ -26,6 +28,8 @@ export const Settings: FC<{}> = () => {
           return <ThemesSettings />
       case Pages.hotkeys:
         return <HotkeysSettings />
+      case Pages.spotify:
+        return <SpotifySettings />
     }
   }
 

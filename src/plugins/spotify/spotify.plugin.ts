@@ -6,6 +6,9 @@ import {
   SpotterPluginLifecycle,
   spotterSearch,
 } from '../../core';
+import SpotifyWebApi from 'spotify-web-api-node';
+import fetch from 'node-fetch';
+import { Buffer } from 'buffer';
 
 export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
 
@@ -14,7 +17,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
   extendableForOption = 'Spotify';
 
   private app: Application | null = null;
-
+  private spotify = new SpotifyWebApi();
   private currentTrackURL: string | null = null;
   private appOpened: boolean = false;
 
@@ -32,7 +35,53 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
     if (!this.app) {
       return [];
     }
+    const key = Buffer.from(await this.api.storage.getItem("SpotifyClientID") + ':' + await this.api.storage.getItem("SpotifyClientSecret")).toString('base64');
+    const search: SpotterOption[] = [
+      {
+        title: 'Search',
+        subtitle: 'Search for a spotify track',
+        icon: this.app?.path,
+        onQuery: async (q: string) => {
 
+          //`this.spotify.clientCredentialsGrant()` Doesn't work, so implemented basic way with fetch
+          const token = await (await fetch("https://accounts.spotify.com/api/token?grant_type=client_credentials", {
+            headers: {
+              Authorization: "Basic " + key,
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            method: "POST"
+          })).json();
+
+          this.spotify.setAccessToken(token.access_token);
+          if (!q?.length || this.spotify.getAccessToken() == undefined) {
+            return [{
+              title: "Spotify tokens needed to use search feature. Press enter to show instructions",
+              icon: this.app?.path,
+              action: () => this.api.shell.execute(`open "https://github.com/ziulev/spotter"`),
+              //ToDo: Add spotify login guide
+            }];
+          }
+
+          const search = await this.spotify.searchTracks(q)
+          if (search.body.tracks == undefined || search.body.tracks!.items.length < 0) {
+            return [];
+          }
+
+          const songs : SpotterOption[] = [];
+          search.body.tracks.items.forEach((item: any) => {
+            songs.push({
+              title: item.name,
+              id: `Spotify ${songs}`,
+              subtitle: "By: " + item.artists[0].name,
+              icon: this.app?.path,
+              action: () => this.play(item.uri),
+            })
+          })
+
+          return spotterSearch(q, songs);
+        },
+      }
+    ];
     const childOptions: SpotterOption[] = [
       ...(this.currentTrackURL
         ? [{
@@ -51,6 +100,7 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
               action: () => this.api.shell.execute(`killall "${this.app?.title}"`),
             },
             ...this.options,
+            ...search,
           ]
         : [{
           icon: this.app.path,
@@ -127,6 +177,10 @@ export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecyc
 
   private async unmute() {
     await this.api.shell.execute("osascript -e 'tell application \"Spotify\" to set sound volume to 100'")
+  }
+
+  private async play(id: string) {
+    await this.api.shell.execute(`osascript -e 'tell application \"Spotify\"' -e 'play track \"${id}\"' -e 'end tell'`)
   }
 
   private async getCurrentTrackURL(): Promise<string | null> {
