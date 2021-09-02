@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { Button, Text, TextInput, View} from 'react-native';
+import { Button, Text, TextInput, View } from 'react-native';
 import { HotkeyInput } from '../../core/native/hotkey-input.native';
 import {
   SpotterHotkey,

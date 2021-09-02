@@ -16,7 +16,7 @@ export class State implements SpotterState {
     this.api = api;
     this.registries = registries;
 
-    this.init();
+    // this.init();
   }
 
   private init() {

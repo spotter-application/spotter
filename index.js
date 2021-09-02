@@ -3,7 +3,12 @@ import { AppRegistry, YellowBox } from 'react-native';
 import { QueryPanel } from './src/components/spotter.component.tsx';
 import { name as appName } from './app.json';
 import { Settings } from './src/components/settings/settings.component.tsx';
-import { ThemeProvider, ApiProvider, PluginsProvider } from './src/providers';
+import {
+  ThemeProvider,
+  ApiProvider,
+  EventsProvider,
+  SettingsProvider,
+} from './src/providers';
 
 // TODO: Check
 YellowBox.ignoreWarnings([
@@ -12,19 +17,25 @@ YellowBox.ignoreWarnings([
 
 const AppWithModules = () => (
   <ApiProvider>
-    <PluginsProvider>
-      <ThemeProvider>
-        <QueryPanel/>
-      </ThemeProvider>
-    </PluginsProvider>
+    <SettingsProvider>
+      <EventsProvider>
+        <ThemeProvider>
+          <QueryPanel />
+        </ThemeProvider>
+      </EventsProvider>
+    </SettingsProvider>
   </ApiProvider>
 );
 const SettingsWithModules = () => (
-  <ThemeProvider>
-    <ApiProvider>
-      <Settings/>
-    </ApiProvider>
-  </ThemeProvider>
+  <ApiProvider>
+    <SettingsProvider>
+      {/* <EventsProvider> */}
+        <ThemeProvider>
+          <Settings />
+        </ThemeProvider>
+      {/* </EventsProvider> */}
+    </SettingsProvider>
+  </ApiProvider>
 );
 
 AppRegistry.registerComponent(appName, () => AppWithModules);
