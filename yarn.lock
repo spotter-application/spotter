@@ -1655,10 +1655,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@^1.0.4":
-  "integrity" "sha512-bqlvfhN5+wuKoWH/ymN842KBHYpJmwCKFJLu8h1/eRxI7gBXvu1M721Lr+2bmklhjDmuOffSDJCjB2KY062aUw=="
-  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.0.4.tgz"
-  "version" "1.0.4"
+"@spotter-app/core@^1.0.9":
+  "integrity" "sha512-GJ/G0GppFcYnxWC91d/HhpuZ9DdU561yjEt705ECAgkj2be3eBF9RpF4e3lLt7dJ768tLiVgPnpSrg8ulvjE5Q=="
+  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.0.9.tgz"
+  "version" "1.0.9"
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   "version" "7.1.12"
@@ -7858,12 +7858,6 @@
   "version" "4.0.0"
   dependencies:
     "superagent" "^3.7.0"
-
-"spotter-spotify-plugin@file:../spotter-spotify-plugin":
-  "resolved" "file:../spotter-spotify-plugin"
-  "version" "0.0.4"
-  dependencies:
-    "@spotter-app/core" "1.0.4"
 
 "sprintf-js@~1.0.2":
   "integrity" "sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw="

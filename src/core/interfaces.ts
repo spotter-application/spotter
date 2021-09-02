@@ -1,3 +1,4 @@
+import { Option } from '@spotter-app/core/dist/interfaces';
 import { Observable } from 'rxjs';
 
 /*
@@ -137,7 +138,7 @@ export interface SpotterOption {
   icon?: SpotterOptionBaseImage;
 }
 
-export interface SpotterPluginOption extends SpotterOption {
+export interface SpotterPluginOption extends Option {
   plugin: string;
 }
 

@@ -1,4 +1,9 @@
-import { Option } from '@spotter-app/core';
+import {
+  InputCommand,
+  InputCommandType,
+  OutputCommand,
+  OutputCommandType,
+} from '@spotter-app/core/dist/interfaces';
 import React, { FC, useEffect, useState } from 'react';
 import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import { SpotterHotkeyEvent, SpotterPluginOption } from '../core/interfaces';
@@ -46,11 +51,11 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ options, setOptions ] = useState<SpotterPluginOption[]>([]);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
-
+  const [ registeredOptions, setRegisteredOptions ] = useState<SpotterPluginOption[]>([]);
   const plugins = ['spotter-spotify-plugin'];
 
   useEffect(() => {
-    registerGlobalHotkeys();
+    onInit();
   }, []);
 
   const registerGlobalHotkeys = async () => {
@@ -68,8 +73,6 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {
-    console.log(e);
-
     if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
       api.panel.open();
       return;
@@ -87,20 +90,81 @@ export const EventsProvider: FC<{}> = (props) => {
     api.panel.close();
   }
 
+  const onInit = async () => {
+    registerGlobalHotkeys();
+
+    await Promise.all(plugins.map(
+      async plugin => {
+        const command: InputCommand = {
+          type: InputCommandType.onInit,
+          query: '',
+          storage: {},
+        }
+
+        const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+          .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
+
+        commands.forEach(command => {
+          if (command.type === OutputCommandType.setQuery) {
+            setQuery(command.value);
+            return;
+          }
+
+          if (command.type === OutputCommandType.registerOptions) {
+            console.log('REGISTER: ', command.value);
+
+            setRegisteredOptions([...registeredOptions, ...command.value.map(o => ({...o, plugin}))]);
+            return;
+          }
+        }, []);
+
+        return options;
+      }
+    ));
+  }
+
   const onQuery = async (query: string) => {
     setQuery(query);
     setLoading(true);
 
+    const matchedRegisteredOptions = registeredOptions.filter(o => {
+      return o.title.toLowerCase().startsWith(query.toLowerCase());
+    });
+
+
     const options: SpotterPluginOption[][] = await Promise.all(plugins.map(
-      async plugin => await api.shell.execute(`${plugin} query ${query}`)
-        .then(v => v ? JSON.parse(v).map((o: Option) => ({...o, plugin})) : [])
+      async plugin => {
+        const command: InputCommand = {
+          type: InputCommandType.onQuery,
+          query,
+          storage: {},
+        }
+
+        const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+          .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
+
+        const options = commands.reduce<SpotterPluginOption[]>((acc, command) => {
+          if (command.type === OutputCommandType.setQuery) {
+            setQuery(command.value);
+            return acc;
+          }
+
+          if (command.type === OutputCommandType.setOptions) {
+            return [...acc, ...command.value.map(o => ({...o, plugin}))];
+          }
+
+          return acc;
+        }, []);
+
+        return options;
+      }
     ));
 
     setLoading(false);
 
     setSelectedOptionIndex(0);
 
-    setOptions(options.flat(1));
+    setOptions([...matchedRegisteredOptions, ...options.flat(1)]);
   };
 
   const onArrowUp = () => {
@@ -130,7 +194,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(true);
 
-    await api.shell.execute(`${option.plugin} action ${option.action}`);
+    const command: InputCommand = {
+      type: InputCommandType.onAction,
+      query: option.action ?? '',
+      storage: {},
+    }
+
+    await api.shell.execute(`${option.plugin} '${JSON.stringify(command)}'`);
 
     onEscape();
   }
