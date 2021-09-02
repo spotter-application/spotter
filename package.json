@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
+    "@spotter-app/core": "^1.0.4",
     "@types/math-expression-evaluator": "^1.2.0",
     "@types/mathjs": "^6.0.11",
     "buffer": "^6.0.3",

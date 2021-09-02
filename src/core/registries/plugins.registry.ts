@@ -59,6 +59,20 @@ export class PluginsRegistry implements SpotterPluginsRegistry {
   }
 
   public async findOptionsForQuery(query: string): Promise<SpotterPluginOption[]> {
+
+    const opts = await this.nativeModules.shell.execute(`spotter-spotify-plugin query ${query}`);
+
+    if (!opts) {
+      return [];
+    }
+
+    return Promise.resolve(JSON.parse(opts).map((opt: any) => ({
+      plugin: '',
+      title: opt.title,
+      icon: { uri: '/Users/denis/Developer/spotter-spotify-plugin/icon.png' },
+    })));
+
+
     const options = await Object
       .entries(this.list)
       .reduce<Promise<any>>(async (prevPromise, [pluginIdentifier, plugin]) => {

@@ -6,15 +6,15 @@ import { useTheme } from '../providers';
 
 type OptionsProps = {
   options: SpotterPluginOption[];
-  hoveredOptionIndex: number;
-  executingOption: boolean,
+  hoveredOptionIndex?: number;
+  executingOption?: boolean,
   onSubmit: (index: number) => void;
   style: ViewStyle;
 }
 
 export const Options = ({
   options,
-  hoveredOptionIndex,
+  hoveredOptionIndex = 0,
   executingOption,
   onSubmit,
   style,
@@ -45,7 +45,6 @@ export const Options = ({
             <Option
               option={item}
               active={hoveredOptionIndex === index}
-              executing={hoveredOptionIndex === index && executingOption}
             />
           </TouchableOpacity>
         )}
@@ -57,11 +56,9 @@ export const Options = ({
 export const Option = ({
   option,
   active,
-  executing,
 }: {
   option: SpotterPluginOption,
   active: boolean,
-  executing: boolean,
 }) => {
   const { colors } = useTheme();
 
@@ -125,10 +122,10 @@ export const OptionHotkeyHints = ({
     alignItems: 'center',
     ...(style ? style : {}),
   }}>
-    {option?.onQuery
+    {/* {option?.onQuery
       ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
       : null
-    }
+    } */}
     {option?.action
       ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
