@@ -76,6 +76,9 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onEscape = () => {
+    setQuery('');
+    setLoading(false);
+    setOptions([]);
     api.panel.close();
   }
 
