@@ -7859,6 +7859,12 @@
   dependencies:
     "superagent" "^3.7.0"
 
+"spotter-spotify-plugin@file:../spotter-spotify-plugin":
+  "resolved" "file:../spotter-spotify-plugin"
+  "version" "0.0.4"
+  dependencies:
+    "@spotter-app/core" "1.0.4"
+
 "sprintf-js@~1.0.2":
   "integrity" "sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw="
   "resolved" "https://registry.npmjs.org/sprintf-js/-/sprintf-js-1.0.3.tgz"

@@ -7,7 +7,7 @@ import { useSettings } from './settings.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
-  onSubmit: () => void,
+  onSubmit: (index?: number) => void,
   onArrowUp: () => void,
   onArrowDown: () => void,
   onEscape: () => void,
@@ -17,6 +17,7 @@ type Context = {
   query: string,
   options: SpotterPluginOption[],
   loading: boolean,
+  selectedOptionIndex: number,
 };
 
 const context: Context = {
@@ -31,6 +32,7 @@ const context: Context = {
   query: '',
   options: [],
   loading: false,
+  selectedOptionIndex: 0,
 }
 
 export const EventsContext = React.createContext<Context>(context);
@@ -43,6 +45,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<SpotterPluginOption[]>([]);
   const [ loading, setLoading ] = useState<boolean>(false);
+  const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
 
   const plugins = ['spotter-spotify-plugin'];
 
@@ -79,6 +82,8 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery('');
     setLoading(false);
     setOptions([]);
+    setSelectedOptionIndex(0);
+
     api.panel.close();
   }
 
@@ -93,19 +98,55 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(false);
 
-    console.log(options);
+    setSelectedOptionIndex(0);
 
     setOptions(options.flat(1));
   };
+
+  const onArrowUp = () => {
+    if (selectedOptionIndex <= 0) {
+      setSelectedOptionIndex(options.length - 1);
+      return;
+    }
+
+    setSelectedOptionIndex(selectedOptionIndex - 1)
+  };
+
+  const onArrowDown = () => {
+    if (selectedOptionIndex >= options.length - 1) {
+      setSelectedOptionIndex(0);
+      return;
+    }
+
+    setSelectedOptionIndex(selectedOptionIndex + 1)
+  };
+
+  const onSubmit = async (index?: number) => {
+    if (index || index === 0) {
+      setSelectedOptionIndex(index);
+    }
+
+    const option = options[selectedOptionIndex];
+
+    setLoading(true);
+
+    await api.shell.execute(`${option.plugin} action ${option.action}`);
+
+    onEscape();
+  }
 
   return (
     <EventsContext.Provider value={{
       ...context,
       onQuery,
       onEscape,
+      onArrowUp,
+      onArrowDown,
+      onSubmit,
       query,
       options,
       loading,
+      selectedOptionIndex,
     }}>
       {props.children}
     </EventsContext.Provider>

@@ -6,16 +6,14 @@ import { useTheme } from '../providers';
 
 type OptionsProps = {
   options: SpotterPluginOption[];
-  hoveredOptionIndex?: number;
-  executingOption?: boolean,
+  selectedOptionIndex: number;
   onSubmit: (index: number) => void;
   style: ViewStyle;
 }
 
 export const Options = ({
   options,
-  hoveredOptionIndex = 0,
-  executingOption,
+  selectedOptionIndex = 0,
   onSubmit,
   style,
 }: OptionsProps) => {
@@ -25,7 +23,7 @@ export const Options = ({
   useEffect(() => {
     if (refContainer.current && options?.length) {
       const offset = 10;
-      const indexWithOffset = hoveredOptionIndex - offset;
+      const indexWithOffset = selectedOptionIndex - offset;
       const index = indexWithOffset < 0 ? 0 : indexWithOffset;
       refContainer.current.scrollToIndex({ animated: true, index });
     }
@@ -44,7 +42,7 @@ export const Options = ({
           <TouchableOpacity onPress={() => onSubmit(index)}>
             <Option
               option={item}
-              active={hoveredOptionIndex === index}
+              active={selectedOptionIndex === index}
             />
           </TouchableOpacity>
         )}

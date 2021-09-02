@@ -26,6 +26,7 @@ export const QueryPanel: FC<{}> = () => {
     options,
     loading,
     query,
+    selectedOptionIndex,
   } = useEvents();
 
   return <>
@@ -63,7 +64,7 @@ export const QueryPanel: FC<{}> = () => {
       </View>
       <Options
         style={{ ...styles.options, backgroundColor: colors.background }}
-        hoveredOptionIndex={0}
+        selectedOptionIndex={selectedOptionIndex}
         options={options}
         onSubmit={onSubmit}
       ></Options>
