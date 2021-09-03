@@ -19,7 +19,6 @@ export interface SpotterApi {
   applications: SpotterApplicationsNative,
   panel: SpotterPanel,
   bluetooth: SpotterBluetooth,
-  query: { value: string },
 }
 
 export interface SpotterRegistries {

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { SpotterApi, SpotterRegistries, SpotterState } from '../core';
+import { SpotterApi, SpotterRegistries } from '../core';
 import {
   ApplicationsNative,
   ClipboardNative,
@@ -16,7 +16,6 @@ import {
   SettingsRegistry,
   HistoryRegistry,
 } from '../core/registries';
-import { State } from '../core/state';
 
 const globalHotKey = new GlobalHotkeyNative();
 const applications = new ApplicationsNative();
@@ -28,9 +27,6 @@ const shell = new ShellNative();
 const panel = new PanelNative();
 const bluetooth = new BluetoothNative();
 
-// TODO:
-let setQuery: (query: string) => void = () => null;
-
 const api = {
   applications,
   storage,
@@ -41,11 +37,6 @@ const api = {
   shell,
   panel,
   bluetooth,
-  query: {
-    set value(value: string) {
-      setQuery(value);
-    }
-  }
 };
 
 const history = new HistoryRegistry(api);
@@ -58,16 +49,9 @@ const registries = {
   history,
 };
 
-const state = new State(api, registries);
-
-setQuery = (query: string) => {
-  state.query = query;
-};
-
 type Context = {
   api: SpotterApi,
   registries: SpotterRegistries,
-  state: SpotterState,
 };
 
 export enum SpotterCommands {
@@ -95,7 +79,6 @@ function execCommand(command: SpotterCommands, data: any) {
 export const ApiContext = React.createContext<Context>({
   api,
   registries,
-  state,
 });
 
 export const ApiProvider: FC<{}> = (props) => {
@@ -103,7 +86,6 @@ export const ApiProvider: FC<{}> = (props) => {
   const value = {
     api,
     registries,
-    state,
   };
 
   return (

@@ -125,6 +125,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onQuery = async (query: string) => {
     setQuery(query);
+
+    if (query === '') {
+      setLoading(false);
+      setOptions([]);
+      return;
+    }
+
     setLoading(true);
 
     const matchedRegisteredOptions = registeredOptions.filter(o => {
