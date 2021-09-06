@@ -1,5 +1,4 @@
 import Foundation
-import ShellOut
 
 @objc(Shell)
 class Shell: RCTEventEmitter {
@@ -9,7 +8,7 @@ class Shell: RCTEventEmitter {
                       resolver resolve: RCTPromiseResolveBlock,
                       rejecter reject: RCTPromiseRejectBlock) -> Void {
     do {
-      let output = try shellOut(to: command)
+      let output = try shellOut(to: command, at: "/")
       resolve(output)
     } catch {
       let error = error as! ShellOutError
@@ -19,7 +18,7 @@ class Shell: RCTEventEmitter {
     }
   }
 
-  override func supportedEvents() -> [String]! {
+  override func supportedEvents() -> [String]? {
     return []
   }
 

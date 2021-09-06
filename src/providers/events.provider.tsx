@@ -4,11 +4,13 @@ import {
   OutputCommand,
   OutputCommandType,
 } from '@spotter-app/core/dist/interfaces';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import { SpotterHotkeyEvent, SpotterPluginOption } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
+
+const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH"';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -143,16 +145,22 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (q.startsWith('plg')) {
-      console.log(123123);
+    // if (q.startsWith('test')) {
+    //   // const result = await api.shell.execute('npm i -g spotter-spotify-plugin');
 
-      registerPlugin('spotter-applications-plugin');
-      setOptions([{
-        title: 'Plugin: spotter-applications-plugin has been added',
-        plugin: '',
-      }]);
-      return;
-    }
+    //   const res = await api.shell.execute('export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH" && spotter-spotify-plugin');
+
+    //   // registerPlugin('spotter-spotify-plugin');
+    //   // setOptions([{
+    //   //   title: `${result} , Plugin: spotter-spotify-plugin has been added`,
+    //   //   plugin: '',
+    //   // }]);
+    //   setOptions([{
+    //     title: `Result: ${res}`,
+    //     plugin: '',
+    //   }]);
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -177,7 +185,7 @@ export const EventsProvider: FC<{}> = (props) => {
       };
 
       const commands: OutputCommand[] = await api.shell
-        .execute(`${plugin} '${JSON.stringify(inputCommand)}'`)
+        .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
         .catch(error => {
           const outputCommand: OutputCommand = {
             type: OutputCommandType.setOptions,
@@ -252,10 +260,10 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const handleCommand = (plugin: string, command: OutputCommand) => {
     if (command.type === OutputCommandType.registerOptions) {
-      setRegisteredOptions({
-        ...registeredOptions,
+      setRegisteredOptions(prevRegisteredOptions => ({
+        ...prevRegisteredOptions,
         [plugin]: command.value.map(o => ({ ...o, plugin }))
-      });
+      }));
       return;
     }
 

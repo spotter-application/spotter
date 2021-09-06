@@ -1,5 +1,4 @@
 import Foundation
-import ShellOut
 
 @objc(Panel)
 class Panel: RCTEventEmitter {

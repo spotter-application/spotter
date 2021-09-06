@@ -15,6 +15,7 @@
 		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
 		9245EB9D2598BBCA0032CB6D /* Input.m in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB9C2598BBCA0032CB6D /* Input.m */; };
 		9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */; };
+		924A098F26E632FF0083584E /* ShellOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924A098E26E632FF0083584E /* ShellOut.swift */; };
 		924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDEF259CC6E8002FF7D3 /* Notifications.swift */; };
 		924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDF2259CC6FA002FF7D3 /* Notifications.m */; };
 		924CFDF7259CC9AF002FF7D3 /* StatusBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 924CFDF6259CC9AF002FF7D3 /* StatusBar.m */; };
@@ -54,6 +55,7 @@
 		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
 		9245EB9C2598BBCA0032CB6D /* Input.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Input.m; sourceTree = "<group>"; };
 		9245EC08259BB1C50032CB6D /* CustomNSTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNSTextField.swift; sourceTree = "<group>"; };
+		924A098E26E632FF0083584E /* ShellOut.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellOut.swift; sourceTree = "<group>"; };
 		924CFDEF259CC6E8002FF7D3 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Notifications.swift; path = "Spotter-macOS/Notifications/Notifications.swift"; sourceTree = SOURCE_ROOT; };
 		924CFDF2259CC6FA002FF7D3 /* Notifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Notifications.m; path = "Spotter-macOS/Notifications/Notifications.m"; sourceTree = SOURCE_ROOT; };
 		924CFDF6259CC9AF002FF7D3 /* StatusBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = StatusBar.m; path = "Spotter-macOS/StatusBar/StatusBar.m"; sourceTree = SOURCE_ROOT; };
@@ -264,6 +266,7 @@
 			children = (
 				92BE4F3524CEC6740049B6B3 /* Shell.swift */,
 				92BE4F3724CEC6820049B6B3 /* Shell.m */,
+				924A098E26E632FF0083584E /* ShellOut.swift */,
 			);
 			path = Shell;
 			sourceTree = "<group>";
@@ -298,6 +301,8 @@
 			dependencies = (
 			);
 			name = "spotter-macOS";
+			packageProductDependencies = (
+			);
 			productName = spotter;
 			productReference = 514201492437B4B30078DB4F /* spotter.app */;
 			productType = "com.apple.product-type.application";
@@ -317,7 +322,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "spotter" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Spotter" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -326,6 +331,8 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -441,6 +448,7 @@
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
 				923C275024D01BF1006C67F3 /* Applications.m in Sources */,
 				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
+				924A098F26E632FF0083584E /* ShellOut.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
 				9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */,
 				92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */,
@@ -487,7 +495,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				INFOPLIST_FILE = "spotter-macos/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -516,7 +524,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "spotter-macos/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				MARKETING_VERSION = 1.0.7;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -658,7 +666,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "spotter" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Spotter" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

@@ -254,7 +254,6 @@ PODS:
   - RNSqlite2 (1.0.0):
     - React-Core
   - Sauce (2.1.0)
-  - ShellOut (2.0.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -290,7 +289,6 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native-macos/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNSqlite2 (from `../node_modules/react-native-sqlite-2`)
-  - ShellOut
   - Yoga (from `../node_modules/react-native-macos/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -298,7 +296,6 @@ SPEC REPOS:
     - KeyHolder
     - Magnet
     - Sauce
-    - ShellOut
 
 EXTERNAL SOURCES:
   boost-for-react-native:
@@ -392,9 +389,8 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 05bae7ecfab1cbd5441993f1ca098f7c3b3f8d0e
   RNSqlite2: aba98937d707abaf15d97f7bdeaf99335268c283
   Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
-  ShellOut: 1393eefc56892e80d85339e233d3935e2e1ff6f9
   Yoga: b4c6f1be0c16f6a112d81c7fb09d23dcbe40a1b4
 
-PODFILE CHECKSUM: 4505f9ae7945002d2c6ea1c294eae96380ef1adf
+PODFILE CHECKSUM: e73099f05fb738deb644b6f8f5117d186a3985c7
 
 COCOAPODS: 1.10.1

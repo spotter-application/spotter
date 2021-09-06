@@ -1,5 +1,4 @@
 import Foundation
-import ShellOut
 
 @objc(Applications)
 class Applications: RCTEventEmitter {
