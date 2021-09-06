@@ -58,6 +58,11 @@ export const EventsProvider: FC<{}> = (props) => {
     onInit();
   }, []);
 
+  const sortOptions = (options: SpotterPluginOption[]): SpotterPluginOption[] => {
+    // TODO: do
+    return options;
+  }
+
   const registerGlobalHotkeys = async () => {
     const settings = await getSettings();
 
@@ -81,12 +86,15 @@ export const EventsProvider: FC<{}> = (props) => {
     // const [plugin, option] = e.identifier.split('#');
   }
 
-  const onEscape = () => {
+  const reset = () => {
     setQuery('');
     setLoading(false);
     setOptions([]);
     setSelectedOptionIndex(0);
+  }
 
+  const onEscape = () => {
+    reset();
     api.panel.close();
   }
 
@@ -99,80 +107,72 @@ export const EventsProvider: FC<{}> = (props) => {
           type: InputCommandType.onInit,
           query: '',
           storage: {},
-        }
+        };
 
         const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
           .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
 
-        commands.forEach(command => {
-          if (command.type === OutputCommandType.setQuery) {
-            setQuery(command.value);
-            return;
-          }
-
-          if (command.type === OutputCommandType.registerOptions) {
-            console.log('REGISTER: ', command.value);
-
-            setRegisteredOptions([...registeredOptions, ...command.value.map(o => ({...o, plugin}))]);
-            return;
-          }
-        }, []);
+        commands.forEach(c => handleCommand(plugin, c));
 
         return options;
       }
     ));
-  }
+  };
 
-  const onQuery = async (query: string) => {
-    setQuery(query);
+  const onQuery = async (q: string) => {
+    setQuery(q);
 
-    if (query === '') {
-      setLoading(false);
-      setOptions([]);
+    if (q === '') {
+      reset();
       return;
     }
 
     setLoading(true);
 
-    const matchedRegisteredOptions = registeredOptions.filter(o => {
-      return o.title.toLowerCase().startsWith(query.toLowerCase());
+    const options = registeredOptions.filter(o => {
+      return o.title.toLowerCase().startsWith(q.toLowerCase());
     });
 
+    const asyncOptions = await getAsyncOptionsAndHandleCommands(plugins, q);
 
-    const options: SpotterPluginOption[][] = await Promise.all(plugins.map(
-      async plugin => {
-        const command: InputCommand = {
-          type: InputCommandType.onQuery,
-          query,
-          storage: {},
-        }
+    setOptions(sortOptions([...options, ...asyncOptions]));
+    setLoading(false);
+  };
 
-        const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-          .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
+  const getAsyncOptionsAndHandleCommands = async (plugins: string[], q: string): Promise<SpotterPluginOption[]> => {
+    const pluginsOptions = await Promise.all(plugins.map(async plugin => {
+      const inputCommand: InputCommand = {
+        type: InputCommandType.onQuery,
+        query: q,
+        storage: {},
+      };
 
-        const options = commands.reduce<SpotterPluginOption[]>((acc, command) => {
-          if (command.type === OutputCommandType.setQuery) {
-            setQuery(command.value);
-            return acc;
+      const commands: OutputCommand[] = await api.shell
+        .execute(`${plugin} '${JSON.stringify(inputCommand)}'`)
+        .catch(error => {
+          const outputCommand: OutputCommand = {
+            type: OutputCommandType.setOptions,
+            value: [{
+              title: `Error in ${plugin}: ${error}`,
+            }],
           }
 
-          if (command.type === OutputCommandType.setOptions) {
-            return [...acc, ...command.value.map(o => ({...o, plugin}))];
+          return JSON.stringify(outputCommand);
+        })
+        .then(parseCommands);
+
+        return commands.reduce<SpotterPluginOption[]>((acc, c) => {
+          if (c.type === OutputCommandType.setOptions) {
+            return [...acc, ...c.value.map(p => ({...p, plugin}))];
           }
 
+          handleCommand(plugin, c);
           return acc;
         }, []);
+    }));
 
-        return options;
-      }
-    ));
-
-    setLoading(false);
-
-    setSelectedOptionIndex(0);
-
-    setOptions([...matchedRegisteredOptions, ...options.flat(1)]);
-  };
+    return pluginsOptions.flat(1);
+  }
 
   const onArrowUp = () => {
     if (selectedOptionIndex <= 0) {
@@ -207,9 +207,40 @@ export const EventsProvider: FC<{}> = (props) => {
       storage: {},
     }
 
-    await api.shell.execute(`${option.plugin} '${JSON.stringify(command)}'`);
+    const commands: OutputCommand[] = await api.shell
+      .execute(`${option.plugin} '${JSON.stringify(command)}'`)
+      .then(parseCommands);
+
+    commands.forEach(command => handleCommand(option.plugin, command));
 
     onEscape();
+  }
+
+  const parseCommands = (value: string): OutputCommand[] => {
+    return value ? value.split('\n').map(c => JSON.parse(c)) : [];
+  }
+
+  const handleCommand = (plugin: string, command: OutputCommand) => {
+    if (command.type === OutputCommandType.registerOptions) {
+      setRegisteredOptions([
+        ...registeredOptions,
+        ...command.value.map(o => ({ ...o, plugin }))
+      ]);
+      return;
+    }
+
+    if (command.type === OutputCommandType.setOptions) {
+      setOptions(sortOptions([
+        ...options,
+        ...command.value.map(o => ({...o, plugin})),
+      ]));
+      return;
+    }
+
+    if (command.type === OutputCommandType.setQuery) {
+      setQuery(command.value);
+      return;
+    }
   }
 
   return (
