@@ -1,28 +1,37 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 import { SpotterHotkey, SpotterPluginHotkeys } from '../core';
 import { useApi } from './api.provider';
 
 // TODO: rename to SETTINGS
 const SETTINGS_STORAGE_KEY = 'STORAGE_KEY';
 
-interface Settings {
+export interface Settings {
   hotkey: SpotterHotkey | null;
   pluginHotkeys: SpotterPluginHotkeys;
+  plugins: string[];
 }
 
 type Context = {
   getSettings: () => Promise<Settings>;
   patchSettings: (settings: Partial<Settings>) => void;
+  getPlugins: () => Promise<string[]>;
+  addPlugin: (plugin: string) => void,
+  removePlugin: (plugin: string) => void,
+
 };
 
 const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
+  plugins: [],
 };
 
 const context: Context = {
   getSettings: () => Promise.resolve(initialSettings),
   patchSettings: () => null,
+  getPlugins: () => Promise.resolve(initialSettings.plugins),
+  addPlugin: () => Promise.resolve(),
+  removePlugin: () => Promise.resolve(),
 }
 
 export const SettingsContext = React.createContext<Context>(context);
@@ -31,13 +40,17 @@ export const SettingsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
 
-  useEffect(() => {
-    getSettings();
-  }, [])
-
   const getSettings: () => Promise<Settings> = async () => {
     const settings = await api.storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
-    return settings ?? initialSettings;
+    if (!settings) {
+      return initialSettings;
+    }
+
+    return {
+      hotkey: settings.hotkey ?? initialSettings.hotkey,
+      pluginHotkeys: settings.pluginHotkeys ?? initialSettings.pluginHotkeys,
+      plugins: settings.plugins ?? initialSettings.plugins,
+    };
   }
 
   const patchSettings: (newSettings: Partial<Settings>) => void = async (newSettings) => {
@@ -45,10 +58,46 @@ export const SettingsProvider: FC<{}> = (props) => {
     api.storage.setItem(SETTINGS_STORAGE_KEY, { ...settings, ...newSettings });
   }
 
+  const getPlugins: () => Promise<string[]> = async () => {
+    const settings = await api.storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
+    if (!settings) {
+      return initialSettings.plugins ?? [];
+    }
+
+    return settings.plugins ?? [];
+  }
+
+  const addPlugin = async (plugin: string) => {
+    const settings = await getSettings();
+    const alreadyAdded = settings.plugins.find(p => p === plugin);
+
+    if (alreadyAdded) {
+      return;
+    }
+
+    const updatedPlugins = [...settings.plugins, plugin];
+
+    patchSettings({plugins: updatedPlugins});
+  };
+
+  const removePlugin = async (plugin: string) => {
+    const settings = await getSettings();
+    const alreadyRemoved = !settings.plugins.find(p => p === plugin);
+    if (alreadyRemoved) {
+      return;
+    }
+
+    const updatedPlugins = settings.plugins.filter(p => p !== plugin);
+    patchSettings({plugins: updatedPlugins});
+  };
+
   return (
     <SettingsContext.Provider value={{
       getSettings,
       patchSettings,
+      getPlugins,
+      addPlugin,
+      removePlugin,
     }}>
       {props.children}
     </SettingsContext.Provider>

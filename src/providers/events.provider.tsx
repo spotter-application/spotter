@@ -8,7 +8,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import { SpotterHotkeyEvent, SpotterPluginOption } from '../core/interfaces';
 import { useApi } from './api.provider';
-import { useSettings } from './settings.provider';
+import { Settings, useSettings } from './settings.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -47,25 +47,35 @@ export const EventsProvider: FC<{}> = (props) => {
   const { api } = useApi();
   const { getSettings } = useSettings();
 
+  const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<SpotterPluginOption[]>([]);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<SpotterPluginOption[]>([]);
-  const plugins = ['spotter-spotify-plugin'];
 
   useEffect(() => {
     onInit();
   }, []);
+
+  const onInit = async () => {
+    const settings = await getSettings();
+
+    setSettings(settings);
+
+    // addPlugin('spotter-spotify-plugin');
+
+    registerGlobalHotkeys(settings);
+
+    await Promise.all(settings.plugins.map(triggerOnInitForPlugin));
+  };
 
   const sortOptions = (options: SpotterPluginOption[]): SpotterPluginOption[] => {
     // TODO: do
     return options;
   }
 
-  const registerGlobalHotkeys = async () => {
-    const settings = await getSettings();
-
+  const registerGlobalHotkeys = async (settings: Settings) => {
     api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
 
     Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
@@ -98,26 +108,18 @@ export const EventsProvider: FC<{}> = (props) => {
     api.panel.close();
   }
 
-  const onInit = async () => {
-    registerGlobalHotkeys();
+  const triggerOnInitForPlugin = async (plugin: string) => {
+    const command: InputCommand = {
+      type: InputCommandType.onInit,
+      query: '',
+      storage: {},
+    };
 
-    await Promise.all(plugins.map(
-      async plugin => {
-        const command: InputCommand = {
-          type: InputCommandType.onInit,
-          query: '',
-          storage: {},
-        };
+    const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+      .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
 
-        const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-          .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
-
-        commands.forEach(c => handleCommand(plugin, c));
-
-        return options;
-      }
-    ));
-  };
+    commands.forEach(c => handleCommand(plugin, c));
+  }
 
   const onQuery = async (q: string) => {
     setQuery(q);
@@ -133,7 +135,9 @@ export const EventsProvider: FC<{}> = (props) => {
       return o.title.toLowerCase().startsWith(q.toLowerCase());
     });
 
-    const asyncOptions = await getAsyncOptionsAndHandleCommands(plugins, q);
+    const asyncOptions = await getAsyncOptionsAndHandleCommands(
+      settings?.plugins ?? [], q
+    );
 
     setOptions(sortOptions([...options, ...asyncOptions]));
     setLoading(false);
