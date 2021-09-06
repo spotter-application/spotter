@@ -5,13 +5,12 @@ import { HotkeysSettings } from './hotkeys-settings.component';
 import { GeneralSettings } from './general-settings.component';
 import { ThemesSettings } from './themes-settings.component';
 import { SpotifySettings } from './spotify-settings.component';
-import { State } from '../../core/state';
 
 enum Pages {
-  themes = 'themes',
   general = 'general',
-  hotkeys = 'hotkeys',
-  spotify = 'spotify',
+  // themes = 'themes',
+  // hotkeys = 'hotkeys',
+  // spotify = 'spotify',
  }
 
 export const Settings: FC<{}> = () => {
@@ -25,12 +24,12 @@ export const Settings: FC<{}> = () => {
     switch(page) {
       case Pages.general:
         return <GeneralSettings />
-        case Pages.themes:
-          return <ThemesSettings />
-      case Pages.hotkeys:
-        return <HotkeysSettings />
-      case Pages.spotify:
-        return <SpotifySettings />
+      //   case Pages.themes:
+      //     return <ThemesSettings />
+      // case Pages.hotkeys:
+      //   return <HotkeysSettings />
+      // case Pages.spotify:
+      //   return <SpotifySettings />
     }
   }
 
