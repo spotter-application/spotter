@@ -121,7 +121,7 @@ export const EventsProvider: FC<{}> = (props) => {
       storage: {},
     };
 
-    const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+    const commands: OutputCommand[] = await api.shell.execute(`${PATH} && ${plugin} '${JSON.stringify(command)}'`)
       .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : [])
       .catch(error => {
         const outputCommand: OutputCommand = {
@@ -145,27 +145,10 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    // if (q.startsWith('test')) {
-    //   // const result = await api.shell.execute('npm i -g spotter-spotify-plugin');
-
-    //   const res = await api.shell.execute('export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH" && spotter-spotify-plugin');
-
-    //   // registerPlugin('spotter-spotify-plugin');
-    //   // setOptions([{
-    //   //   title: `${result} , Plugin: spotter-spotify-plugin has been added`,
-    //   //   plugin: '',
-    //   // }]);
-    //   setOptions([{
-    //     title: `Result: ${res}`,
-    //     plugin: '',
-    //   }]);
-    //   return;
-    // }
-
     setLoading(true);
 
     const options = Object.values(registeredOptions).flat(1).filter(o => {
-      return o.title.toLowerCase().startsWith(q.toLowerCase());
+      return o.title.toLowerCase().search(q.toLowerCase()) !== -1;
     });
 
     const asyncOptions = await getAsyncOptionsAndHandleCommands(
@@ -246,7 +229,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     const commands: OutputCommand[] = await api.shell
-      .execute(`${option.plugin} '${JSON.stringify(command)}'`)
+      .execute(`${PATH} && ${option.plugin} '${JSON.stringify(command)}'`)
       .then(parseCommands);
 
     commands.forEach(command => handleCommand(option.plugin, command));
