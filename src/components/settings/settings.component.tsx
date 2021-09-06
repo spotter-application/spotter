@@ -2,7 +2,7 @@ import React, { FC, useCallback, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../providers';
 import { HotkeysSettings } from './hotkeys-settings.component';
-import { GeneralSettings } from './general-settings.component';
+import { GeneralSettings } from './general.component';
 import { ThemesSettings } from './themes-settings.component';
 import { SpotifySettings } from './spotify-settings.component';
 

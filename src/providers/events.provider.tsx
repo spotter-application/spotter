@@ -45,14 +45,14 @@ export const EventsContext = React.createContext<Context>(context);
 export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
-  const { getSettings } = useSettings();
+  const { getSettings, addPlugin } = useSettings();
 
   const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<SpotterPluginOption[]>([]);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
-  const [ registeredOptions, setRegisteredOptions ] = useState<SpotterPluginOption[]>([]);
+  const [ registeredOptions, setRegisteredOptions ] = useState<{ [plugin: string]: SpotterPluginOption[] }>({});
 
   useEffect(() => {
     onInit();
@@ -73,6 +73,11 @@ export const EventsProvider: FC<{}> = (props) => {
   const sortOptions = (options: SpotterPluginOption[]): SpotterPluginOption[] => {
     // TODO: do
     return options;
+  }
+
+  const registerPlugin = (plugin: string) => {
+    addPlugin(plugin);
+    triggerOnInitForPlugin(plugin);
   }
 
   const registerGlobalHotkeys = async (settings: Settings) => {
@@ -111,12 +116,21 @@ export const EventsProvider: FC<{}> = (props) => {
   const triggerOnInitForPlugin = async (plugin: string) => {
     const command: InputCommand = {
       type: InputCommandType.onInit,
-      query: '',
       storage: {},
     };
 
     const commands: OutputCommand[] = await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-      .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : []);
+      .then(v => v ? v.split('\n').map(c => JSON.parse(c)) : [])
+      .catch(error => {
+        const outputCommand: OutputCommand = {
+          type: OutputCommandType.setOptions,
+          value: [{
+            title: `Error in ${plugin}: ${error}`,
+          }],
+        }
+
+        return [outputCommand];
+      });
 
     commands.forEach(c => handleCommand(plugin, c));
   }
@@ -129,9 +143,20 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
+    if (q.startsWith('plg')) {
+      console.log(123123);
+
+      registerPlugin('spotter-applications-plugin');
+      setOptions([{
+        title: 'Plugin: spotter-applications-plugin has been added',
+        plugin: '',
+      }]);
+      return;
+    }
+
     setLoading(true);
 
-    const options = registeredOptions.filter(o => {
+    const options = Object.values(registeredOptions).flat(1).filter(o => {
       return o.title.toLowerCase().startsWith(q.toLowerCase());
     });
 
@@ -207,7 +232,8 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const command: InputCommand = {
       type: InputCommandType.onAction,
-      query: option.action ?? '',
+      arguments: option.arguments ?? [],
+      action: option.action ?? '',
       storage: {},
     }
 
@@ -226,10 +252,10 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const handleCommand = (plugin: string, command: OutputCommand) => {
     if (command.type === OutputCommandType.registerOptions) {
-      setRegisteredOptions([
+      setRegisteredOptions({
         ...registeredOptions,
-        ...command.value.map(o => ({ ...o, plugin }))
-      ]);
+        [plugin]: command.value.map(o => ({ ...o, plugin }))
+      });
       return;
     }
 
