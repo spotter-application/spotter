@@ -22,7 +22,6 @@ export interface SpotterApi {
 }
 
 export interface SpotterRegistries {
-  plugins: SpotterPluginsRegistry,
   settings: SpotterSettingsRegistry,
   history: SpotterHistoryRegistry,
 }
@@ -32,18 +31,6 @@ export type SpotterOptionWithPluginIdentifierMap = {
 }
 
 export type SpotterQueryCallback = (query: string, optionsMap: SpotterOptionWithPluginIdentifierMap ) => void;
-
-export declare abstract class SpotterPluginsRegistry {
-  abstract register(plugins: SpotterPluginConstructor[]): void;
-  abstract onOpenSpotter(): void;
-  abstract destroyPlugins(): void;
-  abstract findOptionsForQuery(query: string): Promise<SpotterPluginOption[]>;
-  abstract findOptionsForQueryWithActiveOption(
-    query: string,
-    activeOption: SpotterPluginOption,
-  ): Promise<SpotterPluginOption[]>;
-  abstract list: {[pluginId: string]: SpotterPluginLifecycle};
-}
 
 export declare abstract class SpotterSettingsRegistry {
   abstract getSettings(): Promise<SpotterSettings>;

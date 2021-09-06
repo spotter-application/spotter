@@ -12,7 +12,6 @@ import {
   BluetoothNative,
 } from '../core/native';
 import {
-  PluginsRegistry,
   SettingsRegistry,
   HistoryRegistry,
 } from '../core/registries';
@@ -40,11 +39,9 @@ const api = {
 };
 
 const history = new HistoryRegistry(api);
-const plugins = new PluginsRegistry(api);
 const settings = new SettingsRegistry(api);
 
 const registries = {
-  plugins,
   settings,
   history,
 };
