@@ -4,7 +4,7 @@ import {
   OutputCommand,
   OutputCommandType,
 } from '@spotter-app/core/dist/interfaces';
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import { SpotterHotkeyEvent, SpotterPluginOption } from '../core/interfaces';
 import { useApi } from './api.provider';
