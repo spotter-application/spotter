@@ -81,7 +81,10 @@ export const Option = ({
       }}
     >
       <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
-      <Text style={{color: colors.text, fontSize: 14}}>{option.title}</Text>
+      <Text style={{
+        color: active ? colors.active.text : colors.text,
+        fontSize: 14,
+      }}>{option.title}</Text>
     </View>
     {!active &&
       <View>
