@@ -291,8 +291,8 @@
 				1A938104A937498D81B3BD3B /* [CP] Check Pods Manifest.lock */,
 				381D8A6F24576A6C00465D17 /* Start Packager */,
 				514201452437B4B30078DB4F /* Sources */,
-				514201462437B4B30078DB4F /* Frameworks */,
 				514201472437B4B30078DB4F /* Resources */,
+				514201462437B4B30078DB4F /* Frameworks */,
 				381D8A6E24576A4E00465D17 /* Bundle React Native code and images */,
 				8A141BF0DCD2D5485DFADB7D /* [CP] Copy Pods Resources */,
 			);

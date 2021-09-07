@@ -1603,6 +1603,18 @@
   resolved "https://registry.npmjs.org/@types/json5/-/json5-0.0.29.tgz"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
+"@types/lodash-es@^4.17.4":
+  version "4.17.4"
+  resolved "https://registry.npmjs.org/@types/lodash-es/-/lodash-es-4.17.4.tgz"
+  integrity sha512-BBz79DCJbD2CVYZH67MBeHZRX++HF+5p8Mo5MzjZi64Wac39S3diedJYHZtScbRVf4DjZyN6LzA0SB0zy+HSSQ==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*":
+  version "4.14.172"
+  resolved "https://registry.npmjs.org/@types/lodash/-/lodash-4.14.172.tgz"
+  integrity sha512-/BHF5HAx3em7/KkzVKm3LrsD6HZAXuXO1AJZQ3cRRBZj4oHZDviWPYu0aEplAqDFNHZPW6d3G7KN+ONcCCC7pw==
+
 "@types/math-expression-evaluator@^1.2.0":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@types/math-expression-evaluator/-/math-expression-evaluator-1.2.1.tgz#081f339b4fad815d2049f6a1dabbc9ee5e43f189"
@@ -5534,6 +5546,11 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
+
+lodash-es@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.21.tgz"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
 lodash.debounce@^4.0.8:
   version "4.0.8"

@@ -9,6 +9,7 @@ import { useTheme } from '../providers';
 import { OptionIcon, Options } from './options.component';
 import { InputNative } from '../core/native';
 import { useEvents } from '../providers/events.provider';
+import { debounce } from 'lodash-es';
 
 export const QueryPanel: FC<{}> = () => {
 
@@ -45,6 +46,8 @@ export const QueryPanel: FC<{}> = () => {
           value={query}
           placeholder='Query...'
           hint={options?.length ? options[0].title : ''}
+          // hint={''}
+          // onChangeText={debounce(onQuery, 150)}
           onChangeText={onQuery}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}

@@ -15,6 +15,7 @@ import {
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
+import { reduce } from 'lodash-es';
 
 const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH"';
 
@@ -184,21 +185,31 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
+    if (q === 'i') {
+      registerPlugin('spotter-applications-plugin');
+      // const install = await api.shell.execute(`${PATH} && npm install -g spotter-applications-plugin`);
+      // setOptions([{
+      //   title: install,
+      //   plugin: '',
+      // }]);
+      return;
+    }
+
     setLoading(true);
 
     const options = Object.values(registeredOptions).flat(1).filter(o => {
       return o.title.toLowerCase().search(q.toLowerCase()) !== -1;
     });
 
-    const { optionsToSet }: HandleCommandResult = handleCommands(
-      await onExternalPluginsQuery(q),
-    );
+    // const { optionsToSet }: HandleCommandResult = handleCommands(
+    //   await onExternalPluginsQuery(q),
+    // );
 
     setLoading(false);
 
     setOptions(sortOptions([
       ...options,
-      ...(optionsToSet ?? []),
+      // ...(optionsToSet ?? []),
     ]));
 
     if (!shouldShowOptionsTimer.current) {
@@ -216,33 +227,58 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onExternalPluginsQuery = async (q: string): Promise<PluginOutputCommand[]> => {
     const plugins = settings?.plugins ?? [];
-    return await Promise.all(await plugins.reduce<Promise<PluginOutputCommand[]>>(async (asyncAcc, plugin) => {
+
+    const pluginsOptions: PluginOutputCommand[][] = await Promise.all(plugins.map(async plugin => {
       const inputCommand: InputCommand = {
         type: InputCommandType.onQuery,
         query: q,
         storage: {},
       };
 
-      const commands: OutputCommand[] = await api.shell
+      return await api.shell
         .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
         .catch(error => {
-          const outputCommand: OutputCommand = {
+          const outputCommand: PluginOutputCommand = {
             type: OutputCommandType.setOptions,
             value: [{
               title: `Error in ${plugin}: ${error}`,
             }],
+            plugin,
           }
 
           return JSON.stringify(outputCommand);
         })
-        .then(parseCommands);
+        .then(v => parseCommands(plugin, v));
+    }));
 
-      return [
-        ...(await asyncAcc),
-        ...commands.map(c => ({...c, plugin})),
-      ];
-    }, Promise.resolve([])));
+    return pluginsOptions.flat();
 
+    // return await Promise.all(await plugins.reduce<Promise<PluginOutputCommand[]>>(async (asyncAcc, plugin) => {
+    //   const inputCommand: InputCommand = {
+    //     type: InputCommandType.onQuery,
+    //     query: q,
+    //     storage: {},
+    //   };
+
+    //   const commands: OutputCommand[] = await api.shell
+    //     .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
+    //     .catch(error => {
+    //       const outputCommand: OutputCommand = {
+    //         type: OutputCommandType.setOptions,
+    //         value: [{
+    //           title: `Error in ${plugin}: ${error}`,
+    //         }],
+    //       }
+
+    //       return JSON.stringify(outputCommand);
+    //     })
+    //     .then(v => parseCommands(plugin, v));
+
+    //   return [
+    //     ...(await asyncAcc),
+    //     ...commands.map(c => ({...c, plugin})),
+    //   ];
+    // }, Promise.resolve([])));
   }
 
   const onArrowUp = () => {
@@ -270,6 +306,10 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const option = options[selectedOptionIndex];
 
+    if (!option) {
+      return;
+    }
+
     setLoading(true);
 
     const command: InputCommand = {
@@ -281,13 +321,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const commands: OutputCommand[] = await api.shell
       .execute(`${PATH} && ${option.plugin} '${JSON.stringify(command)}'`)
-      .then(parseCommands);
+      .then(v => parseCommands(option.plugin, v));
 
     onEscape();
   }
 
-  const parseCommands = (value: string): OutputCommand[] => {
-    return value ? value.split('\n').map(c => JSON.parse(c)) : [];
+  const parseCommands = (plugin: string, value: string): PluginOutputCommand[] => {
+    return value ? value.split('\n').map(c => ({...JSON.parse(c), plugin})) : [];
   }
 
   const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
