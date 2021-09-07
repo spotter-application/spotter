@@ -1,4 +1,4 @@
-import { Option } from '@spotter-app/core/dist/interfaces';
+import { Option, OutputCommand } from '@spotter-app/core/dist/interfaces';
 import { Observable } from 'rxjs';
 
 /*
@@ -225,3 +225,16 @@ export interface SpotterHotkeyEvent {
   identifier: string,
 }
 
+export type PluginOutputCommand = OutputCommand & {
+  plugin: string;
+}
+
+export interface RegisteredOptions {
+  [plugin: string]: SpotterPluginOption[],
+}
+
+export interface HandleCommandResult {
+  optionsToRegister: null | RegisteredOptions,
+  optionsToSet: null | SpotterPluginOption[],
+  queryToSet: null | string,
+}
