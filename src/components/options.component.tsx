@@ -86,7 +86,7 @@ export const Option = ({
         fontSize: 14,
       }}>{option.title}</Text>
     </View>
-    {!active &&
+    {active &&
       <View>
         <OptionHotkeyHints option={option} style={{opacity: 0.5}}></OptionHotkeyHints>
       </View>
@@ -123,10 +123,6 @@ export const OptionHotkeyHints = ({
     alignItems: 'center',
     ...(style ? style : {}),
   }}>
-    {/* {option?.onQuery
-      ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
-      : null
-    } */}
     {option?.action
       ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
@@ -144,115 +140,13 @@ export const OptionHotkeyHint = ({
   const { colors } = useTheme();
 
   return <View style={{
-    backgroundColor: colors.highlight,
+    backgroundColor: colors.active.highlight,
     padding: 5,
     paddingLeft: 7,
     paddingRight: 7,
     borderRadius: 5,
     ...style,
   }}>
-    <Text style={{fontSize: 10, opacity: 0.5, color: colors.text}}>{placeholder}</Text>
+    <Text style={{fontSize: 10, opacity: 0.7, color: colors.active.text}}>{placeholder}</Text>
   </View>
 };
-
-      //  <View
-      //   key={item[0]}
-      //  >
-      //   {(item[1] === 'loading' || item[1]?.length) ?
-      //    <View key={item[0]} style={{ paddingLeft: 10, paddingRight: 10 }}>
-      //      <View style={{
-      //        height: dimensions.pluginTitle,
-      //        marginTop: index ? dimensions.pluginMarginTop : 0,
-      //        display: 'flex',
-      //        alignItems: 'center',
-      //        flexDirection: 'row',
-      //      }}>
-      //         <Text style={{ fontSize: 11, paddingLeft: 10, paddingBottom: 5, opacity: 0.3 }}>{item[0]}</Text>
-      //      </View>
-      //     {item[1] === 'loading'
-      //       // ? <ActivityIndicator size="small" color="#ffffff" />
-      //       ? null
-      //       : item[1]?.map((option: SpotterOption, optionIndex: number) => (
-      //           optionIndex < (expandedPlugins.filter(p => p === index).length ? 1000 : displayOptions) ?
-      //             <View
-      //               key={item[0] + option.title}
-      //               style={{
-      //                 height: dimensions.option,
-      //                 paddingLeft: 10,
-      //                 paddingRight: 10,
-      //                 backgroundColor: (index === selectedPlugin && optionIndex === selectedOption)
-      //                   ? colors.active.background
-      //                   : 'transparent', borderRadius: 10,
-      //                 display: 'flex',
-      //                 flexDirection: 'row',
-      //                 alignItems: 'center',
-      //                 justifyContent: 'space-between',
-      //               }}
-      //             >
-      //               <TouchableOpacity onPress={() => onSubmit(index, optionIndex)} style={{
-      //                 display: 'flex',
-      //                 flex: 1,
-      //                 flexDirection: 'row',
-      //                 alignItems: 'center',
-      //               }}>
-      //                 <OptionIcon icon={option?.icon} style={{ marginRight: 5 }}/>
-      //                 <Text
-      //                   style={{
-      //                     fontSize: 13,
-      //                     color: (index === selectedPlugin && optionIndex === selectedOption)
-      //                       ? colors.active.text
-      //                       : colors.text,
-      //                     borderRadius: 10,
-      //                   }}
-      //                 >{option.title}</Text>
-      //               </TouchableOpacity>
-      //               {
-      //                 (index === selectedPlugin && optionIndex === selectedOption)
-      //                   ? <>
-      //                     <Text
-      //                       style={{
-      //                         fontSize: 10,
-      //                         color: (index === selectedPlugin && optionIndex === selectedOption)
-      //                           ? colors.active.text
-      //                           : colors.text,
-      //                         opacity: 0.3,
-      //                         marginLeft: 'auto',
-      //                         // marginLeft: 10,
-      //                       }}
-      //                     >{option.subtitle}</Text>
-      //                     <OptionKey style={{ marginLeft: 5, marginRight: 5 }} placeholder={'enter'}></OptionKey>
-      //                     { option.onQuery ? <OptionKey placeholder={'tab'}></OptionKey> : null }
-      //                   </>
-      //                   : null
-      //               }
-      //             </View>
-      //             : null
-      //         ))
-      //     }
-      //   </View> : null}
-      // </View>
-
-          // {item[1] !== 'loading' && item[1]?.length > displayOptions && !expandedPlugins.filter(e => e === index).length
-          //   ? <TouchableOpacity onPress={() => onSubmit(index, displayOptions)} style={{
-          //     backgroundColor: selectedOption === displayOptions && selectedPlugin === index
-          //       ? colors.active.background
-          //       : colors.active.border,
-          //     borderRadius: 10,
-          //     display: 'flex',
-          //     flexDirection: 'row',
-          //     alignItems: 'center',
-          //     justifyContent: 'center',
-          //     marginLeft: 10,
-          //     marginRight: 10,
-          //     height: dimensions.expand,
-          //   }}>
-          //     <Text style={{
-          //       fontSize: 10,
-          //       opacity: 0.5,
-          //       color: selectedOption === displayOptions && selectedPlugin === index
-          //         ? colors.active.text
-          //         : colors.text,
-          //     }}>•••</Text>
-          //   </TouchableOpacity>
-          //   : null
-          // }

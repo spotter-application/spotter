@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../providers';
-import { Options } from './options.component';
+import { OptionIcon, Options } from './options.component';
 import { InputNative } from '../core/native';
 import { useEvents } from '../providers/events.provider';
 
@@ -27,6 +27,7 @@ export const QueryPanel: FC<{}> = () => {
     loading,
     query,
     selectedOptionIndex,
+    shouldShowOptions,
   } = useEvents();
 
   return <>
@@ -34,7 +35,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(options?.length ? styles.inputWithResults : {}),
+        ...(options?.length && shouldShowOptions ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -43,7 +44,7 @@ export const QueryPanel: FC<{}> = () => {
           style={{ flex: 1 }}
           value={query}
           placeholder='Query...'
-          hint={''}
+          hint={options?.length ? options[0].title : ''}
           onChangeText={onQuery}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}
@@ -55,19 +56,23 @@ export const QueryPanel: FC<{}> = () => {
         ></InputNative>
 
         <View style={{marginLeft: 10}}>
-          {loading
-            ? <ActivityIndicator size="small" color={colors.active.highlight} />
+          {/* {loading
+            ? <ActivityIndicator size="small" color={colors.active.highlight} style={{opacity: 0.3}} />
             : null
-          }
+          } */}
+          {options[selectedOptionIndex] && <OptionIcon style={{}} icon={options[selectedOptionIndex].icon}></OptionIcon>}
         </View>
 
       </View>
-      <Options
-        style={{ ...styles.options, backgroundColor: colors.background }}
-        selectedOptionIndex={selectedOptionIndex}
-        options={options}
-        onSubmit={onSubmit}
-      ></Options>
+      {
+        shouldShowOptions && <Options
+          style={{ ...styles.options, backgroundColor: colors.background }}
+          selectedOptionIndex={selectedOptionIndex}
+          options={options}
+          onSubmit={onSubmit}
+        ></Options>
+      }
+
     </SafeAreaView>
   </>
 }

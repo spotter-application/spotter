@@ -4,8 +4,8 @@ import {
   OutputCommand,
   OutputCommandType,
 } from '@spotter-app/core/dist/interfaces';
-import React, { FC, useEffect, useState } from 'react';
-import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import React, { FC, useEffect, useRef, useState } from 'react';
+import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   HandleCommandResult,
   PluginOutputCommand,
@@ -31,6 +31,7 @@ type Context = {
   options: SpotterPluginOption[],
   loading: boolean,
   selectedOptionIndex: number,
+  shouldShowOptions: boolean,
 };
 
 const context: Context = {
@@ -46,6 +47,7 @@ const context: Context = {
   options: [],
   loading: false,
   selectedOptionIndex: 0,
+  shouldShowOptions: false,
 }
 
 export const EventsContext = React.createContext<Context>(context);
@@ -61,6 +63,10 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
+
+  const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
+
+  const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
 
   useEffect(() => {
     onInit();
@@ -133,6 +139,11 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onEscape = () => {
     reset();
+    setShouldShowOptions(false);
+    if (shouldShowOptionsTimer.current) {
+      clearTimeout(shouldShowOptionsTimer.current);
+    }
+    shouldShowOptionsTimer.current = null;
     api.panel.close();
   }
 
@@ -189,6 +200,18 @@ export const EventsProvider: FC<{}> = (props) => {
       ...options,
       ...(optionsToSet ?? []),
     ]));
+
+    if (!shouldShowOptionsTimer.current) {
+      shouldShowOptionsTimer.current = setTimeout(() => {
+        setShouldShowOptions(prevShouldShowOptions => {
+          if (!prevShouldShowOptions) {
+            return true;
+          }
+
+          return prevShouldShowOptions;
+        });
+      }, SHOW_OPTIONS_DELAY);
+    }
   };
 
   const onExternalPluginsQuery = async (q: string): Promise<PluginOutputCommand[]> => {
@@ -343,6 +366,7 @@ export const EventsProvider: FC<{}> = (props) => {
       options,
       loading,
       selectedOptionIndex,
+      shouldShowOptions,
     }}>
       {props.children}
     </EventsContext.Provider>
