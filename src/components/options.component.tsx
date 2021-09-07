@@ -1,5 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Image, Text, View, ViewStyle, TouchableOpacity, ImageStyle } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+  FlatList,
+  Image,
+  Text,
+  View,
+  ViewStyle,
+  TouchableOpacity,
+  ImageStyle,
+} from 'react-native';
 import { SpotterOptionBaseImage, SpotterPluginOption } from '../core';
 import { IconImageNative } from '../core/native';
 import { useTheme } from '../providers';

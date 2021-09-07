@@ -225,61 +225,61 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   };
 
-  const onExternalPluginsQuery = async (q: string): Promise<PluginOutputCommand[]> => {
-    const plugins = settings?.plugins ?? [];
+  // const onExternalPluginsQuery = async (q: string): Promise<PluginOutputCommand[]> => {
+  //   const plugins = settings?.plugins ?? [];
 
-    const pluginsOptions: PluginOutputCommand[][] = await Promise.all(plugins.map(async plugin => {
-      const inputCommand: InputCommand = {
-        type: InputCommandType.onQuery,
-        query: q,
-        storage: {},
-      };
+  //   const pluginsOptions: PluginOutputCommand[][] = await Promise.all(plugins.map(async plugin => {
+  //     const inputCommand: InputCommand = {
+  //       type: InputCommandType.onQueryAction,
+  //       query: q,
+  //       storage: {},
+  //     };
 
-      return await api.shell
-        .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
-        .catch(error => {
-          const outputCommand: PluginOutputCommand = {
-            type: OutputCommandType.setOptions,
-            value: [{
-              title: `Error in ${plugin}: ${error}`,
-            }],
-            plugin,
-          }
+  //     return await api.shell
+  //       .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
+  //       .catch(error => {
+  //         const outputCommand: PluginOutputCommand = {
+  //           type: OutputCommandType.setOptions,
+  //           value: [{
+  //             title: `Error in ${plugin}: ${error}`,
+  //           }],
+  //           plugin,
+  //         }
 
-          return JSON.stringify(outputCommand);
-        })
-        .then(v => parseCommands(plugin, v));
-    }));
+  //         return JSON.stringify(outputCommand);
+  //       })
+  //       .then(v => parseCommands(plugin, v));
+  //   }));
 
-    return pluginsOptions.flat();
+  //   return pluginsOptions.flat();
 
-    // return await Promise.all(await plugins.reduce<Promise<PluginOutputCommand[]>>(async (asyncAcc, plugin) => {
-    //   const inputCommand: InputCommand = {
-    //     type: InputCommandType.onQuery,
-    //     query: q,
-    //     storage: {},
-    //   };
+  //   // return await Promise.all(await plugins.reduce<Promise<PluginOutputCommand[]>>(async (asyncAcc, plugin) => {
+  //   //   const inputCommand: InputCommand = {
+  //   //     type: InputCommandType.onQuery,
+  //   //     query: q,
+  //   //     storage: {},
+  //   //   };
 
-    //   const commands: OutputCommand[] = await api.shell
-    //     .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
-    //     .catch(error => {
-    //       const outputCommand: OutputCommand = {
-    //         type: OutputCommandType.setOptions,
-    //         value: [{
-    //           title: `Error in ${plugin}: ${error}`,
-    //         }],
-    //       }
+  //   //   const commands: OutputCommand[] = await api.shell
+  //   //     .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
+  //   //     .catch(error => {
+  //   //       const outputCommand: OutputCommand = {
+  //   //         type: OutputCommandType.setOptions,
+  //   //         value: [{
+  //   //           title: `Error in ${plugin}: ${error}`,
+  //   //         }],
+  //   //       }
 
-    //       return JSON.stringify(outputCommand);
-    //     })
-    //     .then(v => parseCommands(plugin, v));
+  //   //       return JSON.stringify(outputCommand);
+  //   //     })
+  //   //     .then(v => parseCommands(plugin, v));
 
-    //   return [
-    //     ...(await asyncAcc),
-    //     ...commands.map(c => ({...c, plugin})),
-    //   ];
-    // }, Promise.resolve([])));
-  }
+  //   //   return [
+  //   //     ...(await asyncAcc),
+  //   //     ...commands.map(c => ({...c, plugin})),
+  //   //   ];
+  //   // }, Promise.resolve([])));
+  // }
 
   const onArrowUp = () => {
     if (selectedOptionIndex <= 0) {
@@ -314,8 +314,8 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const command: InputCommand = {
       type: InputCommandType.onAction,
-      arguments: option.arguments ?? [],
       action: option.action ?? '',
+      query,
       storage: {},
     }
 
