@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import {Alert, Switch, Text, View} from 'react-native';
+import { Alert, Switch, Text, View } from 'react-native';
 import {
   getAllApplications,
   Application,

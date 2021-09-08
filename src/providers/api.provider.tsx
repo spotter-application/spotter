@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { SpotterApi, SpotterRegistries } from '../core';
+import { SpotterApi } from '../core';
 import {
   ApplicationsNative,
   ClipboardNative,
@@ -11,10 +11,6 @@ import {
   PanelNative,
   BluetoothNative,
 } from '../core/native';
-import {
-  SettingsRegistry,
-  HistoryRegistry,
-} from '../core/registries';
 
 const globalHotKey = new GlobalHotkeyNative();
 const applications = new ApplicationsNative();
@@ -38,51 +34,18 @@ const api = {
   bluetooth,
 };
 
-const history = new HistoryRegistry(api);
-const settings = new SettingsRegistry(api);
-
-const registries = {
-  settings,
-  history,
-};
-
 type Context = {
   api: SpotterApi,
-  registries: SpotterRegistries,
 };
-
-export enum SpotterCommands {
-  setStorageItem = 'SET_STORAGE_ITEM',
-  getStorageItem = 'GET_STORAGE_ITEM',
-}
-
-function execCommand<T>(command: SpotterCommands.getStorageItem, data: string): Promise<T>;
-function execCommand(command: SpotterCommands.setStorageItem, data: { key: string, value: string }): void;
-function execCommand(command: SpotterCommands, data: any) {
-
-  switch (command) {
-    case SpotterCommands.getStorageItem:
-      return api.storage.getItem(data);
-    case SpotterCommands.setStorageItem:
-      return api.storage.setItem(data.key, data.value);
-    default:
-      break;
-  }
-
-}
-
-// const result = execCommand<string>(SpotterCommands.getStorageItem, 'test');
 
 export const ApiContext = React.createContext<Context>({
   api,
-  registries,
 });
 
 export const ApiProvider: FC<{}> = (props) => {
 
   const value = {
     api,
-    registries,
   };
 
   return (

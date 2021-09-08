@@ -21,26 +21,11 @@ export interface SpotterApi {
   bluetooth: SpotterBluetooth,
 }
 
-export interface SpotterRegistries {
-  settings: SpotterSettingsRegistry,
-  history: SpotterHistoryRegistry,
-}
-
 export type SpotterOptionWithPluginIdentifierMap = {
   [pluginIdentifier: string]: SpotterOption[] | null,
 }
 
 export type SpotterQueryCallback = (query: string, optionsMap: SpotterOptionWithPluginIdentifierMap ) => void;
-
-export declare abstract class SpotterSettingsRegistry {
-  abstract getSettings(): Promise<SpotterSettings>;
-  abstract patchSettings(settings: Partial<SpotterSettings>): Promise<void>;
-}
-
-export declare abstract class SpotterHistoryRegistry {
-  abstract getOptionsHistory(): Promise<SpotterHistory>;
-  abstract increaseOptionHistory(path: string[], query: string): void;
-}
 
 export declare abstract class SpotterShell {
   abstract execute(command: string): Promise<string>;
