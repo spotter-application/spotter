@@ -31,8 +31,9 @@ type Context = {
   onBackspace: () => void,
   query: string,
   options: Array<InternalPluginOption | ExternalPluginOption>,
+  selectedOption: InternalPluginOption | ExternalPluginOption | null,
   loading: boolean,
-  selectedOptionIndex: number,
+  hoveredOptionIndex: number,
   shouldShowOptions: boolean,
 };
 
@@ -47,8 +48,9 @@ const context: Context = {
   onBackspace: () => null,
   query: '',
   options: [],
+  selectedOption: null,
   loading: false,
-  selectedOptionIndex: 0,
+  hoveredOptionIndex: 0,
   shouldShowOptions: false,
 }
 
@@ -62,8 +64,9 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<Array<ExternalPluginOption | InternalPluginOption>>([]);
+  const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
-  const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
+  const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
 
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
@@ -145,7 +148,8 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery('');
     setLoading(false);
     setOptions([]);
-    setSelectedOptionIndex(0);
+    setHoveredOptionIndex(0);
+    setSelectedOption(null);
   }
 
   const onEscape = () => {
@@ -156,6 +160,24 @@ export const EventsProvider: FC<{}> = (props) => {
     }
     shouldShowOptionsTimer.current = null;
     api.panel.close();
+  }
+
+  const onBackspace = () => {
+    if (selectedOption && !query.length) {
+      reset();
+    }
+  }
+
+  const onTab = () => {
+    const option = options[hoveredOptionIndex];
+
+    if (!option || !option.queryAction) {
+      return;
+    }
+
+    setSelectedOption(option);
+    setQuery('');
+    setOptions([]);
   }
 
   const triggerOnInitForPlugin = async (
@@ -238,21 +260,21 @@ export const EventsProvider: FC<{}> = (props) => {
   };
 
   const onArrowUp = () => {
-    if (selectedOptionIndex <= 0) {
-      setSelectedOptionIndex(options.length - 1);
+    if (hoveredOptionIndex <= 0) {
+      setHoveredOptionIndex(options.length - 1);
       return;
     }
 
-    setSelectedOptionIndex(selectedOptionIndex - 1)
+    setHoveredOptionIndex(hoveredOptionIndex - 1)
   };
 
   const onArrowDown = () => {
-    if (selectedOptionIndex >= options.length - 1) {
-      setSelectedOptionIndex(0);
+    if (hoveredOptionIndex >= options.length - 1) {
+      setHoveredOptionIndex(0);
       return;
     }
 
-    setSelectedOptionIndex(selectedOptionIndex + 1)
+    setHoveredOptionIndex(hoveredOptionIndex + 1)
   };
 
   const onSubmitInternalOption = (option: InternalPluginOption) => {
@@ -279,10 +301,10 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onSubmit = async (index?: number) => {
     if (index || index === 0) {
-      setSelectedOptionIndex(index);
+      setHoveredOptionIndex(index);
     }
 
-    const option = options[selectedOptionIndex];
+    const option = options[hoveredOptionIndex];
 
     if (!option) {
       return;
@@ -372,12 +394,15 @@ export const EventsProvider: FC<{}> = (props) => {
       onEscape,
       onArrowUp,
       onArrowDown,
+      onTab,
+      onBackspace,
       onSubmit,
       query,
       options,
       loading,
-      selectedOptionIndex,
+      hoveredOptionIndex,
       shouldShowOptions,
+      selectedOption,
     }}>
       {props.children}
     </EventsContext.Provider>

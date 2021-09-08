@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import { useTheme } from '../providers';
@@ -25,8 +26,9 @@ export const QueryPanel: FC<{}> = () => {
     options,
     loading,
     query,
-    selectedOptionIndex,
+    hoveredOptionIndex,
     shouldShowOptions,
+    selectedOption,
   } = useEvents();
 
   return <>
@@ -39,6 +41,25 @@ export const QueryPanel: FC<{}> = () => {
         flexDirection: 'row',
         alignItems: 'center',
       }}>
+        {
+          selectedOption ?
+          // TODO: Create component
+            <View style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.active.highlight,
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 10,
+              marginRight: 5,
+              padding: 5,
+            }}>
+              <OptionIcon style={{ paddingRight: 3 }} icon={selectedOption.icon}></OptionIcon>
+              <Text style={{ fontSize: 16 }}>{selectedOption.title}</Text>
+            </View>
+          : null
+        }
         <InputNative
           style={{ flex: 1 }}
           value={query}
@@ -59,14 +80,14 @@ export const QueryPanel: FC<{}> = () => {
             ? <ActivityIndicator size="small" color={colors.active.highlight} style={{opacity: 0.3}} />
             : null
           } */}
-          {options[selectedOptionIndex] && <OptionIcon style={{}} icon={options[selectedOptionIndex].icon}></OptionIcon>}
+          {options[hoveredOptionIndex] && <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon>}
         </View>
 
       </View>
       {
         shouldShowOptions && <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
-          selectedOptionIndex={selectedOptionIndex}
+          hoveredOptionIndex={hoveredOptionIndex}
           options={options}
           onSubmit={onSubmit}
         ></Options>

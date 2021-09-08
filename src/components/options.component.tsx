@@ -8,20 +8,20 @@ import {
   TouchableOpacity,
   ImageStyle,
 } from 'react-native';
-import { SpotterOptionBaseImage, ExternalPluginOption } from '../core';
+import { SpotterOptionBaseImage, ExternalPluginOption, InternalPluginOption } from '../core';
 import { IconImageNative } from '../core/native';
 import { useTheme } from '../providers';
 
 type OptionsProps = {
-  options: ExternalPluginOption[];
-  selectedOptionIndex: number;
+  options: Array<ExternalPluginOption | InternalPluginOption>;
+  hoveredOptionIndex: number;
   onSubmit: (index: number) => void;
   style: ViewStyle;
 }
 
 export const Options = ({
   options,
-  selectedOptionIndex = 0,
+  hoveredOptionIndex = 0,
   onSubmit,
   style,
 }: OptionsProps) => {
@@ -31,7 +31,7 @@ export const Options = ({
   useEffect(() => {
     if (refContainer.current && options?.length) {
       const offset = 10;
-      const indexWithOffset = selectedOptionIndex - offset;
+      const indexWithOffset = hoveredOptionIndex - offset;
       const index = indexWithOffset < 0 ? 0 : indexWithOffset;
       refContainer.current.scrollToIndex({ animated: true, index });
     }
@@ -50,7 +50,7 @@ export const Options = ({
           <TouchableOpacity onPress={() => onSubmit(index)}>
             <Option
               option={item}
-              active={selectedOptionIndex === index}
+              active={hoveredOptionIndex === index}
             />
           </TouchableOpacity>
         )}
@@ -131,6 +131,10 @@ export const OptionHotkeyHints = ({
     alignItems: 'center',
     ...(style ? style : {}),
   }}>
+    {option?.queryAction
+      ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
+      : null
+    }
     {option?.action
       ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null

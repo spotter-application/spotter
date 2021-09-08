@@ -6,7 +6,9 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
     return [{
       title: 'internal plugins list',
       icon,
-      action: () => console.log('YEAH!')
+      queryAction: (query: string) => {
+        return [];
+      }
     }];
   }
 }
