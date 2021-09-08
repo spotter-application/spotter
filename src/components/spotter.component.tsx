@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import {
+  ActivityIndicator,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -64,7 +65,7 @@ export const QueryPanel: FC<{}> = () => {
           style={{ flex: 1 }}
           value={query}
           placeholder='Query...'
-          hint={options?.length ? options[0].title : ''}
+          hint={query?.length && options?.length ? options[0].title : ''}
           onChangeText={onQuery}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}
@@ -76,10 +77,10 @@ export const QueryPanel: FC<{}> = () => {
         ></InputNative>
 
         <View style={{marginLeft: 10}}>
-          {/* {loading
+          {loading
             ? <ActivityIndicator size="small" color={colors.active.highlight} style={{opacity: 0.3}} />
             : null
-          } */}
+          }
           {options[hoveredOptionIndex] && <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon>}
         </View>
 

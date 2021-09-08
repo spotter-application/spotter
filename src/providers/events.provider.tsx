@@ -168,7 +168,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   }
 
-  const onTab = () => {
+  const onTab = async () => {
     const option = options[hoveredOptionIndex];
 
     if (!option || !option.queryAction) {
@@ -177,7 +177,23 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setSelectedOption(option);
     setQuery('');
-    setOptions([]);
+
+    const selectedOptionOptions: InternalPluginOption[] = isExternalPluginOption(option)
+      ? []
+      : await onQueryInternalPluginAction(option, '');
+
+    setOptions(selectedOptionOptions);
+  }
+
+  const onQueryInternalPluginAction = async (
+    option: InternalPluginOption,
+    query: string
+  ): Promise<InternalPluginOption[]> => {
+    if (!option || !option.queryAction) {
+      return [];
+    }
+
+    return await option.queryAction(query);
   }
 
   const triggerOnInitForPlugin = async (
@@ -228,6 +244,15 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     setQuery(q);
+
+    if (selectedOption) {
+      const selectedOptionOptions: InternalPluginOption[] = isExternalPluginOption(selectedOption)
+        ? []
+        : await onQueryInternalPluginAction(selectedOption, q);
+
+      setOptions(selectedOptionOptions);
+      return;
+    }
 
     if (q === '') {
       reset();
@@ -307,6 +332,11 @@ export const EventsProvider: FC<{}> = (props) => {
     const option = options[hoveredOptionIndex];
 
     if (!option) {
+      return;
+    }
+
+    if (!option.action && option.queryAction) {
+      onTab();
       return;
     }
 

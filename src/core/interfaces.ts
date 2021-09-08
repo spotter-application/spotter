@@ -101,7 +101,7 @@ export type InternalPluginOption = {
   subtitle?: string;
   icon?: string;
   action?: () => void,
-  queryAction?: (query: string) => InternalPluginOption[],
+  queryAction?: (query: string) => InternalPluginOption[] | Promise<InternalPluginOption[]>,
 }
 
 export declare abstract class InternalPluginLifecycle {
