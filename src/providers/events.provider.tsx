@@ -59,7 +59,7 @@ export const EventsContext = React.createContext<Context>(context);
 export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
-  const { getSettings, addPlugin } = useSettings();
+  const { getSettings, addPlugin, removePlugin } = useSettings();
 
   const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
@@ -73,8 +73,142 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
 
+  const sortOptions = (
+    options: Array<InternalPluginOption | ExternalPluginOption>
+  ): Array<InternalPluginOption | ExternalPluginOption> => {
+    // TODO: do
+    return options;
+  }
+
+  const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
+    return commands.reduce<HandleCommandResult>((acc, command) => {
+      const handleCommandResult: HandleCommandResult = handleCommand(command);
+
+      const optionsToRegister: RegisteredOptions | null = handleCommandResult.optionsToRegister
+        ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
+        : acc.optionsToRegister;
+
+      const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
+        ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
+        : acc.optionsToSet;
+
+      return {
+        optionsToRegister,
+        optionsToSet,
+        queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
+      };
+    }, {
+      optionsToRegister: null,
+      optionsToSet: null,
+      queryToSet: null,
+    });
+  }
+
+  const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
+    const initialData: HandleCommandResult = {
+      optionsToRegister: null,
+      optionsToSet: null,
+      queryToSet: null,
+    };
+
+    if (command.type === OutputCommandType.registerOptions) {
+      return {
+        ...initialData,
+        optionsToRegister: {
+          [command.plugin]: command.value.map(o =>
+            ({ ...o, plugin: command.plugin })
+          ),
+        }
+      };
+    }
+
+    if (command.type === OutputCommandType.setOptions) {
+      setOptions((prevOptions) => sortOptions([
+        ...prevOptions,
+        ...command.value.map(o => ({...o, plugin: command.plugin})),
+      ]));
+      return {
+        ...initialData,
+        optionsToSet: command.value.map(o => ({...o, plugin: command.plugin})),
+      };
+    }
+
+    if (command.type === OutputCommandType.setQuery) {
+      setQuery(command.value);
+      return {
+        ...initialData,
+        queryToSet: command.value,
+      };
+    }
+
+    return initialData;
+  }
+
+  const triggerOnInitForPlugin = async (
+    plugin: string | InternalPluginLifecycle,
+  ): Promise<PluginOutputCommand[]> => {
+    const command: InputCommand = {
+      type: InputCommandType.onInit,
+      storage: {},
+    };
+
+    const isInternalPlugin = typeof plugin === 'object';
+
+    if (isInternalPlugin) {
+      if (!plugin?.onInit) {
+        return [];
+      }
+
+      const outputCommand: PluginOutputCommand = {
+        type: OutputCommandType.registerOptions,
+        value: await plugin.onInit() ?? [],
+        plugin: '',
+      };
+      return Promise.resolve([outputCommand]);
+    }
+
+    return await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+      .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
+      .catch(error => {
+        console.log(error);
+
+        const outputCommand: PluginOutputCommand = {
+          type: OutputCommandType.setOptions,
+          value: [{
+            title: `Error in ${plugin}: ${error}`,
+          }],
+          plugin,
+        };
+
+        return [outputCommand];
+      });
+  }
+
+  const registerPlugin = async (plugin: string) => {
+    addPlugin(plugin);
+    const commands = await triggerOnInitForPlugin(plugin);
+
+    const { optionsToRegister } = handleCommands(commands);
+
+    if (optionsToRegister) {
+      setRegisteredOptions(prevOptions => ({
+        ...prevOptions,
+        ...optionsToRegister,
+      }));
+    }
+  }
+
+  const unregisterPlugin = (plugin: string) => {
+    removePlugin(plugin);
+    setRegisteredOptions((prevRegisteredOptions) => ({
+      ...prevRegisteredOptions,
+      [plugin]: [],
+    }));
+    reset();
+  }
+
   const internalPlugins: InternalPluginLifecycle[] = [
-    new PluginsPlugin(api),
+    new PluginsPlugin(api, getSettings, registerPlugin, unregisterPlugin),
   ];
 
   useEffect(() => {
@@ -101,7 +235,14 @@ export const EventsProvider: FC<{}> = (props) => {
       Promise.resolve([]),
     );
 
-    const { optionsToRegister } = handleCommands(externalPluginsCommands);
+    const {
+      optionsToRegister,
+      optionsToSet,
+    } = handleCommands(externalPluginsCommands);
+
+    if (optionsToSet) {
+      setOptions(optionsToSet);
+    }
 
     if (optionsToRegister) {
       setRegisteredOptions(prevOptions => ({
@@ -110,18 +251,6 @@ export const EventsProvider: FC<{}> = (props) => {
       }));
     }
   };
-
-  const sortOptions = (
-    options: Array<InternalPluginOption | ExternalPluginOption>
-  ): Array<InternalPluginOption | ExternalPluginOption> => {
-    // TODO: do
-    return options;
-  }
-
-  const registerPlugin = (plugin: string) => {
-    addPlugin(plugin);
-    triggerOnInitForPlugin(plugin);
-  }
 
   const registerGlobalHotkeys = async (settings: Settings) => {
     api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
@@ -183,6 +312,7 @@ export const EventsProvider: FC<{}> = (props) => {
       : await onQueryInternalPluginAction(option, '');
 
     setOptions(selectedOptionOptions);
+    setHoveredOptionIndex(0);
   }
 
   const onQueryInternalPluginAction = async (
@@ -196,52 +326,15 @@ export const EventsProvider: FC<{}> = (props) => {
     return await option.queryAction(query);
   }
 
-  const triggerOnInitForPlugin = async (
-    plugin: string | InternalPluginLifecycle,
-  ): Promise<PluginOutputCommand[]> => {
-    const command: InputCommand = {
-      type: InputCommandType.onInit,
-      storage: {},
-    };
-
-    const isInternalPlugin = typeof plugin === 'object';
-
-    if (isInternalPlugin) {
-      if (!plugin?.onInit) {
-        return [];
-      }
-
-      const outputCommand: PluginOutputCommand = {
-        type: OutputCommandType.registerOptions,
-        value: plugin.onInit() ?? [],
-        plugin: '',
-      };
-      return Promise.resolve([outputCommand]);
-    }
-
-    return await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-      .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
-      .catch(error => {
-        const outputCommand: PluginOutputCommand = {
-          type: OutputCommandType.setOptions,
-          value: [{
-            title: `Error in ${plugin}: ${error}`,
-          }],
-          plugin,
-        };
-
-        return [outputCommand];
-      });
-  }
-
   const onQuery = async (q: string) => {
-    if (!settings?.plugins?.length) {
-      setOptions([{
-        title: 'You don`t have any installed plugins',
-        plugin: '',
-      }]);
-      return;
-    }
+    // if (!settings?.plugins?.filter(p => typeof p === 'string').length) {
+      // TODO: add warning message UI
+      // setOptions([{
+      //   title: 'You don`t have any installed plugins',
+      //   plugin: '',
+      // }]);
+      // return;
+    // }
 
     setQuery(q);
 
@@ -351,70 +444,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const parseCommands = (plugin: string, value: string): PluginOutputCommand[] => {
     return value ? value.split('\n').map(c => ({...JSON.parse(c), plugin})) : [];
-  }
-
-  const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
-    return commands.reduce<HandleCommandResult>((acc, command) => {
-      const handleCommandResult: HandleCommandResult = handleCommand(command);
-
-      const optionsToRegister: RegisteredOptions | null = handleCommandResult.optionsToRegister
-        ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
-        : acc.optionsToRegister;
-
-      const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
-        ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
-        : acc.optionsToSet;
-
-      return {
-        optionsToRegister,
-        optionsToSet,
-        queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
-      };
-    }, {
-      optionsToRegister: null,
-      optionsToSet: null,
-      queryToSet: null,
-    });
-  }
-
-  const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
-    const initialData: HandleCommandResult = {
-      optionsToRegister: null,
-      optionsToSet: null,
-      queryToSet: null,
-    };
-
-    if (command.type === OutputCommandType.registerOptions) {
-      return {
-        ...initialData,
-        optionsToRegister: {
-          [command.plugin]: command.value.map(o =>
-            ({ ...o, plugin: command.plugin })
-          ),
-        }
-      };
-    }
-
-    if (command.type === OutputCommandType.setOptions) {
-      setOptions((prevOptions) => sortOptions([
-        ...prevOptions,
-        ...command.value.map(o => ({...o, plugin: command.plugin})),
-      ]));
-      return {
-        ...initialData,
-        optionsToSet: command.value.map(o => ({...o, plugin: command.plugin})),
-      };
-    }
-
-    if (command.type === OutputCommandType.setQuery) {
-      setQuery(command.value);
-      return {
-        ...initialData,
-        queryToSet: command.value,
-      };
-    }
-
-    return initialData;
   }
 
   return (

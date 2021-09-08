@@ -17,7 +17,6 @@ type Context = {
   getPlugins: () => Promise<string[]>;
   addPlugin: (plugin: string) => void,
   removePlugin: (plugin: string) => void,
-
 };
 
 const initialSettings: Settings = {

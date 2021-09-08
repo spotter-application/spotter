@@ -105,7 +105,7 @@ export type InternalPluginOption = {
 }
 
 export declare abstract class InternalPluginLifecycle {
-  abstract onInit?(): InternalPluginOption[];
+  abstract onInit?(): InternalPluginOption[] | Promise<InternalPluginOption[]>;
 }
 
 export interface SpotterPluginConstructor {
