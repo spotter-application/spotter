@@ -1,11 +1,11 @@
 import {
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 
-export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class PreferencesPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Preferences';
 

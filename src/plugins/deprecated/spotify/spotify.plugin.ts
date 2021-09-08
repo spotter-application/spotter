@@ -2,15 +2,15 @@ import {
   Application,
   getAllApplications,
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 import SpotifyWebApi from 'spotify-web-api-node';
 import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 
-export class SpotifyPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class SpotifyPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Spotify';
 

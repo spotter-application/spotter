@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle } from '../../../core';
 import data from './currencies.json';
 
 interface Currency {
@@ -22,7 +22,7 @@ const DEFAULT_CURRENCIES = [
 
 const CURRENCIES_TO_HISTORY = 'CURRENCIES_TO_HISTORY';
 
-export class CurrencyConverter extends SpotterPlugin implements SpotterPluginLifecycle {
+export class CurrencyConverter extends InternalPlugin implements InternalPluginLifecycle {
 
   public identifier = 'Currency Converter';
 

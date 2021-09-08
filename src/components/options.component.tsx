@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   ImageStyle,
 } from 'react-native';
-import { SpotterOptionBaseImage, SpotterPluginOption } from '../core';
+import { SpotterOptionBaseImage, ExternalPluginOption } from '../core';
 import { IconImageNative } from '../core/native';
 import { useTheme } from '../providers';
 
 type OptionsProps = {
-  options: SpotterPluginOption[];
+  options: ExternalPluginOption[];
   selectedOptionIndex: number;
   onSubmit: (index: number) => void;
   style: ViewStyle;
@@ -63,7 +63,7 @@ export const Option = ({
   option,
   active,
 }: {
-  option: SpotterPluginOption,
+  option: ExternalPluginOption,
   active: boolean,
 }) => {
   const { colors } = useTheme();
@@ -122,7 +122,7 @@ export const OptionHotkeyHints = ({
   option,
   style,
 }: {
-  option: SpotterPluginOption,
+  option: ExternalPluginOption,
   style?: ViewStyle,
 }) => {
   return <View style={{

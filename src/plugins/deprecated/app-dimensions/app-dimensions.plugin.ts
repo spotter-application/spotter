@@ -1,15 +1,15 @@
 import {
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   SystemApplicationDimensions,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 import icon from './icon.png';
 
 const APPLICATION_POSITIONS_STORAGE_KEY = '@application-positions';
 
-export class AppDimensionsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class AppDimensionsPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'App Dimensions';
 

@@ -5,7 +5,7 @@ import {
   SpotterHistory,
   SpotterHotkeyEvent,
   SpotterOption,
-  SpotterPluginOption,
+  ExternalPluginOption,
   SpotterRegistries,
   SpotterShell,
 } from './interfaces';
@@ -117,16 +117,16 @@ export function omit<T>(keys: string[], obj: { [key: string]: any }): T  {
   ) as T;
 }
 
-function getFullHistoryPath(option: string, activeOption: SpotterPluginOption | null): string {
+function getFullHistoryPath(option: string, activeOption: ExternalPluginOption | null): string {
   return activeOption ? `${activeOption.title}#${option}` : option;
 }
 
 export async function sortOptions(
   query: string,
-  options: SpotterPluginOption[],
+  options: ExternalPluginOption[],
   optionsHistory: SpotterHistory,
-  activeOption: SpotterPluginOption | null,
-): Promise<SpotterPluginOption[]> {
+  activeOption: ExternalPluginOption | null,
+): Promise<ExternalPluginOption[]> {
   return options
     .sort((a, b) => (
       (Object.entries(optionsHistory[getFullHistoryPath(b.title, activeOption)]?.queries ?? {})

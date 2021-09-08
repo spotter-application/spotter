@@ -1,8 +1,8 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle, spotterSearch } from '../../../core';
 
 const HISTORY_URLS_STORAGE_KEY = 'HISTORY_URLS_STORAGE_KEY';
 
-export class BrowserPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class BrowserPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Browser';
 

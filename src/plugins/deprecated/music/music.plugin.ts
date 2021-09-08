@@ -2,12 +2,12 @@ import {
   Application,
   getAllApplications,
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 
-export class MusicPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class MusicPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Apple Music';
 

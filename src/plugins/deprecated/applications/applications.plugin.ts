@@ -1,12 +1,12 @@
 import {
   getAllApplications,
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 
-export class ApplicationsPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class ApplicationsPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Applications'
 

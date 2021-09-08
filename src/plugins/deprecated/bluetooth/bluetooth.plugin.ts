@@ -1,8 +1,8 @@
-import { SpotterBluetoothItem, SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
+import { SpotterBluetoothItem, SpotterOption, InternalPlugin, InternalPluginLifecycle, spotterSearch } from '../../../core';
 import icon from './icon.png';
 import iconInactive from './icon_inactive.png';
 
-export class BluetoothPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class BluetoothPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Bluetooth';
 

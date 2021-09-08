@@ -1,11 +1,11 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch, SpotterShell } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle, spotterSearch, SpotterShell } from '../../../core';
 import icon from './icon.png';
 
 interface Gpg {
   title: string
 }
 
-export class PassPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class PassPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Pass';
 

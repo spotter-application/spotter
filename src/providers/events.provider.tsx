@@ -8,15 +8,17 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   HandleCommandResult,
+  InternalPluginLifecycle,
   PluginOutputCommand,
   RegisteredOptions,
   SpotterHotkeyEvent,
-  SpotterPluginOption,
+  ExternalPluginOption,
+  InternalPluginOption,
+  isExternalPluginOption,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
-
-const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH"';
+import { PluginsPlugin } from '../plugins/plugins.plugin';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -28,7 +30,7 @@ type Context = {
   onTab: () => void,
   onBackspace: () => void,
   query: string,
-  options: SpotterPluginOption[],
+  options: Array<InternalPluginOption | ExternalPluginOption>,
   loading: boolean,
   selectedOptionIndex: number,
   shouldShowOptions: boolean,
@@ -59,7 +61,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
-  const [ options, setOptions ] = useState<SpotterPluginOption[]>([]);
+  const [ options, setOptions ] = useState<Array<ExternalPluginOption | InternalPluginOption>>([]);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ selectedOptionIndex, setSelectedOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
@@ -67,6 +69,10 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
+
+  const internalPlugins: InternalPluginLifecycle[] = [
+    new PluginsPlugin(api),
+  ];
 
   useEffect(() => {
     onInit();
@@ -79,17 +85,20 @@ export const EventsProvider: FC<{}> = (props) => {
 
     registerGlobalHotkeys(settings);
 
-    const commands = await settings.plugins.reduce<Promise<PluginOutputCommand[]>>(
+    const externalPluginsCommands = await [
+      ...internalPlugins,
+      ...settings.plugins
+    ].reduce<Promise<PluginOutputCommand[]>>(
       async (asyncAcc, plugin) => {
         return [
           ...(await asyncAcc),
           ...(await triggerOnInitForPlugin(plugin)),
         ]
       },
-      Promise.resolve([])
+      Promise.resolve([]),
     );
 
-    const { optionsToRegister } = handleCommands(commands);
+    const { optionsToRegister } = handleCommands(externalPluginsCommands);
 
     if (optionsToRegister) {
       setRegisteredOptions(prevOptions => ({
@@ -99,7 +108,9 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   };
 
-  const sortOptions = (options: SpotterPluginOption[]): SpotterPluginOption[] => {
+  const sortOptions = (
+    options: Array<InternalPluginOption | ExternalPluginOption>
+  ): Array<InternalPluginOption | ExternalPluginOption> => {
     // TODO: do
     return options;
   }
@@ -147,13 +158,30 @@ export const EventsProvider: FC<{}> = (props) => {
     api.panel.close();
   }
 
-  const triggerOnInitForPlugin = async (plugin: string): Promise<PluginOutputCommand[]> => {
+  const triggerOnInitForPlugin = async (
+    plugin: string | InternalPluginLifecycle,
+  ): Promise<PluginOutputCommand[]> => {
     const command: InputCommand = {
       type: InputCommandType.onInit,
       storage: {},
     };
 
-    return await api.shell.execute(`${PATH} && ${plugin} '${JSON.stringify(command)}'`)
+    const isInternalPlugin = typeof plugin === 'object';
+
+    if (isInternalPlugin) {
+      if (!plugin?.onInit) {
+        return [];
+      }
+
+      const outputCommand: PluginOutputCommand = {
+        type: OutputCommandType.registerOptions,
+        value: plugin.onInit() ?? [],
+        plugin: '',
+      };
+      return Promise.resolve([outputCommand]);
+    }
+
+    return await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
       .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
       .catch(error => {
         const outputCommand: PluginOutputCommand = {
@@ -184,31 +212,16 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (q === 'i') {
-      registerPlugin('spotter-applications-plugin');
-      // const install = await api.shell.execute(`${PATH} && npm install -g spotter-applications-plugin`);
-      // setOptions([{
-      //   title: install,
-      //   plugin: '',
-      // }]);
-      return;
-    }
-
     setLoading(true);
 
     const options = Object.values(registeredOptions).flat(1).filter(o => {
       return o.title.toLowerCase().search(q.toLowerCase()) !== -1;
     });
 
-    // const { optionsToSet }: HandleCommandResult = handleCommands(
-    //   await onExternalPluginsQuery(q),
-    // );
-
     setLoading(false);
 
     setOptions(sortOptions([
       ...options,
-      // ...(optionsToSet ?? []),
     ]));
 
     if (!shouldShowOptionsTimer.current) {
@@ -223,62 +236,6 @@ export const EventsProvider: FC<{}> = (props) => {
       }, SHOW_OPTIONS_DELAY);
     }
   };
-
-  // const onExternalPluginsQuery = async (q: string): Promise<PluginOutputCommand[]> => {
-  //   const plugins = settings?.plugins ?? [];
-
-  //   const pluginsOptions: PluginOutputCommand[][] = await Promise.all(plugins.map(async plugin => {
-  //     const inputCommand: InputCommand = {
-  //       type: InputCommandType.onQueryAction,
-  //       query: q,
-  //       storage: {},
-  //     };
-
-  //     return await api.shell
-  //       .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
-  //       .catch(error => {
-  //         const outputCommand: PluginOutputCommand = {
-  //           type: OutputCommandType.setOptions,
-  //           value: [{
-  //             title: `Error in ${plugin}: ${error}`,
-  //           }],
-  //           plugin,
-  //         }
-
-  //         return JSON.stringify(outputCommand);
-  //       })
-  //       .then(v => parseCommands(plugin, v));
-  //   }));
-
-  //   return pluginsOptions.flat();
-
-  //   // return await Promise.all(await plugins.reduce<Promise<PluginOutputCommand[]>>(async (asyncAcc, plugin) => {
-  //   //   const inputCommand: InputCommand = {
-  //   //     type: InputCommandType.onQuery,
-  //   //     query: q,
-  //   //     storage: {},
-  //   //   };
-
-  //   //   const commands: OutputCommand[] = await api.shell
-  //   //     .execute(`${PATH} && ${plugin} '${JSON.stringify(inputCommand)}'`)
-  //   //     .catch(error => {
-  //   //       const outputCommand: OutputCommand = {
-  //   //         type: OutputCommandType.setOptions,
-  //   //         value: [{
-  //   //           title: `Error in ${plugin}: ${error}`,
-  //   //         }],
-  //   //       }
-
-  //   //       return JSON.stringify(outputCommand);
-  //   //     })
-  //   //     .then(v => parseCommands(plugin, v));
-
-  //   //   return [
-  //   //     ...(await asyncAcc),
-  //   //     ...commands.map(c => ({...c, plugin})),
-  //   //   ];
-  //   // }, Promise.resolve([])));
-  // }
 
   const onArrowUp = () => {
     if (selectedOptionIndex <= 0) {
@@ -298,6 +255,28 @@ export const EventsProvider: FC<{}> = (props) => {
     setSelectedOptionIndex(selectedOptionIndex + 1)
   };
 
+  const onSubmitInternalOption = (option: InternalPluginOption) => {
+    if (option.action) {
+      option.action();
+    }
+
+    onEscape();
+    return;
+  };
+
+  const onSubmitExternalOption = async (option: ExternalPluginOption) => {
+    const command: InputCommand = {
+      type: InputCommandType.onAction,
+      action: option.action ?? '',
+      query,
+      storage: {},
+    }
+
+    const commands: OutputCommand[] = await api.shell
+      .execute(`${option.plugin} '${JSON.stringify(command)}'`)
+      .then(v => parseCommands(option.plugin, v));
+  }
+
   const onSubmit = async (index?: number) => {
     if (index || index === 0) {
       setSelectedOptionIndex(index);
@@ -311,16 +290,9 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(true);
 
-    const command: InputCommand = {
-      type: InputCommandType.onAction,
-      action: option.action ?? '',
-      query,
-      storage: {},
-    }
-
-    const commands: OutputCommand[] = await api.shell
-      .execute(`${PATH} && ${option.plugin} '${JSON.stringify(command)}'`)
-      .then(v => parseCommands(option.plugin, v));
+    isExternalPluginOption(option)
+      ? onSubmitExternalOption(option)
+      : onSubmitInternalOption(option)
 
     onEscape();
   }
@@ -337,7 +309,7 @@ export const EventsProvider: FC<{}> = (props) => {
         ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
         : acc.optionsToRegister;
 
-      const optionsToSet: SpotterPluginOption[] | null = handleCommandResult.optionsToSet
+      const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
         ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
         : acc.optionsToSet;
 

@@ -1,11 +1,11 @@
 import {
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch, SpotterWebsiteShortcut
-} from '../../core';
+} from '../../../core';
 
-export class WebShortcutsPlugin extends SpotterPlugin implements SpotterPluginLifecycle{
+export class WebShortcutsPlugin extends InternalPlugin implements InternalPluginLifecycle{
   identifier = 'WebShortcuts';
   private WEBSTORAGE : string = "WEBSHORTCUTS";
   private settings : SpotterWebsiteShortcut[] = [];

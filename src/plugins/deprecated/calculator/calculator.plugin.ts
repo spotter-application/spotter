@@ -1,8 +1,8 @@
 import { evaluate, format } from 'mathjs';
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle } from '../../../core';
 import icon from './icon.png';
 
-export class CalculatorPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class CalculatorPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Calculator';
 

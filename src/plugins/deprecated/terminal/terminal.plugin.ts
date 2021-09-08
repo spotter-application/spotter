@@ -2,11 +2,11 @@ import {
   Application,
   getAllApplications,
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
-} from '../../core';
+  InternalPlugin,
+  InternalPluginLifecycle,
+} from '../../../core';
 
-export class TerminalPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class TerminalPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Terminal';
 

@@ -1,11 +1,11 @@
 import {
   SpotterOption,
-  SpotterPlugin,
-  SpotterPluginLifecycle,
+  InternalPlugin,
+  InternalPluginLifecycle,
   spotterSearch,
-} from '../../core';
+} from '../../../core';
 
-export class FinderPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class FinderPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Finder';
 

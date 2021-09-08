@@ -1,6 +1,5 @@
 import { SpotterApi } from './interfaces';
-export class SpotterPlugin {
 
+export class InternalPlugin {
   constructor(public api: SpotterApi) {}
-
 }

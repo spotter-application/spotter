@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle, spotterSearch } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle, spotterSearch } from '../../../core';
 import SQLite from 'react-native-sqlite-2';
 import emoji from './emoji-en-US.json';
 
@@ -9,7 +9,7 @@ interface Emoji {
   value: string;
 };
 
-export class EmojiPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class EmojiPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Emoji';
 

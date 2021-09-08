@@ -1,4 +1,4 @@
-import { SpotterOption, SpotterPlugin, SpotterPluginLifecycle } from '../../core';
+import { SpotterOption, InternalPlugin, InternalPluginLifecycle } from '../../../core';
 import icon from './icon.png';
 
 interface Time {
@@ -7,7 +7,7 @@ interface Time {
   seconds: number;
 }
 
-export class TimerPlugin extends SpotterPlugin implements SpotterPluginLifecycle {
+export class TimerPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   identifier = 'Timer';
 

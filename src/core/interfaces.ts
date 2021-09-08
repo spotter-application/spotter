@@ -74,7 +74,11 @@ export interface SpotterOption {
   icon?: SpotterOptionBaseImage;
 }
 
-export interface SpotterPluginOption extends Option {
+export function isExternalPluginOption(payload: any): payload is ExternalPluginOption {
+  return typeof payload === 'object' && payload.plugin && payload.title;
+}
+
+export interface ExternalPluginOption extends Option {
   plugin: string;
 }
 
@@ -92,26 +96,20 @@ export interface SystemApplicationDimensions {
   height: number;
 }
 
-export declare abstract class SpotterPluginLifecycle {
+export type InternalPluginOption = {
+  title: string;
+  subtitle?: string;
+  icon?: string;
+  action?: (...args: any[]) => void,
+  queryAction?: (...args: any[]) => InternalPluginOption,
+}
 
-  public identifier: string;
-
-  abstract onQuery(query: string): SpotterOption[] | Promise<SpotterOption[]>;
-
-  public extendableForOption?: string;
-
-  public options?: SpotterOption[];
-
-  abstract onInit?(): void;
-
-  abstract onOpenSpotter?(): void;
-
-  abstract onDestroy?(): void;
-
+export declare abstract class InternalPluginLifecycle {
+  abstract onInit?(): InternalPluginOption[];
 }
 
 export interface SpotterPluginConstructor {
-  new(nativeModules: SpotterApi): SpotterPluginLifecycle;
+  new(nativeModules: SpotterApi): InternalPluginLifecycle;
 }
 
 export interface SpotterHotkey {
@@ -180,11 +178,11 @@ export type PluginOutputCommand = OutputCommand & {
 }
 
 export interface RegisteredOptions {
-  [plugin: string]: SpotterPluginOption[],
+  [plugin: string]: ExternalPluginOption[],
 }
 
 export interface HandleCommandResult {
   optionsToRegister: null | RegisteredOptions,
-  optionsToSet: null | SpotterPluginOption[],
+  optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
 }
