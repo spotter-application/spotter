@@ -29,7 +29,6 @@
     "react-native": "0.64.0",
     "react-native-macos": "0.63.27",
     "react-native-sqlite-2": "^3.1.1",
-    "rxjs": "^6.6.3",
     "spotify-web-api-node": "^4.0.0"
   },
   "devDependencies": {

@@ -1,14 +1,5 @@
 import { Option, OutputCommand } from '@spotter-app/core/dist/interfaces';
-import { Observable } from 'rxjs';
 
-/*
-* TODO:
-*
-* implement exec function instead of multiple api instances
-*   eg:
-*   exec('SHELL', 'shell_command')
-*   exec('NOTIFICATION', 'notification_text')
-* */
 export interface SpotterApi {
   storage: SpotterStorage,
   globalHotKey: SpotterGlobalHotkey,
@@ -20,12 +11,6 @@ export interface SpotterApi {
   panel: SpotterPanel,
   bluetooth: SpotterBluetooth,
 }
-
-export type SpotterOptionWithPluginIdentifierMap = {
-  [pluginIdentifier: string]: SpotterOption[] | null,
-}
-
-export type SpotterQueryCallback = (query: string, optionsMap: SpotterOptionWithPluginIdentifierMap ) => void;
 
 export declare abstract class SpotterShell {
   abstract execute(command: string): Promise<string>;
@@ -71,26 +56,6 @@ export declare abstract class SpotterApplicationsNative {
 export declare abstract class SpotterStorage {
   abstract setItem<T>(key: string, value: T): Promise<void>
   abstract getItem<T>(key: string): Promise<T | null>
-}
-
-export declare abstract class SpotterState {
-  abstract get query$(): Observable<string>;
-  abstract set query(value: string);
-  abstract get options$(): Observable<SpotterPluginOption[]>;
-  abstract get options(): SpotterPluginOption[];
-  abstract get loadingOptions$(): Observable<boolean>;
-  abstract get optionsDisplayedWithDelay$(): Observable<boolean>;
-  abstract get activeOption$(): Observable<SpotterPluginOption | null>;
-  abstract set activeOption(options: SpotterPluginOption | null);
-  abstract get hoveredOptionIndex$(): Observable<number>;
-  abstract set hoveredOptionIndex(value: number);
-  abstract get hoveredOptionIndex(): number;
-  reset(): void;
-}
-
-export declare abstract class SpotterApplications {
-  abstract get value(): Application[];
-  abstract get value$(): Observable<Application[]>;
 }
 
 /* Base interfaces */
