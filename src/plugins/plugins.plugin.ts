@@ -20,7 +20,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
         return [
           {
-            title: 'Install',
+            title: 'Install ...',
             icon,
             queryAction: (query: string) => ([
               ...LIBRARY
