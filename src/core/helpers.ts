@@ -1,13 +1,38 @@
-import { InputCommand, InputCommandType, OutputCommandType } from "@spotter-app/core";
+import { InputCommand, InputCommandType, OutputCommandType } from '@spotter-app/core';
+import { History } from '../providers';
+import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
   ExternalPluginOption,
   HandleCommandResult,
   InternalPluginLifecycle,
+  InternalPluginOption,
   isInternalPlugin,
   PluginOutputCommand,
   RegisteredOptions,
   SpotterShell,
-} from "./interfaces";
+} from './interfaces';
+
+export const getHistoryPath = (
+  option: ExternalPluginOption | InternalPluginOption,
+  selectedOption: ExternalPluginOption | InternalPluginOption | null,
+): string => {
+  const path = selectedOption
+    ? `${option.plugin}:${selectedOption.title}#${option.title}`
+    : `${option.plugin}:${option.title}`;
+
+  return path;
+}
+
+export const sortOptions = (
+  options: Array<InternalPluginOption | ExternalPluginOption>,
+  selectedOption: ExternalPluginOption | InternalPluginOption | null,
+  history: History,
+): Array<InternalPluginOption | ExternalPluginOption> => {
+  return options.sort((a, b) => {
+    return (history[getHistoryPath(b, selectedOption)] ?? 0) -
+      (history[getHistoryPath(a, selectedOption)] ?? 0);
+  });
+}
 
 export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
   return commands.reduce<HandleCommandResult>((acc, command) => {
@@ -85,7 +110,7 @@ export const triggerOnInitForPlugin = async (
     const outputCommand: PluginOutputCommand = {
       type: OutputCommandType.registerOptions,
       value: await plugin.onInit() ?? [],
-      plugin: '',
+      plugin: INTERNAL_PLUGIN_KEY,
     };
     return Promise.resolve([outputCommand]);
   }

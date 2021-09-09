@@ -8,6 +8,7 @@ import {
   ApiProvider,
   EventsProvider,
   SettingsProvider,
+  HistoryProvider,
 } from './src/providers';
 
 // TODO: Check
@@ -18,11 +19,13 @@ YellowBox.ignoreWarnings([
 const AppWithModules = () => (
   <ApiProvider>
     <SettingsProvider>
-      <EventsProvider>
-        <ThemeProvider>
-          <QueryPanel />
-        </ThemeProvider>
-      </EventsProvider>
+      <HistoryProvider>
+        <EventsProvider>
+          <ThemeProvider>
+            <QueryPanel />
+          </ThemeProvider>
+        </EventsProvider>
+      </HistoryProvider>
     </SettingsProvider>
   </ApiProvider>
 );

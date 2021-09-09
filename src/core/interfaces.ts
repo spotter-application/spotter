@@ -1,5 +1,5 @@
 import { Option, OutputCommand } from '@spotter-app/core/dist/interfaces';
-import { InternalPlugin } from './plugin';
+import { INTERNAL_PLUGIN_KEY } from './constants';
 
 export interface SpotterApi {
   storage: SpotterStorage,
@@ -65,22 +65,12 @@ export declare type SpotterAction = () => any | Promise<any>;
 
 export type SpotterOptionBaseImage = string | number | { uri: string } | undefined;
 
-export interface SpotterOption {
-  title: string;
-  id?: string;
-  action?: SpotterAction;
-  onQuery?: (query: string) => Promise<SpotterOption[]> | SpotterOption[];
-  subtitle?: string;
-  keywords?: string[];
-  icon?: SpotterOptionBaseImage;
-}
-
 export function isInternalPlugin(payload: any): payload is InternalPluginLifecycle {
   return typeof payload === 'object';
 }
 
 export function isExternalPluginOption(payload: any): payload is ExternalPluginOption {
-  return typeof payload === 'object' && payload.plugin && payload.title;
+  return Boolean(typeof payload === 'object' && payload.plugin !== INTERNAL_PLUGIN_KEY);
 }
 
 export interface ExternalPluginOption extends Option {
@@ -103,6 +93,7 @@ export interface SystemApplicationDimensions {
 
 export type InternalPluginOption = {
   title: string;
+  plugin: string;
   subtitle?: string;
   icon?: string;
   action?: () => void,

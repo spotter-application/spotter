@@ -17,7 +17,8 @@ import {
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
 import { PluginsPlugin } from '../plugins/plugins.plugin';
-import { handleCommands, triggerOnInitForPlugin } from '../core/helpers';
+import { getHistoryPath, handleCommands, sortOptions, triggerOnInitForPlugin } from '../core/helpers';
+import { useHistory } from './history.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -59,6 +60,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
   const { getSettings, addPlugin, removePlugin } = useSettings();
+  const { getHistory, increaseHistory } = useHistory();
 
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<Array<ExternalPluginOption | InternalPluginOption>>([]);
@@ -70,13 +72,6 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
-
-  const sortOptions = (
-    options: Array<InternalPluginOption | ExternalPluginOption>
-  ): Array<InternalPluginOption | ExternalPluginOption> => {
-    // TODO: do
-    return options;
-  }
 
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
@@ -133,7 +128,8 @@ export const EventsProvider: FC<{}> = (props) => {
     } = handleCommands(externalPluginsCommands);
 
     if (optionsToSet) {
-      setOptions(optionsToSet);
+      const history = await getHistory();
+      setOptions(sortOptions(optionsToSet, selectedOption, history));
     }
 
     if (optionsToRegister) {
@@ -161,8 +157,6 @@ export const EventsProvider: FC<{}> = (props) => {
       api.panel.open();
       return;
     };
-
-    // const [plugin, option] = e.identifier.split('#');
   }
 
   const reset = () => {
@@ -203,7 +197,10 @@ export const EventsProvider: FC<{}> = (props) => {
       ? []
       : await onQueryInternalPluginAction(option, '');
 
-    setOptions(selectedOptionOptions);
+    const history = await getHistory();
+
+    increaseHistory(getHistoryPath(option, null));
+    setOptions(sortOptions(selectedOptionOptions, selectedOption, history));
     setHoveredOptionIndex(0);
   }
 
@@ -219,8 +216,8 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onQuery = async (q: string) => {
+    // TODO: add warning message UI
     // if (!settings?.plugins?.filter(p => typeof p === 'string').length) {
-      // TODO: add warning message UI
       // setOptions([{
       //   title: 'You don`t have any installed plugins',
       //   plugin: '',
@@ -235,7 +232,8 @@ export const EventsProvider: FC<{}> = (props) => {
         ? []
         : await onQueryInternalPluginAction(selectedOption, q);
 
-      setOptions(selectedOptionOptions);
+      const history = await getHistory();
+      setOptions(sortOptions(selectedOptionOptions, selectedOption, history));
       return;
     }
 
@@ -252,9 +250,8 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(false);
 
-    setOptions(sortOptions([
-      ...options,
-    ]));
+    const history = await getHistory();
+    setOptions(sortOptions(options, selectedOption, history));
 
     if (!shouldShowOptionsTimer.current) {
       shouldShowOptionsTimer.current = setTimeout(() => {
@@ -330,6 +327,10 @@ export const EventsProvider: FC<{}> = (props) => {
     isExternalPluginOption(option)
       ? onSubmitExternalOption(option)
       : onSubmitInternalOption(option)
+
+    increaseHistory(
+      getHistoryPath(option, selectedOption),
+    );
 
     onEscape();
   }

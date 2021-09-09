@@ -1,7 +1,12 @@
-import { InternalPlugin, InternalPluginLifecycle, InternalPluginOption } from "../core";
+import {
+  InternalPlugin,
+  InternalPluginLifecycle,
+  InternalPluginOption,
+  INTERNAL_PLUGIN_KEY,
+} from '../core';
 import icon from '../../preview/icon.png';
-import { Settings } from "../providers/settings.provider";
-import fetch from "node-fetch";
+import { Settings } from '../providers/settings.provider';
+import fetch from 'node-fetch';
 
 const LIBRARY = [
   'spotter-applications-plugin',
@@ -14,6 +19,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
     return [{
       title: 'Plugins',
+      plugin: INTERNAL_PLUGIN_KEY,
       icon,
       queryAction: async (query: string) => {
 
@@ -22,6 +28,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
         return [
           {
             title: 'Install',
+            plugin: INTERNAL_PLUGIN_KEY,
             icon,
             queryAction: async (query: string) => {
               if (!query?.length) {
@@ -35,6 +42,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
               if (queryPackages) {
                 return queryPackages.map((p: any) => ({
                   title: p.name,
+                  plugin: INTERNAL_PLUGIN_KEY,
                   action: async () => {
                     try {
                       const testCommand = {
@@ -72,10 +80,12 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
           },
           ...(settings.plugins.map(plugin => ({
             title: plugin,
+            plugin: INTERNAL_PLUGIN_KEY,
             icon,
             queryAction: () => ([
               {
                 title: 'Uninstall',
+                plugin: INTERNAL_PLUGIN_KEY,
                 icon,
                 action: async () => {
                   await this.api.shell.execute(`npm uninstall -g ${plugin}`);
