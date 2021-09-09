@@ -25,6 +25,7 @@
   ],
   "rules": {
     "react/jsx-filename-extension": [1, { "extensions": [".tsx", ".ts", ".js"] }],
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "quotes": [2, "single", { "avoidEscape": true }]
   }
 }

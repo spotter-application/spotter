@@ -1,139 +1,113 @@
-import { SPOTTER_HOTKEY_IDENTIFIER } from './constants';
+import { InputCommand, InputCommandType, OutputCommandType } from "@spotter-app/core";
 import {
-  Application,
-  SpotterApi,
-  SpotterHistory,
-  SpotterHotkeyEvent,
-  SpotterOption,
   ExternalPluginOption,
-  SpotterRegistries,
+  HandleCommandResult,
+  InternalPluginLifecycle,
+  isInternalPlugin,
+  PluginOutputCommand,
+  RegisteredOptions,
   SpotterShell,
-} from './interfaces';
+} from "./interfaces";
 
-export const spotterSearch = (
-  query: string,
-  options: SpotterOption[],
-  prefix?: string,
-): SpotterOption[] => {
-  if (!query || !options?.length) {
-    return [];
-  };
+export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
+  return commands.reduce<HandleCommandResult>((acc, command) => {
+    const handleCommandResult: HandleCommandResult = handleCommand(command);
 
-  if (!prefix) {
-    return search(query, options);
-  };
+    const optionsToRegister: RegisteredOptions | null = handleCommandResult.optionsToRegister
+      ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
+      : acc.optionsToRegister;
 
-  const [ prefixFromQuery, ...restQuery ] = query.split(' ');
-  const queryWithoutPrefix = restQuery.join(' ');
+    const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
+      ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
+      : acc.optionsToSet;
 
-  if (prefix.toLowerCase().startsWith(prefixFromQuery.toLowerCase())) {
-    // Display all
-    if (prefixFromQuery && !queryWithoutPrefix) {
-      return search('', options);
-    }
-
-    return search(queryWithoutPrefix, options);
-  };
-
-  // Search without prefix
-  return search(query, options);
-};
-
-const search = (query: string, options: SpotterOption[]): SpotterOption[] => {
-  if (!query && options?.length) {
-    return options;
-  };
-
-  if (!options?.length) {
-    return [];
-  };
-
-  return options
-    .filter((item: SpotterOption) => (
-      (item.title?.split(' ')?.find(t => t.toLowerCase().startsWith(query.toLocaleLowerCase()))) ||
-      (item.keywords?.find(k => k.toLowerCase().startsWith(query.toLocaleLowerCase())))
-    ))
-    .sort((a, b) => a.title?.indexOf(query) - b.title?.indexOf(query));
+    return {
+      optionsToRegister,
+      optionsToSet,
+      queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
+    };
+  }, {
+    optionsToRegister: null,
+    optionsToSet: null,
+    queryToSet: null,
+  });
 }
 
-export const getAllApplications = async (shell: SpotterShell): Promise<Application[]> => {
-  const paths = [
-    '/System/Applications',
-    '/System/Applications/Utilities',
-    '/Applications',
-    '/Users/$USER/Applications',
-    '/Users/$USER/Applications/Chrome Apps.localized',
-  ];
+export const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
+  const initialData: HandleCommandResult = {
+    optionsToRegister: null,
+    optionsToSet: null,
+    queryToSet: null,
+  };
 
-  const applicationsStrings: Application[][] = await Promise.all(
-    paths.map(async path => await getDeepApplicationsStrings(shell, path)),
-  );
-
-  const applications = applicationsStrings.reduce((acc, apps) => ([...acc, ...apps]), []);
-
-  return [
-    ...applications,
-    {
-      title: 'Finder',
-      path: '/System/Library/CoreServices/Finder.app',
-    }
-  ];
-}
-
-async function getDeepApplicationsStrings(shell: SpotterShell, path: string): Promise<Application[]> {
-  if (path.includes('$USER')) {
-    const user = await shell.execute('echo $USER');
-    path = path.replace('$USER', user);
+  if (command.type === OutputCommandType.registerOptions) {
+    return {
+      ...initialData,
+      optionsToRegister: {
+        [command.plugin]: command.value.map(o =>
+          ({ ...o, plugin: command.plugin })
+        ),
+      }
+    };
   }
 
-  const applicationsStrings = await shell
-    .execute(`cd ${path.replace(/(\s+)/g, '\\$1')} && ls || echo ''`)
-    .then(res => res.split('\n')
-      .reduce<Promise<Application[]>>(async (acc, title) => {
-        const resolvedAcc = await acc;
+  if (command.type === OutputCommandType.setOptions) {
+    return {
+      ...initialData,
+      optionsToSet: command.value.map(o => ({...o, plugin: command.plugin})),
+    };
+  }
 
-        if (title.endsWith('.app')) {
-          return [
-            ...resolvedAcc,
-            { title: title.replace('.app', ''), path: `${path}/${title}` },
-          ];
-        }
+  if (command.type === OutputCommandType.setQuery) {
+    return {
+      ...initialData,
+      queryToSet: command.value,
+    };
+  }
 
-        if (path.split('/').length > 2) {
-          return resolvedAcc;
-        }
-
-        const deepApplicationsStrings = await getDeepApplicationsStrings(shell, `${path}/${title}`);
-        return [...resolvedAcc, ...deepApplicationsStrings];
-      }, Promise.resolve([]))
-    );
-  return applicationsStrings;
+  return initialData;
 }
 
-export function omit<T>(keys: string[], obj: { [key: string]: any }): T  {
-  return Object.fromEntries(
-    Object.entries(obj)
-      .filter(([k]) => !keys.includes(k))
-  ) as T;
-}
+export const triggerOnInitForPlugin = async (
+  plugin: string | InternalPluginLifecycle,
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  const command: InputCommand = {
+    type: InputCommandType.onInit,
+    storage: {},
+  };
 
-function getFullHistoryPath(option: string, activeOption: ExternalPluginOption | null): string {
-  return activeOption ? `${activeOption.title}#${option}` : option;
-}
+  if (isInternalPlugin(plugin)) {
+    if (!plugin?.onInit) {
+      return [];
+    }
 
-export async function sortOptions(
-  query: string,
-  options: ExternalPluginOption[],
-  optionsHistory: SpotterHistory,
-  activeOption: ExternalPluginOption | null,
-): Promise<ExternalPluginOption[]> {
-  return options
-    .sort((a, b) => (
-      (Object.entries(optionsHistory[getFullHistoryPath(b.title, activeOption)]?.queries ?? {})
-        .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
-      ) -
-      (Object.entries(optionsHistory[getFullHistoryPath(a.title, activeOption)]?.queries ?? {})
-        .reduce((acc, [q, counter]) => q.startsWith(query) ? acc + counter : acc, 0)
-      )
-    ));
+    const outputCommand: PluginOutputCommand = {
+      type: OutputCommandType.registerOptions,
+      value: await plugin.onInit() ?? [],
+      plugin: '',
+    };
+    return Promise.resolve([outputCommand]);
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+      .then(resolve)
+      .catch(reject)
+
+    setTimeout(() => reject('timeout'), 5000);
+  })
+    .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
+    .catch(error => {
+      // TODO: display the error
+      const outputCommand: PluginOutputCommand = {
+        type: OutputCommandType.setOptions,
+        value: [{
+          title: `Error in ${plugin}: ${error}`,
+        }],
+        plugin,
+      };
+
+      return [outputCommand];
+    });
 }

@@ -2,12 +2,10 @@ import {
   InputCommand,
   InputCommandType,
   OutputCommand,
-  OutputCommandType,
 } from '@spotter-app/core/dist/interfaces';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
-  HandleCommandResult,
   InternalPluginLifecycle,
   PluginOutputCommand,
   RegisteredOptions,
@@ -15,11 +13,11 @@ import {
   ExternalPluginOption,
   InternalPluginOption,
   isExternalPluginOption,
-  isInternalPlugin,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
 import { PluginsPlugin } from '../plugins/plugins.plugin';
+import { handleCommands, triggerOnInitForPlugin } from '../core/helpers';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -80,116 +78,9 @@ export const EventsProvider: FC<{}> = (props) => {
     return options;
   }
 
-  const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
-    return commands.reduce<HandleCommandResult>((acc, command) => {
-      const handleCommandResult: HandleCommandResult = handleCommand(command);
-
-      const optionsToRegister: RegisteredOptions | null = handleCommandResult.optionsToRegister
-        ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
-        : acc.optionsToRegister;
-
-      const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
-        ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
-        : acc.optionsToSet;
-
-      return {
-        optionsToRegister,
-        optionsToSet,
-        queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
-      };
-    }, {
-      optionsToRegister: null,
-      optionsToSet: null,
-      queryToSet: null,
-    });
-  }
-
-  const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
-    const initialData: HandleCommandResult = {
-      optionsToRegister: null,
-      optionsToSet: null,
-      queryToSet: null,
-    };
-
-    if (command.type === OutputCommandType.registerOptions) {
-      return {
-        ...initialData,
-        optionsToRegister: {
-          [command.plugin]: command.value.map(o =>
-            ({ ...o, plugin: command.plugin })
-          ),
-        }
-      };
-    }
-
-    if (command.type === OutputCommandType.setOptions) {
-      setOptions((prevOptions) => sortOptions([
-        ...prevOptions,
-        ...command.value.map(o => ({...o, plugin: command.plugin})),
-      ]));
-      return {
-        ...initialData,
-        optionsToSet: command.value.map(o => ({...o, plugin: command.plugin})),
-      };
-    }
-
-    if (command.type === OutputCommandType.setQuery) {
-      setQuery(command.value);
-      return {
-        ...initialData,
-        queryToSet: command.value,
-      };
-    }
-
-    return initialData;
-  }
-
-  const triggerOnInitForPlugin = async (
-    plugin: string | InternalPluginLifecycle,
-  ): Promise<PluginOutputCommand[]> => {
-    const command: InputCommand = {
-      type: InputCommandType.onInit,
-      storage: {},
-    };
-
-    if (isInternalPlugin(plugin)) {
-      if (!plugin?.onInit) {
-        return [];
-      }
-
-      const outputCommand: PluginOutputCommand = {
-        type: OutputCommandType.registerOptions,
-        value: await plugin.onInit() ?? [],
-        plugin: '',
-      };
-      return Promise.resolve([outputCommand]);
-    }
-
-    return new Promise<string>((resolve, reject) => {
-      api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-        .then(resolve)
-        .catch(reject)
-
-      setTimeout(() => reject('timeout'), 5000);
-    })
-      .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
-      .catch(error => {
-        // TODO: display the error
-        const outputCommand: PluginOutputCommand = {
-          type: OutputCommandType.setOptions,
-          value: [{
-            title: `Error in ${plugin}: ${error}`,
-          }],
-          plugin,
-        };
-
-        return [outputCommand];
-      });
-  }
-
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
-    const commands = await triggerOnInitForPlugin(plugin);
+    const commands = await triggerOnInitForPlugin(plugin, api.shell);
 
     const { optionsToRegister } = handleCommands(commands);
 
@@ -230,7 +121,7 @@ export const EventsProvider: FC<{}> = (props) => {
       async (asyncAcc, plugin) => {
         return [
           ...(await asyncAcc),
-          ...(await triggerOnInitForPlugin(plugin)),
+          ...(await triggerOnInitForPlugin(plugin, api.shell)),
         ]
       },
       Promise.resolve([]),

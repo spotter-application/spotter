@@ -168,11 +168,6 @@ export interface SpotterThemeColors {
   },
 }
 
-export interface Application {
-  title: string,
-  path: string,
-}
-
 export interface SpotterHotkeyEvent {
   hotkey: SpotterHotkey,
   identifier: string,
