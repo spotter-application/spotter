@@ -18,6 +18,12 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
         const settings: Settings = await this.getSettings();
 
+        const queryPackages = await this.api.shell.execute(`
+          npm search ${query} --json
+        `);
+
+        console.log(queryPackages);
+
         return [
           {
             title: 'Install ...',

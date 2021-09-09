@@ -15,6 +15,7 @@ import {
   ExternalPluginOption,
   InternalPluginOption,
   isExternalPluginOption,
+  isInternalPlugin,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
@@ -61,7 +62,6 @@ export const EventsProvider: FC<{}> = (props) => {
   const { api } = useApi();
   const { getSettings, addPlugin, removePlugin } = useSettings();
 
-  const [ settings, setSettings ] = useState<Settings>();
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<Array<ExternalPluginOption | InternalPluginOption>>([]);
   const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
@@ -152,9 +152,7 @@ export const EventsProvider: FC<{}> = (props) => {
       storage: {},
     };
 
-    const isInternalPlugin = typeof plugin === 'object';
-
-    if (isInternalPlugin) {
+    if (isInternalPlugin(plugin)) {
       if (!plugin?.onInit) {
         return [];
       }
@@ -167,11 +165,16 @@ export const EventsProvider: FC<{}> = (props) => {
       return Promise.resolve([outputCommand]);
     }
 
-    return await api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+    return new Promise<string>((resolve, reject) => {
+      api.shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+        .then(resolve)
+        .catch(reject)
+
+      setTimeout(() => reject('timeout'), 5000);
+    })
       .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
       .catch(error => {
-        console.log(error);
-
+        // TODO: display the error
         const outputCommand: PluginOutputCommand = {
           type: OutputCommandType.setOptions,
           value: [{
@@ -217,8 +220,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onInit = async () => {
     const settings = await getSettings();
-
-    setSettings(settings);
 
     registerGlobalHotkeys(settings);
 

@@ -1,4 +1,5 @@
 import { Option, OutputCommand } from '@spotter-app/core/dist/interfaces';
+import { InternalPlugin } from './plugin';
 
 export interface SpotterApi {
   storage: SpotterStorage,
@@ -72,6 +73,10 @@ export interface SpotterOption {
   subtitle?: string;
   keywords?: string[];
   icon?: SpotterOptionBaseImage;
+}
+
+export function isInternalPlugin(payload: any): payload is InternalPluginLifecycle {
+  return typeof payload === 'object';
 }
 
 export function isExternalPluginOption(payload: any): payload is ExternalPluginOption {
