@@ -1,21 +1,18 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { HotkeyInput } from '../../core/native/hotkey-input.native';
 import {
   SpotterHotkey,
   SpotterPluginHotkeys,
   SpotterSettings,
-  SpotterWebsiteShortcut,
   SPOTTER_HOTKEY_IDENTIFIER,
 } from '../../core';
-import { useApi, useTheme } from '../../providers';
+import { useApi, useSettings, useTheme } from '../../providers';
 
 interface SpotterOptionShortcut {
   title: string,
   hotkey?: SpotterHotkey | null,
 }
-
-const WEBSTORAGE = 'WEBSHORTCUTS';
 
 const SettingsPluginShortcut: FC<{
   shortcut: SpotterOptionShortcut,
@@ -79,12 +76,14 @@ const SettingsPlugin: FC<{
 
 export const HotkeysSettings: FC<{}> = () => {
 
-  const { api, registries } = useApi();
+  const { api } = useApi();
+  const { getSettings, patchSettings } = useSettings();
+
   const [spotterSettings, setSpotterSettings] = useState<SpotterSettings | null>(null);
 
   useEffect(() => {
     const setSettings = async () => {
-      const settings = await registries.settings.getSettings()
+      const settings = await getSettings();
       setSpotterSettings(settings);
     };
 
@@ -94,7 +93,7 @@ export const HotkeysSettings: FC<{}> = () => {
   const onSaveHotkey = useCallback(async (hotkey: SpotterHotkey, plugin: string, option: string) => {
     const nextHotkey = hotkey.keyCode === null ? null : hotkey;
     if (plugin === 'Spotter') {
-      await registries.settings.patchSettings({ hotkey: nextHotkey });
+      patchSettings({ hotkey: nextHotkey });
       registerNewHotkey(nextHotkey, SPOTTER_HOTKEY_IDENTIFIER);
       return;
     }
@@ -110,7 +109,7 @@ export const HotkeysSettings: FC<{}> = () => {
       },
     };
 
-    await registries.settings.patchSettings({ pluginHotkeys });
+    patchSettings({ pluginHotkeys });
     registerNewHotkey(nextHotkey, `${plugin}#${option}`);
   }, []);
 
@@ -129,7 +128,7 @@ export const HotkeysSettings: FC<{}> = () => {
       onSaveHotkey={onSaveHotkey}
     />
 
-    {Object.values(registries.plugins.list)
+    {/* {Object.values(registries.plugins.list)
       .filter(p => p.options?.length)
       .map(plugin => (
         <SettingsPlugin
@@ -145,88 +144,6 @@ export const HotkeysSettings: FC<{}> = () => {
           onSaveHotkey={onSaveHotkey}
         />
       ))
-    }
-
-    <SettingsWebsiteShortcuts />
+    } */}
   </View>
-}
-
-// TODO: Move to the Shortcuts plugin
-const SettingsWebsiteShortcuts: FC<{}> = () => {
-  const { colors } = useTheme();
-  const [webShortcutList, setWebShortcutList] = useState<SpotterWebsiteShortcut[] | null>(null);
-  const { api } = useApi();
-
-  useEffect(() => {
-    const setSettings = async () => {
-      const webShortcuts = await api.storage.getItem<SpotterWebsiteShortcut[]>(WEBSTORAGE);
-      setWebShortcutList(webShortcuts);
-    };
-
-    setSettings();
-  }, []);
-
-  return <>
-    <View style={{ marginTop: 25 }}>
-      <View style={{ marginLeft: 0, marginBottom: 15 }}>
-        <Text style={{ fontSize: 16, marginLeft: 3 }}>Website Shortcuts</Text>
-        {webShortcutList && webShortcutList.map((_, i)=> (
-          <View key={i} style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginBottom: 10,
-          }}>
-            <TextInput
-              placeholder={'Your shortcut'}
-              defaultValue={webShortcutList[i].shortcut}
-              style={{
-                paddingTop:12,
-                textAlign: 'center',
-                width: 100,
-                height: 50,
-                backgroundColor: colors.background,
-                marginRight:10,
-                marginTop: 5,
-                borderRadius: 15
-              }}
-              onChangeText={(e)=>{
-                webShortcutList[i] = {shortcut: e, url: webShortcutList[i].url};
-                api.storage.setItem(WEBSTORAGE, webShortcutList);
-              }}
-            />
-            <TextInput
-              placeholder={'Website URL'}
-              defaultValue={webShortcutList[i].url}
-              style={{
-                paddingTop:12,
-                textAlign: 'center',
-                flex: 1,
-                height: 50,
-                backgroundColor: colors.background,
-                marginTop: 5,
-                borderRadius: 15,
-              }}
-              onChangeText={(e)=>{
-                webShortcutList[i] = {url: e, shortcut: webShortcutList[i].shortcut}
-                api.storage.setItem(WEBSTORAGE, webShortcutList);
-              }}
-            />
-            <Button title={"X"} color={"red"} onPress={() => {
-              const oldShortcuts: SpotterWebsiteShortcut[] = [...webShortcutList];
-              oldShortcuts.splice(i, 1);
-              setWebShortcutList(oldShortcuts)
-              api.storage.setItem(WEBSTORAGE, oldShortcuts);
-            }}/>
-          </View>
-        ))}
-        <Button title={'Add more'} onPress={()=>{
-          const oldShortcuts : SpotterWebsiteShortcut[] = webShortcutList ? [...webShortcutList] : [];
-          oldShortcuts.push({shortcut: '', url: ''});
-          setWebShortcutList(oldShortcuts)
-          api.storage.setItem(WEBSTORAGE, oldShortcuts);
-        }}/>
-      </View>
-    </View>
-  </>
 }

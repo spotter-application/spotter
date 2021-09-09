@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../providers';
-import { HotkeysSettings } from './hotkeys-settings.component';
+import { HotkeysSettings } from './hotkeys.component';
 import { GeneralSettings } from './general.component';
 import { ThemesSettings } from './themes-settings.component';
 import { SpotifySettings } from './spotify-settings.component';
@@ -9,7 +9,7 @@ import { SpotifySettings } from './spotify-settings.component';
 enum Pages {
   general = 'general',
   // themes = 'themes',
-  // hotkeys = 'hotkeys',
+  hotkeys = 'hotkeys',
   // spotify = 'spotify',
  }
 
@@ -26,8 +26,8 @@ export const Settings: FC<{}> = () => {
         return <GeneralSettings />
       //   case Pages.themes:
       //     return <ThemesSettings />
-      // case Pages.hotkeys:
-      //   return <HotkeysSettings />
+      case Pages.hotkeys:
+        return <HotkeysSettings />
       // case Pages.spotify:
       //   return <SpotifySettings />
     }
