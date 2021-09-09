@@ -33,6 +33,11 @@ export const Options = ({
       const offset = 10;
       const indexWithOffset = hoveredOptionIndex - offset;
       const index = indexWithOffset < 0 ? 0 : indexWithOffset;
+
+      if (!options[index]) {
+        return;
+      }
+
       refContainer.current.scrollToIndex({ animated: true, index });
     }
   });
