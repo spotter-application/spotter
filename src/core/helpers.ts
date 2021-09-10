@@ -1,4 +1,4 @@
-import { InputCommand, InputCommandType, OutputCommandType } from '@spotter-app/core';
+import { InputCommand, InputCommandType, OutputCommandType, Storage } from '@spotter-app/core';
 import { History } from '../providers';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
@@ -48,15 +48,21 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
       ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
       : acc.optionsToSet;
 
+    const dataToStorage: Storage | null = handleCommandResult.dataToStorage
+      ? {...(acc.dataToStorage ?? {}), ...handleCommandResult.dataToStorage}
+      : acc.dataToStorage;
+
     return {
       optionsToRegister,
       optionsToSet,
       queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
+      dataToStorage,
     };
   }, {
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
+    dataToStorage: null,
   });
 };
 
@@ -65,6 +71,7 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
+    dataToStorage: null
   };
 
   if (command.type === OutputCommandType.registerOptions) {
@@ -92,6 +99,15 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     };
   }
 
+  if (command.type === OutputCommandType.setStorage) {
+    return {
+      ...initialData,
+      dataToStorage: {
+        [command.plugin]: command.value,
+      }
+    };
+  }
+
   return initialData;
 };
 
@@ -116,6 +132,7 @@ export const onQueryExternalPluginAction = async (
   option: ExternalPluginOption,
   query: string,
   shell: SpotterShell,
+  storage: Storage,
 ): Promise<PluginOutputCommand[]> => {
   if (!option || !option.queryAction) {
     return [];
@@ -124,9 +141,12 @@ export const onQueryExternalPluginAction = async (
   const command: InputCommand = {
     type: InputCommandType.onQueryAction,
     queryAction: option.queryAction,
-    storage: {},
+    storage,
     query
   };
+
+  console.log(command);
+
 
   return await triggerExportPluginCommand(option.plugin, command, shell);
 };
@@ -134,10 +154,11 @@ export const onQueryExternalPluginAction = async (
 export const triggerOnInitForPlugin = async (
   plugin: string | InternalPluginLifecycle,
   shell: SpotterShell,
+  storage: Storage,
 ): Promise<PluginOutputCommand[]> => {
   const command: InputCommand = {
     type: InputCommandType.onInit,
-    storage: {},
+    storage,
   };
 
   if (isInternalPlugin(plugin)) {

@@ -4,7 +4,7 @@ import {
   OutputCommand,
 } from '@spotter-app/core/dist/interfaces';
 import React, { FC, useEffect, useRef, useState } from 'react';
-import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { INTERNAL_PLUGIN_KEY, SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
   PluginOutputCommand,
@@ -28,6 +28,7 @@ import {
   triggerOnInitForPlugin,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
+import { useStorage } from '.';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -70,6 +71,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const { api } = useApi();
   const { getSettings, addPlugin, removePlugin } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
+  const { getStorage, patchStorage } = useStorage();
 
   const [ query, setQuery ] = useState<string>('');
   const [ options, setOptions ] = useState<Options>([]);
@@ -84,9 +86,14 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
-    const commands = await triggerOnInitForPlugin(plugin, api.shell);
+    const storage = await getStorage();
+    const commands = await triggerOnInitForPlugin(plugin, api.shell, storage[plugin]);
 
-    const { optionsToRegister } = handleCommands(commands);
+    const { optionsToRegister, dataToStorage } = handleCommands(commands);
+
+    if (dataToStorage) {
+      patchStorage(dataToStorage);
+    }
 
     if (optionsToRegister) {
       setRegisteredOptions(prevOptions => ({
@@ -115,6 +122,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onInit = async () => {
     const settings = await getSettings();
+    const storage = await getStorage();
 
     registerGlobalHotkeys(settings);
 
@@ -125,7 +133,11 @@ export const EventsProvider: FC<{}> = (props) => {
       async (asyncAcc, plugin) => {
         return [
           ...(await asyncAcc),
-          ...(await triggerOnInitForPlugin(plugin, api.shell)),
+          ...(await triggerOnInitForPlugin(
+            plugin,
+            api.shell,
+            storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY],
+          )),
         ]
       },
       Promise.resolve([]),
@@ -134,7 +146,12 @@ export const EventsProvider: FC<{}> = (props) => {
     const {
       optionsToRegister,
       optionsToSet,
+      dataToStorage
     } = handleCommands(externalPluginsCommands);
+
+    if (dataToStorage) {
+      patchStorage(dataToStorage)
+    }
 
     if (optionsToSet) {
       const history = await getHistory();
@@ -208,11 +225,17 @@ export const EventsProvider: FC<{}> = (props) => {
     setSelectedOption(option);
     setQuery('');
 
+    const storage = await getStorage();
     const commands: PluginOutputCommand[] = isExternalPluginOption(option)
-      ? await onQueryExternalPluginAction(option, '', api.shell)
+      ? await onQueryExternalPluginAction(option, '', api.shell, storage[option.plugin])
       : await onQueryInternalPluginAction(option, '');
 
-    const { optionsToSet } = handleCommands(commands);
+    const { optionsToSet, dataToStorage } = handleCommands(commands);
+
+    if (dataToStorage) {
+      patchStorage(dataToStorage);
+    }
+
     const history = await getHistory();
     increaseHistory(getHistoryPath(option, null));
     setOptions(
@@ -238,11 +261,17 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery(q);
 
     if (selectedOption) {
+      const storage = await getStorage();
       const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
-        ? await onQueryExternalPluginAction(selectedOption, q, api.shell)
+        ? await onQueryExternalPluginAction(selectedOption, q, api.shell, storage[selectedOption.plugin])
         : await onQueryInternalPluginAction(selectedOption, q);
 
-      const { optionsToSet } = handleCommands(commands);
+      const { optionsToSet, dataToStorage } = handleCommands(commands);
+
+      if (dataToStorage) {
+        patchStorage(dataToStorage);
+      }
+
       const history = await getHistory();
       setOptions(
         sortOptions(
@@ -317,11 +346,12 @@ export const EventsProvider: FC<{}> = (props) => {
   };
 
   const onSubmitExternalOption = async (option: ExternalPluginOption) => {
+    const storage = await getStorage();
     const command: InputCommand = {
       type: InputCommandType.onAction,
       action: option.action ?? '',
       query,
-      storage: {},
+      storage: storage[option.plugin],
     }
 
     const commands: OutputCommand[] = await api.shell

@@ -9,6 +9,7 @@ import {
   EventsProvider,
   SettingsProvider,
   HistoryProvider,
+  StorageProvider,
 } from './src/providers';
 
 // TODO: Check
@@ -20,11 +21,13 @@ const AppWithModules = () => (
   <ApiProvider>
     <SettingsProvider>
       <HistoryProvider>
-        <EventsProvider>
-          <ThemeProvider>
-            <QueryPanel />
-          </ThemeProvider>
-        </EventsProvider>
+        <StorageProvider>
+          <EventsProvider>
+            <ThemeProvider>
+              <QueryPanel />
+            </ThemeProvider>
+          </EventsProvider>
+        </StorageProvider>
       </HistoryProvider>
     </SettingsProvider>
   </ApiProvider>

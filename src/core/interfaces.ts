@@ -1,4 +1,4 @@
-import { Option, OutputCommand } from '@spotter-app/core/dist/interfaces';
+import { Option, OutputCommand, Storage } from '@spotter-app/core/dist/interfaces';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 
 export interface SpotterApi {
@@ -178,4 +178,5 @@ export interface HandleCommandResult {
   optionsToRegister: null | RegisteredOptions,
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
+  dataToStorage: null | Storage,
 }
