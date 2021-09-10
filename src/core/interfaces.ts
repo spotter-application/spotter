@@ -100,6 +100,8 @@ export type InternalPluginOption = {
   queryAction?: (query: string) => InternalPluginOption[] | Promise<InternalPluginOption[]>,
 }
 
+export type Options = Array<ExternalPluginOption | InternalPluginOption>;
+
 export declare abstract class InternalPluginLifecycle {
   abstract onInit?(): InternalPluginOption[] | Promise<InternalPluginOption[]>;
 }

@@ -13,11 +13,20 @@ import {
   ExternalPluginOption,
   InternalPluginOption,
   isExternalPluginOption,
+  Options,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
 import { PluginsPlugin } from '../plugins/plugins.plugin';
-import { getHistoryPath, handleCommands, sortOptions, triggerOnInitForPlugin } from '../core/helpers';
+import {
+  forceReplaceOptions,
+  getHistoryPath,
+  handleCommands,
+  onQueryExternalPluginAction,
+  onQueryInternalPluginAction,
+  sortOptions,
+  triggerOnInitForPlugin,
+} from '../core/helpers';
 import { useHistory } from './history.provider';
 
 type Context = {
@@ -63,7 +72,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const { getHistory, increaseHistory } = useHistory();
 
   const [ query, setQuery ] = useState<string>('');
-  const [ options, setOptions ] = useState<Array<ExternalPluginOption | InternalPluginOption>>([]);
+  const [ options, setOptions ] = useState<Options>([]);
   const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
@@ -129,7 +138,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
     if (optionsToSet) {
       const history = await getHistory();
-      setOptions(sortOptions(optionsToSet, selectedOption, history));
+      setOptions(
+        sortOptions(
+          forceReplaceOptions(optionsToSet),
+          selectedOption,
+          history,
+        ),
+      );
     }
 
     if (optionsToRegister) {
@@ -193,26 +208,21 @@ export const EventsProvider: FC<{}> = (props) => {
     setSelectedOption(option);
     setQuery('');
 
-    const selectedOptionOptions: InternalPluginOption[] = isExternalPluginOption(option)
-      ? []
+    const commands: PluginOutputCommand[] = isExternalPluginOption(option)
+      ? await onQueryExternalPluginAction(option, '', api.shell)
       : await onQueryInternalPluginAction(option, '');
 
+    const { optionsToSet } = handleCommands(commands);
     const history = await getHistory();
-
     increaseHistory(getHistoryPath(option, null));
-    setOptions(sortOptions(selectedOptionOptions, selectedOption, history));
+    setOptions(
+      sortOptions(
+        forceReplaceOptions(optionsToSet ?? []),
+        selectedOption,
+        history,
+      ),
+    );
     setHoveredOptionIndex(0);
-  }
-
-  const onQueryInternalPluginAction = async (
-    option: InternalPluginOption,
-    query: string
-  ): Promise<InternalPluginOption[]> => {
-    if (!option || !option.queryAction) {
-      return [];
-    }
-
-    return await option.queryAction(query);
   }
 
   const onQuery = async (q: string) => {
@@ -228,12 +238,19 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery(q);
 
     if (selectedOption) {
-      const selectedOptionOptions: InternalPluginOption[] = isExternalPluginOption(selectedOption)
-        ? []
+      const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
+        ? await onQueryExternalPluginAction(selectedOption, q, api.shell)
         : await onQueryInternalPluginAction(selectedOption, q);
 
+      const { optionsToSet } = handleCommands(commands);
       const history = await getHistory();
-      setOptions(sortOptions(selectedOptionOptions, selectedOption, history));
+      setOptions(
+        sortOptions(
+          forceReplaceOptions(optionsToSet ?? []),
+          selectedOption,
+          history,
+        ),
+      );
       return;
     }
 
@@ -251,7 +268,13 @@ export const EventsProvider: FC<{}> = (props) => {
     setLoading(false);
 
     const history = await getHistory();
-    setOptions(sortOptions(options, selectedOption, history));
+    setOptions(
+      sortOptions(
+        forceReplaceOptions(options),
+        selectedOption,
+        history,
+      ),
+    );
 
     if (!shouldShowOptionsTimer.current) {
       shouldShowOptionsTimer.current = setTimeout(() => {

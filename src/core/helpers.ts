@@ -6,7 +6,9 @@ import {
   HandleCommandResult,
   InternalPluginLifecycle,
   InternalPluginOption,
+  isExternalPluginOption,
   isInternalPlugin,
+  Options,
   PluginOutputCommand,
   RegisteredOptions,
   SpotterShell,
@@ -21,7 +23,7 @@ export const getHistoryPath = (
     : `${option.plugin}:${option.title}`;
 
   return path;
-}
+};
 
 export const sortOptions = (
   options: Array<InternalPluginOption | ExternalPluginOption>,
@@ -32,7 +34,7 @@ export const sortOptions = (
     return (history[getHistoryPath(b, selectedOption)] ?? 0) -
       (history[getHistoryPath(a, selectedOption)] ?? 0);
   });
-}
+};
 
 export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
   return commands.reduce<HandleCommandResult>((acc, command) => {
@@ -56,7 +58,7 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
     optionsToSet: null,
     queryToSet: null,
   });
-}
+};
 
 export const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
   const initialData: HandleCommandResult = {
@@ -91,7 +93,43 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
   }
 
   return initialData;
-}
+};
+
+export const onQueryInternalPluginAction = async (
+  option: InternalPluginOption,
+  query: string
+): Promise<PluginOutputCommand[]> => {
+  if (!option || !option.queryAction) {
+    return [];
+  }
+
+  const options = await option.queryAction(query);
+
+  return [{
+    type: OutputCommandType.setOptions,
+    plugin: option.plugin,
+    value: options,
+  }];
+};
+
+export const onQueryExternalPluginAction = async (
+  option: ExternalPluginOption,
+  query: string,
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  if (!option || !option.queryAction) {
+    return [];
+  }
+
+  const command: InputCommand = {
+    type: InputCommandType.onQueryAction,
+    queryAction: option.queryAction,
+    storage: {},
+    query
+  };
+
+  return await triggerExportPluginCommand(option.plugin, command, shell);
+};
 
 export const triggerOnInitForPlugin = async (
   plugin: string | InternalPluginLifecycle,
@@ -115,24 +153,45 @@ export const triggerOnInitForPlugin = async (
     return Promise.resolve([outputCommand]);
   }
 
-  return new Promise<string>((resolve, reject) => {
-    shell.execute(`${plugin} '${JSON.stringify(command)}'`)
-      .then(resolve)
-      .catch(reject)
+  return await triggerExportPluginCommand(plugin, command, shell);
+};
 
-    setTimeout(() => reject('timeout'), 5000);
-  })
-    .then(v => v ? v.split('\n').map(c => ({...(JSON.parse(c)), plugin})) : [])
-    .catch(error => {
-      // TODO: display the error
-      const outputCommand: PluginOutputCommand = {
-        type: OutputCommandType.setOptions,
-        value: [{
-          title: `Error in ${plugin}: ${error}`,
-        }],
-        plugin,
-      };
+const triggerExportPluginCommand = async (
+  plugin: string,
+  command: InputCommand,
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  try {
+    const v = await new Promise<string>((resolve, reject) => {
+      shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+        .then(resolve)
+        .catch(reject);
 
-      return [outputCommand];
+      setTimeout(() => reject('timeout'), 5000);
     });
-}
+    return v ? v.split('\n').map(c => ({ ...(JSON.parse(c)), plugin })) : [];
+  } catch (error) {
+    // TODO: display the error
+    const outputCommand: PluginOutputCommand = {
+      type: OutputCommandType.setOptions,
+      value: [{
+        title: `Error in ${plugin}: ${error}`,
+      }],
+      plugin,
+    };
+    return [outputCommand];
+  }
+};
+
+export const forceReplaceOptions = (options: Options): Options => {
+  const optionsWithForceReplace: ExternalPluginOption[] = options.filter(
+    o => isExternalPluginOption(o) && o.forceReplaceOption
+  );
+  if (!optionsWithForceReplace.length) {
+    return options;
+  }
+
+  return [...options.filter(option => optionsWithForceReplace.find(
+    o => o.forceReplaceOption !== option.title
+  )), ...optionsWithForceReplace];
+};
