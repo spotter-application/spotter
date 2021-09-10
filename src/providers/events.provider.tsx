@@ -354,9 +354,15 @@ export const EventsProvider: FC<{}> = (props) => {
       storage: storage[option.plugin],
     }
 
-    const commands: OutputCommand[] = await api.shell
+    const commands: PluginOutputCommand[] = await api.shell
       .execute(`${option.plugin} '${JSON.stringify(command)}'`)
       .then(v => parseCommands(option.plugin, v));
+
+    const { dataToStorage } = handleCommands(commands);
+
+    if (dataToStorage) {
+      patchStorage(dataToStorage);
+    }
   }
 
   const onSubmit = async (index?: number) => {
