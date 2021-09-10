@@ -35,6 +35,28 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                 return [];
               }
 
+              const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(query);
+              if (localPluginPath) {
+                return [{
+                  title: `Install local plugin: ${query}`,
+                  plugin: INTERNAL_PLUGIN_KEY,
+                  icon,
+                  action: async () => {
+                    try {
+                      const testCommand = {
+                        type: 'onInit',
+                        storage: {},
+                      }
+                      // TODO: add installing spinner
+                      await this.api.shell.execute(`query ${JSON.stringify(testCommand)}`);
+                      this.registerPlugin(query);
+                    } catch {
+                      console.log('INSTALLATION ERROR');
+                    }
+                  },
+                }];
+              }
+
               const queryPackages = await fetch(
                 `https://www.npmjs.com/search/suggestions?q=${query}`
               ).then(r => r.json());
