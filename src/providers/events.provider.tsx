@@ -87,7 +87,11 @@ export const EventsProvider: FC<{}> = (props) => {
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
     const storage = await getStorage();
-    const commands = await triggerOnInitForPlugin(plugin, api.shell, storage[plugin]);
+    const commands = await triggerOnInitForPlugin(
+      plugin,
+      api.shell,
+      storage[plugin] ?? {},
+    );
 
     const { optionsToRegister, dataToStorage } = handleCommands(commands);
 
@@ -136,7 +140,7 @@ export const EventsProvider: FC<{}> = (props) => {
           ...(await triggerOnInitForPlugin(
             plugin,
             api.shell,
-            storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY],
+            storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY] ?? {},
           )),
         ]
       },
@@ -227,7 +231,12 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const storage = await getStorage();
     const commands: PluginOutputCommand[] = isExternalPluginOption(option)
-      ? await onQueryExternalPluginAction(option, '', api.shell, storage[option.plugin])
+      ? await onQueryExternalPluginAction(
+        option,
+        '',
+        api.shell,
+        storage[option.plugin] ?? {}
+      )
       : await onQueryInternalPluginAction(option, '');
 
     const { optionsToSet, dataToStorage } = handleCommands(commands);
@@ -263,7 +272,12 @@ export const EventsProvider: FC<{}> = (props) => {
     if (selectedOption) {
       const storage = await getStorage();
       const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
-        ? await onQueryExternalPluginAction(selectedOption, q, api.shell, storage[selectedOption.plugin])
+        ? await onQueryExternalPluginAction(
+          selectedOption,
+          q,
+          api.shell,
+          storage[selectedOption.plugin] ?? {}
+        )
         : await onQueryInternalPluginAction(selectedOption, q);
 
       const { optionsToSet, dataToStorage } = handleCommands(commands);
@@ -351,7 +365,7 @@ export const EventsProvider: FC<{}> = (props) => {
       type: InputCommandType.onAction,
       action: option.action ?? '',
       query,
-      storage: storage[option.plugin],
+      storage: storage[option.plugin] ?? {},
     }
 
     const commands: PluginOutputCommand[] = await api.shell

@@ -145,10 +145,7 @@ export const onQueryExternalPluginAction = async (
     query
   };
 
-  console.log(command);
-
-
-  return await triggerExportPluginCommand(option.plugin, command, shell);
+  return await triggerExternalPluginCommand(option.plugin, command, shell);
 };
 
 export const triggerOnInitForPlugin = async (
@@ -174,10 +171,10 @@ export const triggerOnInitForPlugin = async (
     return Promise.resolve([outputCommand]);
   }
 
-  return await triggerExportPluginCommand(plugin, command, shell);
+  return await triggerExternalPluginCommand(plugin, command, shell);
 };
 
-const triggerExportPluginCommand = async (
+const triggerExternalPluginCommand = async (
   plugin: string,
   command: InputCommand,
   shell: SpotterShell,

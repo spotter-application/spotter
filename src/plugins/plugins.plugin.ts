@@ -38,7 +38,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
               const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(query);
               if (localPluginPath) {
                 return [{
-                  title: `Install local plugin: ${query}`,
+                  title: `Install local plugin: ${query.substring(0, 40)}${query?.length > 40 ? '...' : ''}`,
                   plugin: INTERNAL_PLUGIN_KEY,
                   icon,
                   action: async () => {
@@ -47,8 +47,9 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                         type: 'onInit',
                         storage: {},
                       }
+
                       // TODO: add installing spinner
-                      await this.api.shell.execute(`query ${JSON.stringify(testCommand)}`);
+                      await this.api.shell.execute(`node ${query} ${JSON.stringify(testCommand)}`);
                       this.registerPlugin(query);
                     } catch {
                       console.log('INSTALLATION ERROR');
