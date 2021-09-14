@@ -78,7 +78,15 @@ export const QueryPanel: FC<{}> = () => {
 
         <View style={{marginLeft: 10}}>
           {loading
-            ? <ActivityIndicator size="small" color={colors.active.highlight} style={{opacity: 0.3}} />
+            ? <ActivityIndicator size="small" color={colors.active.highlight} style={{
+              opacity: 0.3,
+              right: 3,
+              bottom: 0,
+              top: 0,
+              margin: 'auto',
+              position: 'absolute',
+              zIndex: 100,
+            }} />
             : null
           }
           {options[hoveredOptionIndex] && <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon>}
