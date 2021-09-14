@@ -14,6 +14,7 @@ import {
   InternalPluginOption,
   isExternalPluginOption,
   Options,
+  RegisteredPrefixes,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
@@ -29,6 +30,8 @@ import {
   triggerOnInitForInternalAndExternalPlugins,
   checkForPluginsPrefixesToRegister,
   isLocalPluginPath,
+  checkForPluginPrefixesToRegister,
+  onPrefixForPlugins,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -82,6 +85,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
+  const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
 
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
 
@@ -91,20 +95,38 @@ export const EventsProvider: FC<{}> = (props) => {
     addPlugin(plugin);
     const storage = await getStorage();
 
-    const commands = await triggerOnInitForInternalOrExternalPlugin(
+    const onInitCommands = await triggerOnInitForInternalOrExternalPlugin(
       plugin,
       api.shell,
       storage[plugin] ?? {},
     );
 
+    const prefixesCommands = await checkForPluginPrefixesToRegister(
+      plugin,
+      api.shell,
+    );
+
+    const commands = [
+      ...onInitCommands,
+      ...prefixesCommands,
+    ];
+
     const {
       optionsToRegister,
       dataToStorage,
+      prefixesToRegister,
       errorsToSet,
     } = handleCommands(commands);
 
     if (errorsToSet) {
       errorsToSet.forEach(Alert.alert);
+    }
+
+    if (prefixesToRegister) {
+      setRegisteredPrefixes(prevPrefixes => ({
+        ...prevPrefixes,
+        ...prefixesToRegister,
+      }));
     }
 
     if (dataToStorage) {
@@ -175,6 +197,13 @@ export const EventsProvider: FC<{}> = (props) => {
       errorsToSet.forEach(Alert.alert);
     }
 
+    if (prefixesToRegister) {
+      setRegisteredPrefixes(prevPrefixes => ({
+        ...prevPrefixes,
+        ...prefixesToRegister,
+      }));
+    }
+
     if (dataToStorage) {
       patchStorage(dataToStorage)
     }
@@ -196,11 +225,6 @@ export const EventsProvider: FC<{}> = (props) => {
         ...optionsToRegister,
       }));
     }
-
-    // if (prefixesToRegister) {
-    //   console.log(prefixesToRegister);
-    // }
-
   };
 
   const registerGlobalHotkeys = async (settings: Settings) => {
@@ -331,9 +355,43 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(true);
 
-    const options = Object.values(registeredOptions).flat(1).filter(o => {
-      return o.title.toLowerCase().search(q.toLowerCase()) !== -1;
-    });
+    const shouldTriggerPrefixes: RegisteredPrefixes = Object
+      .entries(registeredPrefixes)
+      .reduce<RegisteredPrefixes>((acc, [plugin, prefixes]) => {
+        const filteredPrefixes = prefixes.filter(prefix => q.startsWith(prefix));
+
+        return {
+          ...acc,
+          [plugin]: [
+            ...(acc[plugin] ? acc[plugin] : []),
+            ...filteredPrefixes,
+          ],
+        };
+      }, {});
+
+    const storage = await getStorage();
+    const prefixesCommands = await onPrefixForPlugins(
+      shouldTriggerPrefixes,
+      q,
+      api.shell,
+      storage,
+    );
+
+    const { optionsToSet, queryToSet } = handleCommands(prefixesCommands);
+
+    if (queryToSet) {
+      setQuery(queryToSet);
+    }
+
+    const filteredRegisteredOptions = Object
+      .values(registeredOptions)
+      .flat(1)
+      .filter(o => o.title.toLowerCase().search(q.toLowerCase()) !== -1);
+
+    const options = [
+      ...(optionsToSet ? optionsToSet : []),
+      ...filteredRegisteredOptions,
+    ];
 
     setLoading(false);
 

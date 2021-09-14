@@ -1655,10 +1655,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@^1.1.9":
-  "integrity" "sha512-VN0sQnfCPqCGes4uyGY2s4ZKn7DOtt7wjJ8InuV5zNIfXnRqYbxOTFxHXOFB9HsA9m3/eZjqgkiWlf8mz6ig6Q=="
-  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.1.9.tgz"
-  "version" "1.1.9"
+"@spotter-app/core@^1.1.11":
+  "integrity" "sha512-NStbuxbIl0cPd2Ztf7aczuVO8TsODWdYBRViuxKl48SYb5IwtRPPoBk6qXZ7fm8HW9c9GmSglGGVWgG8yS+7oA=="
+  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.1.11.tgz"
+  "version" "1.1.11"
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   "version" "7.1.12"

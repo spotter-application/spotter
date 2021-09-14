@@ -1,4 +1,5 @@
 import { InputCommand, InputCommandType, OutputCommandType, Storage } from '@spotter-app/core';
+import { RegisteredPrefixes } from '.';
 import { History } from '../providers';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
@@ -52,8 +53,8 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
       ? {...(acc.dataToStorage ?? {}), ...handleCommandResult.dataToStorage}
       : acc.dataToStorage;
 
-    const prefixesToRegister: string[] | null = handleCommandResult.prefixesToRegister
-      ? [...(acc.prefixesToRegister ?? []), ...handleCommandResult.prefixesToRegister]
+      const prefixesToRegister: RegisteredPrefixes | null = handleCommandResult.prefixesToRegister
+      ? {...(acc.prefixesToRegister ?? {}), ...handleCommandResult.prefixesToRegister}
       : acc.prefixesToRegister;
 
     const errorsToSet: string[] | null = handleCommandResult.errorsToSet
@@ -122,10 +123,12 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     };
   }
 
-  if (command.type === OutputCommandType.registerOnPrefix) {
+  if (command.type === OutputCommandType.registerPrefixes) {
     return {
       ...initialData,
-      prefixesToRegister: command.value,
+      prefixesToRegister: {
+        [command.plugin]: command.value,
+      }
     };
   }
 
@@ -154,6 +157,73 @@ export const onQueryInternalPluginAction = async (
     plugin: option.plugin,
     value: options,
   }];
+};
+
+export const onPrefixes  = async (
+  prefixes: string[],
+  query: string,
+  plugin: string,
+  shell: SpotterShell,
+  storage: Storage,
+): Promise<PluginOutputCommand[]> => {
+  return await prefixes.reduce<Promise<PluginOutputCommand[]>>(
+    async (asyncAcc, prefix) => {
+      return [
+        ...(await asyncAcc),
+        ...(await onPrefix(
+          prefix,
+          query,
+          plugin,
+          shell,
+          storage,
+        )),
+      ];
+    },
+    Promise.resolve([]),
+  );
+};
+
+export const onPrefix = async (
+  prefix: string,
+  query: string,
+  plugin: string,
+  shell: SpotterShell,
+  storage: Storage,
+): Promise<PluginOutputCommand[]> => {
+  const command: InputCommand = {
+    type: InputCommandType.onPrefix,
+    prefix,
+    storage,
+    query
+  };
+
+  console.log(command);
+
+
+  return await triggerExternalPluginCommand(plugin, command, shell);
+};
+
+export const onPrefixForPlugins  = async (
+  registeredPrefixes: RegisteredPrefixes,
+  query: string,
+  shell: SpotterShell,
+  storage: Storage,
+): Promise<PluginOutputCommand[]> => {
+  return await Object.entries(registeredPrefixes).reduce<Promise<PluginOutputCommand[]>>(
+    async (asyncAcc, [plugin, prefixes]) => {
+      return [
+        ...(await asyncAcc),
+        ...(await onPrefixes(
+          prefixes,
+          query,
+          plugin,
+          shell,
+          storage,
+        )),
+      ];
+    },
+    Promise.resolve([]),
+  );
 };
 
 export const onQueryExternalPluginAction = async (

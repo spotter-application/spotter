@@ -179,6 +179,10 @@ export interface HandleCommandResult {
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
   dataToStorage: null | Storage,
-  prefixesToRegister: null | string[],
+  prefixesToRegister: null | RegisteredPrefixes,
   errorsToSet: null | string[],
+}
+
+export interface RegisteredPrefixes {
+  [plugin: string]: string[],
 }
