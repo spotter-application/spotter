@@ -115,6 +115,23 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                   this.unregisterPlugin(plugin);
                   console.log('REMOVE PLUGIN!!');
                 }
+              },
+              {
+                title: 'Reinstall',
+                plugin: INTERNAL_PLUGIN_KEY,
+                icon,
+                action: async () => {
+                  // this.unregisterPlugin(plugin);
+
+                  const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
+
+                  if (!localPluginPath) {
+                    await this.api.shell.execute(`npm uninstall -g ${plugin}`);
+                    await this.api.shell.execute(`npm i -g ${plugin}`);
+                  }
+
+                  await this.registerPlugin(plugin);
+                }
               }
             ])
           }))),

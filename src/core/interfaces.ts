@@ -179,4 +179,6 @@ export interface HandleCommandResult {
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
   dataToStorage: null | Storage,
+  prefixesToRegister: null | string[],
+  errorsToSet: null | string[],
 }

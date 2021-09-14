@@ -1,10 +1,10 @@
 import {
   InputCommand,
   InputCommandType,
-  OutputCommand,
 } from '@spotter-app/core/dist/interfaces';
 import React, { FC, useEffect, useRef, useState } from 'react';
-import { INTERNAL_PLUGIN_KEY, SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { Alert } from 'react-native';
+import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
   PluginOutputCommand,
@@ -25,10 +25,12 @@ import {
   onQueryExternalPluginAction,
   onQueryInternalPluginAction,
   sortOptions,
-  triggerOnInitForPlugin,
+  triggerOnInitForInternalOrExternalPlugin,
+  triggerOnInitForInternalAndExternalPlugins,
+  checkForPluginsPrefixesToRegister,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
-import { useStorage } from '.';
+import { useStorage } from './storage.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -87,13 +89,22 @@ export const EventsProvider: FC<{}> = (props) => {
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
     const storage = await getStorage();
-    const commands = await triggerOnInitForPlugin(
+
+    const commands = await triggerOnInitForInternalOrExternalPlugin(
       plugin,
       api.shell,
       storage[plugin] ?? {},
     );
 
-    const { optionsToRegister, dataToStorage } = handleCommands(commands);
+    const {
+      optionsToRegister,
+      dataToStorage,
+      errorsToSet,
+    } = handleCommands(commands);
+
+    if (errorsToSet) {
+      errorsToSet.forEach(Alert.alert);
+    }
 
     if (dataToStorage) {
       patchStorage(dataToStorage);
@@ -130,28 +141,38 @@ export const EventsProvider: FC<{}> = (props) => {
 
     registerGlobalHotkeys(settings);
 
-    const externalPluginsCommands = await [
+    const internalAndExternalPLugins = [
       ...internalPlugins,
-      ...settings.plugins
-    ].reduce<Promise<PluginOutputCommand[]>>(
-      async (asyncAcc, plugin) => {
-        return [
-          ...(await asyncAcc),
-          ...(await triggerOnInitForPlugin(
-            plugin,
-            api.shell,
-            storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY] ?? {},
-          )),
-        ]
-      },
-      Promise.resolve([]),
+      ...settings.plugins,
+    ];
+
+    const onInitCommands = await triggerOnInitForInternalAndExternalPlugins(
+      internalAndExternalPLugins,
+      api.shell,
+      storage,
     );
+
+    const prefixesCommands = await checkForPluginsPrefixesToRegister(
+      settings.plugins,
+      api.shell,
+    );
+
+    const commands = [
+      ...onInitCommands,
+      ...prefixesCommands,
+    ];
 
     const {
       optionsToRegister,
       optionsToSet,
-      dataToStorage
-    } = handleCommands(externalPluginsCommands);
+      dataToStorage,
+      prefixesToRegister,
+      errorsToSet,
+    } = handleCommands(commands);
+
+    if (errorsToSet?.length) {
+      errorsToSet.forEach(Alert.alert);
+    }
 
     if (dataToStorage) {
       patchStorage(dataToStorage)
@@ -174,6 +195,11 @@ export const EventsProvider: FC<{}> = (props) => {
         ...optionsToRegister,
       }));
     }
+
+    // if (prefixesToRegister) {
+    //   console.log(prefixesToRegister);
+    // }
+
   };
 
   const registerGlobalHotkeys = async (settings: Settings) => {

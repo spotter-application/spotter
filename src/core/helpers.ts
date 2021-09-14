@@ -52,17 +52,29 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
       ? {...(acc.dataToStorage ?? {}), ...handleCommandResult.dataToStorage}
       : acc.dataToStorage;
 
+    const prefixesToRegister: string[] | null = handleCommandResult.prefixesToRegister
+      ? [...(acc.prefixesToRegister ?? []), ...handleCommandResult.prefixesToRegister]
+      : acc.prefixesToRegister;
+
+    const errorsToSet: string[] | null = handleCommandResult.errorsToSet
+      ? [...(acc.errorsToSet ?? []), ...handleCommandResult.errorsToSet]
+      : acc.errorsToSet;
+
     return {
       optionsToRegister,
       optionsToSet,
       queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
       dataToStorage,
+      prefixesToRegister,
+      errorsToSet,
     };
   }, {
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
     dataToStorage: null,
+    prefixesToRegister: null,
+    errorsToSet: null,
   });
 };
 
@@ -71,7 +83,9 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
-    dataToStorage: null
+    dataToStorage: null,
+    prefixesToRegister: null,
+    errorsToSet: null,
   };
 
   if (command.type === OutputCommandType.registerOptions) {
@@ -108,6 +122,20 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     };
   }
 
+  if (command.type === OutputCommandType.registerOnPrefix) {
+    return {
+      ...initialData,
+      prefixesToRegister: command.value,
+    };
+  }
+
+  if (command.type === OutputCommandType.setErrors) {
+    return {
+      ...initialData,
+      errorsToSet: command.value,
+    };
+  }
+
   return initialData;
 };
 
@@ -134,7 +162,7 @@ export const onQueryExternalPluginAction = async (
   shell: SpotterShell,
   storage: Storage,
 ): Promise<PluginOutputCommand[]> => {
-  if (!option || !option.queryAction) {
+  if (!option?.queryAction) {
     return [];
   }
 
@@ -148,7 +176,67 @@ export const onQueryExternalPluginAction = async (
   return await triggerExternalPluginCommand(option.plugin, command, shell);
 };
 
-export const triggerOnInitForPlugin = async (
+export const checkForPluginPrefixesToRegister = async (
+  plugin: string,
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  const command: InputCommand = {
+    type: InputCommandType.checkForOnPrefixMethods,
+  };
+
+  return await triggerExternalPluginCommand(plugin, command, shell);
+};
+
+export const checkForPluginsPrefixesToRegister  = async (
+  plugins: string[],
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  return await plugins.reduce<Promise<PluginOutputCommand[]>>(
+    async (asyncAcc, plugin) => {
+      return [
+        ...(await asyncAcc),
+        ...(await checkForPluginPrefixesToRegister(
+          plugin,
+          shell,
+        )),
+      ];
+    },
+    Promise.resolve([]),
+  );
+};
+
+export const checkForOptionsToRegister = async (
+  plugin: string,
+  shell: SpotterShell,
+): Promise<PluginOutputCommand[]> => {
+  const command: InputCommand = {
+    type: InputCommandType.checkForOptionsToRegister,
+  };
+
+  return await triggerExternalPluginCommand(plugin, command, shell);
+};
+
+export const triggerOnInitForInternalAndExternalPlugins = async (
+  plugins: Array<InternalPluginLifecycle | string>,
+  shell: SpotterShell,
+  storage: Storage,
+): Promise<PluginOutputCommand[]> => {
+  return await plugins.reduce<Promise<PluginOutputCommand[]>>(
+    async (asyncAcc, plugin) => {
+      return [
+        ...(await asyncAcc),
+        ...(await triggerOnInitForInternalOrExternalPlugin(
+          plugin,
+          shell,
+          storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY] ?? {},
+        )),
+      ]
+    },
+    Promise.resolve([]),
+  );
+};
+
+export const triggerOnInitForInternalOrExternalPlugin = async (
   plugin: string | InternalPluginLifecycle,
   shell: SpotterShell,
   storage: Storage,
@@ -180,8 +268,9 @@ const triggerExternalPluginCommand = async (
   shell: SpotterShell,
 ): Promise<PluginOutputCommand[]> => {
   try {
+    const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
     const v = await new Promise<string>((resolve, reject) => {
-      shell.execute(`${plugin} '${JSON.stringify(command)}'`)
+      shell.execute(`${localPluginPath ? 'node ' : ''}${plugin} '${JSON.stringify(command)}'`)
         .then(resolve)
         .catch(reject);
 
@@ -191,10 +280,8 @@ const triggerExternalPluginCommand = async (
   } catch (error) {
     // TODO: display the error
     const outputCommand: PluginOutputCommand = {
-      type: OutputCommandType.setOptions,
-      value: [{
-        title: `Error in ${plugin}: ${error}`,
-      }],
+      type: OutputCommandType.setErrors,
+      value: [error as string],
       plugin,
     };
     return [outputCommand];
