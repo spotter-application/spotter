@@ -28,6 +28,7 @@ import {
   triggerOnInitForInternalOrExternalPlugin,
   triggerOnInitForInternalAndExternalPlugins,
   checkForPluginsPrefixesToRegister,
+  isLocalPluginPath,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -392,10 +393,12 @@ export const EventsProvider: FC<{}> = (props) => {
       action: option.action ?? '',
       query,
       storage: storage[option.plugin] ?? {},
-    }
+    };
+
+    const localPluginPath = isLocalPluginPath(option.plugin);
 
     const commands: PluginOutputCommand[] = await api.shell
-      .execute(`${option.plugin} '${JSON.stringify(command)}'`)
+      .execute(`${localPluginPath ? 'node ' : ''}${option.plugin} '${JSON.stringify(command)}'`)
       .then(v => parseCommands(option.plugin, v));
 
     const { dataToStorage } = handleCommands(commands);

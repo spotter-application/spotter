@@ -3,6 +3,7 @@ import {
   InternalPluginLifecycle,
   InternalPluginOption,
   INTERNAL_PLUGIN_KEY,
+  isLocalPluginPath,
 } from '../core';
 import icon from '../../preview/icon.png';
 import { Settings } from '../providers/settings.provider';
@@ -35,7 +36,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                 return [];
               }
 
-              const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(query);
+              const localPluginPath = isLocalPluginPath(query);
               if (localPluginPath) {
                 return [{
                   title: `Install local plugin: ${query.substring(0, 40)}${query?.length > 40 ? '...' : ''}`,

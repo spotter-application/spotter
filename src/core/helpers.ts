@@ -268,7 +268,7 @@ const triggerExternalPluginCommand = async (
   shell: SpotterShell,
 ): Promise<PluginOutputCommand[]> => {
   try {
-    const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
+    const localPluginPath = isLocalPluginPath(plugin);
     const v = await new Promise<string>((resolve, reject) => {
       shell.execute(`${localPluginPath ? 'node ' : ''}${plugin} '${JSON.stringify(command)}'`)
         .then(resolve)
@@ -300,3 +300,7 @@ export const forceReplaceOptions = (options: Options): Options => {
     o => o.forceReplaceOption !== option.title
   )), ...optionsWithForceReplace];
 };
+
+export const isLocalPluginPath = (path: string): boolean => {
+  return RegExp('^(.+)\/([^\/]+)$').test(path);
+}
