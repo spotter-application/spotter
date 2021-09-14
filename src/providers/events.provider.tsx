@@ -1,9 +1,11 @@
 import {
   InputCommand,
   InputCommandType,
+  Storage,
 } from '@spotter-app/core/dist/interfaces';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
+import pDebounce from 'p-debounce';
 import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
@@ -15,6 +17,7 @@ import {
   isExternalPluginOption,
   Options,
   RegisteredPrefixes,
+  SpotterShell,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
@@ -32,6 +35,7 @@ import {
   isLocalPluginPath,
   checkForPluginPrefixesToRegister,
   onPrefixForPlugins,
+  debouncedOnPrefixForPlugins,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -90,6 +94,8 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
+
+  const debouncedOnPrefixForPlugins = useRef<(registeredPrefixes: RegisteredPrefixes, query: string, shell: SpotterShell, storage: Storage) => Promise<PluginOutputCommand[]>>();
 
   const registerPlugin = async (plugin: string) => {
     addPlugin(plugin);
@@ -160,6 +166,10 @@ export const EventsProvider: FC<{}> = (props) => {
 
   useEffect(() => {
     onInit();
+
+    if (!debouncedOnPrefixForPlugins.current) {
+      debouncedOnPrefixForPlugins.current = pDebounce(onPrefixForPlugins, 200);
+    }
   }, []);
 
   const onInit = async () => {
@@ -363,23 +373,26 @@ export const EventsProvider: FC<{}> = (props) => {
       .entries(registeredPrefixes)
       .reduce<RegisteredPrefixes>((acc, [plugin, prefixes]) => {
         const filteredPrefixes = prefixes.filter(prefix => q.startsWith(prefix));
+        const updatedPrefixes = [
+          ...(acc[plugin] ? acc[plugin] : []),
+          ...filteredPrefixes,
+        ];
 
         return {
           ...acc,
-          [plugin]: [
-            ...(acc[plugin] ? acc[plugin] : []),
-            ...filteredPrefixes,
-          ],
+          ...(updatedPrefixes.length ? {[plugin]: updatedPrefixes} : {}),
         };
       }, {});
 
     const storage = await getStorage();
-    const prefixesCommands = await onPrefixForPlugins(
+
+    const prefixesCommands = Object.keys(shouldTriggerPrefixes)?.length && debouncedOnPrefixForPlugins.current
+      ? await debouncedOnPrefixForPlugins.current(
       shouldTriggerPrefixes,
       q,
       api.shell,
       storage,
-    );
+    ) : [];
 
     const { optionsToSet, queryToSet } = handleCommands(prefixesCommands);
 

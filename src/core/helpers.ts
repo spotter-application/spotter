@@ -197,13 +197,10 @@ export const onPrefix = async (
     query
   };
 
-  console.log(command);
-
-
   return await triggerExternalPluginCommand(plugin, command, shell);
 };
 
-export const onPrefixForPlugins  = async (
+export const onPrefixForPlugins = async (
   registeredPrefixes: RegisteredPrefixes,
   query: string,
   shell: SpotterShell,
