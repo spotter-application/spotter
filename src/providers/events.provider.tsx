@@ -147,6 +147,10 @@ export const EventsProvider: FC<{}> = (props) => {
       ...prevRegisteredOptions,
       [plugin]: [],
     }));
+    setRegisteredPrefixes((prevRegisteredOptions) => ({
+      ...prevRegisteredOptions,
+      [plugin]: [],
+    }));
     reset();
   }
 
