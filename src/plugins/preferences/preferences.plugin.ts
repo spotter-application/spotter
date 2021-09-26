@@ -220,6 +220,11 @@ export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLif
         icon: '/System/Applications/System\ Preferences.app',
         action: () => this.sleep(),
       },
+      {
+        title: 'Lock Screen Preferences',
+        icon: '/System/Applications/System\ Preferences.app',
+        action: () => this.lockScreen(),
+      },
     ];
   }
 
@@ -241,5 +246,9 @@ export class PreferencesPlugin extends SpotterPlugin implements SpotterPluginLif
 
   private async sleep() {
     await this.api.shell.execute("osascript -e 'tell app \"System Events\" to sleep'")
+  }
+
+  private async lockScreen() {
+    await this.api.shell.execute("osascript -e 'tell app \"System Events\"' -e 'tell process \"SystemUIServer\" to keystroke \"q\" using {command down, control down}' -e 'tell end'")
   }
 }
