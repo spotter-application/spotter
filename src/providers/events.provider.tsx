@@ -171,6 +171,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   }, []);
 
+  // TODO: move to spotter.tsx
   const onInit = async () => {
     const settings = await getSettings();
     const storage = await getStorage();
