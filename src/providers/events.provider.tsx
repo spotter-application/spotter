@@ -6,7 +6,7 @@ import {
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
-import { SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { PREINSTALL_PLUGINS_LIST, SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
   PluginOutputCommand,
@@ -35,7 +35,6 @@ import {
   isLocalPluginPath,
   checkForPluginPrefixesToRegister,
   onPrefixForPlugins,
-  debouncedOnPrefixForPlugins,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -79,7 +78,7 @@ export const EventsContext = React.createContext<Context>(context);
 export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
-  const { getSettings, addPlugin, removePlugin } = useSettings();
+  const { getSettings, addPlugin, removePlugin, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const { getStorage, patchStorage } = useStorage();
 
@@ -125,7 +124,7 @@ export const EventsProvider: FC<{}> = (props) => {
     } = handleCommands(commands);
 
     if (errorsToSet) {
-      errorsToSet.forEach(Alert.alert);
+      errorsToSet.forEach(err => Alert.alert(err));
     }
 
     if (prefixesToRegister) {
@@ -178,6 +177,11 @@ export const EventsProvider: FC<{}> = (props) => {
 
     registerGlobalHotkeys(settings);
 
+    if (!settings.pluginsPreinstalled) {
+      await preinstallPlugins();
+      patchSettings({ pluginsPreinstalled: true });
+    }
+
     const internalAndExternalPLugins = [
       ...internalPlugins,
       ...settings.plugins,
@@ -208,7 +212,7 @@ export const EventsProvider: FC<{}> = (props) => {
     } = handleCommands(commands);
 
     if (errorsToSet?.length) {
-      errorsToSet.forEach(Alert.alert);
+      errorsToSet.forEach(err => Alert.alert(err));
     }
 
     if (prefixesToRegister) {
@@ -251,6 +255,10 @@ export const EventsProvider: FC<{}> = (props) => {
     });
 
     api.globalHotKey.onPress(e => onPressHotkey(e));
+  }
+
+  const preinstallPlugins = async () => {
+    return Promise.all(PREINSTALL_PLUGINS_LIST.map(registerPlugin))
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {

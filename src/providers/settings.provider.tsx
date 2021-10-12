@@ -9,6 +9,7 @@ export interface Settings {
   hotkey: SpotterHotkey | null;
   pluginHotkeys: SpotterPluginHotkeys;
   plugins: string[];
+  pluginsPreinstalled: boolean;
 }
 
 type Context = {
@@ -23,6 +24,7 @@ const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
   plugins: [],
+  pluginsPreinstalled: false,
 };
 
 const context: Context = {
@@ -45,10 +47,18 @@ export const SettingsProvider: FC<{}> = (props) => {
       return initialSettings;
     }
 
+    const {
+      hotkey,
+      pluginHotkeys,
+      plugins,
+      pluginsPreinstalled,
+    } = settings;
+
     return {
-      hotkey: settings.hotkey ?? initialSettings.hotkey,
-      pluginHotkeys: settings.pluginHotkeys ?? initialSettings.pluginHotkeys,
-      plugins: settings.plugins ?? initialSettings.plugins,
+      hotkey: hotkey ?? initialSettings.hotkey,
+      pluginHotkeys: pluginHotkeys ?? initialSettings.pluginHotkeys,
+      plugins: plugins ?? initialSettings.plugins,
+      pluginsPreinstalled: pluginsPreinstalled ?? initialSettings.pluginsPreinstalled,
     };
   }
 
