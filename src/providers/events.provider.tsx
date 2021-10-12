@@ -54,6 +54,7 @@ type Context = {
   loading: boolean,
   hoveredOptionIndex: number,
   shouldShowOptions: boolean,
+  waitingFor: string | null,
 };
 
 const context: Context = {
@@ -71,6 +72,7 @@ const context: Context = {
   loading: false,
   hoveredOptionIndex: 0,
   shouldShowOptions: false,
+  waitingFor: null,
 }
 
 export const EventsContext = React.createContext<Context>(context);
@@ -78,7 +80,7 @@ export const EventsContext = React.createContext<Context>(context);
 export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
-  const { getSettings, addPlugin, removePlugin, patchSettings } = useSettings();
+  const { getSettings, addPlugin, removePlugin } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const { getStorage, patchStorage } = useStorage();
 
@@ -86,6 +88,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const [ options, setOptions ] = useState<Options>([]);
   const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
+  const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
   const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
@@ -96,7 +99,17 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const debouncedOnPrefixForPlugins = useRef<(registeredPrefixes: RegisteredPrefixes, query: string, shell: SpotterShell, storage: Storage) => Promise<PluginOutputCommand[]>>();
 
-  const registerPlugin = async (plugin: string) => {
+  const registerPlugin = async (settings: Settings, plugin: string) => {
+    if (settings.plugins.find(p => p === plugin)) {
+      return;
+    }
+
+    const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
+
+    if (!localPluginPath) {
+      await api.shell.execute(`npm i -g ${plugin}`);
+    }
+
     addPlugin(plugin);
     const storage = await getStorage();
 
@@ -146,7 +159,13 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   }
 
-  const unregisterPlugin = (plugin: string) => {
+  const unregisterPlugin = async (plugin: string) => {
+    const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
+
+    if (!localPluginPath) {
+      await api.shell.execute(`npm uninstall -g ${plugin}`);
+    }
+
     removePlugin(plugin);
     setRegisteredOptions((prevRegisteredOptions) => ({
       ...prevRegisteredOptions,
@@ -176,12 +195,18 @@ export const EventsProvider: FC<{}> = (props) => {
     const settings = await getSettings();
     const storage = await getStorage();
 
+    setWaitingFor('Installing dependencies...');
+    await installDependencies();
+
+    setWaitingFor('Registering hotkeys...');
     registerGlobalHotkeys(settings);
 
     if (!settings.pluginsPreinstalled) {
-      await preinstallPlugins();
-      patchSettings({ pluginsPreinstalled: true });
+      setWaitingFor('Installing plugins...');
+      await preinstallPlugins(settings);
     }
+
+    setWaitingFor(null);
 
     const internalAndExternalPLugins = [
       ...internalPlugins,
@@ -258,8 +283,24 @@ export const EventsProvider: FC<{}> = (props) => {
     api.globalHotKey.onPress(e => onPressHotkey(e));
   }
 
-  const preinstallPlugins = async () => {
-    return Promise.all(PREINSTALL_PLUGINS_LIST.map(registerPlugin))
+  const installDependencies = async () => {
+    const nodeInstalled = await api.shell.execute('node -v').catch(() => false);
+    if (nodeInstalled) {
+      return;
+    }
+
+    const brewInstalled = await api.shell.execute('brew -v').catch(() => false);
+    if (!brewInstalled) {
+      await api.shell.execute('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"');
+    }
+
+    await api.shell.execute('brew install node');
+  }
+
+  const preinstallPlugins = async (settings: Settings) => {
+    return Promise.all(PREINSTALL_PLUGINS_LIST.map(
+      p => registerPlugin(settings, p),
+    ));
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {
@@ -541,6 +582,7 @@ export const EventsProvider: FC<{}> = (props) => {
       hoveredOptionIndex,
       shouldShowOptions,
       selectedOption,
+      waitingFor,
     }}>
       {props.children}
     </EventsContext.Provider>

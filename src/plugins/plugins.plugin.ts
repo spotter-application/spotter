@@ -51,7 +51,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
                       // TODO: add installing spinner
                       await this.api.shell.execute(`node ${query} ${JSON.stringify(testCommand)}`);
-                      this.registerPlugin(query);
+                      this.registerPlugin(settings, query);
                     } catch {
                       console.log('INSTALLATION ERROR');
                     }
@@ -77,7 +77,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                       await this.api.shell.execute(`npx ${p.name} ${JSON.stringify(testCommand)}`);
 
                       await this.api.shell.execute(`npm i -g ${p.name}`);
-                      this.registerPlugin(p.name);
+                      this.registerPlugin(settings, p.name);
                     } catch {
                       console.log('INSTALLATION ERROR');
                     }
@@ -123,15 +123,7 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                 icon,
                 action: async () => {
                   // this.unregisterPlugin(plugin);
-
-                  const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
-
-                  if (!localPluginPath) {
-                    await this.api.shell.execute(`npm uninstall -g ${plugin}`);
-                    await this.api.shell.execute(`npm i -g ${plugin}`);
-                  }
-
-                  await this.registerPlugin(plugin);
+                  await this.registerPlugin(settings, plugin);
                 }
               }
             ])

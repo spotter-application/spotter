@@ -30,6 +30,7 @@ export const QueryPanel: FC<{}> = () => {
     hoveredOptionIndex,
     shouldShowOptions,
     selectedOption,
+    waitingFor,
   } = useEvents();
 
   return <>
@@ -37,7 +38,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(options?.length && shouldShowOptions ? styles.inputWithResults : {}),
+        ...((options?.length && shouldShowOptions) || waitingFor ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -93,6 +94,17 @@ export const QueryPanel: FC<{}> = () => {
         </View>
 
       </View>
+      { waitingFor ?
+        <View style={{
+          backgroundColor: colors.background,
+          ...styles.input,
+          padding: 10,
+          paddingTop: 0,
+          ...(options?.length && shouldShowOptions ? styles.inputWithResults : {}),
+        }}>
+          <Text style={{ opacity: 0.5, fontSize: 12 }}>{waitingFor}</Text>
+        </View> : null
+      }
       {
         shouldShowOptions && <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
