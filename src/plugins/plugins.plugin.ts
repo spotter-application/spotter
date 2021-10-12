@@ -33,7 +33,12 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
             icon,
             queryAction: async (query: string) => {
               if (!query?.length) {
-                return [];
+                // return [];
+                query = 'spotter-';
+              }
+
+              if (!query.toLowerCase().startsWith('spotter')) {
+                query = `spotter-${query}`;
               }
 
               const localPluginPath = isLocalPluginPath(query);
@@ -61,7 +66,13 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
               const queryPackages = await fetch(
                 `https://www.npmjs.com/search/suggestions?q=${query}`
-              ).then(r => r.json());
+              )
+                .then(r => r.json())
+                .then(r => r.filter((p: any) =>
+                  p.name !== 'spotter' &&
+                  p.name.toLowerCase().startsWith('spotter') &&
+                  !settings.plugins.find(name => p.name === name))
+                );
 
               if (queryPackages) {
                 return queryPackages.map((p: any) => ({
