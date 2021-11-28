@@ -1655,10 +1655,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@^1.1.11":
-  "integrity" "sha512-NStbuxbIl0cPd2Ztf7aczuVO8TsODWdYBRViuxKl48SYb5IwtRPPoBk6qXZ7fm8HW9c9GmSglGGVWgG8yS+7oA=="
-  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.1.11.tgz"
-  "version" "1.1.11"
+"@spotter-app/core@1.1.15":
+  "integrity" "sha512-aEuW+rSY7s9Sq3/Uu4502ybnqOgdOETzRhJV+WCQkTsEWkQT2LIA/+DzRCq6isZWkdBpEOma52BYXdcCCviN/A=="
+  "resolved" "https://registry.npmjs.org/@spotter-app/core/-/core-1.1.15.tgz"
+  "version" "1.1.15"
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   "version" "7.1.12"
@@ -3231,6 +3231,11 @@
   "version" "2.0.1"
   dependencies:
     "webidl-conversions" "^5.0.0"
+
+"dotenv@^10.0.0":
+  "integrity" "sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q=="
+  "resolved" "https://registry.npmjs.org/dotenv/-/dotenv-10.0.0.tgz"
+  "version" "10.0.0"
 
 "ecc-jsbn@~0.1.1":
   "integrity" "sha1-OoOpBOVDUyh4dMVkt1SThoSamMk="
@@ -7071,6 +7076,13 @@
     "flow-parser" "^0.121.0"
     "jscodeshift" "^0.11.0"
     "nullthrows" "^1.1.1"
+
+"react-native-dotenv@^3.3.0":
+  "integrity" "sha512-qt7WOOm+xFlvC2HCeCpakO23iPGpLVzCyegOv3x0luTiO3JmvfbZ9bHVoEKcIy1Fbxf9QuXb/TQdfT4wcie7rw=="
+  "resolved" "https://registry.npmjs.org/react-native-dotenv/-/react-native-dotenv-3.3.0.tgz"
+  "version" "3.3.0"
+  dependencies:
+    "dotenv" "^10.0.0"
 
 "react-native-macos@0.63.27":
   "integrity" "sha512-Gwx7L3dygnGw3vujNCs0HaH9mx7fv7zNLEwqKRhXMio0JpfmWGa8kxkjZ6FTw/sWZLpdRsRwQgINX3+MGSxbGw=="

@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
-    "@spotter-app/core": "^1.1.11",
+    "@spotter-app/core": "1.1.15",
     "@types/math-expression-evaluator": "^1.2.0",
     "buffer": "^6.0.3",
     "lodash-es": "^4.17.21",
@@ -27,6 +27,7 @@
     "p-debounce": "^4.0.0",
     "react": "17.0.1",
     "react-native": "0.64.0",
+    "react-native-dotenv": "^3.3.0",
     "react-native-macos": "0.63.27",
     "react-native-sqlite-2": "^3.1.1",
     "spotify-web-api-node": "^4.0.0"
