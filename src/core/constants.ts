@@ -10,4 +10,5 @@ export const INTERNAL_PLUGIN_KEY = 'INTERNAL_PLUGIN';
 
 export const PREINSTALL_PLUGINS_LIST = [
   'spotter-applications-plugin',
+  'spotter-spotify-plugin',
 ];
