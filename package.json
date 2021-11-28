@@ -13,9 +13,9 @@
     "start": "npm run start:macos",
     "test": "jest",
     "lint": "eslint .",
-    "install:macos": "cd ./macos && pod install",
-    "start:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos",
-    "build:macos": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
+    "install": "cd ./macos && pod install",
+    "start": "node node_modules/react-native-macos/local-cli/cli.js run-macos",
+    "build": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
