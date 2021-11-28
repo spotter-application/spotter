@@ -49,6 +49,7 @@ type Context = {
   onTab: () => void,
   onBackspace: () => void,
   query: string,
+  hint?: string,
   options: Array<InternalPluginOption | ExternalPluginOption>,
   selectedOption: InternalPluginOption | ExternalPluginOption | null,
   loading: boolean,
@@ -67,6 +68,7 @@ const context: Context = {
   onTab: () => null,
   onBackspace: () => null,
   query: '',
+  hint: '',
   options: [],
   selectedOption: null,
   loading: false,
@@ -85,6 +87,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const { getStorage, patchStorage } = useStorage();
 
   const [ query, setQuery ] = useState<string>('');
+  const [ hint, setHint ] = useState<string>();
   const [ options, setOptions ] = useState<Options>([]);
   const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
@@ -111,12 +114,12 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     addPlugin(plugin);
-    const storage = await getStorage();
+    const pluginStorage = await getStorage(plugin);
 
     const onInitCommands = await triggerOnInitForInternalOrExternalPlugin(
       plugin,
       api.shell,
-      storage[plugin] ?? {},
+      pluginStorage,
     );
 
     const prefixesCommands = await checkForPluginPrefixesToRegister(
@@ -193,7 +196,6 @@ export const EventsProvider: FC<{}> = (props) => {
   // TODO: move to spotter.tsx
   const onInit = async () => {
     const settings = await getSettings();
-    const storage = await getStorage();
 
     setWaitingFor('Installing dependencies...');
     await installDependencies();
@@ -216,7 +218,7 @@ export const EventsProvider: FC<{}> = (props) => {
     const onInitCommands = await triggerOnInitForInternalAndExternalPlugins(
       internalAndExternalPLugins,
       api.shell,
-      storage,
+      getStorage,
     );
 
     const prefixesCommands = await checkForPluginsPrefixesToRegister(
@@ -312,6 +314,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const reset = () => {
     setQuery('');
+    setHint(undefined);
     setLoading(false);
     setOptions([]);
     setHoveredOptionIndex(0);
@@ -344,28 +347,37 @@ export const EventsProvider: FC<{}> = (props) => {
     setSelectedOption(option);
     setQuery('');
 
-    const storage = await getStorage();
+    const pluginStorage = await getStorage(option.plugin);
     const commands: PluginOutputCommand[] = isExternalPluginOption(option)
       ? await onQueryExternalPluginAction(
         option,
         '',
         api.shell,
-        storage[option.plugin] ?? {}
+        pluginStorage,
       )
       : await onQueryInternalPluginAction(option, '');
 
-    const { optionsToSet, dataToStorage } = handleCommands(commands);
+    const { optionsToSet, dataToStorage, hintToSet, logs } = handleCommands(commands);
+
+    if (logs?.length) {
+      logs.forEach(log => console.log(log));
+    }
 
     if (dataToStorage) {
       patchStorage(dataToStorage);
     }
 
-    const history = await getHistory();
+    if (hintToSet) {
+      setHint(hintToSet);
+    }
+
     increaseHistory(getHistoryPath(option, null));
+
+    const history = await getHistory();
     setOptions(
       sortOptions(
         forceReplaceOptions(optionsToSet ?? []),
-        selectedOption,
+        option,
         history,
       ),
     );
@@ -385,30 +397,37 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery(q);
 
     if (selectedOption) {
-      const storage = await getStorage();
+      const pluginStorage = await getStorage(selectedOption.plugin);
       const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
         ? await onQueryExternalPluginAction(
           selectedOption,
           q,
           api.shell,
-          storage[selectedOption.plugin] ?? {}
+          pluginStorage,
         )
         : await onQueryInternalPluginAction(selectedOption, q);
 
-      const { optionsToSet, dataToStorage } = handleCommands(commands);
+      const { optionsToSet, dataToStorage, logs } = handleCommands(commands);
+
+      if (logs?.length) {
+        logs.forEach(log => console.log(log));
+      }
 
       if (dataToStorage) {
         patchStorage(dataToStorage);
       }
 
-      const history = await getHistory();
-      setOptions(
-        sortOptions(
-          forceReplaceOptions(optionsToSet ?? []),
-          selectedOption,
-          history,
-        ),
-      );
+      if (optionsToSet) {
+        const history = await getHistory();
+        setOptions(
+          sortOptions(
+            forceReplaceOptions(optionsToSet ?? []),
+            selectedOption,
+            history,
+          ),
+        );
+      }
+
       return;
     }
 
@@ -434,17 +453,20 @@ export const EventsProvider: FC<{}> = (props) => {
         };
       }, {});
 
-    const storage = await getStorage();
-
     const prefixesCommands = Object.keys(shouldTriggerPrefixes)?.length && debouncedOnPrefixForPlugins.current
       ? await debouncedOnPrefixForPlugins.current(
-      shouldTriggerPrefixes,
-      q,
-      api.shell,
-      storage,
-    ) : [];
+          shouldTriggerPrefixes,
+          q,
+          api.shell,
+          getStorage,
+        )
+      : [];
 
-    const { optionsToSet, queryToSet } = handleCommands(prefixesCommands);
+    const { optionsToSet, queryToSet, logs } = handleCommands(prefixesCommands);
+
+    if (logs?.length) {
+      logs.forEach(log => console.log(log));
+    }
 
     if (queryToSet) {
       setQuery(queryToSet);
@@ -512,12 +534,12 @@ export const EventsProvider: FC<{}> = (props) => {
   };
 
   const onSubmitExternalOption = async (option: ExternalPluginOption) => {
-    const storage = await getStorage();
+    const pluginStorage = await getStorage(option.plugin);
     const command: InputCommand = {
       type: InputCommandType.onAction,
       action: option.action ?? '',
       query,
-      storage: storage[option.plugin] ?? {},
+      storage: pluginStorage,
     };
 
     const localPluginPath = isLocalPluginPath(option.plugin);
@@ -526,11 +548,29 @@ export const EventsProvider: FC<{}> = (props) => {
       .execute(`${localPluginPath ? 'node ' : ''}${option.plugin} '${JSON.stringify(command)}'`)
       .then(v => parseCommands(option.plugin, v));
 
-    const { dataToStorage } = handleCommands(commands);
+    const { dataToStorage, optionsToSet, logs } = handleCommands(commands);
+
+    if (logs?.length) {
+      logs.forEach(log => console.log(log));
+    }
 
     if (dataToStorage) {
       patchStorage(dataToStorage);
     }
+
+    if (optionsToSet) {
+      const history = await getHistory();
+      setOptions(
+        sortOptions(
+          forceReplaceOptions(optionsToSet),
+          selectedOption,
+          history,
+        ),
+      );
+      return;
+    }
+
+    onEscape();
   }
 
   const onSubmit = async (index?: number) => {
@@ -549,7 +589,7 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
 
     isExternalPluginOption(option)
       ? onSubmitExternalOption(option)
@@ -558,8 +598,6 @@ export const EventsProvider: FC<{}> = (props) => {
     increaseHistory(
       getHistoryPath(option, selectedOption),
     );
-
-    onEscape();
   }
 
   const parseCommands = (plugin: string, value: string): PluginOutputCommand[] => {
@@ -578,6 +616,7 @@ export const EventsProvider: FC<{}> = (props) => {
       onSubmit,
       query,
       options,
+      hint,
       loading,
       hoveredOptionIndex,
       shouldShowOptions,

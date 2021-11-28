@@ -9,11 +9,6 @@ import icon from '../../preview/icon.png';
 import { Settings } from '../providers/settings.provider';
 import fetch from 'node-fetch';
 
-const LIBRARY = [
-  'spotter-applications-plugin',
-  'spotter-spotify-plugin',
-];
-
 export class PluginsPlugin extends InternalPlugin implements InternalPluginLifecycle {
 
   async onInit(): Promise<InternalPluginOption[]> {
@@ -37,10 +32,6 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                 query = 'spotter-';
               }
 
-              if (!query.toLowerCase().startsWith('spotter')) {
-                query = `spotter-${query}`;
-              }
-
               const localPluginPath = isLocalPluginPath(query);
               if (localPluginPath) {
                 return [{
@@ -57,11 +48,16 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
                       // TODO: add installing spinner
                       await this.api.shell.execute(`node ${query} ${JSON.stringify(testCommand)}`);
                       this.registerPlugin(settings, query);
-                    } catch {
-                      console.log('INSTALLATION ERROR');
+                    } catch (e) {
+                      console.log('INSTALLATION ERROR: ', e);
                     }
                   },
                 }];
+              }
+
+
+              if (!query.toLowerCase().startsWith('spotter')) {
+                query = `spotter-${query}`;
               }
 
               const queryPackages = await fetch(
@@ -89,8 +85,8 @@ export class PluginsPlugin extends InternalPlugin implements InternalPluginLifec
 
                       await this.api.shell.execute(`npm i -g ${p.name}`);
                       this.registerPlugin(settings, p.name);
-                    } catch {
-                      console.log('INSTALLATION ERROR');
+                    } catch (e) {
+                      console.log('INSTALLATION ERROR: ', e);
                     }
                   }
                 }));

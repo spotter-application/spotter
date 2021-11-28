@@ -25,6 +25,7 @@ export const QueryPanel: FC<{}> = () => {
     onTab,
     onBackspace,
     options,
+    hint,
     loading,
     query,
     hoveredOptionIndex,
@@ -65,7 +66,7 @@ export const QueryPanel: FC<{}> = () => {
         <InputNative
           style={{ flex: 1 }}
           value={query}
-          placeholder='Query...'
+          placeholder={hint ?? 'Query...'}
           hint={query?.length && options?.length ? options[0].title : ''}
           onChangeText={onQuery}
           onSubmit={onSubmit}
@@ -94,7 +95,7 @@ export const QueryPanel: FC<{}> = () => {
         </View>
 
       </View>
-      { waitingFor ?
+      { waitingFor?.length ?
         <View style={{
           backgroundColor: colors.background,
           ...styles.input,

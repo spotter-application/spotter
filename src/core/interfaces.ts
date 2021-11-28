@@ -178,9 +178,11 @@ export interface HandleCommandResult {
   optionsToRegister: null | RegisteredOptions,
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
+  hintToSet: null | string,
   dataToStorage: null | Storage,
   prefixesToRegister: null | RegisteredPrefixes,
   errorsToSet: null | string[],
+  logs: null | string[],
 }
 
 export interface RegisteredPrefixes {

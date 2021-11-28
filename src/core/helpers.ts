@@ -53,7 +53,7 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
       ? {...(acc.dataToStorage ?? {}), ...handleCommandResult.dataToStorage}
       : acc.dataToStorage;
 
-      const prefixesToRegister: RegisteredPrefixes | null = handleCommandResult.prefixesToRegister
+    const prefixesToRegister: RegisteredPrefixes | null = handleCommandResult.prefixesToRegister
       ? {...(acc.prefixesToRegister ?? {}), ...handleCommandResult.prefixesToRegister}
       : acc.prefixesToRegister;
 
@@ -61,21 +61,29 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
       ? [...(acc.errorsToSet ?? []), ...handleCommandResult.errorsToSet]
       : acc.errorsToSet;
 
+    const logs: string[] | null = handleCommandResult.logs
+      ? [...(acc.logs ?? []), ...handleCommandResult.logs]
+      : acc.logs;
+
     return {
       optionsToRegister,
       optionsToSet,
+      hintToSet: handleCommandResult.hintToSet ?? acc.hintToSet,
       queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
       dataToStorage,
       prefixesToRegister,
       errorsToSet,
+      logs,
     };
   }, {
     optionsToRegister: null,
     optionsToSet: null,
+    hintToSet: null,
     queryToSet: null,
     dataToStorage: null,
     prefixesToRegister: null,
     errorsToSet: null,
+    logs: null,
   });
 };
 
@@ -84,9 +92,11 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
+    hintToSet: null,
     dataToStorage: null,
     prefixesToRegister: null,
     errorsToSet: null,
+    logs: null,
   };
 
   if (command.type === OutputCommandType.registerOptions) {
@@ -104,6 +114,13 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     return {
       ...initialData,
       optionsToSet: command.value.map(o => ({...o, plugin: command.plugin})),
+    };
+  }
+
+  if (command.type === OutputCommandType.setHint) {
+    return {
+      ...initialData,
+      hintToSet: command.value,
     };
   }
 
@@ -136,6 +153,13 @@ export const handleCommand = (command: PluginOutputCommand): HandleCommandResult
     return {
       ...initialData,
       errorsToSet: command.value,
+    };
+  }
+
+  if (command.type === OutputCommandType.log) {
+    return {
+      ...initialData,
+      logs: [command.value],
     };
   }
 
@@ -286,7 +310,7 @@ export const checkForOptionsToRegister = async (
 export const triggerOnInitForInternalAndExternalPlugins = async (
   plugins: Array<InternalPluginLifecycle | string>,
   shell: SpotterShell,
-  storage: Storage,
+  getStorage: (plugin: string) => Storage,
 ): Promise<PluginOutputCommand[]> => {
   return await plugins.reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, plugin) => {
@@ -295,7 +319,7 @@ export const triggerOnInitForInternalAndExternalPlugins = async (
         ...(await triggerOnInitForInternalOrExternalPlugin(
           plugin,
           shell,
-          storage[typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY] ?? {},
+          getStorage(typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY),
         )),
       ]
     },
@@ -369,5 +393,7 @@ export const forceReplaceOptions = (options: Options): Options => {
 };
 
 export const isLocalPluginPath = (path: string): boolean => {
-  return RegExp('^(.+)\/([^\/]+)$').test(path);
+  // return RegExp('^(.+)\/([^\/]+)$').test(path);
+  return path.endsWith('.js');
 }
+
