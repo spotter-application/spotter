@@ -1,16 +1,16 @@
 import React, { FC, useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../../providers';
-import { HotkeysSettings } from './hotkeys-settings.component';
-import { GeneralSettings } from './general-settings.component';
+import { HotkeysSettings } from './hotkeys.component';
+import { GeneralSettings } from './general.component';
 import { ThemesSettings } from './themes-settings.component';
 import { SpotifySettings } from './spotify-settings.component';
 
 enum Pages {
-  themes = 'themes',
   general = 'general',
+  // themes = 'themes',
   hotkeys = 'hotkeys',
-  spotify = 'spotify',
+  // spotify = 'spotify',
  }
 
 export const Settings: FC<{}> = () => {
@@ -24,12 +24,12 @@ export const Settings: FC<{}> = () => {
     switch(page) {
       case Pages.general:
         return <GeneralSettings />
-        case Pages.themes:
-          return <ThemesSettings />
+      //   case Pages.themes:
+      //     return <ThemesSettings />
       case Pages.hotkeys:
         return <HotkeysSettings />
-      case Pages.spotify:
-        return <SpotifySettings />
+      // case Pages.spotify:
+      //   return <SpotifySettings />
     }
   }
 

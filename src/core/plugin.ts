@@ -1,6 +1,11 @@
+import { Settings } from '../providers/settings.provider';
 import { SpotterApi } from './interfaces';
-export class SpotterPlugin {
 
-  constructor(public api: SpotterApi) {}
-
+export class InternalPlugin {
+  constructor(
+    public api: SpotterApi,
+    public getSettings: () => Promise<Settings>,
+    public registerPlugin: (settings: Settings, plugin: string) => Promise<void>,
+    public unregisterPlugin: (plugin: string) => void,
+  ) {}
 }
