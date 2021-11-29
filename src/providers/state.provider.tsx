@@ -3,6 +3,8 @@ import {
   ExternalPluginOption,
   InternalPluginOption,
   Options,
+  RegisteredOptions,
+  RegisteredPrefixes,
 } from '../core/interfaces';
 
 type Context = {
@@ -23,6 +25,10 @@ type Context = {
   shouldShowOptions: boolean,
   waitingFor: string | null,
   reset: () => void,
+  registeredOptions: RegisteredOptions,
+  setRegisteredOptions: React.Dispatch<React.SetStateAction<RegisteredOptions>>;
+  registeredPrefixes: RegisteredPrefixes,
+  setRegisteredPrefixes: React.Dispatch<React.SetStateAction<RegisteredPrefixes>>;
 };
 
 const context: Context = {
@@ -43,12 +49,17 @@ const context: Context = {
   shouldShowOptions: false,
   waitingFor: null,
   reset: () => null,
+  registeredOptions: {},
+  setRegisteredOptions: () => null,
+  registeredPrefixes: {},
+  setRegisteredPrefixes: () => null,
 }
 
 export const StateContext = React.createContext<Context>(context);
 
 export const StateProvider: FC<{}> = (props) => {
 
+  // State
   const [ query, setQuery ] = useState<string>('');
   const [ hint, setHint ] = useState<string>();
   const [ options, setOptions ] = useState<Options>([]);
@@ -56,8 +67,11 @@ export const StateProvider: FC<{}> = (props) => {
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
-
   const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
+
+  // Registry
+  const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
+  const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
 
   const reset = () => {
     setQuery('');
@@ -89,6 +103,10 @@ export const StateProvider: FC<{}> = (props) => {
       selectedOption,
       waitingFor,
       reset,
+      registeredOptions,
+      setRegisteredOptions,
+      registeredPrefixes,
+      setRegisteredPrefixes,
     }}>
       {props.children}
     </StateContext.Provider>

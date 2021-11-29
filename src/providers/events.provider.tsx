@@ -102,10 +102,12 @@ export const EventsProvider: FC<{}> = (props) => {
     setHoveredOptionIndex,
     shouldShowOptions,
     setShouldShowOptions,
+    reset,
+    registeredOptions,
+    setRegisteredOptions,
+    registeredPrefixes,
+    setRegisteredPrefixes,
   } = useSpotterState()
-
-  const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
-  const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
 
@@ -319,15 +321,6 @@ export const EventsProvider: FC<{}> = (props) => {
       api.panel.open();
       return;
     };
-  }
-
-  const reset = () => {
-    setQuery('');
-    setHint(null);
-    setLoading(false);
-    setOptions([]);
-    setHoveredOptionIndex(0);
-    setSelectedOption(null);
   }
 
   const onEscape = () => {
