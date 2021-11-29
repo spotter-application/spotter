@@ -115,7 +115,7 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
           ? <IconImageNative style={{ width: 25, height: 25, ...style, }} source={icon}></IconImageNative>
           : typeof icon === 'number' || (typeof icon === 'object' && icon.uri)
             ? <Image style={{ width: 22, height: 22, ...style }} source={icon}></Image>
-            : <Text>{icon}</Text>
+            : null
         }
       </View>
       : null
