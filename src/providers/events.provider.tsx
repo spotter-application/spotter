@@ -90,7 +90,6 @@ export const EventsProvider: FC<{}> = (props) => {
     setRegisteredPrefixes,
   } = useSpotterState()
 
-  const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
   const debouncedOnPrefixForPlugins = useRef<(
     registeredPrefixes: RegisteredPrefixes,
     query: string,
@@ -314,13 +313,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onEscape = () => {
     reset();
-
-    if (shouldShowOptionsTimer.current) {
-      clearTimeout(shouldShowOptionsTimer.current);
-    }
-
-    shouldShowOptionsTimer.current = null;
-
     api.panel.close();
   }
 
