@@ -14,11 +14,6 @@ import {
   PluginsProvider,
 } from './src/providers';
 
-// TODO: Check
-YellowBox.ignoreWarnings([
-  'RCTBridge'
-]);
-
 const AppWithModules = () => (
   <ApiProvider>
     <StateProvider>

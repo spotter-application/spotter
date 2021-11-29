@@ -7,7 +7,7 @@ import {
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
-import { PREINSTALL_PLUGINS_LIST, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
   PluginOutputCommand,
@@ -296,12 +296,6 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     await api.shell.execute('brew install node');
-  }
-
-  const preinstallPlugins = async (settings: Settings) => {
-    return Promise.all(PREINSTALL_PLUGINS_LIST.map(
-      p => registerPlugin(settings, p),
-    ));
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {

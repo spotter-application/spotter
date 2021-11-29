@@ -8,7 +8,7 @@ export const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/l
 
 export const INTERNAL_PLUGIN_KEY = 'INTERNAL_PLUGIN';
 
-export const PREINSTALL_PLUGINS_LIST = [
+export const SYSTEM_PLUGINS_LIST = [
+  'spotter-plugins-plugin',
   'spotter-applications-plugin',
-  'spotter-spotify-plugin',
 ];
