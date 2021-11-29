@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { checkForPluginPrefixesToRegister, parseCommands, triggerPluginOnInit } from '../core/helpers';
+import { checkForPluginPrefixesToRegister, parseCommands, triggerPluginOnInit } from '../helpers';
 import { useStorage } from './storage.provider';
-import { ParseCommandsResult } from '../core';
+import { ParseCommandsResult } from '../interfaces';
 
 type Context = {
   registerPlugin: (plugin: string) => Promise<ParseCommandsResult | undefined>,

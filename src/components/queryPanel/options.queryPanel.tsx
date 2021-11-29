@@ -9,8 +9,8 @@ import {
   TouchableOpacity,
   ImageStyle,
 } from 'react-native';
-import { PluginOption } from '../../core';
-import { IconImage } from '../../core/native';
+import { PluginOption } from '../../interfaces';
+import { IconImage } from '../../native';
 import { useTheme } from '../../providers';
 
 type OptionsProps = {

@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { HotkeyInput } from '../../core/native/ui/hotkey-input.ui';
-import { SPOTTER_HOTKEY_IDENTIFIER } from '../../core';
+import { HotkeyInput } from '../../native/ui/hotkey-input.ui';
 import { useApi, useSettings, useTheme } from '../../providers';
 import { Hotkey, PluginHotkeys, Settings } from '@spotter-app/core';
+import { SPOTTER_HOTKEY_IDENTIFIER } from '../../constants';
 
 interface SpotterOptionShortcut {
   title: string,

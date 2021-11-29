@@ -7,7 +7,7 @@ import {
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
-import { SPOTTER_HOTKEY_IDENTIFIER, SYSTEM_PLUGINS_LIST } from '../core/constants';
+import { SPOTTER_HOTKEY_IDENTIFIER, SYSTEM_PLUGINS_LIST } from '../constants';
 import {
   PluginOutputCommand,
   SpotterHotkeyEvent,
@@ -15,7 +15,7 @@ import {
   RegisteredPrefixes,
   SpotterShellApi,
   ParseCommandsResult,
-} from '../core/interfaces';
+} from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
 import {
@@ -31,7 +31,7 @@ import {
   parseOutput,
   triggerPluginOnInit,
   checkForPluginPrefixesToRegister,
-} from '../core/helpers';
+} from '../helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
 import { useSpotterState } from './state.provider';

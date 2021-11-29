@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { Appearance } from 'react-native';
-import { SpotterThemeColors } from '../core';
+import { SpotterThemeColors } from '../interfaces';
 
 type Context = {
   isDark: boolean,

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useSpotterState, useTheme } from '../../providers';
 import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
-import { Input } from '../../core/native';
+import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
 
 export const QueryPanel: FC<{}> = () => {

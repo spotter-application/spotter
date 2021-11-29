@@ -3,7 +3,7 @@ import {
   PluginOption,
   RegisteredOptions,
   RegisteredPrefixes,
-} from '../core/interfaces';
+} from '../interfaces';
 
 type Context = {
   setQuery: (value: string) => void,

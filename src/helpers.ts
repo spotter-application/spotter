@@ -5,7 +5,7 @@ import {
   Settings,
   Storage,
 } from '@spotter-app/core';
-import { History } from '../providers';
+import { History } from './providers';
 import {
   PluginOption,
   ParseCommandsResult,

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { SpotterApi } from '../core';
+import { SpotterApi } from '../interfaces';
 import {
   HotkeyApi,
   NotificationsApi,
@@ -7,7 +7,7 @@ import {
   StorageApi,
   ShellApi,
   PanelApi,
-} from '../core/native';
+} from '../native';
 
 const hotkey = new HotkeyApi();
 const storage = new StorageApi();
