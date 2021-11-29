@@ -239,6 +239,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     if (hintToSet) {
+      console.log('hintToSet: ', hintToSet);
       setHint(hintToSet);
     }
 

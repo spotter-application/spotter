@@ -9,7 +9,7 @@ import {
 
 type Context = {
   setQuery: (value: string) => void,
-  setHint: (value: string | null) => void;
+  setHint: React.Dispatch<React.SetStateAction<string | undefined>>;
   setLoading: (value: boolean) => void;
   setOptions: React.Dispatch<React.SetStateAction<Options>>;
   setHoveredOptionIndex: (value: number) => void;
@@ -90,6 +90,7 @@ export const StateProvider: FC<{}> = (props) => {
       query,
       options,
       hint,
+      setHint,
       loading,
       hoveredOptionIndex,
       selectedOption,
