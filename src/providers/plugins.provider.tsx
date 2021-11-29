@@ -1,11 +1,7 @@
 import React, { FC } from 'react';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import {
-  parseCommands,
-  triggerOnInitForInternalOrExternalPlugin,
-  checkForPluginPrefixesToRegister,
-} from '../core/helpers';
+import { checkForPluginPrefixesToRegister, parseCommands, triggerPluginOnInit } from '../core/helpers';
 import { useStorage } from './storage.provider';
 import { ParseCommandsResult } from '../core';
 
@@ -38,10 +34,11 @@ export const PluginsProvider: FC<{}> = (props) => {
     addPlugin(plugin);
     const pluginStorage = await getStorage(plugin);
 
-    const onInitCommands = await triggerOnInitForInternalOrExternalPlugin(
+    const onInitCommands = await triggerPluginOnInit(
       plugin,
       api.shell,
       pluginStorage,
+      settings,
     );
 
     const prefixesCommands = await checkForPluginPrefixesToRegister(
@@ -75,4 +72,3 @@ export const PluginsProvider: FC<{}> = (props) => {
 };
 
 export const usePlugins = () => React.useContext(PluginsContext);
-

@@ -1,37 +1,28 @@
 import React, { FC } from 'react';
 import { SpotterApi } from '../core';
 import {
-  ApplicationsNative,
-  ClipboardNative,
-  GlobalHotkeyNative,
-  NotificationsNative,
-  StatusBarNative,
-  StorageNative,
-  ShellNative,
-  PanelNative,
-  BluetoothNative,
+  HotkeyApi,
+  NotificationsApi,
+  StatusBarApi,
+  StorageApi,
+  ShellApi,
+  PanelApi,
 } from '../core/native';
 
-const globalHotKey = new GlobalHotkeyNative();
-const applications = new ApplicationsNative();
-const storage = new StorageNative();
-const notifications = new NotificationsNative();
-const statusBar = new StatusBarNative();
-const clipboard = new ClipboardNative();
-const shell = new ShellNative();
-const panel = new PanelNative();
-const bluetooth = new BluetoothNative();
+const hotkey = new HotkeyApi();
+const storage = new StorageApi();
+const notifications = new NotificationsApi();
+const statusBar = new StatusBarApi();
+const shell = new ShellApi();
+const panel = new PanelApi();
 
 const api = {
-  applications,
   storage,
-  globalHotKey,
+  hotkey,
   notifications,
   statusBar,
-  clipboard,
   shell,
   panel,
-  bluetooth,
 };
 
 type Context = {

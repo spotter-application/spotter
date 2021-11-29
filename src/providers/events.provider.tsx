@@ -7,35 +7,30 @@ import {
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
-import { SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { SPOTTER_HOTKEY_IDENTIFIER, SYSTEM_PLUGINS_LIST } from '../core/constants';
 import {
-  InternalPluginLifecycle,
   PluginOutputCommand,
   SpotterHotkeyEvent,
-  ExternalPluginOption,
-  InternalPluginOption,
-  isExternalPluginOption,
+  PluginOption,
   RegisteredPrefixes,
-  SpotterShell,
+  SpotterShellApi,
   ParseCommandsResult,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { PluginsPlugin } from '../plugins/plugins.plugin';
 import {
   forceReplaceOptions,
   getHistoryPath,
   parseCommands,
-  onQueryExternalPluginAction,
-  onQueryInternalPluginAction,
+  onPluginQuery,
   sortOptions,
-  triggerOnInitForInternalOrExternalPlugin,
-  triggerOnInitForInternalAndExternalPlugins,
+  triggerPluginsOnInit,
   checkForPluginsPrefixesToRegister,
   isLocalPluginPath,
-  checkForPluginPrefixesToRegister,
-  onPrefixForPlugins,
+  onPluginsPrefix,
   parseOutput,
+  triggerPluginOnInit,
+  checkForPluginPrefixesToRegister,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -93,7 +88,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const debouncedOnPrefixForPlugins = useRef<(
     registeredPrefixes: RegisteredPrefixes,
     query: string,
-    shell: SpotterShell,
+    shell: SpotterShellApi,
     getStorage: (plugin: string) => Promise<Storage>,
     settings: Settings,
   ) => Promise<PluginOutputCommand[]>>();
@@ -113,7 +108,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const pluginStorage = await getStorage(plugin);
 
-    const onInitCommands = await triggerOnInitForInternalOrExternalPlugin(
+    const onInitCommands = await triggerPluginOnInit(
       plugin,
       api.shell,
       pluginStorage,
@@ -155,15 +150,11 @@ export const EventsProvider: FC<{}> = (props) => {
     reset();
   }
 
-  const internalPlugins: InternalPluginLifecycle[] = [
-    new PluginsPlugin(api, getSettings, registerPlugin, unregisterPlugin),
-  ];
-
   useEffect(() => {
     onInit();
 
     if (!debouncedOnPrefixForPlugins.current) {
-      debouncedOnPrefixForPlugins.current = pDebounce(onPrefixForPlugins, 200);
+      debouncedOnPrefixForPlugins.current = pDebounce(onPluginsPrefix, 200);
     }
   }, []);
 
@@ -177,13 +168,10 @@ export const EventsProvider: FC<{}> = (props) => {
     registerGlobalHotkeys(settings);
     setWaitingFor(null);
 
-    const internalAndExternalPLugins = [
-      ...internalPlugins,
-      ...settings.plugins,
-    ];
+    await preinstallPlugins(settings);
 
-    const onInitCommands = await triggerOnInitForInternalAndExternalPlugins(
-      internalAndExternalPLugins,
+    const onInitCommands = await triggerPluginsOnInit(
+      settings.plugins,
       api.shell,
       getStorage,
       settings,
@@ -201,6 +189,12 @@ export const EventsProvider: FC<{}> = (props) => {
 
     handleCommands(parseCommands(commands));
   };
+
+  const preinstallPlugins = async (settings: Settings) => {
+    return Promise.all(SYSTEM_PLUGINS_LIST.map(
+      p => registerPlugin(settings, p),
+    ));
+  }
 
   const handleCommands = async (commands: ParseCommandsResult) => {
     const {
@@ -273,15 +267,15 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const registerGlobalHotkeys = async (settings: Settings) => {
-    api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
+    api.hotkey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
 
     Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
       Object.entries(options).forEach(([option, hotkey]) => {
-        api.globalHotKey.register(hotkey, `${plugin}#${option}`);
+        api.hotkey.register(hotkey, `${plugin}#${option}`);
       });
     });
 
-    api.globalHotKey.onPress(e => onPressHotkey(e));
+    api.hotkey.onPress(e => onPressHotkey(e));
   }
 
   const installDependencies = async () => {
@@ -328,15 +322,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const pluginStorage = await getStorage(option.plugin);
     const settings = await getSettings();
-    const commands: PluginOutputCommand[] = isExternalPluginOption(option)
-      ? await onQueryExternalPluginAction(
-        option,
-        '',
-        api.shell,
-        pluginStorage,
-        settings,
-      )
-      : await onQueryInternalPluginAction(option, '');
+    const commands: PluginOutputCommand[] = await onPluginQuery(
+      option,
+      '',
+      api.shell,
+      pluginStorage,
+      settings,
+    );
 
     increaseHistory(getHistoryPath(option, null));
 
@@ -351,15 +343,13 @@ export const EventsProvider: FC<{}> = (props) => {
     if (selectedOption) {
       const pluginStorage = await getStorage(selectedOption.plugin);
       const settings = await getSettings();
-      const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
-        ? await onQueryExternalPluginAction(
-          selectedOption,
-          q,
-          api.shell,
-          pluginStorage,
-          settings,
-        )
-        : await onQueryInternalPluginAction(selectedOption, q);
+      const commands: PluginOutputCommand[] = await onPluginQuery(
+        selectedOption,
+        q,
+        api.shell,
+        pluginStorage,
+        settings,
+      );
 
       handleCommands(parseCommands(commands));
 
@@ -401,7 +391,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const commands = parseCommands(prefixesCommands);
 
-    const filteredRegisteredOptions: ExternalPluginOption[] = Object
+    const filteredRegisteredOptions: PluginOption[] = Object
       .values(registeredOptions)
       .flat(1)
       .filter(o => o.title.toLowerCase().search(q.toLowerCase()) !== -1);
@@ -434,16 +424,24 @@ export const EventsProvider: FC<{}> = (props) => {
     setHoveredOptionIndex(hoveredOptionIndex + 1)
   };
 
-  const onSubmitInternalOption = (option: InternalPluginOption) => {
-    if (option.action) {
-      option.action();
+  const onSubmit = async (index?: number) => {
+    if (index || index === 0) {
+      setHoveredOptionIndex(index);
     }
 
-    onEscape();
-    return;
-  };
+    const option = options[hoveredOptionIndex];
 
-  const onSubmitExternalOption = async (option: ExternalPluginOption) => {
+    if (!option) {
+      return;
+    }
+
+    if (!option.action && option.queryAction) {
+      onTab();
+      return;
+    }
+
+    // setLoading(true);
+
     const pluginStorage = await getStorage(option.plugin);
     const settings = await getSettings();
     const command: InputCommand = {
@@ -463,33 +461,8 @@ export const EventsProvider: FC<{}> = (props) => {
     handleCommands(parseCommands(commands));
 
     onEscape();
-  }
 
-  const onSubmit = async (index?: number) => {
-    if (index || index === 0) {
-      setHoveredOptionIndex(index);
-    }
-
-    const option = options[hoveredOptionIndex];
-
-    if (!option) {
-      return;
-    }
-
-    if (!option.action && option.queryAction) {
-      onTab();
-      return;
-    }
-
-    // setLoading(true);
-
-    isExternalPluginOption(option)
-      ? onSubmitExternalOption(option)
-      : onSubmitInternalOption(option)
-
-    increaseHistory(
-      getHistoryPath(option, selectedOption),
-    );
+    increaseHistory(getHistoryPath(option, selectedOption));
   }
 
   return (
@@ -509,4 +482,3 @@ export const EventsProvider: FC<{}> = (props) => {
 };
 
 export const useEvents = () => React.useContext(EventsContext);
-

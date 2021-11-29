@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
-		923C274E24D01BE3006C67F3 /* Applications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 923C274D24D01BE3006C67F3 /* Applications.swift */; };
-		923C275024D01BF1006C67F3 /* Applications.m in Sources */ = {isa = PBXBuildFile; fileRef = 923C274F24D01BF1006C67F3 /* Applications.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
 		9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244817125A2555F00EF3F60 /* HotkeyInputView.swift */; };
 		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
@@ -23,10 +21,6 @@
 		9251DDF324DB160900D3193F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9251DDF224DB160900D3193F /* Assets.xcassets */; };
 		925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3EF2596266D00D71A76 /* Hotkey.swift */; };
 		925CF3F42596267E00D71A76 /* Hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 925CF3F32596267E00D71A76 /* Hotkey.m */; };
-		925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 925D5850259F4A9000A8FE7C /* Clipboard.swift */; };
-		925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 925D5853259F4AA300A8FE7C /* Clipboard.m */; };
-		9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A125A48A8E002F1432 /* Bluetooth.swift */; };
-		9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = 9275A7A425A48A9C002F1432 /* Bluetooth.m */; };
 		928070F125A5260000F6363F /* IconImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928070F025A5260000F6363F /* IconImage.swift */; };
 		928070F525A5260A00F6363F /* IconImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 928070F425A5260A00F6363F /* IconImage.m */; };
 		928070FB25A529D900F6363F /* CustomIconImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 928070FA25A529D900F6363F /* CustomIconImage.swift */; };
@@ -48,8 +42,6 @@
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
 		89E390EC7D2722AFBF24FDC7 /* Pods-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		8D6B5491829CC49575992991 /* libPods-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		923C274D24D01BE3006C67F3 /* Applications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Applications.swift; sourceTree = "<group>"; };
-		923C274F24D01BF1006C67F3 /* Applications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Applications.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9244817125A2555F00EF3F60 /* HotkeyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HotkeyInputView.swift; path = "Spotter-macOS/HotkeyInput/HotkeyInputView.swift"; sourceTree = SOURCE_ROOT; };
 		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
@@ -64,10 +56,6 @@
 		925CF3EF2596266D00D71A76 /* Hotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hotkey.swift; sourceTree = "<group>"; };
 		925CF3F32596267E00D71A76 /* Hotkey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hotkey.m; sourceTree = "<group>"; };
 		925CF4322596443100D71A76 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		925D5850259F4A9000A8FE7C /* Clipboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Clipboard.swift; path = "Spotter-macOS/Clipboard/Clipboard.swift"; sourceTree = SOURCE_ROOT; };
-		925D5853259F4AA300A8FE7C /* Clipboard.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Clipboard.m; path = "Spotter-macOS/Clipboard/Clipboard.m"; sourceTree = SOURCE_ROOT; };
-		9275A7A125A48A8E002F1432 /* Bluetooth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Bluetooth.swift; path = "Spotter-macOS/Bluetooth/Bluetooth.swift"; sourceTree = SOURCE_ROOT; };
-		9275A7A425A48A9C002F1432 /* Bluetooth.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Bluetooth.m; path = "Spotter-macOS/Bluetooth/Bluetooth.m"; sourceTree = SOURCE_ROOT; };
 		928070F025A5260000F6363F /* IconImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconImage.swift; sourceTree = "<group>"; };
 		928070F425A5260A00F6363F /* IconImage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IconImage.m; sourceTree = "<group>"; };
 		928070FA25A529D900F6363F /* CustomIconImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomIconImage.swift; sourceTree = "<group>"; };
@@ -121,15 +109,11 @@
 			isa = PBXGroup;
 			children = (
 				928070EF25A525EF00F6363F /* IconImage */,
-				9275A7A025A48A50002F1432 /* Bluetooth */,
 				92F41E5A25A24A8B00D6EAD6 /* HotkeyInput */,
-				925D584F259F4A7600A8FE7C /* Clipboard */,
 				924CFDF5259CC987002FF7D3 /* StatusBar */,
 				924CFDEE259CC697002FF7D3 /* Notifications */,
 				9245EB642598AC930032CB6D /* Input */,
 				925CF3EE2596265600D71A76 /* Hotkey */,
-				923C275124D066A0006C67F3 /* Bluetooth */,
-				923C274C24D01BC6006C67F3 /* Applications */,
 				92BE4F3424CEC64F0049B6B3 /* Shell */,
 				9206FEB524CD8AF000CBE256 /* Panel */,
 				9251DDF224DB160900D3193F /* Assets.xcassets */,
@@ -180,22 +164,6 @@
 			path = Panel;
 			sourceTree = "<group>";
 		};
-		923C274C24D01BC6006C67F3 /* Applications */ = {
-			isa = PBXGroup;
-			children = (
-				923C274D24D01BE3006C67F3 /* Applications.swift */,
-				923C274F24D01BF1006C67F3 /* Applications.m */,
-			);
-			path = Applications;
-			sourceTree = "<group>";
-		};
-		923C275124D066A0006C67F3 /* Bluetooth */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Bluetooth;
-			sourceTree = "<group>";
-		};
 		9245EB642598AC930032CB6D /* Input */ = {
 			isa = PBXGroup;
 			children = (
@@ -231,24 +199,6 @@
 				925CF3F32596267E00D71A76 /* Hotkey.m */,
 			);
 			path = Hotkey;
-			sourceTree = "<group>";
-		};
-		925D584F259F4A7600A8FE7C /* Clipboard */ = {
-			isa = PBXGroup;
-			children = (
-				925D5850259F4A9000A8FE7C /* Clipboard.swift */,
-				925D5853259F4AA300A8FE7C /* Clipboard.m */,
-			);
-			path = Clipboard;
-			sourceTree = "<group>";
-		};
-		9275A7A025A48A50002F1432 /* Bluetooth */ = {
-			isa = PBXGroup;
-			children = (
-				9275A7A125A48A8E002F1432 /* Bluetooth.swift */,
-				9275A7A425A48A9C002F1432 /* Bluetooth.m */,
-			);
-			path = Bluetooth;
 			sourceTree = "<group>";
 		};
 		928070EF25A525EF00F6363F /* IconImage */ = {
@@ -441,25 +391,19 @@
 				9245EB672598ACAD0032CB6D /* Input.swift in Sources */,
 				928070F125A5260000F6363F /* IconImage.swift in Sources */,
 				925CF3F42596267E00D71A76 /* Hotkey.m in Sources */,
-				9275A7A225A48A8E002F1432 /* Bluetooth.swift in Sources */,
 				928070F525A5260A00F6363F /* IconImage.m in Sources */,
 				92BE4F3824CEC6820049B6B3 /* Shell.m in Sources */,
 				924CFDFA259CC9B7002FF7D3 /* StatusBar.swift in Sources */,
 				92BE4F3624CEC6740049B6B3 /* Shell.swift in Sources */,
-				923C275024D01BF1006C67F3 /* Applications.m in Sources */,
 				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
 				924A098F26E632FF0083584E /* ShellOut.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
-				9275A7A525A48A9C002F1432 /* Bluetooth.m in Sources */,
 				92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */,
 				9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
 				924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */,
 				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
 				92F41E5C25A24A9C00D6EAD6 /* HotkeyInput.swift in Sources */,
-				923C274E24D01BE3006C67F3 /* Applications.swift in Sources */,
-				925D5854259F4AA300A8FE7C /* Clipboard.m in Sources */,
-				925D5851259F4A9000A8FE7C /* Clipboard.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
 				928070FB25A529D900F6363F /* CustomIconImage.swift in Sources */,

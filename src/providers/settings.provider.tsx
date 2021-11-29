@@ -2,8 +2,7 @@ import { Settings } from '@spotter-app/core';
 import React, { FC } from 'react';
 import { useApi } from './api.provider';
 
-// TODO: rename to SETTINGS
-const SETTINGS_STORAGE_KEY = 'STORAGE_KEY';
+const SETTINGS_STORAGE_KEY = 'SETTINGS';
 
 type Context = {
   getSettings: () => Promise<Settings>;
@@ -57,6 +56,7 @@ export const SettingsProvider: FC<{}> = (props) => {
     api.storage.setItem(SETTINGS_STORAGE_KEY, { ...settings, ...newSettings });
   }
 
+  // TODO: remove
   const getPlugins: () => Promise<string[]> = async () => {
     const settings = await api.storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
     if (!settings) {
@@ -66,6 +66,7 @@ export const SettingsProvider: FC<{}> = (props) => {
     return settings.plugins ?? [];
   }
 
+  // TODO: remove
   const addPlugin = async (plugin: string) => {
     const settings = await getSettings();
     const alreadyAdded = settings.plugins.find(p => p === plugin);
@@ -79,6 +80,7 @@ export const SettingsProvider: FC<{}> = (props) => {
     patchSettings({plugins: updatedPlugins});
   };
 
+  // TODO: remove
   const removePlugin = async (plugin: string) => {
     const settings = await getSettings();
     const alreadyRemoved = !settings.plugins.find(p => p === plugin);
@@ -104,4 +106,3 @@ export const SettingsProvider: FC<{}> = (props) => {
 };
 
 export const useSettings = () => React.useContext(SettingsContext);
-

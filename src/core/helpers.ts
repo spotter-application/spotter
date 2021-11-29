@@ -6,24 +6,18 @@ import {
   Storage,
 } from '@spotter-app/core';
 import { History } from '../providers';
-import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
-  ExternalPluginOption,
+  PluginOption,
   ParseCommandsResult,
-  InternalPluginLifecycle,
-  InternalPluginOption,
-  isExternalPluginOption,
-  isInternalPlugin,
-  Options,
   PluginOutputCommand,
   RegisteredOptions,
-  SpotterShell,
+  SpotterShellApi,
   RegisteredPrefixes,
 } from './interfaces';
 
 export const getHistoryPath = (
-  option: ExternalPluginOption | InternalPluginOption,
-  selectedOption: ExternalPluginOption | InternalPluginOption | null,
+  option: PluginOption,
+  selectedOption: PluginOption | null,
 ): string => {
   const path = selectedOption
     ? `${option.plugin}:${selectedOption.title}#${option.title}`
@@ -33,10 +27,10 @@ export const getHistoryPath = (
 };
 
 export const sortOptions = (
-  options: Array<InternalPluginOption | ExternalPluginOption>,
-  selectedOption: ExternalPluginOption | InternalPluginOption | null,
+  options: PluginOption[],
+  selectedOption: PluginOption | null,
   history: History,
-): Array<InternalPluginOption | ExternalPluginOption> => {
+): PluginOption[] => {
   return options.sort((a, b) => {
     return (history[getHistoryPath(b, selectedOption)] ?? 0) -
       (history[getHistoryPath(a, selectedOption)] ?? 0);
@@ -55,7 +49,7 @@ export const parseCommands = (commands: PluginOutputCommand[]): ParseCommandsRes
       ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
       : acc.optionsToRegister;
 
-    const optionsToSet: ExternalPluginOption[] | null = handleCommandResult.optionsToSet
+    const optionsToSet: PluginOption[] | null = handleCommandResult.optionsToSet
       ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
       : acc.optionsToSet;
 
@@ -206,28 +200,11 @@ export const handleCommand = (command: PluginOutputCommand): ParseCommandsResult
   return initialData;
 };
 
-export const onQueryInternalPluginAction = async (
-  option: InternalPluginOption,
-  query: string
-): Promise<PluginOutputCommand[]> => {
-  if (!option || !option.queryAction) {
-    return [];
-  }
-
-  const options = await option.queryAction(query);
-
-  return [{
-    type: OutputCommandType.setOptions,
-    plugin: option.plugin,
-    value: options,
-  }];
-};
-
-export const onPrefixes  = async (
+const onPrefixes = async (
   prefixes: string[],
   query: string,
   plugin: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
   storage: Storage,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -249,11 +226,11 @@ export const onPrefixes  = async (
   );
 };
 
-export const onPrefix = async (
+const onPrefix = async (
   prefix: string,
   query: string,
   plugin: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
   storage: Storage,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -268,10 +245,10 @@ export const onPrefix = async (
   return await triggerExternalPluginCommand(plugin, command, shell);
 };
 
-export const onPrefixForPlugins = async (
+export const onPluginsPrefix = async (
   registeredPrefixes: RegisteredPrefixes,
   query: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
   getStorage: (plugin: string) => Promise<Storage>,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -294,10 +271,10 @@ export const onPrefixForPlugins = async (
   );
 };
 
-export const onQueryExternalPluginAction = async (
-  option: ExternalPluginOption,
+export const onPluginQuery = async (
+  option: PluginOption,
   query: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
   storage: Storage,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -318,7 +295,7 @@ export const onQueryExternalPluginAction = async (
 
 export const checkForPluginPrefixesToRegister = async (
   plugin: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
 ): Promise<PluginOutputCommand[]> => {
   const command: InputCommand = {
     type: InputCommandType.checkForOnPrefixMethods,
@@ -329,7 +306,7 @@ export const checkForPluginPrefixesToRegister = async (
 
 export const checkForPluginsPrefixesToRegister  = async (
   plugins: string[],
-  shell: SpotterShell,
+  shell: SpotterShellApi,
 ): Promise<PluginOutputCommand[]> => {
   return await plugins.reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, plugin) => {
@@ -347,7 +324,7 @@ export const checkForPluginsPrefixesToRegister  = async (
 
 export const checkForOptionsToRegister = async (
   plugin: string,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
 ): Promise<PluginOutputCommand[]> => {
   const command: InputCommand = {
     type: InputCommandType.checkForOptionsToRegister,
@@ -356,9 +333,9 @@ export const checkForOptionsToRegister = async (
   return await triggerExternalPluginCommand(plugin, command, shell);
 };
 
-export const triggerOnInitForInternalAndExternalPlugins = async (
-  plugins: Array<InternalPluginLifecycle | string>,
-  shell: SpotterShell,
+export const triggerPluginsOnInit = async (
+  plugins: string[],
+  shell: SpotterShellApi,
   getStorage: (plugin: string) => Storage,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -366,10 +343,10 @@ export const triggerOnInitForInternalAndExternalPlugins = async (
     async (asyncAcc, plugin) => {
       return [
         ...(await asyncAcc),
-        ...(await triggerOnInitForInternalOrExternalPlugin(
+        ...(await triggerPluginOnInit(
           plugin,
           shell,
-          getStorage(typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY),
+          getStorage(plugin),
           settings,
         )),
       ]
@@ -378,9 +355,9 @@ export const triggerOnInitForInternalAndExternalPlugins = async (
   );
 };
 
-export const triggerOnInitForInternalOrExternalPlugin = async (
-  plugin: string | InternalPluginLifecycle,
-  shell: SpotterShell,
+export const triggerPluginOnInit = async (
+  plugin: string,
+  shell: SpotterShellApi,
   storage: Storage,
   settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
@@ -390,26 +367,13 @@ export const triggerOnInitForInternalOrExternalPlugin = async (
     settings,
   };
 
-  if (isInternalPlugin(plugin)) {
-    if (!plugin?.onInit) {
-      return [];
-    }
-
-    const outputCommand: PluginOutputCommand = {
-      type: OutputCommandType.registerOptions,
-      value: await plugin.onInit() ?? [],
-      plugin: INTERNAL_PLUGIN_KEY,
-    };
-    return Promise.resolve([outputCommand]);
-  }
-
   return await triggerExternalPluginCommand(plugin, command, shell);
 };
 
 const triggerExternalPluginCommand = async (
   plugin: string,
   command: InputCommand,
-  shell: SpotterShell,
+  shell: SpotterShellApi,
 ): Promise<PluginOutputCommand[]> => {
   try {
     const localPluginPath = isLocalPluginPath(plugin);
@@ -432,10 +396,11 @@ const triggerExternalPluginCommand = async (
   }
 };
 
-export const forceReplaceOptions = (options: Options): Options => {
-  const optionsWithForceReplace: ExternalPluginOption[] = options.filter(
-    o => isExternalPluginOption(o) && o.forceReplaceOption
+export const forceReplaceOptions = (options: PluginOption[]): PluginOption[] => {
+  const optionsWithForceReplace: PluginOption[] = options.filter(
+    o => o.forceReplaceOption
   );
+
   if (!optionsWithForceReplace.length) {
     return options;
   }
@@ -450,4 +415,3 @@ export const isLocalPluginPath = (path: string): boolean => {
   // return RegExp('^(.+)\/([^\/]+)$').test(path);
   return path.endsWith('.js');
 }
-

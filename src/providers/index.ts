@@ -6,4 +6,3 @@ export * from './history.provider';
 export * from './storage.provider';
 export * from './state.provider';
 export * from './plugins.provider';
-

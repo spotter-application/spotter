@@ -1,8 +1,6 @@
 import React, { FC, useState } from 'react';
 import {
-  ExternalPluginOption,
-  InternalPluginOption,
-  Options,
+  PluginOption,
   RegisteredOptions,
   RegisteredPrefixes,
 } from '../core/interfaces';
@@ -11,14 +9,14 @@ type Context = {
   setQuery: (value: string) => void,
   setHint: React.Dispatch<React.SetStateAction<string | undefined>>;
   setLoading: (value: boolean) => void;
-  setOptions: React.Dispatch<React.SetStateAction<Options>>;
+  setOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>;
   setHoveredOptionIndex: (value: number) => void;
-  setSelectedOption: (value: ExternalPluginOption | InternalPluginOption | null) => void;
+  setSelectedOption: (value: PluginOption | null) => void;
   setWaitingFor: (value: string | null) => void;
   query: string,
   hint?: string,
-  options: Array<InternalPluginOption | ExternalPluginOption>,
-  selectedOption: InternalPluginOption | ExternalPluginOption | null,
+  options: PluginOption[],
+  selectedOption: PluginOption | null,
   loading: boolean,
   hoveredOptionIndex: number,
   waitingFor: string | null,
@@ -58,8 +56,8 @@ export const StateProvider: FC<{}> = (props) => {
   // State
   const [ query, setQuery ] = useState<string>('');
   const [ hint, setHint ] = useState<string>();
-  const [ options, setOptions ] = useState<Options>([]);
-  const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
+  const [ options, setOptions ] = useState<PluginOption[]>([]);
+  const [ selectedOption, setSelectedOption] = useState<PluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
@@ -107,4 +105,3 @@ export const StateProvider: FC<{}> = (props) => {
 };
 
 export const useSpotterState = () => React.useContext(StateContext);
-

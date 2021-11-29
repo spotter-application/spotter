@@ -7,7 +7,7 @@ import {
  SPOTIFY_CLIENT_SECRET,
 } from '@env';
 
-const PLUGINS_STORAGE_KEY = 'PLUGINS_STORAGE';
+const STORAGE_KEY = 'STORAGE';
 
 type Context = {
   getStorage: (plugin?: string) => Promise<Storage>;
@@ -48,7 +48,7 @@ export const StorageProvider: FC<{}> = (props) => {
       };
     }
 
-    const storage = await api.storage.getItem<Storage>(PLUGINS_STORAGE_KEY);
+    const storage = await api.storage.getItem<Storage>(STORAGE_KEY);
     if (!storage) {
       return {tokens};
     }
@@ -74,7 +74,7 @@ export const StorageProvider: FC<{}> = (props) => {
     }, storage);
 
     cachedStorage.current = updatedStorage;
-    api.storage.setItem(PLUGINS_STORAGE_KEY, updatedStorage);
+    api.storage.setItem(STORAGE_KEY, updatedStorage);
   }
 
   const patchStorage = async (data: Storage) => {
@@ -85,7 +85,7 @@ export const StorageProvider: FC<{}> = (props) => {
     };
 
     cachedStorage.current = updatedStorage;
-    api.storage.setItem(PLUGINS_STORAGE_KEY, updatedStorage);
+    api.storage.setItem(STORAGE_KEY, updatedStorage);
   }
 
   return (
@@ -100,4 +100,3 @@ export const StorageProvider: FC<{}> = (props) => {
 };
 
 export const useStorage = () => React.useContext(StorageContext);
-
