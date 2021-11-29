@@ -1,16 +1,9 @@
+import { Settings } from '@spotter-app/core';
 import React, { FC } from 'react';
-import { SpotterHotkey, SpotterPluginHotkeys } from '../core';
 import { useApi } from './api.provider';
 
 // TODO: rename to SETTINGS
 const SETTINGS_STORAGE_KEY = 'STORAGE_KEY';
-
-export interface Settings {
-  hotkey: SpotterHotkey | null;
-  pluginHotkeys: SpotterPluginHotkeys;
-  plugins: string[];
-  pluginsPreinstalled: boolean;
-}
 
 type Context = {
   getSettings: () => Promise<Settings>;
@@ -24,7 +17,6 @@ const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
   plugins: [],
-  pluginsPreinstalled: false,
 };
 
 const context: Context = {
@@ -51,14 +43,12 @@ export const SettingsProvider: FC<{}> = (props) => {
       hotkey,
       pluginHotkeys,
       plugins,
-      pluginsPreinstalled,
     } = settings;
 
     return {
       hotkey: hotkey ?? initialSettings.hotkey,
       pluginHotkeys: pluginHotkeys ?? initialSettings.pluginHotkeys,
       plugins: plugins ?? initialSettings.plugins,
-      pluginsPreinstalled: pluginsPreinstalled ?? initialSettings.pluginsPreinstalled,
     };
   }
 
@@ -114,3 +104,4 @@ export const SettingsProvider: FC<{}> = (props) => {
 };
 
 export const useSettings = () => React.useContext(SettingsContext);
+

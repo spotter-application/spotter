@@ -6,8 +6,8 @@ import {
   isLocalPluginPath,
 } from '../core';
 import icon from '../../preview/icon.png';
-import { Settings } from '../providers/settings.provider';
 import fetch from 'node-fetch';
+import { Settings } from '@spotter-app/core';
 
 export class PluginsPlugin extends InternalPlugin implements InternalPluginLifecycle {
 

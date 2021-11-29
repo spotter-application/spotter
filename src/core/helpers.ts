@@ -1,5 +1,10 @@
-import { InputCommand, InputCommandType, OutputCommandType, Storage } from '@spotter-app/core';
-import { RegisteredPrefixes } from '.';
+import {
+  InputCommand,
+  InputCommandType,
+  OutputCommandType,
+  Settings,
+  Storage,
+} from '@spotter-app/core';
 import { History } from '../providers';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
@@ -13,6 +18,7 @@ import {
   PluginOutputCommand,
   RegisteredOptions,
   SpotterShell,
+  RegisteredPrefixes,
 } from './interfaces';
 
 export const getHistoryPath = (
@@ -53,9 +59,17 @@ export const parseCommands = (commands: PluginOutputCommand[]): ParseCommandsRes
       ? [...(acc.optionsToSet ?? []), ...handleCommandResult.optionsToSet]
       : acc.optionsToSet;
 
-    const dataToStorage: Storage | null = handleCommandResult.dataToStorage
-      ? {...(acc.dataToStorage ?? {}), ...handleCommandResult.dataToStorage}
-      : acc.dataToStorage;
+    const storageToSet: Storage | null = handleCommandResult.storageToSet
+      ? {...(acc.storageToSet ?? {}), ...handleCommandResult.storageToSet}
+      : acc.storageToSet;
+
+    const storageToPatch: Partial<Storage> | null = handleCommandResult.storageToPatch
+      ? {...(acc.storageToPatch ?? {}), ...handleCommandResult.storageToPatch}
+      : acc.storageToPatch;
+
+    const settingsToPatch: Partial<Settings> | null = handleCommandResult.settingsToPatch
+      ? {...(acc.settingsToPatch ?? {}), ...handleCommandResult.settingsToPatch}
+      : acc.settingsToPatch;
 
     const prefixesToRegister: RegisteredPrefixes | null = handleCommandResult.prefixesToRegister
       ? {...(acc.prefixesToRegister ?? {}), ...handleCommandResult.prefixesToRegister}
@@ -74,7 +88,9 @@ export const parseCommands = (commands: PluginOutputCommand[]): ParseCommandsRes
       optionsToSet,
       hintToSet: handleCommandResult.hintToSet ?? acc.hintToSet,
       queryToSet: handleCommandResult.queryToSet ?? acc.queryToSet,
-      dataToStorage,
+      storageToSet,
+      storageToPatch,
+      settingsToPatch,
       prefixesToRegister,
       errorsToSet,
       logs,
@@ -84,7 +100,9 @@ export const parseCommands = (commands: PluginOutputCommand[]): ParseCommandsRes
     optionsToSet: null,
     hintToSet: null,
     queryToSet: null,
-    dataToStorage: null,
+    storageToSet: null,
+    storageToPatch: null,
+    settingsToPatch: null,
     prefixesToRegister: null,
     errorsToSet: null,
     logs: null,
@@ -97,7 +115,9 @@ export const handleCommand = (command: PluginOutputCommand): ParseCommandsResult
     optionsToSet: null,
     queryToSet: null,
     hintToSet: null,
-    dataToStorage: null,
+    storageToSet: null,
+    storageToPatch: null,
+    settingsToPatch: null,
     prefixesToRegister: null,
     errorsToSet: null,
     logs: null,
@@ -138,9 +158,25 @@ export const handleCommand = (command: PluginOutputCommand): ParseCommandsResult
   if (command.type === OutputCommandType.setStorage) {
     return {
       ...initialData,
-      dataToStorage: {
+      storageToSet: {
         [command.plugin]: command.value,
       }
+    };
+  }
+
+  if (command.type === OutputCommandType.patchStorage) {
+    return {
+      ...initialData,
+      storageToPatch: {
+        [command.plugin]: command.value,
+      }
+    };
+  }
+
+  if (command.type === OutputCommandType.patchSettings) {
+    return {
+      ...initialData,
+      settingsToPatch: command.value,
     };
   }
 
@@ -193,6 +229,7 @@ export const onPrefixes  = async (
   plugin: string,
   shell: SpotterShell,
   storage: Storage,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   return await prefixes.reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, prefix) => {
@@ -204,6 +241,7 @@ export const onPrefixes  = async (
           plugin,
           shell,
           storage,
+          settings,
         )),
       ];
     },
@@ -217,12 +255,14 @@ export const onPrefix = async (
   plugin: string,
   shell: SpotterShell,
   storage: Storage,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   const command: InputCommand = {
     type: InputCommandType.onPrefix,
     prefix,
     storage,
-    query
+    query,
+    settings,
   };
 
   return await triggerExternalPluginCommand(plugin, command, shell);
@@ -233,6 +273,7 @@ export const onPrefixForPlugins = async (
   query: string,
   shell: SpotterShell,
   getStorage: (plugin: string) => Promise<Storage>,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   return await Object.entries(registeredPrefixes).reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, [plugin, prefixes]) => {
@@ -245,6 +286,7 @@ export const onPrefixForPlugins = async (
           plugin,
           shell,
           storage,
+          settings,
         )),
       ];
     },
@@ -257,6 +299,7 @@ export const onQueryExternalPluginAction = async (
   query: string,
   shell: SpotterShell,
   storage: Storage,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   if (!option?.queryAction) {
     return [];
@@ -266,7 +309,8 @@ export const onQueryExternalPluginAction = async (
     type: InputCommandType.onQueryAction,
     queryAction: option.queryAction,
     storage,
-    query
+    query,
+    settings,
   };
 
   return await triggerExternalPluginCommand(option.plugin, command, shell);
@@ -316,6 +360,7 @@ export const triggerOnInitForInternalAndExternalPlugins = async (
   plugins: Array<InternalPluginLifecycle | string>,
   shell: SpotterShell,
   getStorage: (plugin: string) => Storage,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   return await plugins.reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, plugin) => {
@@ -325,6 +370,7 @@ export const triggerOnInitForInternalAndExternalPlugins = async (
           plugin,
           shell,
           getStorage(typeof plugin === 'string' ? plugin : INTERNAL_PLUGIN_KEY),
+          settings,
         )),
       ]
     },
@@ -336,10 +382,12 @@ export const triggerOnInitForInternalOrExternalPlugin = async (
   plugin: string | InternalPluginLifecycle,
   shell: SpotterShell,
   storage: Storage,
+  settings: Settings,
 ): Promise<PluginOutputCommand[]> => {
   const command: InputCommand = {
     type: InputCommandType.onInit,
     storage,
+    settings,
   };
 
   if (isInternalPlugin(plugin)) {
@@ -397,6 +445,7 @@ export const forceReplaceOptions = (options: Options): Options => {
   )), ...optionsWithForceReplace];
 };
 
+// TODO: remove
 export const isLocalPluginPath = (path: string): boolean => {
   // return RegExp('^(.+)\/([^\/]+)$').test(path);
   return path.endsWith('.js');

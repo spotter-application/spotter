@@ -1,4 +1,10 @@
-import { Option, OutputCommand, Storage } from '@spotter-app/core/dist/interfaces';
+import {
+  Hotkey,
+  Option,
+  OutputCommand,
+  Settings,
+  Storage,
+} from '@spotter-app/core';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 
 export interface SpotterApi {
@@ -44,8 +50,8 @@ export declare abstract class SpotterNotifications {
 }
 
 export declare abstract class SpotterGlobalHotkey {
-  abstract register(hotkey: SpotterHotkey | null, identifier: string): void;
-  abstract onPress(callback: (event: { hotkey: SpotterHotkey, identifier: string }) => void): void;
+  abstract register(hotkey: Hotkey | null, identifier: string): void;
+  abstract onPress(callback: (event: { hotkey: Hotkey, identifier: string }) => void): void;
 }
 
 export declare abstract class SpotterApplicationsNative {
@@ -110,24 +116,9 @@ export interface SpotterPluginConstructor {
   new(nativeModules: SpotterApi): InternalPluginLifecycle;
 }
 
-export interface SpotterHotkey {
-  keyCode: number;
-  modifiers: number;
-  doubledModifiers: boolean;
-}
-
 export interface SpotterWebsiteShortcut{
   shortcut: string;
   url: string;
-}
-
-export type SpotterPluginHotkeys = {
-  [plugin: string]: { [option: string]: SpotterHotkey | null };
-}
-
-export interface SpotterSettings {
-  hotkey: SpotterHotkey | null;
-  pluginHotkeys: SpotterPluginHotkeys;
 }
 
 export type SpotterHistoryExecutionsTotal = number;
@@ -162,7 +153,7 @@ export interface SpotterThemeColors {
 }
 
 export interface SpotterHotkeyEvent {
-  hotkey: SpotterHotkey,
+  hotkey: Hotkey,
   identifier: string,
 }
 
@@ -179,7 +170,9 @@ export interface ParseCommandsResult {
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,
   hintToSet: null | string,
-  dataToStorage: null | Storage,
+  storageToSet: null | Storage,
+  storageToPatch: null | Partial<Storage>,
+  settingsToPatch: null | Partial<Settings>,
   prefixesToRegister: null | RegisteredPrefixes,
   errorsToSet: null | string[],
   logs: null | string[],
@@ -188,3 +181,4 @@ export interface ParseCommandsResult {
 export interface RegisteredPrefixes {
   [plugin: string]: string[],
 }
+

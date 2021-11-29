@@ -11,7 +11,8 @@ const PLUGINS_STORAGE_KEY = 'PLUGINS_STORAGE';
 
 type Context = {
   getStorage: (plugin?: string) => Promise<Storage>;
-  patchStorage: (data: Storage) => void;
+  patchStorage: (data: Partial<Storage>) => void;
+  setStorage: (data: Storage) => void;
 };
 
 const tokens: {[key: string]: any} = {
@@ -25,6 +26,7 @@ const tokens: {[key: string]: any} = {
 const context: Context = {
   getStorage: () => Promise.resolve({}),
   patchStorage: () => null,
+  setStorage: () => null,
 }
 
 export const StorageContext = React.createContext<Context>(context);
@@ -61,6 +63,20 @@ export const StorageProvider: FC<{}> = (props) => {
     };
   }
 
+  const setStorage = async (data: Storage) => {
+    const storage = await getStorage();
+
+    const updatedStorage = Object.keys(data).reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: data[key],
+      }
+    }, storage);
+
+    cachedStorage.current = updatedStorage;
+    api.storage.setItem(PLUGINS_STORAGE_KEY, updatedStorage);
+  }
+
   const patchStorage = async (data: Storage) => {
     const storage = await getStorage();
     const updatedStorage = {
@@ -76,6 +92,7 @@ export const StorageProvider: FC<{}> = (props) => {
     <StorageContext.Provider value={{
       getStorage,
       patchStorage,
+      setStorage,
     }}>
       {props.children}
     </StorageContext.Provider>
@@ -83,3 +100,4 @@ export const StorageProvider: FC<{}> = (props) => {
 };
 
 export const useStorage = () => React.useContext(StorageContext);
+

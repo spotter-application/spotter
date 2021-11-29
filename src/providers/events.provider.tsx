@@ -1,8 +1,9 @@
 import {
   InputCommand,
   InputCommandType,
+  Settings,
   Storage,
-} from '@spotter-app/core/dist/interfaces';
+} from '@spotter-app/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
@@ -19,7 +20,7 @@ import {
   ParseCommandsResult,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
-import { Settings, useSettings } from './settings.provider';
+import { useSettings } from './settings.provider';
 import { PluginsPlugin } from '../plugins/plugins.plugin';
 import {
   forceReplaceOptions,
@@ -67,9 +68,9 @@ export const EventsContext = React.createContext<Context>(context);
 export const EventsProvider: FC<{}> = (props) => {
 
   const { api } = useApi();
-  const { getSettings, addPlugin, removePlugin } = useSettings();
+  const { getSettings, addPlugin, removePlugin, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
-  const { getStorage, patchStorage } = useStorage();
+  const { getStorage, patchStorage, setStorage } = useStorage();
   const {
     query,
     setQuery,
@@ -95,6 +96,7 @@ export const EventsProvider: FC<{}> = (props) => {
     query: string,
     shell: SpotterShell,
     getStorage: (plugin: string) => Promise<Storage>,
+    settings: Settings,
   ) => Promise<PluginOutputCommand[]>>();
 
   const registerPlugin = async (settings: Settings, plugin: string) => {
@@ -116,6 +118,7 @@ export const EventsProvider: FC<{}> = (props) => {
       plugin,
       api.shell,
       pluginStorage,
+      settings,
     );
 
     const prefixesCommands = await checkForPluginPrefixesToRegister(
@@ -173,12 +176,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setWaitingFor('Registering hotkeys...');
     registerGlobalHotkeys(settings);
-
-    if (!settings.pluginsPreinstalled) {
-      setWaitingFor('Installing plugins...');
-      await preinstallPlugins(settings);
-    }
-
     setWaitingFor(null);
 
     const internalAndExternalPLugins = [
@@ -190,6 +187,7 @@ export const EventsProvider: FC<{}> = (props) => {
       internalAndExternalPLugins,
       api.shell,
       getStorage,
+      settings,
     );
 
     const prefixesCommands = await checkForPluginsPrefixesToRegister(
@@ -211,13 +209,16 @@ export const EventsProvider: FC<{}> = (props) => {
       optionsToSet,
       queryToSet,
       hintToSet,
-      dataToStorage,
+      storageToSet,
+      storageToPatch,
+      settingsToPatch,
       prefixesToRegister,
       errorsToSet,
       logs,
     } = commands;
 
     if (optionsToRegister) {
+      console.log(optionsToRegister);
       setRegisteredOptions(prevOptions => ({
         ...prevOptions,
         ...optionsToRegister,
@@ -239,12 +240,22 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     if (hintToSet) {
-      console.log('hintToSet: ', hintToSet);
       setHint(hintToSet);
     }
 
-    if (dataToStorage) {
-      patchStorage(dataToStorage)
+    if (storageToSet) {
+      setStorage(storageToSet)
+    }
+
+    if (storageToPatch) {
+      patchStorage(storageToPatch)
+    }
+
+    if (settingsToPatch) {
+      if (settingsToPatch.plugins?.length) {
+        console.log('REGISTER NEW PLUGINS');
+      }
+      patchSettings(settingsToPatch)
     }
 
     if (prefixesToRegister) {
@@ -331,12 +342,14 @@ export const EventsProvider: FC<{}> = (props) => {
     setQuery('');
 
     const pluginStorage = await getStorage(option.plugin);
+    const settings = await getSettings();
     const commands: PluginOutputCommand[] = isExternalPluginOption(option)
       ? await onQueryExternalPluginAction(
         option,
         '',
         api.shell,
         pluginStorage,
+        settings,
       )
       : await onQueryInternalPluginAction(option, '');
 
@@ -352,12 +365,14 @@ export const EventsProvider: FC<{}> = (props) => {
 
     if (selectedOption) {
       const pluginStorage = await getStorage(selectedOption.plugin);
+      const settings = await getSettings();
       const commands: PluginOutputCommand[] = isExternalPluginOption(selectedOption)
         ? await onQueryExternalPluginAction(
           selectedOption,
           q,
           api.shell,
           pluginStorage,
+          settings,
         )
         : await onQueryInternalPluginAction(selectedOption, q);
 
@@ -388,12 +403,14 @@ export const EventsProvider: FC<{}> = (props) => {
         };
       }, {});
 
+    const settings = await getSettings();
     const prefixesCommands = Object.keys(matchedPrefixes)?.length && debouncedOnPrefixForPlugins.current
       ? await debouncedOnPrefixForPlugins.current(
           matchedPrefixes,
           q,
           api.shell,
           getStorage,
+          settings,
         )
       : [];
 
@@ -443,11 +460,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onSubmitExternalOption = async (option: ExternalPluginOption) => {
     const pluginStorage = await getStorage(option.plugin);
+    const settings = await getSettings();
     const command: InputCommand = {
       type: InputCommandType.onAction,
       action: option.action ?? '',
       query,
       storage: pluginStorage,
+      settings,
     };
 
     const localPluginPath = isLocalPluginPath(option.plugin);
@@ -505,3 +524,4 @@ export const EventsProvider: FC<{}> = (props) => {
 };
 
 export const useEvents = () => React.useContext(EventsContext);
+

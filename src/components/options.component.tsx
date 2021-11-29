@@ -108,14 +108,17 @@ export const Option = ({
 }
 
 export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon: SpotterOptionBaseImage }) => {
+  console.log(typeof icon, icon);
   return <>
     {icon
       ? <View style={style}>
         {typeof icon === 'string' && (icon.endsWith('.app') || icon.endsWith('.prefPane'))
           ? <IconImageNative style={{ width: 25, height: 25, ...style, }} source={icon}></IconImageNative>
-          : typeof icon === 'number' || (typeof icon === 'object' && icon.uri)
-            ? <Image style={{ width: 22, height: 22, ...style }} source={icon}></Image>
-            : null
+          : typeof icon === 'string' && icon.endsWith('.png')
+            ? <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
+            : typeof icon === 'number' || (typeof icon === 'object' && icon.uri)
+              ? <Image style={{ width: 22, height: 22, ...style }} source={icon}></Image>
+              : null
         }
       </View>
       : null
