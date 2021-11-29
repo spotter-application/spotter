@@ -10,7 +10,6 @@
   ],
   "private": true,
   "scripts": {
-    "start": "npm run start:macos",
     "test": "jest",
     "lint": "eslint .",
     "install": "cd ./macos && pod install",
