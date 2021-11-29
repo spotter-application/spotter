@@ -32,7 +32,6 @@ export const QueryPanel: FC<{}> = () => {
     loading,
     query,
     hoveredOptionIndex,
-    shouldShowOptions,
     selectedOption,
     waitingFor,
   } = useSpotterState();
@@ -42,7 +41,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...((options?.length && shouldShowOptions) || waitingFor ? styles.inputWithResults : {}),
+        ...(options?.length || waitingFor ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -104,13 +103,13 @@ export const QueryPanel: FC<{}> = () => {
           ...styles.input,
           padding: 10,
           paddingTop: 0,
-          ...(options?.length && shouldShowOptions ? styles.inputWithResults : {}),
+          ...(options?.length ? styles.inputWithResults : {}),
         }}>
           <Text style={{ opacity: 0.5, fontSize: 12 }}>{waitingFor}</Text>
         </View> : null
       }
       {
-        shouldShowOptions && <Options
+        <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
           hoveredOptionIndex={hoveredOptionIndex}
           options={options}

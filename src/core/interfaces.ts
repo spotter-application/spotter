@@ -174,7 +174,7 @@ export interface RegisteredOptions {
   [plugin: string]: ExternalPluginOption[],
 }
 
-export interface HandleCommandResult {
+export interface ParseCommandsResult {
   optionsToRegister: null | RegisteredOptions,
   optionsToSet: null | ExternalPluginOption[],
   queryToSet: null | string,

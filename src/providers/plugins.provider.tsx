@@ -2,15 +2,15 @@ import React, { FC } from 'react';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
 import {
-  handleCommands,
+  parseCommands,
   triggerOnInitForInternalOrExternalPlugin,
   checkForPluginPrefixesToRegister,
 } from '../core/helpers';
 import { useStorage } from './storage.provider';
-import { HandleCommandResult } from '../core';
+import { ParseCommandsResult } from '../core';
 
 type Context = {
-  registerPlugin: (plugin: string) => Promise<HandleCommandResult | undefined>,
+  registerPlugin: (plugin: string) => Promise<ParseCommandsResult | undefined>,
   unregisterPlugin: (plugin: string) => Promise<void>,
 };
 
@@ -54,7 +54,7 @@ export const PluginsProvider: FC<{}> = (props) => {
       ...prefixesCommands,
     ];
 
-    return handleCommands(commands);
+    return parseCommands(commands);
   }
 
   const unregisterPlugin = async (plugin: string) => {

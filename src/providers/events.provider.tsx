@@ -3,20 +3,20 @@ import {
   InputCommandType,
   Storage,
 } from '@spotter-app/core/dist/interfaces';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import pDebounce from 'p-debounce';
-import { PREINSTALL_PLUGINS_LIST, SHOW_OPTIONS_DELAY, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
+import { PREINSTALL_PLUGINS_LIST, SPOTTER_HOTKEY_IDENTIFIER } from '../core/constants';
 import {
   InternalPluginLifecycle,
   PluginOutputCommand,
-  RegisteredOptions,
   SpotterHotkeyEvent,
   ExternalPluginOption,
   InternalPluginOption,
   isExternalPluginOption,
   RegisteredPrefixes,
   SpotterShell,
+  ParseCommandsResult,
 } from '../core/interfaces';
 import { useApi } from './api.provider';
 import { Settings, useSettings } from './settings.provider';
@@ -24,7 +24,7 @@ import { PluginsPlugin } from '../plugins/plugins.plugin';
 import {
   forceReplaceOptions,
   getHistoryPath,
-  handleCommands,
+  parseCommands,
   onQueryExternalPluginAction,
   onQueryInternalPluginAction,
   sortOptions,
@@ -34,6 +34,7 @@ import {
   isLocalPluginPath,
   checkForPluginPrefixesToRegister,
   onPrefixForPlugins,
+  parseOutput,
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
@@ -48,14 +49,6 @@ type Context = {
   onCommandComma: () => void,
   onTab: () => void,
   onBackspace: () => void,
-  query: string,
-  hint?: string,
-  options: Array<InternalPluginOption | ExternalPluginOption>,
-  selectedOption: InternalPluginOption | ExternalPluginOption | null,
-  loading: boolean,
-  hoveredOptionIndex: number,
-  shouldShowOptions: boolean,
-  waitingFor: string | null,
 };
 
 const context: Context = {
@@ -67,14 +60,6 @@ const context: Context = {
   onCommandComma: () => null,
   onTab: () => null,
   onBackspace: () => null,
-  query: '',
-  hint: '',
-  options: [],
-  selectedOption: null,
-  loading: false,
-  hoveredOptionIndex: 0,
-  shouldShowOptions: false,
-  waitingFor: null,
 }
 
 export const EventsContext = React.createContext<Context>(context);
@@ -88,20 +73,15 @@ export const EventsProvider: FC<{}> = (props) => {
   const {
     query,
     setQuery,
-    hint,
     setHint,
     options,
     setOptions,
     selectedOption,
     setSelectedOption,
-    loading,
     setLoading,
-    waitingFor,
     setWaitingFor,
     hoveredOptionIndex,
     setHoveredOptionIndex,
-    shouldShowOptions,
-    setShouldShowOptions,
     reset,
     registeredOptions,
     setRegisteredOptions,
@@ -110,8 +90,12 @@ export const EventsProvider: FC<{}> = (props) => {
   } = useSpotterState()
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
-
-  const debouncedOnPrefixForPlugins = useRef<(registeredPrefixes: RegisteredPrefixes, query: string, shell: SpotterShell, storage: Storage) => Promise<PluginOutputCommand[]>>();
+  const debouncedOnPrefixForPlugins = useRef<(
+    registeredPrefixes: RegisteredPrefixes,
+    query: string,
+    shell: SpotterShell,
+    getStorage: (plugin: string) => Promise<Storage>,
+  ) => Promise<PluginOutputCommand[]>>();
 
   const registerPlugin = async (settings: Settings, plugin: string) => {
     if (settings.plugins.find(p => p === plugin)) {
@@ -125,6 +109,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     addPlugin(plugin);
+
     const pluginStorage = await getStorage(plugin);
 
     const onInitCommands = await triggerOnInitForInternalOrExternalPlugin(
@@ -143,34 +128,7 @@ export const EventsProvider: FC<{}> = (props) => {
       ...prefixesCommands,
     ];
 
-    const {
-      optionsToRegister,
-      dataToStorage,
-      prefixesToRegister,
-      errorsToSet,
-    } = handleCommands(commands);
-
-    if (errorsToSet) {
-      errorsToSet.forEach(err => Alert.alert(err));
-    }
-
-    if (prefixesToRegister) {
-      setRegisteredPrefixes(prevPrefixes => ({
-        ...prevPrefixes,
-        ...prefixesToRegister,
-      }));
-    }
-
-    if (dataToStorage) {
-      patchStorage(dataToStorage);
-    }
-
-    if (optionsToRegister) {
-      setRegisteredOptions(prevOptions => ({
-        ...prevOptions,
-        ...optionsToRegister,
-      }));
-    }
+    handleCommands(parseCommands(commands));
   }
 
   const unregisterPlugin = async (plugin: string) => {
@@ -181,14 +139,17 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     removePlugin(plugin);
+
     setRegisteredOptions((prevRegisteredOptions) => ({
       ...prevRegisteredOptions,
       [plugin]: [],
     }));
+
     setRegisteredPrefixes((prevRegisteredOptions) => ({
       ...prevRegisteredOptions,
       [plugin]: [],
     }));
+
     reset();
   }
 
@@ -204,7 +165,6 @@ export const EventsProvider: FC<{}> = (props) => {
     }
   }, []);
 
-  // TODO: move to spotter.tsx
   const onInit = async () => {
     const settings = await getSettings();
 
@@ -242,16 +202,48 @@ export const EventsProvider: FC<{}> = (props) => {
       ...prefixesCommands,
     ];
 
+    handleCommands(parseCommands(commands));
+  };
+
+  const handleCommands = async (commands: ParseCommandsResult) => {
     const {
       optionsToRegister,
       optionsToSet,
+      queryToSet,
+      hintToSet,
       dataToStorage,
       prefixesToRegister,
       errorsToSet,
-    } = handleCommands(commands);
+      logs,
+    } = commands;
 
-    if (errorsToSet?.length) {
-      errorsToSet.forEach(err => Alert.alert(err));
+    if (optionsToRegister) {
+      setRegisteredOptions(prevOptions => ({
+        ...prevOptions,
+        ...optionsToRegister,
+      }));
+    }
+
+    if (optionsToSet) {
+      const history = await getHistory();
+
+      setOptions(sortOptions(
+        forceReplaceOptions(optionsToSet),
+        selectedOption,
+        history,
+      ));
+    }
+
+    if (queryToSet) {
+      setQuery(queryToSet);
+    }
+
+    if (hintToSet) {
+      setHint(hintToSet);
+    }
+
+    if (dataToStorage) {
+      patchStorage(dataToStorage)
     }
 
     if (prefixesToRegister) {
@@ -261,28 +253,14 @@ export const EventsProvider: FC<{}> = (props) => {
       }));
     }
 
-    if (dataToStorage) {
-      patchStorage(dataToStorage)
+    if (errorsToSet?.length) {
+      errorsToSet.forEach(err => Alert.alert(err));
     }
 
-    if (optionsToSet) {
-      const history = await getHistory();
-      setOptions(
-        sortOptions(
-          forceReplaceOptions(optionsToSet),
-          selectedOption,
-          history,
-        ),
-      );
+    if (logs?.length) {
+      logs.forEach(log => console.log(log));
     }
-
-    if (optionsToRegister) {
-      setRegisteredOptions(prevOptions => ({
-        ...prevOptions,
-        ...optionsToRegister,
-      }));
-    }
-  };
+  }
 
   const registerGlobalHotkeys = async (settings: Settings) => {
     api.globalHotKey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
@@ -325,11 +303,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onEscape = () => {
     reset();
-    setShouldShowOptions(false);
+
     if (shouldShowOptionsTimer.current) {
       clearTimeout(shouldShowOptionsTimer.current);
     }
+
     shouldShowOptionsTimer.current = null;
+
     api.panel.close();
   }
 
@@ -359,43 +339,14 @@ export const EventsProvider: FC<{}> = (props) => {
       )
       : await onQueryInternalPluginAction(option, '');
 
-    const { optionsToSet, dataToStorage, hintToSet, logs } = handleCommands(commands);
-
-    if (logs?.length) {
-      logs.forEach(log => console.log(log));
-    }
-
-    if (dataToStorage) {
-      patchStorage(dataToStorage);
-    }
-
-    if (hintToSet) {
-      setHint(hintToSet);
-    }
-
     increaseHistory(getHistoryPath(option, null));
 
-    const history = await getHistory();
-    setOptions(
-      sortOptions(
-       forceReplaceOptions(optionsToSet ?? []),
-        option,
-        history,
-      ),
-    );
     setHoveredOptionIndex(0);
+
+    handleCommands(parseCommands(commands));
   }
 
   const onQuery = async (q: string) => {
-    // TODO: add warning message UI
-    // if (!settings?.plugins?.filter(p => typeof p === 'string').length) {
-      // setOptions([{
-      //   title: 'You don`t have any installed plugins',
-      //   plugin: '',
-      // }]);
-      // return;
-    // }
-
     setQuery(q);
 
     if (selectedOption) {
@@ -409,26 +360,7 @@ export const EventsProvider: FC<{}> = (props) => {
         )
         : await onQueryInternalPluginAction(selectedOption, q);
 
-      const { optionsToSet, dataToStorage, logs } = handleCommands(commands);
-
-      if (logs?.length) {
-        logs.forEach(log => console.log(log));
-      }
-
-      if (dataToStorage) {
-        patchStorage(dataToStorage);
-      }
-
-      if (optionsToSet) {
-        const history = await getHistory();
-        setOptions(
-          sortOptions(
-            forceReplaceOptions(optionsToSet ?? []),
-            selectedOption,
-            history,
-          ),
-        );
-      }
+      handleCommands(parseCommands(commands));
 
       return;
     }
@@ -440,7 +372,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
     setLoading(true);
 
-    const shouldTriggerPrefixes: RegisteredPrefixes = Object
+    const matchedPrefixes: RegisteredPrefixes = Object
       .entries(registeredPrefixes)
       .reduce<RegisteredPrefixes>((acc, [plugin, prefixes]) => {
         const filteredPrefixes = prefixes.filter(prefix => q.startsWith(prefix));
@@ -455,57 +387,30 @@ export const EventsProvider: FC<{}> = (props) => {
         };
       }, {});
 
-    const prefixesCommands = Object.keys(shouldTriggerPrefixes)?.length && debouncedOnPrefixForPlugins.current
+    const prefixesCommands = Object.keys(matchedPrefixes)?.length && debouncedOnPrefixForPlugins.current
       ? await debouncedOnPrefixForPlugins.current(
-          shouldTriggerPrefixes,
+          matchedPrefixes,
           q,
           api.shell,
           getStorage,
         )
       : [];
 
-    const { optionsToSet, queryToSet, logs } = handleCommands(prefixesCommands);
+    const commands = parseCommands(prefixesCommands);
 
-    if (logs?.length) {
-      logs.forEach(log => console.log(log));
-    }
-
-    if (queryToSet) {
-      setQuery(queryToSet);
-    }
-
-    const filteredRegisteredOptions = Object
+    const filteredRegisteredOptions: ExternalPluginOption[] = Object
       .values(registeredOptions)
       .flat(1)
       .filter(o => o.title.toLowerCase().search(q.toLowerCase()) !== -1);
 
-    const options = [
-      ...(optionsToSet ? optionsToSet : []),
+    commands.optionsToSet = [
+      ...(commands?.optionsToSet ?? []),
       ...filteredRegisteredOptions,
     ];
 
+    handleCommands(commands);
+
     setLoading(false);
-
-    const history = await getHistory();
-    setOptions(
-      sortOptions(
-        forceReplaceOptions(options),
-        selectedOption,
-        history,
-      ),
-    );
-
-    if (!shouldShowOptionsTimer.current) {
-      shouldShowOptionsTimer.current = setTimeout(() => {
-        setShouldShowOptions(prevShouldShowOptions => {
-          if (!prevShouldShowOptions) {
-            return true;
-          }
-
-          return prevShouldShowOptions;
-        });
-      }, SHOW_OPTIONS_DELAY);
-    }
   };
 
   const onArrowUp = () => {
@@ -548,29 +453,9 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const commands: PluginOutputCommand[] = await api.shell
       .execute(`${localPluginPath ? 'node ' : ''}${option.plugin} '${JSON.stringify(command)}'`)
-      .then(v => parseCommands(option.plugin, v));
+      .then(v => parseOutput(option.plugin, v));
 
-    const { dataToStorage, optionsToSet, logs } = handleCommands(commands);
-
-    if (logs?.length) {
-      logs.forEach(log => console.log(log));
-    }
-
-    if (dataToStorage) {
-      patchStorage(dataToStorage);
-    }
-
-    if (optionsToSet) {
-      const history = await getHistory();
-      setOptions(
-        sortOptions(
-          forceReplaceOptions(optionsToSet),
-          selectedOption,
-          history,
-        ),
-      );
-      return;
-    }
+    handleCommands(parseCommands(commands));
 
     onEscape();
   }
@@ -602,10 +487,6 @@ export const EventsProvider: FC<{}> = (props) => {
     );
   }
 
-  const parseCommands = (plugin: string, value: string): PluginOutputCommand[] => {
-    return value ? value.split('\n').map(c => ({...JSON.parse(c), plugin})) : [];
-  }
-
   return (
     <EventsContext.Provider value={{
       ...context,
@@ -616,14 +497,6 @@ export const EventsProvider: FC<{}> = (props) => {
       onTab,
       onBackspace,
       onSubmit,
-      query,
-      options,
-      hint,
-      loading,
-      hoveredOptionIndex,
-      shouldShowOptions,
-      selectedOption,
-      waitingFor,
     }}>
       {props.children}
     </EventsContext.Provider>

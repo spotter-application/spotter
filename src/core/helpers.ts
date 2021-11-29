@@ -4,7 +4,7 @@ import { History } from '../providers';
 import { INTERNAL_PLUGIN_KEY } from './constants';
 import {
   ExternalPluginOption,
-  HandleCommandResult,
+  ParseCommandsResult,
   InternalPluginLifecycle,
   InternalPluginOption,
   isExternalPluginOption,
@@ -37,9 +37,13 @@ export const sortOptions = (
   });
 };
 
-export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandResult => {
-  return commands.reduce<HandleCommandResult>((acc, command) => {
-    const handleCommandResult: HandleCommandResult = handleCommand(command);
+export const parseOutput = (plugin: string, value: string): PluginOutputCommand[] => {
+  return value ? value.split('\n').map(c => ({...JSON.parse(c), plugin})) : [];
+}
+
+export const parseCommands = (commands: PluginOutputCommand[]): ParseCommandsResult => {
+  return commands.reduce<ParseCommandsResult>((acc, command) => {
+    const handleCommandResult: ParseCommandsResult = handleCommand(command);
 
     const optionsToRegister: RegisteredOptions | null = handleCommandResult.optionsToRegister
       ? {...(acc.optionsToRegister ?? {}), ...handleCommandResult.optionsToRegister}
@@ -87,8 +91,8 @@ export const handleCommands = (commands: PluginOutputCommand[]): HandleCommandRe
   });
 };
 
-export const handleCommand = (command: PluginOutputCommand): HandleCommandResult => {
-  const initialData: HandleCommandResult = {
+export const handleCommand = (command: PluginOutputCommand): ParseCommandsResult => {
+  const initialData: ParseCommandsResult = {
     optionsToRegister: null,
     optionsToSet: null,
     queryToSet: null,
@@ -228,10 +232,11 @@ export const onPrefixForPlugins = async (
   registeredPrefixes: RegisteredPrefixes,
   query: string,
   shell: SpotterShell,
-  storage: Storage,
+  getStorage: (plugin: string) => Promise<Storage>,
 ): Promise<PluginOutputCommand[]> => {
   return await Object.entries(registeredPrefixes).reduce<Promise<PluginOutputCommand[]>>(
     async (asyncAcc, [plugin, prefixes]) => {
+      const storage = await getStorage(plugin);
       return [
         ...(await asyncAcc),
         ...(await onPrefixes(
