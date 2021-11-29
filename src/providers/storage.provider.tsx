@@ -14,12 +14,12 @@ type Context = {
   patchStorage: (data: Storage) => void;
 };
 
-const tokens = {
-  spotify: {
+const tokens: {[key: string]: any} = {
+  ['spotter-spotify-plugin']: {
     clientId: SPOTIFY_CLIENT_ID,
     clientSecret: SPOTIFY_CLIENT_SECRET,
     redirectUri: SPOTIFY_REDIRECT_URI,
-  },
+  }
 };
 
 const context: Context = {
@@ -35,14 +35,14 @@ export const StorageProvider: FC<{}> = (props) => {
 
   const cachedStorage = useRef<Storage>();
 
-  const getStorage = async (plugin?: string) => {
+  const getStorage = async (plugin?: string): Promise<Storage> => {
     if (cachedStorage.current) {
       return {
         ...(plugin
           ? (cachedStorage.current[plugin] ?? {})
           : cachedStorage.current
         ),
-        tokens,
+        ...(plugin && tokens[plugin] ? {tokens: tokens[plugin]} : {}),
       };
     }
 
