@@ -4,3 +4,6 @@ export * from './events.provider';
 export * from './settings.provider';
 export * from './history.provider';
 export * from './storage.provider';
+export * from './state.provider';
+export * from './plugins.provider';
+

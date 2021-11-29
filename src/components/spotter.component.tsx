@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useTheme } from '../providers';
+import { useSpotterState, useTheme } from '../providers';
 import { OptionIcon, Options } from './options.component';
 import { InputNative } from '../core/native';
 import { useEvents } from '../providers/events.provider';
@@ -24,22 +24,24 @@ export const QueryPanel: FC<{}> = () => {
     onCommandComma,
     onTab,
     onBackspace,
+  } = useEvents();
+
+  const {
     options,
     hint,
     loading,
     query,
     hoveredOptionIndex,
-    shouldShowOptions,
     selectedOption,
     waitingFor,
-  } = useEvents();
+  } = useSpotterState();
 
   return <>
     <SafeAreaView>
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...((options?.length && shouldShowOptions) || waitingFor ? styles.inputWithResults : {}),
+        ...(options?.length || waitingFor ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -101,13 +103,13 @@ export const QueryPanel: FC<{}> = () => {
           ...styles.input,
           padding: 10,
           paddingTop: 0,
-          ...(options?.length && shouldShowOptions ? styles.inputWithResults : {}),
+          ...(options?.length ? styles.inputWithResults : {}),
         }}>
           <Text style={{ opacity: 0.5, fontSize: 12 }}>{waitingFor}</Text>
         </View> : null
       }
       {
-        shouldShowOptions && <Options
+        <Options
           style={{ ...styles.options, backgroundColor: colors.background }}
           hoveredOptionIndex={hoveredOptionIndex}
           options={options}
