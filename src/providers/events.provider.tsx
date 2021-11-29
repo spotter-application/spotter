@@ -15,7 +15,6 @@ import {
   ExternalPluginOption,
   InternalPluginOption,
   isExternalPluginOption,
-  Options,
   RegisteredPrefixes,
   SpotterShell,
 } from '../core/interfaces';
@@ -38,6 +37,7 @@ import {
 } from '../core/helpers';
 import { useHistory } from './history.provider';
 import { useStorage } from './storage.provider';
+import { useSpotterState } from './state.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -85,18 +85,27 @@ export const EventsProvider: FC<{}> = (props) => {
   const { getSettings, addPlugin, removePlugin } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const { getStorage, patchStorage } = useStorage();
+  const {
+    query,
+    setQuery,
+    hint,
+    setHint,
+    options,
+    setOptions,
+    selectedOption,
+    setSelectedOption,
+    loading,
+    setLoading,
+    waitingFor,
+    setWaitingFor,
+    hoveredOptionIndex,
+    setHoveredOptionIndex,
+    shouldShowOptions,
+    setShouldShowOptions,
+  } = useSpotterState()
 
-  const [ query, setQuery ] = useState<string>('');
-  const [ hint, setHint ] = useState<string>();
-  const [ options, setOptions ] = useState<Options>([]);
-  const [ selectedOption, setSelectedOption] = useState<ExternalPluginOption | InternalPluginOption | null>(null);
-  const [ loading, setLoading ] = useState<boolean>(false);
-  const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
-  const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
   const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
   const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
-
-  const [ shouldShowOptions, setShouldShowOptions ] = useState<boolean>(false);
 
   const shouldShowOptionsTimer = useRef<NodeJS.Timeout | null>();
 
@@ -314,7 +323,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const reset = () => {
     setQuery('');
-    setHint(undefined);
+    setHint(null);
     setLoading(false);
     setOptions([]);
     setHoveredOptionIndex(0);
@@ -376,7 +385,7 @@ export const EventsProvider: FC<{}> = (props) => {
     const history = await getHistory();
     setOptions(
       sortOptions(
-        forceReplaceOptions(optionsToSet ?? []),
+       forceReplaceOptions(optionsToSet ?? []),
         option,
         history,
       ),

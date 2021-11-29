@@ -10,6 +10,8 @@ import {
   SettingsProvider,
   HistoryProvider,
   StorageProvider,
+  StateProvider,
+  PluginsProvider,
 } from './src/providers';
 
 // TODO: Check
@@ -19,17 +21,21 @@ YellowBox.ignoreWarnings([
 
 const AppWithModules = () => (
   <ApiProvider>
-    <SettingsProvider>
-      <HistoryProvider>
-        <StorageProvider>
-          <EventsProvider>
-            <ThemeProvider>
-              <QueryPanel />
-            </ThemeProvider>
-          </EventsProvider>
-        </StorageProvider>
-      </HistoryProvider>
-    </SettingsProvider>
+    <StateProvider>
+      <SettingsProvider>
+        <PluginsProvider>
+          <HistoryProvider>
+            <StorageProvider>
+              <EventsProvider>
+                <ThemeProvider>
+                  <QueryPanel />
+                </ThemeProvider>
+              </EventsProvider>
+            </StorageProvider>
+          </HistoryProvider>
+        </PluginsProvider>
+      </SettingsProvider>
+    </StateProvider>
   </ApiProvider>
 );
 const SettingsWithModules = () => (

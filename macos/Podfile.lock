@@ -249,7 +249,7 @@ PODS:
     - React-Core (= 0.63.27)
     - React-cxxreact (= 0.63.27)
     - React-jsi (= 0.63.27)
-  - RNCAsyncStorage (1.15.11):
+  - RNCAsyncStorage (1.15.13):
     - React-Core
   - RNSqlite2 (3.3.0):
     - React-Core
@@ -386,7 +386,7 @@ SPEC CHECKSUMS:
   React-RCTText: 5582eafe1164c2ff6105fe5e80f38fceb7b57f47
   React-RCTVibration: 23458306eaf4b927518e6cc352563e6b87cd2492
   ReactCommon: 5a71bfd6f9fa344bbeee26749682ef3880f786b1
-  RNCAsyncStorage: eb05c0284dd6b50b32f92fad55e2a41e03358c43
+  RNCAsyncStorage: ac55c090d35b880ac47a7807ab797854afc640ae
   RNSqlite2: df25f1fefd82da39a3f956504149fb32d23831fb
   Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
   Yoga: b4c6f1be0c16f6a112d81c7fb09d23dcbe40a1b4

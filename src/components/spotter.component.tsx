@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useTheme } from '../providers';
+import { useSpotterState, useTheme } from '../providers';
 import { OptionIcon, Options } from './options.component';
 import { InputNative } from '../core/native';
 import { useEvents } from '../providers/events.provider';
@@ -24,6 +24,9 @@ export const QueryPanel: FC<{}> = () => {
     onCommandComma,
     onTab,
     onBackspace,
+  } = useEvents();
+
+  const {
     options,
     hint,
     loading,
@@ -32,7 +35,7 @@ export const QueryPanel: FC<{}> = () => {
     shouldShowOptions,
     selectedOption,
     waitingFor,
-  } = useEvents();
+  } = useSpotterState();
 
   return <>
     <SafeAreaView>
