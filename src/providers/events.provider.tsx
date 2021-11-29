@@ -218,7 +218,6 @@ export const EventsProvider: FC<{}> = (props) => {
     } = commands;
 
     if (optionsToRegister) {
-      console.log(optionsToRegister);
       setRegisteredOptions(prevOptions => ({
         ...prevOptions,
         ...optionsToRegister,

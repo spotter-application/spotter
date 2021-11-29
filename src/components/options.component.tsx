@@ -108,7 +108,6 @@ export const Option = ({
 }
 
 export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon: SpotterOptionBaseImage }) => {
-  console.log(typeof icon, icon);
   return <>
     {icon
       ? <View style={style}>

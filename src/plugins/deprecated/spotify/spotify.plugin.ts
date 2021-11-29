@@ -7,7 +7,6 @@ import {
   spotterSearch,
 } from '../../../core';
 import SpotifyWebApi from 'spotify-web-api-node';
-import fetch from 'node-fetch';
 import { Buffer } from 'buffer';
 
 export class SpotifyPlugin extends InternalPlugin implements InternalPluginLifecycle {
