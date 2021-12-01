@@ -3,6 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 pod 'Magnet'
 pod 'KeyHolder'
+pod 'CallbackURLKit'
 
 target 'spotter-macOS' do
   platform :macos, '11.0'

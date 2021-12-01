@@ -1,8 +1,8 @@
-//
-//  XCallbackUrl.m
-//  spotter-macOS
-//
-//  Created by Denis on 30.11.21.
-//
+#import "React/RCTBridgeModule.h"
+#import "React/RCTEventEmitter.h"
 
-#import <Foundation/Foundation.h>
+@interface RCT_EXTERN_MODULE(XCallbackUrl, RCTEventEmitter)
+
+RCT_EXTERN_METHOD(command: (NSDictionary)data)
+
+@end

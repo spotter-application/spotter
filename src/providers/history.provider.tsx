@@ -22,7 +22,7 @@ export const HistoryContext = React.createContext<Context>(context);
 
 export const HistoryProvider: FC<{}> = (props) => {
 
-  const { api } = useApi();
+  const { storage } = useApi();
 
   const cachedHistory = useRef<History>();
 
@@ -31,7 +31,7 @@ export const HistoryProvider: FC<{}> = (props) => {
       return cachedHistory.current;
     }
 
-    const history = await api.storage.getItem<History>(HISTORY_STORAGE_KEY);
+    const history = await storage.getItem<History>(HISTORY_STORAGE_KEY);
     if (!history) {
       return {};
     }
@@ -50,7 +50,7 @@ export const HistoryProvider: FC<{}> = (props) => {
     };
 
     cachedHistory.current = updatedHistory;
-    api.storage.setItem(HISTORY_STORAGE_KEY, updatedHistory);
+    storage.setItem(HISTORY_STORAGE_KEY, updatedHistory);
   }
 
   return (

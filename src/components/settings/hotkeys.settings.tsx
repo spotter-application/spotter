@@ -72,7 +72,7 @@ const SettingsPlugin: FC<{
 
 export const HotkeysSettings: FC<{}> = () => {
 
-  const { api } = useApi();
+  const { hotkey } = useApi();
   const { getSettings, patchSettings } = useSettings();
 
   const [spotterSettings, setSpotterSettings] = useState<Settings | null>(null);
@@ -109,8 +109,8 @@ export const HotkeysSettings: FC<{}> = () => {
     registerNewHotkey(nextHotkey, `${plugin}#${option}`);
   }, []);
 
-  const registerNewHotkey = (hotkey: Hotkey | null, action: string) => {
-    api.hotkey.register(hotkey, action);
+  const registerNewHotkey = (shortcut: Hotkey | null, action: string) => {
+    hotkey.register(shortcut, action);
   };
 
   return <View>

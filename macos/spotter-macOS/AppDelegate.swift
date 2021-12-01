@@ -1,5 +1,6 @@
 import Foundation
 import Cocoa
+import CallbackURLKit
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -26,6 +27,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     self.setupMenubar()
     self.setupSpotterPanel()
     self.setupSettingsPanel()
+    
+    // CallbackURLKit
+    let manager = Manager.shared
+    manager.callbackURLScheme = Manager.urlSchemes?.first
+    manager.registerToURLEvent()
   }
 
   func setStatusBarTitle(_ title: NSString) {

@@ -14,12 +14,13 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.13",
-    "@spotter-app/core": "1.2.3",
+    "@spotter-app/core": "1.2.16",
     "p-debounce": "^4.0.0",
     "react": "17.0.2",
     "react-native": "0.66.3",
     "react-native-dotenv": "^3.3.0",
-    "react-native-macos": "0.64.14"
+    "react-native-macos": "0.64.14",
+    "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",

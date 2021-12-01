@@ -1,5 +1,13 @@
 import React, { FC } from 'react';
-import { SpotterApi } from '../interfaces';
+import {
+  SpotterHotkeyApi,
+  SpotterNotificationsApi,
+  SpotterPanelApi,
+  SpotterShellApi,
+  SpotterStatusBarApi,
+  SpotterStorageApi,
+  SpotterXCallbackUrlApi,
+} from '../interfaces';
 import {
   HotkeyApi,
   NotificationsApi,
@@ -7,6 +15,7 @@ import {
   StorageApi,
   ShellApi,
   PanelApi,
+  XCallbackUrl,
 } from '../native';
 
 const hotkey = new HotkeyApi();
@@ -15,6 +24,17 @@ const notifications = new NotificationsApi();
 const statusBar = new StatusBarApi();
 const shell = new ShellApi();
 const panel = new PanelApi();
+const xCallbackUrlApi = new XCallbackUrl();
+
+type Context = {
+  storage: SpotterStorageApi,
+  hotkey: SpotterHotkeyApi,
+  notifications: SpotterNotificationsApi,
+  statusBar: SpotterStatusBarApi,
+  shell: SpotterShellApi,
+  panel: SpotterPanelApi,
+  xCallbackUrlApi: SpotterXCallbackUrlApi,
+};
 
 const api = {
   storage,
@@ -23,24 +43,15 @@ const api = {
   statusBar,
   shell,
   panel,
+  xCallbackUrlApi,
 };
 
-type Context = {
-  api: SpotterApi,
-};
-
-export const ApiContext = React.createContext<Context>({
-  api,
-});
+export const ApiContext = React.createContext<Context>(api);
 
 export const ApiProvider: FC<{}> = (props) => {
 
-  const value = {
-    api,
-  };
-
   return (
-    <ApiContext.Provider value={value}>
+    <ApiContext.Provider value={api}>
       {props.children}
     </ApiContext.Provider>
   );

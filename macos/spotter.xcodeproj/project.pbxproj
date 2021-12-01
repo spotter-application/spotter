@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		514201552437B4B40078DB4F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 514201532437B4B40078DB4F /* Main.storyboard */; };
+		921BA536275668350043E93F /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 921BA535275668350043E93F /* icon.png */; };
+		921BA53927566E9A0043E93F /* XCallbackUrl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 921BA53827566E9A0043E93F /* XCallbackUrl.swift */; };
+		921BA53B27566EB50043E93F /* XCallbackUrl.m in Sources */ = {isa = PBXBuildFile; fileRef = 921BA53A27566EB50043E93F /* XCallbackUrl.m */; };
 		92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92418A1C24CA1848007897A2 /* AppDelegate.swift */; };
 		9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9244817125A2555F00EF3F60 /* HotkeyInputView.swift */; };
 		9245EB672598ACAD0032CB6D /* Input.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9245EB662598ACAD0032CB6D /* Input.swift */; };
@@ -42,6 +45,9 @@
 		514201592437B4B40078DB4F /* spotter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spotter.entitlements; sourceTree = "<group>"; };
 		89E390EC7D2722AFBF24FDC7 /* Pods-spotter-macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-spotter-macOS.release.xcconfig"; path = "Target Support Files/Pods-spotter-macOS/Pods-spotter-macOS.release.xcconfig"; sourceTree = "<group>"; };
 		8D6B5491829CC49575992991 /* libPods-spotter-macOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-spotter-macOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		921BA535275668350043E93F /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		921BA53827566E9A0043E93F /* XCallbackUrl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCallbackUrl.swift; sourceTree = "<group>"; };
+		921BA53A27566EB50043E93F /* XCallbackUrl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XCallbackUrl.m; sourceTree = "<group>"; };
 		92418A1C24CA1848007897A2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9244817125A2555F00EF3F60 /* HotkeyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HotkeyInputView.swift; path = "Spotter-macOS/HotkeyInput/HotkeyInputView.swift"; sourceTree = SOURCE_ROOT; };
 		9245EB662598ACAD0032CB6D /* Input.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Input.swift; sourceTree = "<group>"; };
@@ -113,6 +119,7 @@
 				924CFDF5259CC987002FF7D3 /* StatusBar */,
 				924CFDEE259CC697002FF7D3 /* Notifications */,
 				9245EB642598AC930032CB6D /* Input */,
+				921BA53727566E130043E93F /* XCallbackUrl */,
 				925CF3EE2596265600D71A76 /* Hotkey */,
 				92BE4F3424CEC64F0049B6B3 /* Shell */,
 				9206FEB524CD8AF000CBE256 /* Panel */,
@@ -136,6 +143,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				921BA535275668350043E93F /* icon.png */,
 				5142014A2437B4B30078DB4F /* spotter-macOS */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
@@ -162,6 +170,15 @@
 				92AB4F7124B98DF80094195D /* Panel.m */,
 			);
 			path = Panel;
+			sourceTree = "<group>";
+		};
+		921BA53727566E130043E93F /* XCallbackUrl */ = {
+			isa = PBXGroup;
+			children = (
+				921BA53827566E9A0043E93F /* XCallbackUrl.swift */,
+				921BA53A27566EB50043E93F /* XCallbackUrl.m */,
+			);
+			path = XCallbackUrl;
 			sourceTree = "<group>";
 		};
 		9245EB642598AC930032CB6D /* Input */ = {
@@ -272,7 +289,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "spotter" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Spotter" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -299,6 +316,7 @@
 			files = (
 				9251DDF324DB160900D3193F /* Assets.xcassets in Resources */,
 				514201552437B4B40078DB4F /* Main.storyboard in Resources */,
+				921BA536275668350043E93F /* icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,11 +416,13 @@
 				924CFDF0259CC6E8002FF7D3 /* Notifications.swift in Sources */,
 				924A098F26E632FF0083584E /* ShellOut.swift in Sources */,
 				925CF3F02596266D00D71A76 /* Hotkey.swift in Sources */,
+				921BA53B27566EB50043E93F /* XCallbackUrl.m in Sources */,
 				92F41E5F25A24AA600D6EAD6 /* HotkeyInput.m in Sources */,
 				9244817225A2555F00EF3F60 /* HotkeyInputView.swift in Sources */,
 				92418A1D24CA1848007897A2 /* AppDelegate.swift in Sources */,
 				924CFDF3259CC6FA002FF7D3 /* Notifications.m in Sources */,
 				9245EC09259BB1C50032CB6D /* CustomNSTextField.swift in Sources */,
+				921BA53927566E9A0043E93F /* XCallbackUrl.swift in Sources */,
 				92F41E5C25A24A9C00D6EAD6 /* HotkeyInput.swift in Sources */,
 				92AB4F7024B98D870094195D /* Panel.swift in Sources */,
 				9245EB9D2598BBCA0032CB6D /* Input.m in Sources */,
@@ -610,7 +630,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "spotter" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Spotter" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

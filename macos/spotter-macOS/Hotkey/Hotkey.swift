@@ -6,8 +6,8 @@ import Foundation
 import Magnet
 import Carbon
 
-@objc(GlobalHotkey)
-class GlobalHotkey: RCTEventEmitter {
+@objc(SpotterHotkey)
+class SpotterHotkey: RCTEventEmitter {
 
   @objc
   func register(_ hotkey: NSDictionary?, withIdentifier identifier: NSString) {

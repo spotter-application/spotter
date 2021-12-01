@@ -30,10 +30,10 @@ export const SettingsContext = React.createContext<Context>(context);
 
 export const SettingsProvider: FC<{}> = (props) => {
 
-  const { api } = useApi();
+  const { storage } = useApi();
 
   const getSettings: () => Promise<Settings> = async () => {
-    const settings = await api.storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
+    const settings = await storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
     if (!settings) {
       return initialSettings;
     }
@@ -53,12 +53,12 @@ export const SettingsProvider: FC<{}> = (props) => {
 
   const patchSettings: (newSettings: Partial<Settings>) => void = async (newSettings) => {
     const settings = await getSettings();
-    api.storage.setItem(SETTINGS_STORAGE_KEY, { ...settings, ...newSettings });
+    storage.setItem(SETTINGS_STORAGE_KEY, { ...settings, ...newSettings });
   }
 
   // TODO: remove
   const getPlugins: () => Promise<string[]> = async () => {
-    const settings = await api.storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
+    const settings = await storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
     if (!settings) {
       return initialSettings.plugins ?? [];
     }

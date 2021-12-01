@@ -1,9 +1,5 @@
+import { PluginOption, PluginPrefix } from '@spotter-app/core';
 import React, { FC, useState } from 'react';
-import {
-  PluginOption,
-  RegisteredOptions,
-  RegisteredPrefixes,
-} from '../interfaces';
 
 type Context = {
   setQuery: (value: string) => void,
@@ -21,10 +17,10 @@ type Context = {
   hoveredOptionIndex: number,
   waitingFor: string | null,
   reset: () => void,
-  registeredOptions: RegisteredOptions,
-  setRegisteredOptions: React.Dispatch<React.SetStateAction<RegisteredOptions>>;
-  registeredPrefixes: RegisteredPrefixes,
-  setRegisteredPrefixes: React.Dispatch<React.SetStateAction<RegisteredPrefixes>>;
+  registeredOptions: PluginOption[],
+  setRegisteredOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>;
+  registeredPrefixes: PluginPrefix[],
+  setRegisteredPrefixes: React.Dispatch<React.SetStateAction<PluginPrefix[]>>;
 };
 
 const context: Context = {
@@ -43,9 +39,9 @@ const context: Context = {
   hoveredOptionIndex: 0,
   waitingFor: null,
   reset: () => null,
-  registeredOptions: {},
+  registeredOptions: [],
   setRegisteredOptions: () => null,
-  registeredPrefixes: {},
+  registeredPrefixes: [],
   setRegisteredPrefixes: () => null,
 }
 
@@ -62,9 +58,9 @@ export const StateProvider: FC<{}> = (props) => {
   const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
 
-  // Registry
-  const [ registeredOptions, setRegisteredOptions ] = useState<RegisteredOptions>({});
-  const [ registeredPrefixes, setRegisteredPrefixes ] = useState<RegisteredPrefixes>({});
+  // Registries
+  const [ registeredOptions, setRegisteredOptions ] = useState<PluginOption[]>([]);
+  const [ registeredPrefixes, setRegisteredPrefixes ] = useState<PluginPrefix[]>([]);
 
   const reset = () => {
     setQuery('');

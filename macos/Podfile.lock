@@ -1,5 +1,8 @@
 PODS:
   - boost-for-react-native (1.63.0)
+  - CallbackURLKit (2.3.0):
+    - CallbackURLKit/Core (= 2.3.0)
+  - CallbackURLKit/Core (2.3.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.64.14)
   - FBReactNativeSpec (0.64.14):
@@ -278,6 +281,7 @@ PODS:
 
 DEPENDENCIES:
   - boost-for-react-native (from `../node_modules/react-native-macos/third-party-podspecs/boost-for-react-native.podspec`)
+  - CallbackURLKit
   - DoubleConversion (from `../node_modules/react-native-macos/third-party-podspecs/DoubleConversion.podspec`)
   - FBLazyVector (from `../node_modules/react-native-macos/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native-macos/React/FBReactNativeSpec`)
@@ -314,6 +318,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - CallbackURLKit
     - KeyHolder
     - Magnet
     - Sauce
@@ -382,6 +387,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: d5ad1140010aa8cb622323a781ecbeab4425d19a
+  CallbackURLKit: a940d1b869c70e1fa700ea06f988ba2a8963dafb
   DoubleConversion: 0ea4559a49682230337df966e735d6cc7760108e
   FBLazyVector: 54b0b353a19db053cc037451ecd8060b03703779
   FBReactNativeSpec: 76ef5f236258dff31cddd5df2489f52aa6a2b719
@@ -415,6 +421,6 @@ SPEC CHECKSUMS:
   Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
   Yoga: f3aec8dd6ae8787468f9d305afc8b5bcd5630e43
 
-PODFILE CHECKSUM: e73099f05fb738deb644b6f8f5117d186a3985c7
+PODFILE CHECKSUM: d57de88614ed0cdebd352d9a7e1dc6c900d9a464
 
 COCOAPODS: 1.10.2

@@ -33,7 +33,7 @@ export const StorageContext = React.createContext<Context>(context);
 
 export const StorageProvider: FC<{}> = (props) => {
 
-  const { api } = useApi();
+  const { storage } = useApi();
 
   const cachedStorage = useRef<Storage>();
 
@@ -48,16 +48,16 @@ export const StorageProvider: FC<{}> = (props) => {
       };
     }
 
-    const storage = await api.storage.getItem<Storage>(STORAGE_KEY);
-    if (!storage) {
+    const currentStorage = await storage.getItem<Storage>(STORAGE_KEY);
+    if (!currentStorage) {
       return {tokens};
     }
 
-    cachedStorage.current = storage;
+    cachedStorage.current = currentStorage;
     return {
       ...(plugin
-        ? (storage[plugin] ?? {})
-        : storage
+        ? (currentStorage[plugin] ?? {})
+        : currentStorage
       ),
       tokens,
     };
@@ -74,18 +74,18 @@ export const StorageProvider: FC<{}> = (props) => {
     }, storage);
 
     cachedStorage.current = updatedStorage;
-    api.storage.setItem(STORAGE_KEY, updatedStorage);
+    storage.setItem(STORAGE_KEY, updatedStorage);
   }
 
   const patchStorage = async (data: Storage) => {
-    const storage = await getStorage();
+    const currentStorage = await getStorage();
     const updatedStorage = {
-      ...storage,
+      ...currentStorage,
       ...data,
     };
 
     cachedStorage.current = updatedStorage;
-    api.storage.setItem(STORAGE_KEY, updatedStorage);
+    storage.setItem(STORAGE_KEY, updatedStorage);
   }
 
   return (

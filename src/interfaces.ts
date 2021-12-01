@@ -1,19 +1,7 @@
 import {
   Hotkey,
-  Option,
-  OutputCommand,
-  Settings,
-  Storage,
+  PluginCommand,
 } from '@spotter-app/core';
-
-export interface SpotterApi {
-  storage: SpotterStorageApi,
-  hotkey: SpotterHotkeyApi,
-  notifications: SpotterNotificationsApi,
-  statusBar: SpotterStatusBarApi,
-  shell: SpotterShellApi,
-  panel: SpotterPanelApi,
-}
 
 export declare abstract class SpotterShellApi {
   abstract execute(command: string): Promise<string>;
@@ -39,13 +27,13 @@ export declare abstract class SpotterHotkeyApi {
   abstract onPress(callback: (event: { hotkey: Hotkey, identifier: string }) => void): void;
 }
 
+export declare abstract class SpotterXCallbackUrlApi {
+  abstract onCommand(callback: (event: PluginCommand) => void): void;
+}
+
 export declare abstract class SpotterStorageApi {
   abstract setItem<T>(key: string, value: T): Promise<void>
   abstract getItem<T>(key: string): Promise<T | null>
-}
-
-export interface PluginOption extends Option {
-  plugin: string;
 }
 
 // TODO: check
@@ -67,27 +55,8 @@ export interface SpotterHotkeyEvent {
   identifier: string,
 }
 
-export type PluginOutputCommand = OutputCommand & {
-  plugin: string;
-}
-
-export interface RegisteredOptions {
-  [plugin: string]: PluginOption[],
-}
-
-export interface ParseCommandsResult {
-  optionsToRegister: null | RegisteredOptions,
-  optionsToSet: null | PluginOption[],
-  queryToSet: null | string,
-  hintToSet: null | string,
-  storageToSet: null | Storage,
-  storageToPatch: null | Partial<Storage>,
-  settingsToPatch: null | Partial<Settings>,
-  prefixesToRegister: null | RegisteredPrefixes,
-  errorsToSet: null | string[],
-  logs: null | string[],
-}
-
-export interface RegisteredPrefixes {
-  [plugin: string]: string[],
+export type Connection = {
+  plugin: string,
+  port: number,
+  ws: WebSocket,
 }
