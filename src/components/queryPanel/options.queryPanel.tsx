@@ -108,7 +108,7 @@ export const Option = ({
   </View>
 }
 
-export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon: Icon }) => {
+export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon?: Icon }) => {
   return <>
     {icon
       ? <View style={style}>
@@ -139,11 +139,11 @@ export const OptionHotkeyHints = ({
     alignItems: 'center',
     ...(style ? style : {}),
   }}>
-    {option?.queryAction
+    {option?.tabActionId
       ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
       : null
     }
-    {option?.action
+    {option?.actionId
       ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
     }

@@ -1,25 +1,13 @@
-import {
-  SpotterCommandType,
-  Settings,
-  Storage,
-  SpotterCommand,
-} from '@spotter-app/core';
-import React, { FC, useEffect, useRef } from 'react';
-import { Alert } from 'react-native';
-import pDebounce from 'p-debounce';
-import { SPOTTER_HOTKEY_IDENTIFIER, SYSTEM_PLUGINS_LIST } from '../constants';
-import {
-  SpotterHotkeyEvent,
-  SpotterShellApi,
-} from '../interfaces';
+import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
+import React, { FC, useEffect } from 'react';
+import { SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { hideOptions, getHistoryPath } from '../helpers';
+import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
-import { useStorage } from './storage.provider';
 import { useSpotterState } from './state.provider';
-import { usePlugins } from '.';
-import { Subscription, distinctUntilChanged } from 'rxjs';
+import { usePlugins } from './plugins.provider';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -47,13 +35,11 @@ export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
   const { panel, shell, hotkey } = useApi();
-  const { getSettings, patchSettings } = useSettings();
+  const { getSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
-  const { getStorage, patchStorage, setStorage } = useStorage();
   const {
     query,
     setQuery,
-    setHint,
     options,
     setOptions,
     selectedOption,
@@ -63,16 +49,14 @@ export const EventsProvider: FC<{}> = (props) => {
     setHoveredOptionIndex,
     reset,
     registeredOptions,
-    setRegisteredOptions,
     registeredPrefixes,
-    setRegisteredPrefixes,
   } = useSpotterState();
 
   const { sendCommand } = usePlugins();
 
   useEffect(() => {
-    checkDependencies();
     registerHotkeys();
+    checkDependencies();
   }, []);
 
   const registerHotkeys = async () => {
@@ -127,30 +111,23 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onTab = async () => {
-    // const option = options[hoveredOptionIndex];
+    const nextSelectedOption = options[hoveredOptionIndex];
+    if (!nextSelectedOption || !nextSelectedOption.tabActionId) {
+      return;
+    }
 
-    // if (!option || !option.queryAction) {
-    //   return;
-    // }
+    setSelectedOption(nextSelectedOption);
+    setQuery('');
 
-    // setSelectedOption(option);
-    // setQuery('');
+    const command: SpotterCommand = {
+      type: SpotterCommandType.onAction,
+      actionId: nextSelectedOption.tabActionId,
+      query: '',
+    };
 
-    // const pluginStorage = await getStorage(option.plugin);
-    // const settings = await getSettings();
-    // const commands: PluginCommand[] = await onPluginQuery(
-    //   option,
-    //   '',
-    //   shell,
-    //   pluginStorage,
-    //   settings,
-    // );
-
-    // increaseHistory(getHistoryPath(option, null));
-
-    // setHoveredOptionIndex(0);
-
-    // handleCommands(parseCommands(commands));
+    sendCommand(command, nextSelectedOption.plugin);
+    increaseHistory(getHistoryPath(nextSelectedOption, null));
+    setHoveredOptionIndex(0);
   }
 
   const onQuery = async (nextQuery: string) => {
@@ -161,91 +138,49 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
+    // Execute selected option tabAction
+    if (selectedOption) {
+      if (!selectedOption.tabActionId) {
+        console.log('There is no tabActionId in selected option');
+        return;
+      }
+      const command: SpotterCommand = {
+        type: SpotterCommandType.onAction,
+        actionId: selectedOption.tabActionId,
+        query: nextQuery,
+      };
+      sendCommand(command, selectedOption.plugin);
+      return;
+    }
+
+    // Check for matched prefixes
     const matchedPrefixes = registeredPrefixes.filter(
       p => nextQuery.startsWith(p.prefix),
     );
 
-    console.log(matchedPrefixes);
-
     if (matchedPrefixes.length) {
-
       matchedPrefixes.forEach(async p => {
         const command: SpotterCommand = {
           type: SpotterCommandType.onAction,
           query: nextQuery,
           actionId: p.actionId,
-        }
+        };
         sendCommand(command, p.plugin);
-      })
+      });
     }
 
-    return;
-
-
-    // if (selectedOption) {
-    //   const pluginStorage = await getStorage(selectedOption.plugin);
-    //   const settings = await getSettings();
-    //   const commands: PluginOutputCommand[] = await onPluginQuery(
-    //     selectedOption,
-    //     q,
-    //     api.shell,
-    //     pluginStorage,
-    //     settings,
-    //   );
-
-    //   // handleCommands(parseCommands(commands));
-
-    //   return;
-    // }
-
-    // if (q === '') {
-    //   reset();
-    //   return;
-    // }
-
-    // setLoading(true);
-
-    // // const matchedPrefixes: RegisteredPrefixes = Object
-    // //   .entries(registeredPrefixes)
-    // //   .reduce<RegisteredPrefixes>((acc, [plugin, prefixes]) => {
-    // //     const filteredPrefixes = prefixes.filter(prefix => q.startsWith(prefix));
-    // //     const updatedPrefixes = [
-    // //       ...(acc[plugin] ? acc[plugin] : []),
-    // //       ...filteredPrefixes,
-    // //     ];
-
-    // //     return {
-    // //       ...acc,
-    // //       ...(updatedPrefixes.length ? {[plugin]: updatedPrefixes} : {}),
-    // //     };
-    // //   }, {});
-
-    // const settings = await getSettings();
-    // // const prefixesCommands = Object.keys(matchedPrefixes)?.length && debouncedOnPrefixForPlugins.current
-    // //   ? await debouncedOnPrefixForPlugins.current(
-    // //       matchedPrefixes,
-    // //       q,
-    // //       api.shell,
-    // //       getStorage,
-    // //       settings,
-    // //     )
-    // //   : [];
-
-    // // const commands = parseCommands(prefixesCommands);
-
-    // // const filteredRegisteredOptions: PluginOption[] = Object
-    // //   .values(registeredOptions)
-    // //   .flat(1)
-    // //   .filter(o => o.title.toLowerCase().search(q.toLowerCase()) !== -1);
-
-    // // commands.optionsToSet = [
-    // //   ...(commands?.optionsToSet ?? []),
-    // //   ...filteredRegisteredOptions,
-    // // ];
-
-    // // handleCommands(commands);
-
-    // setLoading(false);
+    // Check for registered options
+    const filteredRegisteredOptions = registeredOptions.filter(
+      o => o.title.startsWith(nextQuery),
+    );
+    const history = await getHistory();
+    const prioritizedOptions = hideOptions(filteredRegisteredOptions);
+    const sortedOptions = sortOptions(
+      prioritizedOptions ,
+      selectedOption,
+      history,
+    );
+    setOptions(sortedOptions);
   };
 
   const onArrowUp = () => {
@@ -295,19 +230,7 @@ export const EventsProvider: FC<{}> = (props) => {
     };
 
     sendCommand(command, option.plugin);
-
-
-    // const localPluginPath = isLocalPluginPath(option.plugin);
-
-    // const commands: PluginOutputCommand[] = await api.shell
-    //   .execute(`${localPluginPath ? 'node ' : ''}${option.plugin} '${JSON.stringify(command)}'`)
-    //   .then(v => parseOutput(option.plugin, v));
-
-    // handleCommands(parseCommands(commands));
-
-    // onEscape();
-
-    // increaseHistory(getHistoryPath(option, selectedOption));
+    increaseHistory(getHistoryPath(option, null));
   }
 
   return (
