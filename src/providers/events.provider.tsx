@@ -70,86 +70,13 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const { sendCommand } = usePlugins();
 
-  // const debouncedOnPrefixForPlugins = useRef<(
-  //   registeredPrefixes: RegisteredPrefixes,
-  //   query: string,
-  //   shell: SpotterShellApi,
-  //   getStorage: (plugin: string) => Promise<Storage>,
-  //   settings: Settings,
-  // ) => Promise<PluginOutputCommand[]>>();
-
-  // const registerPlugin = async (settings: Settings, plugin: string) => {
-  //   if (settings.plugins.find(p => p === plugin)) {
-  //     return;
-  //   }
-
-  //   const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
-
-  //   if (!localPluginPath) {
-  //     await api.shell.execute(`npm i -g ${plugin}`);
-  //   }
-
-  //   addPlugin(plugin);
-
-  //   const pluginStorage = await getStorage(plugin);
-
-  //   const onInitCommands = await triggerPluginOnInit(
-  //     plugin,
-  //     api.shell,
-  //     pluginStorage,
-  //     settings,
-  //   );
-
-  //   const prefixesCommands = await checkForPluginPrefixesToRegister(
-  //     plugin,
-  //     api.shell,
-  //   );
-
-  //   const commands = [
-  //     ...onInitCommands,
-  //     ...prefixesCommands,
-  //   ];
-
-  //   handleCommands(parseCommands(commands));
-  // }
-
-  // const unregisterPlugin = async (plugin: string) => {
-  //   const localPluginPath = RegExp('^(.+)\/([^\/]+)$').test(plugin);
-
-  //   if (!localPluginPath) {
-  //     await api.shell.execute(`npm uninstall -g ${plugin}`);
-  //   }
-
-  //   removePlugin(plugin);
-
-  //   setRegisteredOptions((prevRegisteredOptions) => ({
-  //     ...prevRegisteredOptions,
-  //     [plugin]: [],
-  //   }));
-
-  //   setRegisteredPrefixes((prevRegisteredOptions) => ({
-  //     ...prevRegisteredOptions,
-  //     [plugin]: [],
-  //   }));
-
-  //   reset();
-  // }
-
   useEffect(() => {
-    onInit();
-
-    // if (!debouncedOnPrefixForPlugins.current) {
-    //   debouncedOnPrefixForPlugins.current = pDebounce(onPluginsPrefix, 200);
-    // }
+    checkDependencies();
+    registerHotkeys();
   }, []);
 
-  const onInit = async () => {
+  const registerHotkeys = async () => {
     const settings = await getSettings();
-    await installDependencies();
-    registerHotkeys(settings);
-  };
-
-  const registerHotkeys = async (settings: Settings) => {
     hotkey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
 
     Object.entries(settings.pluginHotkeys).forEach(([plugin, options]) => {
@@ -161,9 +88,14 @@ export const EventsProvider: FC<{}> = (props) => {
     hotkey.onPress(e => onPressHotkey(e));
   }
 
-  const installDependencies = async () => {
+  const checkDependencies = async () => {
     const nodeInstalled = await shell.execute('node -v').catch(() => false);
+    const foreverInstalled = await shell.execute('forever -v').catch(() => false);
+
     if (nodeInstalled) {
+      if (!foreverInstalled) {
+        await shell.execute('npm i -g forever');
+      }
       return;
     }
 
@@ -173,6 +105,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     await shell.execute('brew install node');
+    await shell.execute('npm i -g forever');
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {

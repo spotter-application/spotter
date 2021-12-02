@@ -195,9 +195,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.addPlugin) {
-      // TODO: remove
-      await shell.execute('npm i -g forever');
-
       const settings = await getSettings();
       const registryEntry = settings.plugins.find(
         p => p.path === command.value,
