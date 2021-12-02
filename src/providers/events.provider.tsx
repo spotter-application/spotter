@@ -1,9 +1,5 @@
 import {
-  PluginCommand,
   SpotterCommandType,
-  PluginOption,
-  PluginPrefix,
-  PluginCommandType,
   Settings,
   Storage,
   SpotterCommand,
@@ -51,7 +47,7 @@ export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
   const { panel, shell, hotkey } = useApi();
-  const { getSettings, addPlugin, removePlugin, patchSettings } = useSettings();
+  const { getSettings, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const { getStorage, patchStorage, setStorage } = useStorage();
   const {

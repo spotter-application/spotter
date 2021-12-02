@@ -1,9 +1,16 @@
-import { PluginOption, PluginCommand, PluginCommandType, SpotterCommand, SpotterCommandType, PluginPrefix, SpotterOnGetStorageCommand, SpotterOnGetSettingsCommand } from '@spotter-app/core';
+import {
+  Command,
+  CommandType,
+  SpotterCommand,
+  SpotterCommandType,
+  SpotterOnGetStorageCommand,
+  SpotterOnGetSettingsCommand,
+} from '@spotter-app/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { BehaviorSubject, Subject, Observable, of, Subscription } from 'rxjs';
 import { hideOptions, sortOptions } from '../helpers';
-import { Connection } from '../interfaces';
+import { Connection, PluginCommand, PluginOption, PluginPrefix } from '../interfaces';
 import { useApi } from './api.provider';
 import { useHistory } from './history.provider';
 import { useSettings } from './settings.provider';
@@ -11,7 +18,7 @@ import { useSpotterState } from './state.provider';
 import { useStorage } from './storage.provider';
 
 type Context = {
-  command$: Observable<PluginCommand>,
+  command$: Observable<Command>,
   connect: (plugin: string, port: number) => void,
   sendCommand: (command: SpotterCommand, plugin?: string) => void,
 };
@@ -37,7 +44,7 @@ export const PluginsProvider: FC<{}> = (props) => {
   const { getSettings, patchSettings } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
   const { getHistory } = useHistory();
-  const { panel, xCallbackUrlApi, shell } = useApi();
+  const { panel, xCallbackUrlApi, shell, notifications } = useApi();
 
   const connectionsRef = useRef<BehaviorSubject<Connection[]>>(
     new BehaviorSubject<Connection[]>([])
@@ -58,21 +65,20 @@ export const PluginsProvider: FC<{}> = (props) => {
   }, []);
 
   const onInit = async () => {
-    console.log('123');
-    // const start = await shell.execute('forever start /Users/denis/Developer/spotter-core/dist/index.js');
-    const start = await shell.execute('forever list').catch(() => false);
-
-    console.log(start);
-
-
+    connectRegisteredPlugins();
     xCallbackUrlApi.onCommand(handleCommand);
     subscriptions.push(commandRef.current.subscribe(handleCommand));
   };
 
+  const connectRegisteredPlugins = async () => {
+    const settings = await getSettings();
+    settings.plugins.forEach(plugin => connect(plugin.path, plugin.port));
+  }
+
   const handleCommand = async (command: PluginCommand) => {
-    if (command.type === PluginCommandType.registerOptions) {
+    if (command.type === CommandType.registerOptions) {
       setRegisteredOptions(prevOptions => {
-        return command.value.reduce(
+        return command.value.map(o => ({...o, plugin: command.plugin})).reduce(
           (acc: PluginOption[], curr: PluginOption) => {
             const needsToBeReplaced = acc.find((o: PluginOption) =>
               o.title === curr.title && o.plugin === curr.plugin,
@@ -96,9 +102,9 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === PluginCommandType.registerPrefixes) {
+    if (command.type === CommandType.registerPrefixes) {
       setRegisteredPrefixes(prevPrefixes => {
-        return command.value.reduce(
+        return command.value.map(p => ({...p, plugin: command.plugin})).reduce(
           (acc: PluginPrefix[], curr: PluginPrefix) => {
             const needsToBeReplaced = acc.find((p: PluginPrefix) =>
               p.prefix === curr.prefix && p.plugin === curr.plugin,
@@ -122,7 +128,7 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === PluginCommandType.setOptions) {
+    if (command.type === CommandType.setOptions) {
       const history = await getHistory();
       const options = hideOptions(command.value);
       const sortedOptions = sortOptions(
@@ -136,22 +142,22 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === PluginCommandType.setQuery) {
+    if (command.type === CommandType.setQuery) {
       setQuery(command.value);
       return;
     }
 
-    if (command.type === PluginCommandType.setHint) {
+    if (command.type === CommandType.setHint) {
       setHint(command.value);
       return;
     }
 
-    if (command.type === PluginCommandType.setStorage) {
+    if (command.type === CommandType.setStorage) {
       setStorage(command.value);
       return;
     }
 
-    if (command.type === PluginCommandType.getStorage) {
+    if (command.type === CommandType.getStorage) {
       const data = await getStorage();
       const cmd: SpotterOnGetStorageCommand = {
         type: SpotterCommandType.onGetStorage,
@@ -163,16 +169,15 @@ export const PluginsProvider: FC<{}> = (props) => {
       sendCommand(cmd);
     }
 
-    if (command.type === PluginCommandType.patchStorage) {
+    if (command.type === CommandType.patchStorage) {
       patchStorage(command.value);
     }
 
-    if (command.type === PluginCommandType.patchSettings) {
+    if (command.type === CommandType.patchSettings) {
       patchSettings(command.value);
     }
 
-    if (command.type === PluginCommandType.getSettings) {
-      console.log('GET SETTINGS');
+    if (command.type === CommandType.getSettings) {
       const data = await getSettings();
       const cmd: SpotterOnGetSettingsCommand = {
         type: SpotterCommandType.onGetSettings,
@@ -182,41 +187,74 @@ export const PluginsProvider: FC<{}> = (props) => {
         }
       };
 
-      console.log(cmd)
       sendCommand(cmd);
     }
 
-    if (command.type === PluginCommandType.setError) {
+    if (command.type === CommandType.setError) {
       Alert.alert(command.value)
     }
 
-    if (command.type === PluginCommandType.connectPlugin) {
-      if (!command.value.plugin) {
-        Alert.alert('Please specify plugin name');
-      }
+    if (command.type === CommandType.addPlugin) {
+      // TODO: remove
+      await shell.execute('npm i -g forever');
 
-      if (!command.value.port) {
-        Alert.alert('Please specify plugin port');
-      }
+      const settings = await getSettings();
+      const registryEntry = settings.plugins.find(
+        p => p.path === command.value,
+      );
+      
+      if (registryEntry) {
+        const connection = connectionsRef.current.value.find(
+          c => c.plugin === command.value,
+        );
 
-      if (!command.value.plugin || !command.value.port) {
+        if (connection) {
+          notifications.show('Add plugin event', `Plugin ${command.value} already registered and connected`);
+          return;
+        }
+
+        notifications.show('Add plugin event', `Plugin ${command.value} already registered. Connecting...`);
+        connect(command.value, registryEntry.port);
         return;
       }
 
-      connect(command.value.plugin, command.value.port);
+      const port = Math.floor(10000 + Math.random() * 9000);
+      patchSettings({plugins: [
+        ...settings.plugins,
+        { port, path: command.value },
+      ]});
+      await shell.execute(`forever stop ${command.value}`);
+      await shell.execute(`forever start ${command.value} ${port}`);
+      setTimeout(() => connect(command.value, port), 1000);
+    }
+
+    if (command.type === CommandType.connectPlugin) {
+      notifications.show('Connecting', 'Connecting with DEV_PLUGIN');
+      connect('DEV_PLUGIN', command.value);
+    }
+
+    if (command.type === CommandType.removePlugin) {
+      console.log('REMOVE PLUGIN', command.value)
+      console.log('TODO');
+      // connect(command.value, command.value);
     }
   }
 
   const connect = (plugin: string, port: number) => {
+    if (!plugin || !port) {
+      notifications.show('Connection', 'Wrong command has been passed');
+      return;
+    }
+
     const connections = connectionsRef.current.value;
 
     if (connections.find(c => c.port === port)) {
-      console.log('Looks like port: `${port}` has been already occupied');
+      notifications.show('Error', 'Looks like port: `${port}` has been already occupied');
       return;
     }
 
     if (connections.find(c => c.plugin === plugin)) {
-      console.log('Looks like plugin: `${plugin}` has been already connected');
+      notifications.show('Error', 'Looks like plugin: `${plugin}` has been already connected');
       return;
     }
 
@@ -239,17 +277,21 @@ export const PluginsProvider: FC<{}> = (props) => {
     };
 
     ws.onclose = () => {
-      console.log('CLOSE');
+      notifications.show('Connection', `Connection with ${plugin} has been terminated`);
       connectionsRef.current.next(
         connectionsRef.current.value.filter(c => c.plugin !== plugin),
       );
+      setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
+      setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
     };
 
     ws.onerror = e => {
-      console.log(`Plugin with port ${port}: `, e);
+      notifications.show('Error', `Plugin ${plugin}: ${e}`)
       connectionsRef.current.next(
         connectionsRef.current.value.filter(c => c.plugin !== plugin),
       );
+      setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
+      setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
     };
 
     ws.onmessage = ({ data }) => {

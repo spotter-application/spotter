@@ -1,7 +1,16 @@
-import {
-  Hotkey,
-  PluginCommand,
-} from '@spotter-app/core';
+import { Hotkey, Command, Prefix, Option } from '@spotter-app/core';
+ 
+export type PluginCommand = Command & {
+  plugin: string,
+}
+
+export type PluginOption = Option & {
+  plugin: string,
+}
+
+export type PluginPrefix = Prefix & {
+  plugin: string,
+}
 
 export declare abstract class SpotterShellApi {
   abstract execute(command: string): Promise<string>;

@@ -1,6 +1,5 @@
-import { PluginCommand } from '@spotter-app/core';
 import { NativeModules, NativeEventEmitter, Alert } from 'react-native';
-import { SpotterXCallbackUrlApi } from '../../interfaces';
+import { PluginCommand, SpotterXCallbackUrlApi } from '../../interfaces';
 
 export class XCallbackUrl implements SpotterXCallbackUrlApi {
   private xCallbackUrl = NativeModules.XCallbackUrl;

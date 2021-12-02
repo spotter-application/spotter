@@ -1,5 +1,5 @@
-import { PluginOption, PluginPrefix } from '@spotter-app/core';
 import React, { FC, useState } from 'react';
+import { PluginOption, PluginPrefix } from '../interfaces';
 
 type Context = {
   setQuery: (value: string) => void,
