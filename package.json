@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.13",
-    "@spotter-app/core": "1.2.16",
+    "@spotter-app/core": "1.2.23",
     "p-debounce": "^4.0.0",
     "react": "17.0.2",
     "react-native": "0.66.3",
@@ -33,6 +33,7 @@
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "babel-jest": "^27.4.0",
+    "babel-plugin-module-resolver": "^4.1.0",
     "eslint": "8.3.0",
     "eslint-config-airbnb": "^19.0.1",
     "eslint-plugin-import": "^2.25.3",
