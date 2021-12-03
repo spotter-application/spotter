@@ -73,7 +73,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const connectRegisteredPlugins = async () => {
     const settings = await getSettings();
-    settings.plugins.forEach(plugin => connect(plugin.path, plugin.port));
+    settings.plugins.forEach(async ({ path, port }) => start(path, port));
   }
 
   const handleCommand = async (command: PluginCommand) => {
@@ -224,9 +224,7 @@ export const PluginsProvider: FC<{}> = (props) => {
           { port, path: command.value },
         ]});
       }
-      await shell.execute(`forever stop ${command.value}`);
-      await shell.execute(`forever start ${command.value} ${port}`);
-      setTimeout(() => connect(command.value, port), 1000);
+      start(command.value, port);
     }
 
     if (command.type === CommandType.connectPlugin) {
@@ -241,6 +239,12 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
   }
 
+  const start = async (plugin: string, port: number) => {
+    await shell.execute(`forever stop ${plugin}`);
+    await shell.execute(`forever start ${plugin} ${port}`);
+    setTimeout(() => connect(plugin, port), 1000);
+  }
+
   const connect = (plugin: string, port: number) => {
     if (!plugin || !port) {
       notifications.show('Connection', 'Wrong command has been passed');
@@ -248,8 +252,10 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     const connections = connectionsRef.current.value;
+    let error: string | null = null;
 
-    if (connections.find(c => c.port === port)) {
+    const portOccupied = connections.find(c => c.port === port);
+    if (portOccupied) {
       notifications.show(
         'Error',
         'Looks like port: `${port}` has been already occupied',
@@ -257,7 +263,8 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (connections.find(c => c.plugin === plugin)) {
+    const alreadyConnected = connections.find(c => c.plugin === plugin);
+    if (alreadyConnected) {
       notifications.show(
         'Warning',
         'Looks like plugin: `${plugin}` has been already connected',
@@ -283,8 +290,9 @@ export const PluginsProvider: FC<{}> = (props) => {
       ws.send(JSON.stringify(onInitCommand));
     };
 
-    ws.onclose = () => {
-      notifications.show('Connection', `Connection with ${plugin} has been terminated`);
+    ws.onerror = ({ message }) => {
+      error = message;
+      notifications.show('Error', `Plugin ${plugin}: ${message}`)
       connectionsRef.current.next(
         connectionsRef.current.value.filter(c => c.plugin !== plugin),
       );
@@ -292,8 +300,11 @@ export const PluginsProvider: FC<{}> = (props) => {
       setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
     };
 
-    ws.onerror = e => {
-      notifications.show('Error', `Plugin ${plugin}: ${e}`)
+    ws.onclose = () => {
+      if (!error) {
+        notifications.show('Connection', `Connection with ${plugin} has been terminated`);
+      }
+
       connectionsRef.current.next(
         connectionsRef.current.value.filter(c => c.plugin !== plugin),
       );
