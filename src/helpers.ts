@@ -1,4 +1,10 @@
-import { PluginOption } from '@spotter-app/core';
+import {
+  ChannelEventType,
+  PluginChannel,
+  SpotterChannel,
+  SpotterPlugin,
+} from '@spotter-app/core';
+import { PluginOption } from './interfaces';
 import { History } from './providers';
 
 export const getHistoryPath = (
@@ -34,3 +40,124 @@ export const hideOptions = (options: PluginOption[]): PluginOption[] => {
 
   return options.filter(o => !optionsToHide.includes(o.title));
 };
+
+export class ExternalPluginChannel implements PluginChannel {
+  private ws: WebSocket;
+
+  constructor(port: number) {
+    this.ws = new WebSocket(`ws://127.0.0.1:${port}`)
+  }
+
+  sendToPlugin(data: string) {
+    this.ws.send(data);
+  }
+
+  onPlugin(
+    eventType: ChannelEventType,
+    callback: (data: string) => void
+  ) {
+    if (eventType === 'open') {
+      this.ws.onopen = () => callback('');
+      return;
+    }
+
+    if (eventType === 'close') {
+      this.ws.onclose = () => callback('');
+      return;
+    }
+
+    if (eventType === 'message') {
+      this.ws.onmessage = ({ data }) => callback(data);
+      return;
+    }
+
+    if (eventType === 'error') {
+      this.ws.onerror = ({ message }) => callback(message);
+      return;
+    }
+  }
+}
+
+export class InternalPluginChannel implements SpotterChannel, PluginChannel {
+  plugin: SpotterPlugin;
+
+  constructor(internalPluginName: string) {
+    const channel = Promise.resolve(this);
+    this.plugin = new internalPluginRegistry[internalPluginName](channel);
+    setTimeout(() => this.triggerOnPluginOpen(''), 500);
+  }
+
+  triggerOnPluginOpen(_: string) {}
+
+  triggerOnPluginClose(_: string) {}
+
+  triggerOnPluginMessage(_: string) {}
+
+  triggerOnPluginError(_: string) {}
+
+  triggerOnSpotterMessage(_: string) {}
+
+  onPlugin(
+    eventType: ChannelEventType,
+    callback: (data: string) => void
+  ) {
+    if (eventType === 'open') {
+      this.triggerOnPluginOpen = callback;
+      return;
+    }
+
+    if (eventType === 'close') {
+      this.triggerOnPluginClose = callback;
+      return;
+    }
+
+    if (eventType === 'message') {
+      this.triggerOnPluginMessage = callback;
+      return;
+    }
+
+    if (eventType === 'error') {
+      this.triggerOnPluginError = callback;
+      return;
+    }
+  }
+
+  onSpotter(
+    eventType: ChannelEventType,
+    callback: (data: string) => void,
+  ) {
+    if (eventType === 'message') {
+      this.triggerOnSpotterMessage = callback
+      return;
+    }
+  }
+
+  sendToSpotter(data: string) {
+    this.triggerOnPluginMessage(data);
+  }
+
+  sendToPlugin(data: string) {
+    this.triggerOnSpotterMessage(data);
+  }
+}
+
+
+
+// TODO: move
+// ------------------------------------------
+
+export class PluginsManager extends SpotterPlugin {
+  onInit() {
+    this.registerOptions([{
+      title: 'test11111',
+    }])
+  }
+}
+
+export const INTERNAL_PLUGINS: string[] = [
+  'plugins-manager',
+];
+
+const internalPluginRegistry: {[plugin: string]: typeof SpotterPlugin} = {
+  [INTERNAL_PLUGINS[0]]: PluginsManager,
+}

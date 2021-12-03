@@ -5,12 +5,19 @@ import {
   SpotterCommandType,
   SpotterOnGetStorageCommand,
   SpotterOnGetSettingsCommand,
+  Channel,
+  PluginChannel,
 } from '@spotter-app/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { BehaviorSubject, Subject, Observable, of, Subscription } from 'rxjs';
-import { hideOptions, sortOptions } from '../helpers';
-import { Connection, PluginCommand, PluginOption, PluginPrefix } from '../interfaces';
+import { hideOptions, InternalPluginChannel, INTERNAL_PLUGINS, sortOptions, ExternalPluginChannel } from '../helpers';
+import {
+  Connection,
+  PluginCommand,
+  PluginOption,
+  PluginPrefix,
+} from '../interfaces';
 import { useApi } from './api.provider';
 import { useHistory } from './history.provider';
 import { useSettings } from './settings.provider';
@@ -20,7 +27,7 @@ import { useStorage } from './storage.provider';
 type Context = {
   command$: Observable<Command>,
   connect: (plugin: string, port: number) => void,
-  sendCommand: (command: SpotterCommand, plugin?: string) => void,
+  sendCommand: (command: SpotterCommand, plugin: string) => void,
 };
 
 const context: Context = {
@@ -49,7 +56,7 @@ export const PluginsProvider: FC<{}> = (props) => {
   const { panel, xCallbackUrlApi, shell, notifications } = useApi();
 
   const connectionsRef = useRef<BehaviorSubject<Connection[]>>(
-    new BehaviorSubject<Connection[]>([])
+    new BehaviorSubject<Connection[]>([]),
   );
 
   const commandRef = useRef<Subject<PluginCommand>>(
@@ -75,6 +82,8 @@ export const PluginsProvider: FC<{}> = (props) => {
   const connectRegisteredPlugins = async () => {
     const settings = await getSettings();
     settings.plugins.forEach(async ({ path, port }) => start(path, port));
+
+    INTERNAL_PLUGINS.forEach(plugin => connect(plugin, 11111, true));
   }
 
   const handleCommand = async (command: PluginCommand) => {
@@ -132,7 +141,9 @@ export const PluginsProvider: FC<{}> = (props) => {
 
     if (command.type === CommandType.setOptions) {
       const history = await getHistory();
-      const options = hideOptions(command.value);
+      const options = hideOptions(
+        command.value.map(o => ({...o, plugin: command.plugin}))
+      );
       const sortedOptions = sortOptions(
         options,
         selectedOption,
@@ -171,7 +182,7 @@ export const PluginsProvider: FC<{}> = (props) => {
           data,
         }
       };
-      sendCommand(cmd);
+      sendCommand(cmd, command.plugin);
       return;
     }
 
@@ -195,7 +206,7 @@ export const PluginsProvider: FC<{}> = (props) => {
         }
       };
 
-      sendCommand(cmd);
+      sendCommand(cmd, command.plugin);
       return;
     }
 
@@ -258,7 +269,20 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
   }
 
-  const start = async (plugin: string, port: number) => {
+  const start = async (
+    plugin: string,
+    port: number,
+    internal?: boolean,
+  ) => {
+    if (internal) {
+      connect(plugin, port, internal);
+      return;
+    }
+
+    if (!port) {
+      return;
+    }
+
     const list = await shell.execute(`forever list ${plugin}`);
     const started = list.includes(plugin);
     if (started) {
@@ -269,7 +293,11 @@ export const PluginsProvider: FC<{}> = (props) => {
     setTimeout(() => connect(plugin, port), 1000);
   }
 
-  const connect = (plugin: string, port: number) => {
+  const connect = (
+    plugin: string,
+    port: number,
+    internal?: boolean,
+  ) => {
     if (!plugin || !port) {
       notifications.show('Connection', 'Wrong command has been passed');
       return;
@@ -296,35 +324,37 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-
-    ws.onopen = async () => {
+    const channel: PluginChannel = internal
+      ? new InternalPluginChannel(plugin)
+      : new ExternalPluginChannel(port);
+    
+    channel.onPlugin('open', async () => {
       connectionsRef.current.next([
         ...connectionsRef.current.value,
         {
           plugin,
           port,
-          ws,
+          channel,
         }
       ]);
 
       const onInitCommand: SpotterCommand = {
         type: SpotterCommandType.onInit,
       };
-      ws.send(JSON.stringify(onInitCommand));
-    };
+      channel.sendToPlugin(JSON.stringify(onInitCommand));
+    });
 
-    ws.onerror = ({ message }) => {
+    channel.onPlugin('error', message => {
       error = message;
-      notifications.show('Error', `Plugin ${plugin}: ${message}`)
+      notifications.show('Error', `Plugin ${plugin}: ${error}`)
       connectionsRef.current.next(
         connectionsRef.current.value.filter(c => c.plugin !== plugin),
       );
       setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
       setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
-    };
+    });
 
-    ws.onclose = () => {
+    channel.onPlugin('close', () => {
       if (!error) {
         notifications.show('Connection', `Connection with ${plugin} has been terminated`);
       }
@@ -334,22 +364,16 @@ export const PluginsProvider: FC<{}> = (props) => {
       );
       setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
       setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
-    };
+    });
 
-    ws.onmessage = ({ data }) => {
+    channel.onPlugin('message', data => {
       const command = JSON.parse(data);
-      commandRef.current.next({...command, plugin});
-    };
+      commandRef.current.next({...command, plugin: plugin});
+    });
   }
 
-  const sendCommand = (command: SpotterCommand, plugin?: string) => {
+  const sendCommand = (command: SpotterCommand, plugin: string) => {
     const connections = connectionsRef.current.value;
-
-    if (!plugin) {
-      connections.forEach(c => c.ws.send(JSON.stringify(command)));
-      return;
-    }
-
     const pluginConnection = connections.find(c => c.plugin === plugin);
 
     if (!pluginConnection) {
@@ -357,7 +381,7 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    pluginConnection.ws.send(JSON.stringify(command));
+    pluginConnection.channel.sendToPlugin(JSON.stringify(command));
   }
 
   return (

@@ -1,4 +1,19 @@
-import { Hotkey, Command, Prefix, Option } from '@spotter-app/core';
+import {
+  Hotkey,
+  Command,
+  Prefix,
+  Option,
+  SpotterCommand,
+  SpotterCommandType,
+  CommandType,
+  Storage,
+  Channel,
+  SpotterPlugin,
+  SpotterChannel,
+  PluginChannel,
+} from '@spotter-app/core';
+import { Settings } from 'react-native';
+import { filter, first, lastValueFrom, map, Subject } from 'rxjs';
  
 export type PluginCommand = Command & {
   plugin: string,
@@ -64,8 +79,9 @@ export interface SpotterHotkeyEvent {
   identifier: string,
 }
 
+
 export type Connection = {
   plugin: string,
   port: number,
-  ws: WebSocket,
+  channel: PluginChannel,
 }
