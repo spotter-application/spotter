@@ -156,7 +156,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
     // Check for matched prefixes
     const matchedPrefixes = registeredPrefixes.filter(
-      p => nextQuery.startsWith(p.prefix),
+      p => nextQuery.toLowerCase().startsWith(p.prefix.toLowerCase()),
     );
 
     if (matchedPrefixes.length) {
@@ -172,7 +172,9 @@ export const EventsProvider: FC<{}> = (props) => {
 
     // Check for registered options
     const filteredRegisteredOptions = registeredOptions.filter(
-      o => o.title.startsWith(nextQuery),
+      o => o.title
+          .split(' ')
+          .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
     );
     const history = await getHistory();
     const prioritizedOptions = hideOptions(filteredRegisteredOptions);
@@ -211,6 +213,8 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     const option = options[hoveredOptionIndex];
+
+    console.log(option.actionId);
 
     if (!option) {
       return;

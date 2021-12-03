@@ -41,6 +41,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     setRegisteredOptions,
     setRegisteredPrefixes,
     setDisplayedOptionsForCurrentWorkflow,
+    reset,
   } = useSpotterState();
   const { getSettings, patchSettings } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
@@ -171,14 +172,17 @@ export const PluginsProvider: FC<{}> = (props) => {
         }
       };
       sendCommand(cmd);
+      return;
     }
 
     if (command.type === CommandType.patchStorage) {
       patchStorage(command.value);
+      return;
     }
 
     if (command.type === CommandType.patchSettings) {
       patchSettings(command.value);
+      return;
     }
 
     if (command.type === CommandType.getSettings) {
@@ -192,10 +196,12 @@ export const PluginsProvider: FC<{}> = (props) => {
       };
 
       sendCommand(cmd);
+      return;
     }
 
     if (command.type === CommandType.setError) {
       Alert.alert(command.value)
+      return;
     }
 
     if (command.type === CommandType.addPlugin) {
@@ -225,17 +231,31 @@ export const PluginsProvider: FC<{}> = (props) => {
         ]});
       }
       start(command.value, port);
+      return;
     }
 
     if (command.type === CommandType.connectPlugin) {
       notifications.show('Connecting', 'Connecting with DEV_PLUGIN');
       connect('DEV_PLUGIN', command.value);
+      return;
     }
 
     if (command.type === CommandType.removePlugin) {
       console.log('REMOVE PLUGIN', command.value)
       console.log('TODO');
       // connect(command.value, command.value);
+      return;
+    }
+
+    if (command.type === CommandType.open) {
+      panel.open();
+      return;
+    }
+
+    if (command.type === CommandType.close) {
+      panel.close();
+      reset();
+      return;
     }
   }
 

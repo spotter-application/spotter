@@ -23,7 +23,7 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/runtime": "^7.16.3",
-    "@spotter-app/core": "1.2.29",
+    "@spotter-app/core": "1.2.30",
     "@react-native-community/eslint-config": "^3.0.1",
     "@types/jest": "^27.0.3",
     "@types/react": "^17.0.37",
