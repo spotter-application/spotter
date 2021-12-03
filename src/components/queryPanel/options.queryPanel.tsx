@@ -16,6 +16,7 @@ import { useTheme } from '../../providers';
 type OptionsProps = {
   options: PluginOption[];
   hoveredOptionIndex: number;
+  displayOptions: boolean,
   onSubmit: (index: number) => void;
   style: ViewStyle;
 }
@@ -23,6 +24,7 @@ type OptionsProps = {
 export const QueryPanelOptions = ({
   options,
   hoveredOptionIndex = 0,
+  displayOptions = false,
   onSubmit,
   style,
 }: OptionsProps) => {
@@ -44,7 +46,7 @@ export const QueryPanelOptions = ({
   });
 
   return <>
-    {options?.length ?
+    {displayOptions  ?
       <FlatList
         ref={refContainer}
         style={style}
@@ -112,13 +114,11 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
   return <>
     {icon
       ? <View style={style}>
-        {typeof icon === 'string' && (icon.endsWith('.app') || icon.endsWith('.prefPane'))
+        {icon.endsWith('.app') || icon.endsWith('.prefPane')
           ? <IconImage style={{ width: 25, height: 25, ...style, }} source={icon}></IconImage>
-          : typeof icon === 'string' && icon.endsWith('.png')
+          : icon.endsWith('.png') || icon.endsWith('.jpg') || icon.endsWith('.jpeg')
             ? <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
-            : typeof icon === 'number' || (typeof icon === 'object' && icon.uri)
-              ? <Image style={{ width: 22, height: 22, ...style }} source={icon}></Image>
-              : null
+            : null
         }
       </View>
       : null

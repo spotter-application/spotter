@@ -50,6 +50,7 @@ export const EventsProvider: FC<{}> = (props) => {
     reset,
     registeredOptions,
     registeredPrefixes,
+    setDisplayedOptionsForCurrentWorkflow,
   } = useSpotterState();
 
   const { sendCommand } = usePlugins();
@@ -181,6 +182,9 @@ export const EventsProvider: FC<{}> = (props) => {
       history,
     );
     setOptions(sortedOptions);
+    if (sortedOptions.length) {
+      setDisplayedOptionsForCurrentWorkflow(true);
+    }
   };
 
   const onArrowUp = () => {

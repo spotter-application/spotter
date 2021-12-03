@@ -34,14 +34,19 @@ export const QueryPanel: FC<{}> = () => {
     hoveredOptionIndex,
     selectedOption,
     waitingFor,
+    displayedOptionsForCurrentWorkflow,
   } = useSpotterState();
+
+  console.log(displayedOptionsForCurrentWorkflow);
+
+  const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
 
   return <>
     <SafeAreaView>
       <View style={{
         backgroundColor: colors.background,
         ...styles.input,
-        ...(options?.length || waitingFor ? styles.inputWithResults : {}),
+        ...(displayOptions || waitingFor ? styles.inputWithResults : {}),
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -112,6 +117,7 @@ export const QueryPanel: FC<{}> = () => {
         <QueryPanelOptions
           style={{ ...styles.options, backgroundColor: colors.background }}
           hoveredOptionIndex={hoveredOptionIndex}
+          displayOptions={displayOptions}
           options={options}
           onSubmit={onSubmit}
         ></QueryPanelOptions>

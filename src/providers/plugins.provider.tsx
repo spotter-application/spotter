@@ -40,6 +40,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     selectedOption,
     setRegisteredOptions,
     setRegisteredPrefixes,
+    setDisplayedOptionsForCurrentWorkflow,
   } = useSpotterState();
   const { getSettings, patchSettings } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
@@ -139,6 +140,9 @@ export const PluginsProvider: FC<{}> = (props) => {
 
       panel.open();
       setOptions(sortedOptions);
+      if (sortedOptions.length) {
+        setDisplayedOptionsForCurrentWorkflow(true);
+      }
       return;
     }
 
@@ -206,20 +210,20 @@ export const PluginsProvider: FC<{}> = (props) => {
         );
 
         if (connection) {
-          notifications.show('Add plugin event', `Plugin ${command.value} already registered and connected`);
-          return;
+          notifications.show(
+            'Warning',
+            `Plugin ${command.value} already connected. Reconnecting...`,
+          );
         }
-
-        notifications.show('Add plugin event', `Plugin ${command.value} already registered. Connecting...`);
-        connect(command.value, registryEntry.port);
-        return;
       }
 
-      const port = Math.floor(10000 + Math.random() * 9000);
-      patchSettings({plugins: [
-        ...settings.plugins,
-        { port, path: command.value },
-      ]});
+      const port = registryEntry?.port ?? Math.floor(10000 + Math.random() * 9000);
+      if (!registryEntry) {
+        patchSettings({plugins: [
+          ...settings.plugins,
+          { port, path: command.value },
+        ]});
+      }
       await shell.execute(`forever stop ${command.value}`);
       await shell.execute(`forever start ${command.value} ${port}`);
       setTimeout(() => connect(command.value, port), 1000);
@@ -246,12 +250,18 @@ export const PluginsProvider: FC<{}> = (props) => {
     const connections = connectionsRef.current.value;
 
     if (connections.find(c => c.port === port)) {
-      notifications.show('Error', 'Looks like port: `${port}` has been already occupied');
+      notifications.show(
+        'Error',
+        'Looks like port: `${port}` has been already occupied',
+      );
       return;
     }
 
     if (connections.find(c => c.plugin === plugin)) {
-      notifications.show('Error', 'Looks like plugin: `${plugin}` has been already connected');
+      notifications.show(
+        'Warning',
+        'Looks like plugin: `${plugin}` has been already connected',
+      );
       return;
     }
 

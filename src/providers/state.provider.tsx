@@ -3,12 +3,12 @@ import { PluginOption, PluginPrefix } from '../interfaces';
 
 type Context = {
   setQuery: (value: string) => void,
-  setHint: React.Dispatch<React.SetStateAction<string | undefined>>;
-  setLoading: (value: boolean) => void;
-  setOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>;
-  setHoveredOptionIndex: (value: number) => void;
-  setSelectedOption: (value: PluginOption | null) => void;
-  setWaitingFor: (value: string | null) => void;
+  setHint: React.Dispatch<React.SetStateAction<string | undefined>>,
+  setLoading: (value: boolean) => void,
+  setOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>,
+  setHoveredOptionIndex: (value: number) => void,
+  setSelectedOption: (value: PluginOption | null) => void,
+  setWaitingFor: (value: string | null) => void,
   query: string,
   hint?: string,
   options: PluginOption[],
@@ -18,9 +18,11 @@ type Context = {
   waitingFor: string | null,
   reset: () => void,
   registeredOptions: PluginOption[],
-  setRegisteredOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>;
+  setRegisteredOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>,
   registeredPrefixes: PluginPrefix[],
-  setRegisteredPrefixes: React.Dispatch<React.SetStateAction<PluginPrefix[]>>;
+  setRegisteredPrefixes: React.Dispatch<React.SetStateAction<PluginPrefix[]>>,
+  displayedOptionsForCurrentWorkflow: boolean,
+  setDisplayedOptionsForCurrentWorkflow: React.Dispatch<React.SetStateAction<boolean>>,
 };
 
 const context: Context = {
@@ -43,6 +45,8 @@ const context: Context = {
   setRegisteredOptions: () => null,
   registeredPrefixes: [],
   setRegisteredPrefixes: () => null,
+  displayedOptionsForCurrentWorkflow: false,
+  setDisplayedOptionsForCurrentWorkflow: () => null,
 }
 
 export const StateContext = React.createContext<Context>(context);
@@ -57,6 +61,10 @@ export const StateProvider: FC<{}> = (props) => {
   const [ loading, setLoading ] = useState<boolean>(false);
   const [ waitingFor, setWaitingFor ] = useState<string | null>(null);
   const [ hoveredOptionIndex, setHoveredOptionIndex ] = useState<number>(0);
+  const [
+    displayedOptionsForCurrentWorkflow,
+    setDisplayedOptionsForCurrentWorkflow,
+  ] = useState<boolean>(false);
 
   // Registries
   const [ registeredOptions, setRegisteredOptions ] = useState<PluginOption[]>([]);
@@ -70,6 +78,7 @@ export const StateProvider: FC<{}> = (props) => {
     setHoveredOptionIndex(0);
     setSelectedOption(null);
     setWaitingFor(null);
+    setDisplayedOptionsForCurrentWorkflow(false);
   }
 
   return (
@@ -94,6 +103,8 @@ export const StateProvider: FC<{}> = (props) => {
       setRegisteredOptions,
       registeredPrefixes,
       setRegisteredPrefixes,
+      displayedOptionsForCurrentWorkflow,
+      setDisplayedOptionsForCurrentWorkflow,
     }}>
       {props.children}
     </StateContext.Provider>
