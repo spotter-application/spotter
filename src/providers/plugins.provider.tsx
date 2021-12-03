@@ -260,7 +260,12 @@ export const PluginsProvider: FC<{}> = (props) => {
   }
 
   const start = async (plugin: string, port: number) => {
-    await shell.execute(`forever stop ${plugin}`);
+    const list = await shell.execute(`forever list ${plugin}`);
+    const started = list.includes(plugin);
+    if (started) {
+      await shell.execute(`forever stop ${plugin}`);
+    }
+
     await shell.execute(`forever start ${plugin} ${port}`);
     setTimeout(() => connect(plugin, port), 1000);
   }
