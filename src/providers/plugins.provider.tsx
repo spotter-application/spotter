@@ -235,7 +235,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.connectPlugin) {
-      notifications.show('Connecting', 'Connecting with DEV_PLUGIN');
       connect('DEV_PLUGIN', command.value);
       return;
     }
