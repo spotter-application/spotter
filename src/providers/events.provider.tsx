@@ -214,8 +214,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const option = options[hoveredOptionIndex];
 
-    console.log(option.actionId);
-
     if (!option) {
       return;
     }
