@@ -37,8 +37,6 @@ export const QueryPanel: FC<{}> = () => {
     displayedOptionsForCurrentWorkflow,
   } = useSpotterState();
 
-  console.log(displayedOptionsForCurrentWorkflow);
-
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
 
   return <>

@@ -316,7 +316,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     const pluginConnection = connections.find(c => c.plugin === plugin);
-    console.log(connections);
 
     if (!pluginConnection) {
       console.error('There is no connection with plugin: ', plugin);
