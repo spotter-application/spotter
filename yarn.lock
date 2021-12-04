@@ -1369,10 +1369,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@1.2.35":
-  version "1.2.35"
-  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-1.2.35.tgz#8cc3da8f64e5bae22b64226516bde05b3ad31038"
-  integrity sha512-wbiLeTWyI6zssOZFKzC40nKmraLqTKXITGxwtnTK/SzMmTlHGMRPnNB99eYtfO8WO7kTb7gn3eD4C9FfkbLQ1g==
+"@spotter-app/core@1.2.40":
+  version "1.2.40"
+  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-1.2.40.tgz#ab71d7c560d662f6e012e1b977f8660b96e717f9"
+  integrity sha512-kFku2AALHAuHdCJgQmUEo/Ufpy6MUMQhaqTsxaYv0eGSHFz9pR1vyHwAOuOv2doDe04XdDIANJDB43aPqpu8rQ==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -2119,6 +2119,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+base-64@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
+  integrity sha1-eAqZyE59YAJgNhURxId2E78k9rs=
 
 base64-js@^1.1.2, base64-js@^1.5.1:
   version "1.5.1"
@@ -6248,6 +6253,14 @@ react-native-dotenv@^3.3.0:
   dependencies:
     dotenv "^10.0.0"
 
+react-native-fs@^2.18.0:
+  version "2.18.0"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.18.0.tgz#987b99cc90518ef26663a8d60e62104694b41c21"
+  integrity sha512-9iQhkUNnN2JNED0in06JwZy88YEVyIGKWz4KLlQYxa5Y2U0U2AZh9FUHtA04oWj+xt2LlHh0LFPCzhmNsAsUDg==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^3.0.0"
+
 react-native-macos@0.64.14:
   version "0.64.14"
   resolved "https://registry.yarnpkg.com/react-native-macos/-/react-native-macos-0.64.14.tgz#4f58c0514a5a99ccfa29060f514d1bfa66fa7174"
@@ -7372,6 +7385,11 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
+
+utf8@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-3.0.0.tgz#f052eed1364d696e769ef058b183df88c87f69d1"
+  integrity sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==
 
 util-deprecate@~1.0.1:
   version "1.0.2"

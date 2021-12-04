@@ -5,6 +5,7 @@ import {
   SpotterPlugin,
 } from '@spotter-app/core';
 import { PluginOption } from './interfaces';
+import { INTERNAL_PLUGINS } from './plugins';
 import { History } from './providers';
 
 export const getHistoryPath = (
@@ -83,7 +84,7 @@ export class InternalPluginChannel implements SpotterChannel, PluginChannel {
 
   constructor(internalPluginName: string) {
     const channel = Promise.resolve(this);
-    this.plugin = new internalPluginRegistry[internalPluginName](channel);
+    this.plugin = new INTERNAL_PLUGINS[internalPluginName](channel);
     setTimeout(() => this.triggerOnPluginOpen(''), 500);
   }
 
@@ -139,25 +140,4 @@ export class InternalPluginChannel implements SpotterChannel, PluginChannel {
   sendToPlugin(data: string) {
     this.triggerOnSpotterMessage(data);
   }
-}
-
-
-
-// TODO: move
-// ------------------------------------------
-
-export class PluginsManager extends SpotterPlugin {
-  onInit() {
-    this.registerOptions([{
-      title: 'test11111',
-    }])
-  }
-}
-
-export const INTERNAL_PLUGINS: string[] = [
-  'plugins-manager',
-];
-
-const internalPluginRegistry: {[plugin: string]: typeof SpotterPlugin} = {
-  [INTERNAL_PLUGINS[0]]: PluginsManager,
 }

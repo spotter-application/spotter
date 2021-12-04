@@ -12,7 +12,6 @@ type Context = {
 const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
-  plugins: [],
 };
 
 const context: Context = {
@@ -35,13 +34,11 @@ export const SettingsProvider: FC<{}> = (props) => {
     const {
       hotkey,
       pluginHotkeys,
-      plugins,
     } = settings;
 
     return {
       hotkey: hotkey ?? initialSettings.hotkey,
       pluginHotkeys: pluginHotkeys ?? initialSettings.pluginHotkeys,
-      plugins: plugins ?? initialSettings.plugins,
     };
   }
 

@@ -274,8 +274,10 @@ PODS:
     - React-cxxreact (= 0.64.14)
     - React-jsi (= 0.64.14)
     - React-perflogger (= 0.64.14)
-  - RNCAsyncStorage (1.15.13):
+  - RNCAsyncStorage (1.15.14):
     - React-Core
+  - RNFS (2.18.0):
+    - React
   - Sauce (2.1.0)
   - Yoga (1.14.0)
 
@@ -314,6 +316,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../node_modules/react-native-macos/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native-macos/ReactCommon`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - RNFS (from `../node_modules/react-native-fs`)
   - Yoga (from `../node_modules/react-native-macos/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -382,6 +385,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-macos/ReactCommon"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   Yoga:
     :path: "../node_modules/react-native-macos/ReactCommon/yoga"
 
@@ -417,10 +422,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: 44be04f924bbcdb0d415eefb2bfc4ab5a0378d83
   React-runtimeexecutor: 02dae2be6de9c6d2d9d7308a2bcccdf1f8886565
   ReactCommon: c6a5e2eb2346fec57df0a5b46fae705b3fc7a656
-  RNCAsyncStorage: ac55c090d35b880ac47a7807ab797854afc640ae
+  RNCAsyncStorage: ea6b5c280997b2b32a587793163b1f10e580c4f7
+  RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
   Yoga: f3aec8dd6ae8787468f9d305afc8b5bcd5630e43
 
-PODFILE CHECKSUM: d57de88614ed0cdebd352d9a7e1dc6c900d9a464
+PODFILE CHECKSUM: f4fb2561c77389d351c8e345103bb7cd75c5957f
 
 COCOAPODS: 1.11.2

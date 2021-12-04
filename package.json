@@ -17,14 +17,15 @@
     "react": "17.0.2",
     "react-native": "0.66.3",
     "react-native-dotenv": "^3.3.0",
+    "react-native-fs": "^2.18.0",
     "react-native-macos": "0.64.14",
     "rxjs": "^7.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/runtime": "^7.16.3",
-    "@spotter-app/core": "1.2.35",
     "@react-native-community/eslint-config": "^3.0.1",
+    "@spotter-app/core": "1.2.40",
     "@types/jest": "^27.0.3",
     "@types/react": "^17.0.37",
     "@types/react-native": "^0.66.6",

@@ -5,24 +5,33 @@ import {
   SpotterCommandType,
   SpotterOnGetStorageCommand,
   SpotterOnGetSettingsCommand,
-  Channel,
   PluginChannel,
+  PluginRegistryEntry,
+  SpotterOnGetPluginsCommand,
 } from '@spotter-app/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { BehaviorSubject, Subject, Observable, of, Subscription } from 'rxjs';
-import { hideOptions, InternalPluginChannel, INTERNAL_PLUGINS, sortOptions, ExternalPluginChannel } from '../helpers';
+import {
+  hideOptions,
+  InternalPluginChannel,
+  sortOptions,
+  ExternalPluginChannel,
+} from '../helpers';
 import {
   Connection,
   PluginCommand,
   PluginOption,
   PluginPrefix,
 } from '../interfaces';
+import { INTERNAL_PLUGINS } from '../plugins';
 import { useApi } from './api.provider';
 import { useHistory } from './history.provider';
 import { useSettings } from './settings.provider';
 import { useSpotterState } from './state.provider';
 import { useStorage } from './storage.provider';
+
+const PLUGINS_STORAGE_KEY = 'PLUGINS';
 
 type Context = {
   command$: Observable<Command>,
@@ -53,7 +62,13 @@ export const PluginsProvider: FC<{}> = (props) => {
   const { getSettings, patchSettings } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
   const { getHistory } = useHistory();
-  const { panel, xCallbackUrlApi, shell, notifications } = useApi();
+  const {
+    panel,
+    xCallbackUrlApi,
+    shell,
+    notifications,
+    storage,
+  } = useApi();
 
   const connectionsRef = useRef<BehaviorSubject<Connection[]>>(
     new BehaviorSubject<Connection[]>([]),
@@ -73,6 +88,21 @@ export const PluginsProvider: FC<{}> = (props) => {
     return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
 
+  const getPlugins: () => Promise<PluginRegistryEntry[]> = async () => {
+    const plugins = await storage.getItem<PluginRegistryEntry[]>(PLUGINS_STORAGE_KEY);
+    return plugins ?? [];
+  }
+
+  const addPlugin: (plugin: PluginRegistryEntry) => void = async (plugin) => {
+    const plugins = await getPlugins();
+    storage.setItem(PLUGINS_STORAGE_KEY, [...plugins, plugin]);
+  }
+
+  const removePlugin: (plugin: string) => void = async (plugin) => {
+    const plugins = await getPlugins();
+    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.path !== plugin));
+  }
+
   const onInit = async () => {
     connectRegisteredPlugins();
     xCallbackUrlApi.onCommand(handleCommand);
@@ -80,10 +110,9 @@ export const PluginsProvider: FC<{}> = (props) => {
   };
 
   const connectRegisteredPlugins = async () => {
-    const settings = await getSettings();
-    settings.plugins.forEach(async ({ path, port }) => start(path, port));
-
-    INTERNAL_PLUGINS.forEach(plugin => connect(plugin, 11111, true));
+    const plugins = await getPlugins();
+    plugins.forEach(async ({ path, port }) => start(path, port));
+    Object.keys(INTERNAL_PLUGINS).forEach(plugin => connect(plugin, 11111, true));
   }
 
   const handleCommand = async (command: PluginCommand) => {
@@ -210,14 +239,28 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
+    if (command.type === CommandType.getPlugins) {
+      const data = await getPlugins();
+      const cmd: SpotterOnGetPluginsCommand = {
+        type: SpotterCommandType.onGetPlugins,
+        value: {
+          id: command.value,
+          data,
+        }
+      };
+
+      sendCommand(cmd, command.plugin);
+      return;
+    }
+
     if (command.type === CommandType.setError) {
       Alert.alert(command.value)
       return;
     }
 
     if (command.type === CommandType.addPlugin) {
-      const settings = await getSettings();
-      const registryEntry = settings.plugins.find(
+      const plugins = await getPlugins();
+      const registryEntry = plugins.find(
         p => p.path === command.value,
       );
       
@@ -236,10 +279,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
       const port = registryEntry?.port ?? Math.floor(10000 + Math.random() * 9000);
       if (!registryEntry) {
-        patchSettings({plugins: [
-          ...settings.plugins,
-          { port, path: command.value },
-        ]});
+        addPlugin({ port, path: command.value });
       }
       start(command.value, port);
       return;
@@ -251,9 +291,8 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.removePlugin) {
-      console.log('REMOVE PLUGIN', command.value)
-      console.log('TODO');
-      // connect(command.value, command.value);
+      unregisterPlugin(command.value);
+      removePlugin(command.value);
       return;
     }
 
@@ -327,7 +366,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     const channel: PluginChannel = internal
       ? new InternalPluginChannel(plugin)
       : new ExternalPluginChannel(port);
-    
+
     channel.onPlugin('open', async () => {
       connectionsRef.current.next([
         ...connectionsRef.current.value,
@@ -347,29 +386,28 @@ export const PluginsProvider: FC<{}> = (props) => {
     channel.onPlugin('error', message => {
       error = message;
       notifications.show('Error', `Plugin ${plugin}: ${error}`)
-      connectionsRef.current.next(
-        connectionsRef.current.value.filter(c => c.plugin !== plugin),
-      );
-      setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
-      setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
+      unregisterPlugin(plugin);
     });
 
     channel.onPlugin('close', () => {
       if (!error) {
         notifications.show('Connection', `Connection with ${plugin} has been terminated`);
       }
-
-      connectionsRef.current.next(
-        connectionsRef.current.value.filter(c => c.plugin !== plugin),
-      );
-      setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
-      setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
+      unregisterPlugin(plugin);
     });
 
     channel.onPlugin('message', data => {
       const command = JSON.parse(data);
       commandRef.current.next({...command, plugin: plugin});
     });
+  }
+
+  const unregisterPlugin = (plugin: string) => {
+    connectionsRef.current.next(
+      connectionsRef.current.value.filter(c => c.plugin !== plugin),
+    );
+    setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
+    setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
   }
 
   const sendCommand = (command: SpotterCommand, plugin: string) => {
