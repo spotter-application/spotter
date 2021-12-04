@@ -343,7 +343,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     port: number,
     internal?: boolean,
   ) => {
-    console.log('connect: ', plugin);
     if (!plugin || !port) {
       notifications.show('Connection', 'Wrong command has been passed');
       return;
@@ -373,7 +372,6 @@ export const PluginsProvider: FC<{}> = (props) => {
       : new ExternalPluginChannel(port);
 
     channel.onPlugin('open', async () => {
-      console.log('open');
       connectionsRef.current.push(
         {
           plugin,
@@ -403,8 +401,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     });
 
     channel.onPlugin('message', data => {
-      console.log('message: ', data);
-
       const command = JSON.parse(data);
       commandRef.current.next({...command, plugin: plugin});
     });
