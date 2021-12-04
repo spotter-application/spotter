@@ -1369,10 +1369,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@1.2.40":
-  version "1.2.40"
-  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-1.2.40.tgz#ab71d7c560d662f6e012e1b977f8660b96e717f9"
-  integrity sha512-kFku2AALHAuHdCJgQmUEo/Ufpy6MUMQhaqTsxaYv0eGSHFz9pR1vyHwAOuOv2doDe04XdDIANJDB43aPqpu8rQ==
+"@spotter-app/core@1.2.44":
+  version "1.2.44"
+  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-1.2.44.tgz#e48d23be69858ab8b9ecbd124f21995463e9ea38"
+  integrity sha512-2sZQyCt4r2OukVyKesIVNc4OB1c3qPpRSN+zCKYqJ2/ZQpn5G7UO7RN28Oyjjt0nLgGE6/SJldAbw16r3IFCPA==
 
 "@tootallnate/once@1":
   version "1.1.2"

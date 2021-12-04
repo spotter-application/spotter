@@ -3,17 +3,8 @@ import {
   Command,
   Prefix,
   Option,
-  SpotterCommand,
-  SpotterCommandType,
-  CommandType,
-  Storage,
-  Channel,
-  SpotterPlugin,
-  SpotterChannel,
-  PluginChannel,
+  ChannelForSpotter,
 } from '@spotter-app/core';
-import { Settings } from 'react-native';
-import { filter, first, lastValueFrom, map, Subject } from 'rxjs';
  
 export type PluginCommand = Command & {
   plugin: string,
@@ -83,5 +74,5 @@ export interface SpotterHotkeyEvent {
 export type Connection = {
   plugin: string,
   port: number,
-  channel: PluginChannel,
+  channel: ChannelForSpotter,
 }

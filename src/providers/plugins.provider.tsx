@@ -5,13 +5,15 @@ import {
   SpotterCommandType,
   SpotterOnGetStorageCommand,
   SpotterOnGetSettingsCommand,
-  PluginChannel,
   PluginRegistryEntry,
   SpotterOnGetPluginsCommand,
+  ChannelForSpotter,
+  randomPort,
+  StartPluginInfo,
 } from '@spotter-app/core';
 import React, { FC, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
-import { BehaviorSubject, Subject, Observable, of, Subscription } from 'rxjs';
+import { Subject, Observable, of, Subscription } from 'rxjs';
 import {
   hideOptions,
   InternalPluginChannel,
@@ -70,12 +72,14 @@ export const PluginsProvider: FC<{}> = (props) => {
     storage,
   } = useApi();
 
-  const connectionsRef = useRef<BehaviorSubject<Connection[]>>(
-    new BehaviorSubject<Connection[]>([]),
-  );
+  const connectionsRef = useRef<Connection[]>([]);
 
   const commandRef = useRef<Subject<PluginCommand>>(
     new Subject<PluginCommand>()
+  );
+
+  const pluginScriptProcessesRef = useRef<{[plugin: string]: number}>(
+    {},
   );
 
   const subscriptions: Subscription[] = [];
@@ -85,34 +89,57 @@ export const PluginsProvider: FC<{}> = (props) => {
   }, []);
 
   useEffect(() => {
+    Object.keys(pluginScriptProcessesRef.current).forEach(stopPluginScript);
     return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
+
+  const onInit = async () => {
+    // Start plugins
+    const plugins = await getPlugins();
+    plugins.forEach(startPlugin);
+    Object.keys(INTERNAL_PLUGINS).forEach(plugin =>
+      connectPlugin(plugin, 11111, true)
+    );
+
+    xCallbackUrlApi.onCommand(handleCommand);
+    subscriptions.push(commandRef.current.subscribe(handleCommand));
+  };
 
   const getPlugins: () => Promise<PluginRegistryEntry[]> = async () => {
     const plugins = await storage.getItem<PluginRegistryEntry[]>(PLUGINS_STORAGE_KEY);
     return plugins ?? [];
   }
 
-  const addPlugin: (plugin: PluginRegistryEntry) => void = async (plugin) => {
+  const startPlugin: (
+    plugin: PluginRegistryEntry,
+  ) => void = async (plugin) => {
     const plugins = await getPlugins();
-    storage.setItem(PLUGINS_STORAGE_KEY, [...plugins, plugin]);
+
+    const registryEntry = plugins.find(p => p === plugin);
+
+    if (!registryEntry) {
+      storage.setItem(PLUGINS_STORAGE_KEY, [...plugins, plugin]);
+    }
+
+    await stopPluginScript(plugin);
+
+    const port = randomPort();
+    const { pid } = await startPluginScript(plugin, port);
+    pluginScriptProcessesRef.current[plugin] = pid;
+    setTimeout(() => connectPlugin(plugin, port), 1000);
   }
 
-  const removePlugin: (plugin: string) => void = async (plugin) => {
+  const removePlugin: (
+    plugin: string,
+  ) => void = async (plugin) => {
     const plugins = await getPlugins();
-    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.path !== plugin));
-  }
+    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p !== plugin));
 
-  const onInit = async () => {
-    connectRegisteredPlugins();
-    xCallbackUrlApi.onCommand(handleCommand);
-    subscriptions.push(commandRef.current.subscribe(handleCommand));
-  };
+    connectionsRef.current = connectionsRef.current.filter(c => c.plugin !== plugin);
+    setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
+    setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
 
-  const connectRegisteredPlugins = async () => {
-    const plugins = await getPlugins();
-    plugins.forEach(async ({ path, port }) => start(path, port));
-    Object.keys(INTERNAL_PLUGINS).forEach(plugin => connect(plugin, 11111, true));
+    stopPluginScript(plugin);
   }
 
   const handleCommand = async (command: PluginCommand) => {
@@ -259,39 +286,16 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.addPlugin) {
-      const plugins = await getPlugins();
-      const registryEntry = plugins.find(
-        p => p.path === command.value,
-      );
-      
-      if (registryEntry) {
-        const connection = connectionsRef.current.value.find(
-          c => c.plugin === command.value,
-        );
-
-        if (connection) {
-          notifications.show(
-            'Warning',
-            `Plugin ${command.value} already connected. Reconnecting...`,
-          );
-        }
-      }
-
-      const port = registryEntry?.port ?? Math.floor(10000 + Math.random() * 9000);
-      if (!registryEntry) {
-        addPlugin({ port, path: command.value });
-      }
-      start(command.value, port);
+      startPlugin(command.value);
       return;
     }
 
     if (command.type === CommandType.connectPlugin) {
-      connect('DEV_PLUGIN', command.value);
+      connectPlugin('DEV_PLUGIN', command.value);
       return;
     }
 
     if (command.type === CommandType.removePlugin) {
-      unregisterPlugin(command.value);
       removePlugin(command.value);
       return;
     }
@@ -308,74 +312,75 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
   }
 
-  const start = async (
+  const startPluginScript = async (
     plugin: string,
     port: number,
-    internal?: boolean,
-  ) => {
-    if (internal) {
-      connect(plugin, port, internal);
-      return;
-    }
-
+  ): Promise<StartPluginInfo> => {
     if (!port) {
-      return;
+      return Promise.reject();
     }
 
-    const list = await shell.execute(`forever list ${plugin}`);
-    const started = list.includes(plugin);
-    if (started) {
-      await shell.execute(`forever stop ${plugin}`);
-    }
-
-    await shell.execute(`forever start ${plugin} ${port}`);
-    setTimeout(() => connect(plugin, port), 1000);
+    return shell
+      .execute(`nohup node ${plugin} ${port} > /dev/null 2>&1 &`)
+      .then(result => JSON.parse(`"${result}"`));
   }
 
-  const connect = (
+  const stopPluginScript = async (
+    plugin: string,
+  ): Promise<string> => {
+    const pluginScriptProcess = pluginScriptProcessesRef.current[plugin];
+
+    if (!pluginScriptProcess) {
+      return Promise.resolve('');
+    }
+
+    delete pluginScriptProcessesRef.current[plugin];
+    return shell.execute(`kill ${pluginScriptProcess}`);
+  }
+
+  const connectPlugin = (
     plugin: string,
     port: number,
     internal?: boolean,
   ) => {
+    console.log('connect: ', plugin);
     if (!plugin || !port) {
       notifications.show('Connection', 'Wrong command has been passed');
       return;
     }
 
-    const connections = connectionsRef.current.value;
-    let error: string | null = null;
+    const connections = connectionsRef.current;
 
-    const portOccupied = connections.find(c => c.port === port);
-    if (portOccupied) {
-      notifications.show(
-        'Error',
-        'Looks like port: `${port}` has been already occupied',
-      );
-      return;
+    const connectionOnSamePort = connections.find(c => c.port === port);
+    if (connectionOnSamePort) {
+      if (connectionOnSamePort.plugin !== plugin) {
+        notifications.show(
+          'Error',
+          `Port: ${port} occupied`,
+        );
+        return;
+      }
+      connectionOnSamePort.channel.close();
     }
 
-    const alreadyConnected = connections.find(c => c.plugin === plugin);
-    if (alreadyConnected) {
-      notifications.show(
-        'Warning',
-        'Looks like plugin: `${plugin}` has been already connected',
-      );
-      return;
+    const samePluginConnection = connections.find(c => c.plugin === plugin);
+    if (samePluginConnection) {
+      samePluginConnection.channel.close();
     }
 
-    const channel: PluginChannel = internal
+    const channel: ChannelForSpotter = internal
       ? new InternalPluginChannel(plugin)
       : new ExternalPluginChannel(port);
 
     channel.onPlugin('open', async () => {
-      connectionsRef.current.next([
-        ...connectionsRef.current.value,
+      console.log('open');
+      connectionsRef.current.push(
         {
           plugin,
           port,
           channel,
         }
-      ]);
+      );
 
       const onInitCommand: SpotterCommand = {
         type: SpotterCommandType.onInit,
@@ -383,35 +388,30 @@ export const PluginsProvider: FC<{}> = (props) => {
       channel.sendToPlugin(JSON.stringify(onInitCommand));
     });
 
+    let error: string | null = null;
+
     channel.onPlugin('error', message => {
       error = message;
       notifications.show('Error', `Plugin ${plugin}: ${error}`)
-      unregisterPlugin(plugin);
+      removePlugin(plugin);
     });
 
     channel.onPlugin('close', () => {
       if (!error) {
         notifications.show('Connection', `Connection with ${plugin} has been terminated`);
       }
-      unregisterPlugin(plugin);
     });
 
     channel.onPlugin('message', data => {
+      console.log('message: ', data);
+
       const command = JSON.parse(data);
       commandRef.current.next({...command, plugin: plugin});
     });
   }
 
-  const unregisterPlugin = (plugin: string) => {
-    connectionsRef.current.next(
-      connectionsRef.current.value.filter(c => c.plugin !== plugin),
-    );
-    setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
-    setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
-  }
-
   const sendCommand = (command: SpotterCommand, plugin: string) => {
-    const connections = connectionsRef.current.value;
+    const connections = connectionsRef.current;
     const pluginConnection = connections.find(c => c.plugin === plugin);
 
     if (!pluginConnection) {
@@ -426,7 +426,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     <PluginsContext.Provider value={{
       ...context,
       command$: commandRef.current.asObservable(),
-      connect,
+      connect: connectPlugin,
       sendCommand,
     }}>
       {props.children}

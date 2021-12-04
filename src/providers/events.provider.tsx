@@ -75,12 +75,8 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const checkDependencies = async () => {
     const nodeInstalled = await shell.execute('node -v').catch(() => false);
-    const foreverInstalled = await shell.execute('forever -v').catch(() => false);
 
     if (nodeInstalled) {
-      if (!foreverInstalled) {
-        await shell.execute('npm i -g forever');
-      }
       return;
     }
 
@@ -90,7 +86,6 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     await shell.execute('brew install node');
-    await shell.execute('npm i -g forever');
   }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {

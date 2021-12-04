@@ -1,7 +1,7 @@
 import {
   ChannelEventType,
-  PluginChannel,
-  SpotterChannel,
+  ChannelForPlugin,
+  ChannelForSpotter,
   SpotterPlugin,
 } from '@spotter-app/core';
 import { PluginOption } from './interfaces';
@@ -42,7 +42,7 @@ export const hideOptions = (options: PluginOption[]): PluginOption[] => {
   return options.filter(o => !optionsToHide.includes(o.title));
 };
 
-export class ExternalPluginChannel implements PluginChannel {
+export class ExternalPluginChannel implements ChannelForSpotter {
   private ws: WebSocket;
 
   constructor(port: number) {
@@ -77,9 +77,13 @@ export class ExternalPluginChannel implements PluginChannel {
       return;
     }
   }
+
+  close() {
+    this.ws.close();
+  }
 }
 
-export class InternalPluginChannel implements SpotterChannel, PluginChannel {
+export class InternalPluginChannel implements ChannelForPlugin, ChannelForSpotter {
   plugin: SpotterPlugin;
 
   constructor(internalPluginName: string) {
@@ -140,4 +144,6 @@ export class InternalPluginChannel implements SpotterChannel, PluginChannel {
   sendToPlugin(data: string) {
     this.triggerOnSpotterMessage(data);
   }
+
+  close() {}
 }
