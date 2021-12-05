@@ -40,7 +40,11 @@ export const hideOptions = (options: PluginOption[]): PluginOption[] => {
     return options;
   }
 
-  return options.filter(o => !optionsToHide.includes(o.title));
+  return options.filter(o => {
+    const optionToHide = optionsToHide.find(opt => opt === o.title);
+    const shouldHide = optionToHide && !o.hideOptions?.find(opt => opt === optionToHide);
+    return !shouldHide;
+  });
 };
 
 export class ExternalPluginChannel implements ChannelForSpotter {

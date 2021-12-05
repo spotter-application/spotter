@@ -135,7 +135,13 @@ export const PluginsProvider: FC<{}> = (props) => {
   ) => void = async (plugin) => {
     const plugins = await getPlugins();
     storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p !== plugin));
+    removePluginRegistries(plugin);
+    stopPluginScript(plugin);
+  }
 
+  const removePluginRegistries: (
+    plugin: string,
+  ) => void = async (plugin) => {
     connectionsRef.current = connectionsRef.current.filter(c => c.plugin !== plugin);
     registeredOptions$.next(
       registeredOptions$.value.filter(o => o.plugin !== plugin),
@@ -143,8 +149,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredPrefixes$.next(
       registeredPrefixes$.value.filter(o => o.plugin !== plugin),
     );
-
-    stopPluginScript(plugin);
   }
 
   const handleCommand = async (command: PluginCommand) => {
@@ -401,7 +405,8 @@ export const PluginsProvider: FC<{}> = (props) => {
     });
 
     channel.onPlugin('close', () => {
-      if (!error) {
+      removePluginRegistries(plugin);
+      if (!error && plugin !== 'DEV_PLUGIN') {
         notifications.show('Connection', `Connection with ${plugin} has been terminated`);
       }
     });
