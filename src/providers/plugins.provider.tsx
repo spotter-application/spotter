@@ -53,7 +53,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const {
     setQuery,
-    setHint,
+    setPlaceholder,
     setOptions,
     selectedOption,
     setRegisteredOptions,
@@ -219,8 +219,8 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.setHint) {
-      setHint(command.value);
+    if (command.type === CommandType.setPlaceholder) {
+      setPlaceholder(command.value);
       return;
     }
 

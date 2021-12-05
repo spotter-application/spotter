@@ -3,14 +3,14 @@ import { PluginOption, PluginPrefix } from '../interfaces';
 
 type Context = {
   setQuery: (value: string) => void,
-  setHint: React.Dispatch<React.SetStateAction<string | undefined>>,
+  setPlaceholder: React.Dispatch<React.SetStateAction<string | undefined>>,
   setLoading: (value: boolean) => void,
   setOptions: React.Dispatch<React.SetStateAction<PluginOption[]>>,
   setHoveredOptionIndex: (value: number) => void,
   setSelectedOption: (value: PluginOption | null) => void,
   setWaitingFor: (value: string | null) => void,
   query: string,
-  hint?: string,
+  placeholder?: string,
   options: PluginOption[],
   selectedOption: PluginOption | null,
   loading: boolean,
@@ -27,14 +27,14 @@ type Context = {
 
 const context: Context = {
   setQuery: () => null,
-  setHint: () => null,
+  setPlaceholder: () => null,
   setLoading: () => null,
   setOptions: () => null,
   setHoveredOptionIndex: () => null,
   setSelectedOption: () => null,
   setWaitingFor: () => null,
   query: '',
-  hint: '',
+  placeholder: '',
   options: [],
   selectedOption: null,
   loading: false,
@@ -55,7 +55,7 @@ export const StateProvider: FC<{}> = (props) => {
 
   // State
   const [ query, setQuery ] = useState<string>('');
-  const [ hint, setHint ] = useState<string>();
+  const [ placeholder, setPlaceholder ] = useState<string>();
   const [ options, setOptions ] = useState<PluginOption[]>([]);
   const [ selectedOption, setSelectedOption] = useState<PluginOption | null>(null);
   const [ loading, setLoading ] = useState<boolean>(false);
@@ -72,7 +72,7 @@ export const StateProvider: FC<{}> = (props) => {
 
   const reset = () => {
     setQuery('');
-    setHint(undefined);
+    setPlaceholder(undefined);
     setLoading(false);
     setOptions([]);
     setHoveredOptionIndex(0);
@@ -92,8 +92,8 @@ export const StateProvider: FC<{}> = (props) => {
       setWaitingFor,
       query,
       options,
-      hint,
-      setHint,
+      placeholder,
+      setPlaceholder,
       loading,
       hoveredOptionIndex,
       selectedOption,
