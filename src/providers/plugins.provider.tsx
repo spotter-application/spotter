@@ -52,15 +52,16 @@ export const PluginsContext = React.createContext<Context>(context);
 export const PluginsProvider: FC<{}> = (props) => {
 
   const {
-    setQuery,
-    setPlaceholder,
-    setOptions,
-    selectedOption,
-    setRegisteredOptions,
-    setRegisteredPrefixes,
-    setDisplayedOptionsForCurrentWorkflow,
-    reset,
+    registeredOptions$,
+    registeredPrefixes$,
+    selectedOption$,
+    options$,
+    query$,
+    displayedOptionsForCurrentWorkflow$,
+    placeholder$,
+    resetState,
   } = useSpotterState();
+
   const { getSettings, patchSettings } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
   const { getHistory } = useHistory();
@@ -136,16 +137,21 @@ export const PluginsProvider: FC<{}> = (props) => {
     storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p !== plugin));
 
     connectionsRef.current = connectionsRef.current.filter(c => c.plugin !== plugin);
-    setRegisteredOptions(prev => prev.filter(o => o.plugin !== plugin));
-    setRegisteredPrefixes(prev => prev.filter(o => o.plugin !== plugin));
+    registeredOptions$.next(
+      registeredOptions$.value.filter(o => o.plugin !== plugin),
+    );
+    registeredPrefixes$.next(
+      registeredPrefixes$.value.filter(o => o.plugin !== plugin),
+    );
 
     stopPluginScript(plugin);
   }
 
   const handleCommand = async (command: PluginCommand) => {
     if (command.type === CommandType.registerOptions) {
-      setRegisteredOptions(prevOptions => {
-        return command.value.map(o => ({...o, plugin: command.plugin})).reduce(
+      const nextRegisteredOptions = command.value
+        .map(o => ({...o, plugin: command.plugin}))
+        .reduce(
           (acc: PluginOption[], curr: PluginOption) => {
             const needsToBeReplaced = acc.find((o: PluginOption) =>
               o.title === curr.title && o.plugin === curr.plugin,
@@ -163,15 +169,16 @@ export const PluginsProvider: FC<{}> = (props) => {
 
             return [...acc, curr];
           },
-          prevOptions,
+          registeredOptions$.value,
         );
-      });
+      registeredOptions$.next(nextRegisteredOptions);
       return;
     }
 
     if (command.type === CommandType.registerPrefixes) {
-      setRegisteredPrefixes(prevPrefixes => {
-        return command.value.map(p => ({...p, plugin: command.plugin})).reduce(
+      const nextRegisteredPrefixes = command.value
+        .map(p => ({...p, plugin: command.plugin}))
+        .reduce(
           (acc: PluginPrefix[], curr: PluginPrefix) => {
             const needsToBeReplaced = acc.find((p: PluginPrefix) =>
               p.prefix === curr.prefix && p.plugin === curr.plugin,
@@ -189,9 +196,9 @@ export const PluginsProvider: FC<{}> = (props) => {
 
             return [...acc, curr];
           },
-          prevPrefixes,
+          registeredPrefixes$.value,
         );
-      });
+      registeredPrefixes$.next(nextRegisteredPrefixes);
       return;
     }
 
@@ -202,25 +209,25 @@ export const PluginsProvider: FC<{}> = (props) => {
       );
       const sortedOptions = sortOptions(
         options,
-        selectedOption,
+        selectedOption$.value,
         history,
       );
 
       panel.open();
-      setOptions(sortedOptions);
+      options$.next(sortedOptions);
       if (sortedOptions.length) {
-        setDisplayedOptionsForCurrentWorkflow(true);
+        displayedOptionsForCurrentWorkflow$.next(true);
       }
       return;
     }
 
     if (command.type === CommandType.setQuery) {
-      setQuery(command.value);
+      query$.next(command.value);
       return;
     }
 
     if (command.type === CommandType.setPlaceholder) {
-      setPlaceholder(command.value);
+      placeholder$.next(command.value);
       return;
     }
 
@@ -266,8 +273,7 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.getPlugins) {
-      const data = await getPlugins();
+    if (command.type === CommandType.getPlugins) { const data = await getPlugins();
       const cmd: SpotterOnGetPluginsCommand = {
         type: SpotterCommandType.onGetPlugins,
         value: {
@@ -307,7 +313,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
     if (command.type === CommandType.close) {
       panel.close();
-      reset();
+      resetState();
       return;
     }
   }

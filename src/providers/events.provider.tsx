@@ -1,6 +1,6 @@
 import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
-import { SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
@@ -8,6 +8,7 @@ import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
+import { BehaviorSubject, debounceTime, filter, Subscription, tap } from 'rxjs';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -38,26 +39,43 @@ export const EventsProvider: FC<{}> = (props) => {
   const { getSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const {
-    query,
-    setQuery,
-    options,
-    setOptions,
-    selectedOption,
-    setSelectedOption,
-    setLoading,
-    hoveredOptionIndex,
-    setHoveredOptionIndex,
-    reset,
-    registeredOptions,
-    registeredPrefixes,
-    setDisplayedOptionsForCurrentWorkflow,
+    query$,
+    altQuery$,
+    options$,
+    selectedOption$,
+    loading$,
+    hoveredOptionIndex$,
+    registeredOptions$,
+    registeredPrefixes$,
+    displayedOptionsForCurrentWorkflow$,
+    resetState,
   } = useSpotterState();
-
   const { sendCommand } = usePlugins();
+
+  const subscriptions: Subscription[] = [];
 
   useEffect(() => {
     registerHotkeys();
     checkDependencies();
+
+    subscriptions.push(
+      altQuery$.pipe(
+        tap(altQuery => {
+          if (altQuery.length) {
+            panel.open();
+            onQuery(altQuery);
+          };
+
+        }),
+        debounceTime(500),
+        filter(altQuery => !!altQuery.length),
+        tap(() => onSubmit()),
+      ).subscribe(),
+    )
+  }, []);
+
+  useEffect(() => {
+    return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
 
   const registerHotkeys = async () => {
@@ -70,7 +88,28 @@ export const EventsProvider: FC<{}> = (props) => {
       });
     });
 
-    hotkey.onPress(e => onPressHotkey(e));
+    Object.entries(ALT_QUERY_KEY_MAP).forEach(([code, key]) => {
+      hotkey.register(
+        {doubledModifiers: false, keyCode: Number(code), modifiers: 2048},
+        key,
+      );
+    });
+
+    hotkey.onPress((e) => {
+      onPressHotkey(e);
+    });
+  }
+
+  const onPressHotkey = (e: SpotterHotkeyEvent) => {
+    if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+      panel.open();
+      return;
+    };
+
+    if (Object.values(ALT_QUERY_KEY_MAP).find(key => key === e.identifier)) {
+      altQuery$.next(altQuery$.value + e.identifier);
+      return;
+    }
   }
 
   const checkDependencies = async () => {
@@ -88,32 +127,25 @@ export const EventsProvider: FC<{}> = (props) => {
     await shell.execute('brew install node');
   }
 
-  const onPressHotkey = (e: SpotterHotkeyEvent) => {
-    if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
-      panel.open();
-      return;
-    };
-  }
-
   const onEscape = () => {
-    reset();
+    resetState();
     panel.close();
   }
 
   const onBackspace = () => {
-    if (selectedOption && !query.length) {
-      reset();
+    if (selectedOption$.value && !query$.value.length) {
+      resetState();
     }
   }
 
   const onTab = async () => {
-    const nextSelectedOption = options[hoveredOptionIndex];
+    const nextSelectedOption = options$.value[hoveredOptionIndex$.value];
     if (!nextSelectedOption || !nextSelectedOption.tabActionId) {
       return;
     }
 
-    setSelectedOption(nextSelectedOption);
-    setQuery('');
+    selectedOption$.next(nextSelectedOption);
+    query$.next('');
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onAction,
@@ -123,34 +155,34 @@ export const EventsProvider: FC<{}> = (props) => {
 
     sendCommand(command, nextSelectedOption.plugin);
     increaseHistory(getHistoryPath(nextSelectedOption, null));
-    setHoveredOptionIndex(0);
+    hoveredOptionIndex$.next(0);
   }
 
   const onQuery = async (nextQuery: string) => {
-    setQuery(nextQuery);
+    query$.next(nextQuery);
 
     if (nextQuery === '') {
-      reset();
+      resetState();
       return;
     }
 
     // Execute selected option tabAction
-    if (selectedOption) {
-      if (!selectedOption.tabActionId) {
+    if (selectedOption$.value) {
+      if (!selectedOption$.value.tabActionId) {
         console.log('There is no tabActionId in selected option');
         return;
       }
       const command: SpotterCommand = {
         type: SpotterCommandType.onAction,
-        actionId: selectedOption.tabActionId,
+        actionId: selectedOption$.value.tabActionId,
         query: nextQuery,
       };
-      sendCommand(command, selectedOption.plugin);
+      sendCommand(command, selectedOption$.value.plugin);
       return;
     }
 
     // Check for matched prefixes
-    const matchedPrefixes = registeredPrefixes.filter(
+    const matchedPrefixes = registeredPrefixes$.value.filter(
       p => nextQuery.toLowerCase().startsWith(p.prefix.toLowerCase()),
     );
 
@@ -166,50 +198,53 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     // Check for registered options
-    const filteredRegisteredOptions = registeredOptions.filter(
+    const filteredRegisteredOptions = registeredOptions$.value.filter(
       o => o.title
           .split(' ')
           .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
     );
+
     const history = await getHistory();
     const prioritizedOptions = hideOptions(filteredRegisteredOptions);
     const sortedOptions = sortOptions(
       prioritizedOptions ,
-      selectedOption,
+      selectedOption$.value,
       history,
     );
-    setOptions(sortedOptions);
+    options$.next(sortedOptions);
     if (sortedOptions.length) {
-      setDisplayedOptionsForCurrentWorkflow(true);
+      displayedOptionsForCurrentWorkflow$.next(true);
     }
   };
 
   const onArrowUp = () => {
-    if (hoveredOptionIndex <= 0) {
-      setHoveredOptionIndex(options.length - 1);
+    if (hoveredOptionIndex$.value <= 0) {
+      hoveredOptionIndex$.next(options$.value.length - 1);
       return;
     }
 
-    setHoveredOptionIndex(hoveredOptionIndex - 1)
+    hoveredOptionIndex$.next(hoveredOptionIndex$.value - 1);
   };
 
   const onArrowDown = () => {
-    if (hoveredOptionIndex >= options.length - 1) {
-      setHoveredOptionIndex(0);
+    if (hoveredOptionIndex$.value >= options$.value.length - 1) {
+      hoveredOptionIndex$.next(0);
       return;
     }
 
-    setHoveredOptionIndex(hoveredOptionIndex + 1)
+    hoveredOptionIndex$.next(hoveredOptionIndex$.value + 1);
   };
 
   const onSubmit = async (index?: number) => {
     if (index || index === 0) {
-      setHoveredOptionIndex(index);
+      hoveredOptionIndex$.next(index);
     }
 
-    const option = options[hoveredOptionIndex];
+    const option = options$.value[hoveredOptionIndex$.value];
 
     if (!option) {
+      panel.close();
+      resetState();
       return;
     }
 
@@ -222,12 +257,12 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    setLoading(true);
+    loading$.next(true);
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onAction,
       actionId: option.actionId,
-      query,
+      query: query$.value,
     };
 
     sendCommand(command, option.plugin);
