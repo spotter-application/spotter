@@ -241,7 +241,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.getStorage) {
-      const data = await getStorage();
+      const data = await getStorage(command.plugin);
       const cmd: SpotterOnGetStorageCommand = {
         type: SpotterCommandType.onGetStorage,
         value: {

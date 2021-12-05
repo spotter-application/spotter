@@ -16,21 +16,21 @@ import {
 
 const AppWithModules = () => (
   <ApiProvider>
-    <StateProvider>
+    <StorageProvider>
       <SettingsProvider>
-        <PluginsProvider>
-          <HistoryProvider>
-            <StorageProvider>
+        <StateProvider>
+          <PluginsProvider>
+            <HistoryProvider>
               <EventsProvider>
                 <ThemeProvider>
                   <QueryPanel />
                 </ThemeProvider>
               </EventsProvider>
-            </StorageProvider>
-          </HistoryProvider>
-        </PluginsProvider>
+            </HistoryProvider>
+          </PluginsProvider>
+        </StateProvider>
       </SettingsProvider>
-    </StateProvider>
+    </StorageProvider>
   </ApiProvider>
 );
 const SettingsWithModules = () => (

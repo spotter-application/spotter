@@ -15,8 +15,8 @@ type Context = {
   setStorage: (data: Storage) => void;
 };
 
-const tokens: {[key: string]: any} = {
-  ['spotter-spotify-plugin']: {
+const TOKENS: {[key: string]: any} = {
+  ['DEV_PLUGIN']: {
     clientId: SPOTIFY_CLIENT_ID,
     clientSecret: SPOTIFY_CLIENT_SECRET,
     redirectUri: SPOTIFY_REDIRECT_URI,
@@ -38,19 +38,21 @@ export const StorageProvider: FC<{}> = (props) => {
   const cachedStorage = useRef<Storage>();
 
   const getStorage = async (plugin?: string): Promise<Storage> => {
+    const tokens = plugin ? { tokens: TOKENS[plugin] } : {};
+
     if (cachedStorage.current) {
       return {
         ...(plugin
           ? (cachedStorage.current[plugin] ?? {})
           : cachedStorage.current
         ),
-        ...(plugin && tokens[plugin] ? {tokens: tokens[plugin]} : {}),
+        ...tokens,
       };
     }
 
     const currentStorage = await storage.getItem<Storage>(STORAGE_KEY);
     if (!currentStorage) {
-      return {tokens};
+      return tokens;
     }
 
     cachedStorage.current = currentStorage;
@@ -59,7 +61,7 @@ export const StorageProvider: FC<{}> = (props) => {
         ? (currentStorage[plugin] ?? {})
         : currentStorage
       ),
-      tokens,
+      ...tokens,
     };
   }
 
