@@ -10,7 +10,7 @@ import { useSpotterState, useTheme } from '../../providers';
 import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
 import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
-import { Option } from '@spotter-app/core';
+import { getHint } from '../../helpers';
 
 export const QueryPanel: FC<{}> = () => {
 
@@ -39,11 +39,6 @@ export const QueryPanel: FC<{}> = () => {
   } = useSpotterState();
 
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
-
-  const getHint = (query: string, option: Option) => {
-
-    // hint={query?.length && options?.length ? options[0].title : ''}
-  }
 
   return <>
     <SafeAreaView>
@@ -78,7 +73,7 @@ export const QueryPanel: FC<{}> = () => {
           style={{ flex: 1 }}
           value={query}
           placeholder={placeholder ?? 'Query...'}
-          hint={query?.length && options?.length ? options[0].title : ''}
+          hint={getHint(query, options[hoveredOptionIndex])}
           onChangeText={onQuery}
           onSubmit={onSubmit}
           onArrowDown={onArrowDown}

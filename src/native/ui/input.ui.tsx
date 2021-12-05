@@ -22,39 +22,7 @@ type InputProps = {
   onBackspace?: (text: string) => void,
 };
 
-type InputState = {
-  formattedHint: string | null,
-};
-
-export class Input extends React.PureComponent<InputProps, InputState> {
-
-  constructor(props: InputProps) {
-    super(props);
-    this.state = { formattedHint: null };
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps: InputProps) {
-    // TODO: move logic outside
-    if (!nextProps.hint) {
-      this.setState({ formattedHint: null });
-    }
-
-    const lowerValue = nextProps.value?.toLowerCase();
-    const lowerHint = nextProps.hint?.toLowerCase();
-    const hintIndex = lowerHint?.indexOf(lowerValue);
-
-    if (!lowerValue && lowerHint) {
-      this.setState({formattedHint: lowerHint});
-      return;
-    }
-
-    if (lowerHint && lowerValue && (hintIndex || hintIndex === 0) && hintIndex !== -1) {
-      this.setState({
-        formattedHint: lowerHint.substring(hintIndex),
-      });
-    }
-
-  }
+export class Input extends React.PureComponent<InputProps> {
 
   _onChangeText = (event: { nativeEvent: { text: string }}) => {
     if (!this.props.onChangeText) {
@@ -146,10 +114,10 @@ export class Input extends React.PureComponent<InputProps, InputState> {
     >
       <RNInput
         {...nativeProps}
-        placeholder={this.state.formattedHint ? '' : this.props.placeholder}
+        placeholder={this.props.hint ?? this.props.placeholder}
         style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
       />
-      {this.state.formattedHint ? <Text
+      {this.props.hint ? <Text
         style={{
           position: 'absolute',
           top: 0,
@@ -159,7 +127,7 @@ export class Input extends React.PureComponent<InputProps, InputState> {
           fontSize: 26,
           opacity: 0.5,
         }}>
-          {this.state.formattedHint}
+          {this.props.hint}
         </Text> : null}
     </View>
   }

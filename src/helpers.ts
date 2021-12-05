@@ -2,6 +2,7 @@ import {
   ChannelEventType,
   ChannelForPlugin,
   ChannelForSpotter,
+  Option,
   SpotterPlugin,
 } from '@spotter-app/core';
 import { PluginOption } from './interfaces';
@@ -146,4 +147,22 @@ export class InternalPluginChannel implements ChannelForPlugin, ChannelForSpotte
   }
 
   close() {}
+}
+
+export const getHint = (query: string, option: Option) => {
+  if (!query || !option) {
+    return;
+  }
+
+  const queryIndex = option.title
+    .toLowerCase()
+    .lastIndexOf(query.toLowerCase());
+
+  return option.title.slice(queryIndex).split('').reduce(
+    (acc, curr, index) => {
+      const nextSymbol = query[index] ?? curr;
+      return `${acc}${nextSymbol}`;
+    },
+    '',
+  );
 }
