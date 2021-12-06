@@ -2,7 +2,7 @@ import { Settings } from '@spotter-app/core';
 import React, { FC } from 'react';
 import { useApi } from './api.provider';
 
-const SETTINGS_STORAGE_KEY = 'SETTINGS';
+const SETTINGS_STORAGE_KEY = 'SETTINGS_0.1';
 
 type Context = {
   getSettings: () => Promise<Settings>;

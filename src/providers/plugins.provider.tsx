@@ -12,7 +12,7 @@ import {
 } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { Alert } from 'react-native';
-import { Subject, Subscription, BehaviorSubject, map } from 'rxjs';
+import { Subject, Subscription, BehaviorSubject } from 'rxjs';
 import {
   hideOptions,
   InternalPluginChannel,

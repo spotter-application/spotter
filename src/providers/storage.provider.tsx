@@ -23,8 +23,6 @@ const spotifyTokens = {
 
 const TOKENS: {[key: string]: any} = {
   ['spotify-plugin']: spotifyTokens,
-  // FOR DEV
-  ['spotter/plugins/spotter-core']: spotifyTokens,
 };
 
 const context: Context = {

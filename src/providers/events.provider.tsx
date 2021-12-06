@@ -8,7 +8,7 @@ import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
-import { BehaviorSubject, debounceTime, filter, Subscription, tap } from 'rxjs';
+import { debounceTime, filter, Subscription, tap } from 'rxjs';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
