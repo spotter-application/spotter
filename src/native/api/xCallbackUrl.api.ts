@@ -18,9 +18,9 @@ export class XCallbackUrl implements SpotterXCallbackUrlApi {
         const command: PluginCommand  = {
           pluginName,
           type,
-          value: rest.length ? {
-            ...rest,
-          } : rest,
+          value: rest.value
+            ? rest.value
+            : {...rest},
         }
 
         callback(command)
