@@ -267,17 +267,17 @@ export const PluginsProvider: FC<{}> = (props) => {
   const connectPluginCommand = async (
     command: (PluginCommand & {type: CommandType.connectPlugin})
   ) => {
-    // TODO: check uniq plugin name
+    // TODO: check if plugin doesn't have a uniq name
     // Otherwise there will be a conflict when setting data to storage
     const activePlugin = activePlugins$.value.find(p =>
-      p.path === command.value.path,
+      p.name === command.value.name,
     );
 
     if (activePlugin) {
       stopPluginScript(activePlugin.pid);
       removePluginRegistries(activePlugin.path);
       activePlugins$.next(
-        activePlugins$.value.filter(p => p.path !== activePlugin.path),
+        activePlugins$.value.filter(p => p.name !== activePlugin.name),
       );
     };
 
