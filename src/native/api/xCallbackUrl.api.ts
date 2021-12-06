@@ -6,20 +6,27 @@ export class XCallbackUrl implements SpotterXCallbackUrlApi {
 
   private panelEventEmitter = new NativeEventEmitter(this.xCallbackUrl);
 
-  onCommand(callback: (event: PluginCommand) => void) {
+  onCommand(callback: (event: any) => void) {
     this.panelEventEmitter.addListener('onCommand', (event) => {
-      if (event.value &&
-        typeof event.value === 'string' &&
-        event.value.startsWith('{')
-      ) {
-        try {
-          event.value = JSON.parse(`${event.value.replace(/'/g, '')}`);
-        } catch (e) {
-          event.value = {};
-          Alert.alert(`${e}`);
+      try {
+        const {
+          pluginName,
+          type,
+          ...rest
+        } = event;
+
+        const command: PluginCommand  = {
+          pluginName,
+          type,
+          value: rest.length ? {
+            ...rest,
+          } : rest,
         }
+
+        callback(command)
+      } catch (e) {
+        Alert.alert(`${e}`);
       }
-      callback(event)
     });
   }
 }
