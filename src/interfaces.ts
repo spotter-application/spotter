@@ -7,15 +7,15 @@ import {
 } from '@spotter-app/core';
  
 export type PluginCommand = Command & {
-  plugin: string,
+  pluginName: string,
 }
 
 export type PluginOption = Option & {
-  plugin: string,
+  pluginName: string,
 }
 
 export type PluginPrefix = Prefix & {
-  plugin: string,
+  pluginName: string,
 }
 
 export declare abstract class SpotterShellApi {
@@ -43,7 +43,9 @@ export declare abstract class SpotterHotkeyApi {
 }
 
 export declare abstract class SpotterXCallbackUrlApi {
-  abstract onCommand(callback: (event: PluginCommand) => void): void;
+  abstract onCommand(callback: (
+    event: PluginCommand,
+  ) => void): void;
 }
 
 export declare abstract class SpotterStorageApi {
@@ -70,9 +72,10 @@ export interface SpotterHotkeyEvent {
   identifier: string,
 }
 
-
-export type Connection = {
-  plugin: string,
-  port: number,
+export interface ActivePlugin {
+  name: string,
+  path: string,
   channel: ChannelForSpotter,
+  port: number,
+  pid: number,
 }

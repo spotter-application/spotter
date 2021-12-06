@@ -51,7 +51,7 @@ export class ExternalPluginChannel implements ChannelForSpotter {
   private ws: WebSocket;
 
   constructor(port: number) {
-    this.ws = new WebSocket(`ws://127.0.0.1:${port}`)
+    this.ws = new WebSocket(`ws://127.0.0.1:${port}`);
   }
 
   sendToPlugin(data: string) {

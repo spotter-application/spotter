@@ -116,9 +116,7 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
       ? <View style={style}>
         {icon.endsWith('.app') || icon.endsWith('.prefPane')
           ? <IconImage style={{ width: 25, height: 25, ...style, }} source={icon}></IconImage>
-          : icon.endsWith('.png') || icon.endsWith('.jpg') || icon.endsWith('.jpeg')
-            ? <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
-            : null
+          : <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
         }
       </View>
       : null

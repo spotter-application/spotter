@@ -39,11 +39,12 @@ export class PluginsManager extends SpotterPlugin {
   }
 
   private async pluginsMenu() {
+    // TODO: display dev plugins as well
     const plugins = await this.getPlugins();
     return plugins.map(p => ({
       icon,
-      title: toTitleCase(shortPath(p)),
-      tabAction: () => this.pluginMenu(p),
+      title: toTitleCase(shortPath(p.path)),
+      tabAction: () => this.pluginMenu(p.path),
     }));
   }
 

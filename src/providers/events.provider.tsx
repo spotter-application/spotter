@@ -153,7 +153,7 @@ export const EventsProvider: FC<{}> = (props) => {
       query: '',
     };
 
-    sendCommand(command, nextSelectedOption.plugin);
+    sendCommand(command, nextSelectedOption.pluginName);
     increaseHistory(getHistoryPath(nextSelectedOption, null));
     hoveredOptionIndex$.next(0);
   }
@@ -169,7 +169,7 @@ export const EventsProvider: FC<{}> = (props) => {
     // Execute selected option tabAction
     if (selectedOption$.value) {
       if (!selectedOption$.value.tabActionId) {
-        console.log('There is no tabActionId in selected option');
+        console.error('There is no tabActionId in selected option');
         return;
       }
       const command: SpotterCommand = {
@@ -177,7 +177,7 @@ export const EventsProvider: FC<{}> = (props) => {
         actionId: selectedOption$.value.tabActionId,
         query: nextQuery,
       };
-      sendCommand(command, selectedOption$.value.plugin);
+      sendCommand(command, selectedOption$.value.pluginName);
       return;
     }
 
@@ -193,7 +193,7 @@ export const EventsProvider: FC<{}> = (props) => {
           query: nextQuery,
           actionId: p.actionId,
         };
-        sendCommand(command, p.plugin);
+        sendCommand(command, p.pluginName);
       });
     }
 
@@ -265,7 +265,7 @@ export const EventsProvider: FC<{}> = (props) => {
       query: query$.value,
     };
 
-    sendCommand(command, option.plugin);
+    sendCommand(command, option.pluginName);
     increaseHistory(getHistoryPath(option, null));
   }
 

@@ -8,10 +8,14 @@ export class XCallbackUrl implements SpotterXCallbackUrlApi {
 
   onCommand(callback: (event: PluginCommand) => void) {
     this.panelEventEmitter.addListener('onCommand', (event) => {
-      if (event.value && typeof event.value === 'string' && event.value.startsWith('{')) {
+      if (event.value &&
+        typeof event.value === 'string' &&
+        event.value.startsWith('{')
+      ) {
         try {
-          event.value = JSON.parse(event.value);
+          event.value = JSON.parse(`${event.value.replace(/'/g, '')}`);
         } catch (e) {
+          event.value = {};
           Alert.alert(`${e}`);
         }
       }
