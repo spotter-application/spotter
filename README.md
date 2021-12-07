@@ -27,6 +27,10 @@ Default hotkey to run the app ```double shift```
 
 ## 🔌 Plugins
 
+#### Check installed plugins
+Type `plugins <tab>`
+
+#### Install plugins
 - [Spotter team plugins](https://github.com/ziulev/spotter-core/tree/main/packages)
 
 ## 🤖 Requirements
