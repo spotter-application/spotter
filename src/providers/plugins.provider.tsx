@@ -416,9 +416,18 @@ export const PluginsProvider: FC<{}> = (props) => {
       await stopPluginScript(activePlugin.pid);
     }
 
-    const port = randomPort();
+    const port = uniqPort();
 
     return shell.execute(`nohup node ${pluginPath} ${port} ${pluginPath} > /dev/null 2>&1 &`);
+  }
+
+  const uniqPort = (): number => {
+    const port = randomPort();
+    const activePluginWithPort = activePlugins$.value.find(p =>
+      p.port === port,
+    );
+
+    return activePluginWithPort ? uniqPort() : port;
   }
 
   const stopPluginScript = async (
