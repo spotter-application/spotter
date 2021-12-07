@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -6,17 +6,16 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useSpotterState, useTheme } from '../../providers';
-import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
-import { Input } from '../../native';
-import { useEvents } from '../../providers/events.provider';
-import { getHint } from '../../helpers';
-import { PluginOption } from '../../interfaces';
-import { Subscription } from 'rxjs';
+import {useSpotterState, useTheme} from '../../providers';
+import {OptionIcon, QueryPanelOptions} from './options.queryPanel';
+import {Input} from '../../native';
+import {useEvents} from '../../providers';
+import {getHint} from '../../helpers';
+import {PluginOption} from '../../interfaces';
+import {Subscription} from 'rxjs';
 
-export const QueryPanel: FC<{}> = () => {
-
-  const { colors } = useTheme();
+export const QueryPanel: FC = () => {
+  const {colors} = useTheme();
 
   const {
     onQuery,
@@ -34,6 +33,7 @@ export const QueryPanel: FC<{}> = () => {
     placeholder$,
     loading$,
     query$,
+    title$,
     hoveredOptionIndex$,
     selectedOption$,
     waitingFor$,
@@ -44,8 +44,11 @@ export const QueryPanel: FC<{}> = () => {
   const [placeholder, setPlaceholder] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [query, setQuery] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
-  const [selectedOption, setSelectedOption] = useState<PluginOption | null>(null);
+  const [selectedOption, setSelectedOption] = useState<PluginOption | null>(
+    null,
+  );
   const [waitingFor, setWaitingFor] = useState<string | null>(null);
   const [
     displayedOptionsForCurrentWorkflow,
@@ -60,104 +63,120 @@ export const QueryPanel: FC<{}> = () => {
       placeholder$.subscribe(setPlaceholder),
       loading$.subscribe(setLoading),
       query$.subscribe(setQuery),
+      title$.subscribe(setTitle),
       hoveredOptionIndex$.subscribe(setHoveredOptionIndex),
       selectedOption$.subscribe(setSelectedOption),
       waitingFor$.subscribe(setWaitingFor),
-      displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
+      displayedOptionsForCurrentWorkflow$.subscribe(
+        setDisplayedOptionsForCurrentWorkflow,
+      ),
     );
   }, []);
 
   useEffect(() => {
-    return () => subscriptions.forEach(s => s.unsubscribe());
+    return () => subscriptions.forEach((s) => s.unsubscribe());
   }, []);
+
+  useEffect(() => {
+    console.log(title);
+  }, [title]);
 
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
 
-  return <>
-    <SafeAreaView>
-      <View style={{
-        backgroundColor: colors.background,
-        ...styles.input,
-        ...(displayOptions || waitingFor ? styles.inputWithResults : {}),
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}>
-        {
-          selectedOption ?
-          // TODO: Create component
-            <View style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: colors.active.highlight,
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 10,
-              marginRight: 5,
-              padding: 5,
-            }}>
-              <OptionIcon style={{ paddingRight: 3 }} icon={selectedOption.icon}></OptionIcon>
-              <Text style={{ fontSize: 16 }}>{selectedOption.title}</Text>
+  return (
+    <>
+      <SafeAreaView>
+        <View
+          style={{
+            backgroundColor: colors.background,
+            ...styles.input,
+            ...(displayOptions || waitingFor ? styles.inputWithResults : {}),
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          {selectedOption ? (
+            // TODO: Create component
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                backgroundColor: colors.active.highlight,
+                paddingLeft: 10,
+                paddingRight: 10,
+                borderRadius: 10,
+                marginRight: 5,
+                padding: 5,
+              }}>
+              <OptionIcon
+                style={{paddingRight: 3}}
+                icon={selectedOption.icon}
+              />
+              <Text style={{fontSize: 16}}>{title}</Text>
             </View>
-          : null
-        }
-        <Input
-          style={{ flex: 1 }}
-          value={query}
-          placeholder={placeholder ?? 'Query...'}
-          hint={getHint(query, options[hoveredOptionIndex])}
-          onChangeText={onQuery}
-          onSubmit={onSubmit}
-          onArrowDown={onArrowDown}
-          onArrowUp={onArrowUp}
-          onEscape={onEscape}
-          onCommandComma={onCommandComma}
-          onTab={onTab}
-          onBackspace={onBackspace}
-        ></Input>
+          ) : null}
+          <Input
+            style={{flex: 1}}
+            value={query}
+            placeholder={placeholder ?? 'Query...'}
+            hint={getHint(query, options[hoveredOptionIndex])}
+            onChangeText={onQuery}
+            onSubmit={onSubmit}
+            onArrowDown={onArrowDown}
+            onArrowUp={onArrowUp}
+            onEscape={onEscape}
+            onCommandComma={onCommandComma}
+            onTab={onTab}
+            onBackspace={onBackspace}
+          />
 
-        <View style={{marginLeft: 10}}>
-          {loading
-            ? <ActivityIndicator size="small" color={colors.active.highlight} style={{
-              opacity: 0.3,
-              right: 3,
-              bottom: 0,
-              top: 0,
-              margin: 'auto',
-              position: 'absolute',
-              zIndex: 100,
-            }} />
-            : null
-          }
-          {options[hoveredOptionIndex] && <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon}></OptionIcon>}
+          <View style={{marginLeft: 10}}>
+            {loading ? (
+              <ActivityIndicator
+                size="small"
+                color={colors.active.highlight}
+                style={{
+                  opacity: 0.3,
+                  right: 3,
+                  bottom: 0,
+                  top: 0,
+                  margin: 'auto',
+                  position: 'absolute',
+                  zIndex: 100,
+                }}
+              />
+            ) : null}
+            {options[hoveredOptionIndex] && (
+              <OptionIcon style={{}} icon={options[hoveredOptionIndex].icon} />
+            )}
+          </View>
         </View>
-
-      </View>
-      { waitingFor?.length ?
-        <View style={{
-          backgroundColor: colors.background,
-          ...styles.input,
-          padding: 10,
-          paddingTop: 0,
-          ...(options?.length ? styles.inputWithResults : {}),
-        }}>
-          <Text style={{ opacity: 0.5, fontSize: 12 }}>{waitingFor}</Text>
-        </View> : null
-      }
-      {
-        <QueryPanelOptions
-          style={{ ...styles.options, backgroundColor: colors.background }}
-          hoveredOptionIndex={hoveredOptionIndex}
-          displayOptions={displayOptions}
-          options={options}
-          onSubmit={onSubmit}
-        ></QueryPanelOptions>
-      }
-
-    </SafeAreaView>
-  </>
-}
+        {waitingFor?.length ? (
+          <View
+            style={{
+              backgroundColor: colors.background,
+              ...styles.input,
+              padding: 10,
+              paddingTop: 0,
+              ...(options?.length ? styles.inputWithResults : {}),
+            }}>
+            <Text style={{opacity: 0.5, fontSize: 12}}>{waitingFor}</Text>
+          </View>
+        ) : null}
+        {
+          <QueryPanelOptions
+            style={{...styles.options, backgroundColor: colors.background}}
+            hoveredOptionIndex={hoveredOptionIndex}
+            displayOptions={displayOptions}
+            options={options}
+            onSubmit={onSubmit}
+          />
+        }
+      </SafeAreaView>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   inputWithResults: {

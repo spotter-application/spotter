@@ -96,7 +96,7 @@ export const Option = ({
         alignItems: 'center',
       }}
     >
-      <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
+      <OptionIcon icon={option.icon} style={{marginRight: 5}}/>
       <Text style={{
         color: active ? colors.active.text : colors.text,
         fontSize: 14,
@@ -104,7 +104,7 @@ export const Option = ({
     </View>
     {active &&
       <View>
-        <OptionHotkeyHints option={option} style={{opacity: 0.5}}></OptionHotkeyHints>
+        <OptionHotkeyHints option={option} style={{opacity: 0.5}}/>
       </View>
     }
   </View>
@@ -115,8 +115,8 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
     {icon
       ? <View style={style}>
         {icon.endsWith('.app') || icon.endsWith('.prefPane')
-          ? <IconImage style={{ width: 25, height: 25, ...style, }} source={icon}></IconImage>
-          : <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
+          ? <IconImage style={{width: 25, height: 25, ...style,}} source={icon}/>
+          : <Image style={{width: 22, height: 22, ...style}} source={{uri: icon}}/>
         }
       </View>
       : null
@@ -138,11 +138,11 @@ export const OptionHotkeyHints = ({
     ...(style ? style : {}),
   }}>
     {option?.tabActionId
-      ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
+      ? <OptionHotkeyHint style={{}} placeholder={'tab'}/>
       : null
     }
     {option?.actionId
-      ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
+      ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}/>
       : null
     }
   </View>
