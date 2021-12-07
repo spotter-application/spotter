@@ -25,7 +25,7 @@ So you can stay focused on your current task.
 
 Default hotkey to run the app ```double shift```
 
-## 🔮 Plugins
+## 🔌 Plugins
 
 - [Spotter team plugins](https://github.com/ziulev/spotter-core/tree/main/packages)
 
