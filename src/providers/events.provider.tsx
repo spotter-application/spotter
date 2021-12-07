@@ -65,11 +65,10 @@ export const EventsProvider: FC<{}> = (props) => {
             panel.open();
             onQuery(altQuery);
           };
-
         }),
-        debounceTime(500),
-        filter(altQuery => !!altQuery.length),
-        tap(() => onSubmit()),
+        // debounceTime(500),
+        // filter(altQuery => !!altQuery.length),
+        // tap(() => onSubmit()),
       ).subscribe(),
     )
   }, []);
