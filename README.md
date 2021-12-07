@@ -34,7 +34,7 @@ Type `plugins <tab>`
 - [Spotter team plugins](https://github.com/ziulev/spotter-core/tree/main/packages)
 
 ## 🤖 Requirements
-* macOS Big Sur
+* macOS Monterey
 * Node
 
 ## 🖤 How to develop
