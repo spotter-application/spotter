@@ -31,7 +31,7 @@ const icon = RNFS.MainBundlePath;
 export class PluginsManager extends SpotterPlugin {
 
   async onInit() {
-    this.registerOptions([{
+    this.spotter.registries.options.set([{
       icon,
       title: 'Plugins',
       tabAction: this.pluginsMenu,
@@ -40,7 +40,7 @@ export class PluginsManager extends SpotterPlugin {
 
   private async pluginsMenu() {
     // TODO: display dev plugins as well
-    const plugins = await this.getPlugins();
+    const plugins = await this.spotter.plugins.get();
     return plugins.map(p => ({
       icon,
       title: toTitleCase(shortPath(p.path)),
@@ -59,7 +59,7 @@ export class PluginsManager extends SpotterPlugin {
   }
 
   private remove(plugin: string) {
-    this.removePlugin(plugin);
+    this.spotter.plugins.remove(plugin);
     return true;
   }
 }

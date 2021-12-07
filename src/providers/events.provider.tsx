@@ -8,7 +8,7 @@ import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
-import { debounceTime, filter, Subscription, tap } from 'rxjs';
+import { Subscription, tap } from 'rxjs';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -66,9 +66,6 @@ export const EventsProvider: FC<{}> = (props) => {
             onQuery(altQuery);
           };
         }),
-        // debounceTime(500),
-        // filter(altQuery => !!altQuery.length),
-        // tap(() => onSubmit()),
       ).subscribe(),
     )
   }, []);

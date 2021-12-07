@@ -146,8 +146,36 @@ export const PluginsProvider: FC<{}> = (props) => {
     );
   }
 
-  const registerOptionsCommand = (
-    command: (PluginCommand & {type: CommandType.registerOptions})
+  const setRegisteredOptionsCommand = (
+    command: (PluginCommand & {type: CommandType.setRegisteredOptions})
+  ) => {
+    const nextRegisteredOptions = command.value
+    .map(o => ({...o, pluginName: command.pluginName}))
+    .reduce(
+      (acc: PluginOption[], curr: PluginOption) => {
+        const needsToBeReplaced = acc.find((o: PluginOption) =>
+          o.title === curr.title && o.pluginName === curr.pluginName,
+        );
+
+        if (needsToBeReplaced) {
+          return acc.map(o => {
+            if (o.title === curr.title && o.pluginName === curr.pluginName) {
+              return curr;
+            }
+
+            return o;
+          });
+        }
+
+        return [...acc, curr];
+      },
+      registeredOptions$.value.filter(o => o.pluginName !== command.pluginName),
+    );
+    registeredOptions$.next(nextRegisteredOptions);
+  }
+
+  const patchRegisteredOptionsCommand = (
+    command: (PluginCommand & {type: CommandType.patchRegisteredOptions})
   ) => {
     const nextRegisteredOptions = command.value
     .map(o => ({...o, pluginName: command.pluginName}))
@@ -174,8 +202,36 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredOptions$.next(nextRegisteredOptions);
   }
 
-  const registerPrefixesCommand = (
-    command: (PluginCommand & {type: CommandType.registerPrefixes})
+  const setRegisteredPrefixesCommand = (
+    command: (PluginCommand & {type: CommandType.setRegisteredPrefixes})
+  ) => {
+    const nextRegisteredPrefixes = command.value
+    .map(p => ({...p, pluginName: command.pluginName}))
+    .reduce(
+      (acc: PluginPrefix[], curr: PluginPrefix) => {
+        const needsToBeReplaced = acc.find((p: PluginPrefix) =>
+          p.prefix === curr.prefix && p.pluginName === curr.pluginName,
+        );
+
+        if (needsToBeReplaced) {
+          return acc.map(p => {
+            if (p.prefix === curr.prefix && p.pluginName === curr.pluginName) {
+              return curr;
+            }
+
+            return p;
+          });
+        }
+
+        return [...acc, curr];
+      },
+      registeredPrefixes$.value.filter(p => p.pluginName !== command.pluginName),
+    );
+    registeredPrefixes$.next(nextRegisteredPrefixes);
+  }
+
+  const patchRegisteredPrefixesCommand = (
+    command: (PluginCommand & {type: CommandType.patchRegisteredPrefixes})
   ) => {
     const nextRegisteredPrefixes = command.value
     .map(p => ({...p, pluginName: command.pluginName}))
@@ -318,13 +374,23 @@ export const PluginsProvider: FC<{}> = (props) => {
   }
 
   const handleCommand = async (command: PluginCommand) => {
-    if (command.type === CommandType.registerOptions) {
-      registerOptionsCommand(command);
+    if (command.type === CommandType.setRegisteredOptions) {
+      setRegisteredOptionsCommand(command);
       return;
     }
 
-    if (command.type === CommandType.registerPrefixes) {
-      registerPrefixesCommand(command);
+    if (command.type === CommandType.patchRegisteredOptions) {
+      patchRegisteredOptionsCommand(command);
+      return;
+    }
+
+    if (command.type === CommandType.setRegisteredPrefixes) {
+      setRegisteredPrefixesCommand(command);
+      return;
+    }
+
+    if (command.type === CommandType.patchRegisteredPrefixes) {
+      patchRegisteredPrefixesCommand(command);
       return;
     }
 
