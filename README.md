@@ -49,7 +49,7 @@ Contributions are always welcome, no matter how large or small.
 * [Watchman](https://facebook.github.io/watchman)
 `brew install watchman`
 
-**Run spotter**
+**Run:**
 * Clone repo
 `git clone https://github.com/ziulev/spotter.git spotter && cd $_`
 
