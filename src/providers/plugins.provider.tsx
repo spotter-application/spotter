@@ -25,26 +25,26 @@ import {
   PluginOption,
   PluginPrefix,
 } from '../interfaces';
-import {INTERNAL_PLUGINS} from '../plugins';
-import {useApi} from './api.provider';
-import {useHistory} from './history.provider';
-import {useSettings} from './settings.provider';
-import {useSpotterState} from './state.provider';
-import {useStorage} from './storage.provider';
+import { INTERNAL_PLUGINS } from '../plugins';
+import { useApi } from './api.provider';
+import { useHistory } from './history.provider';
+import { useSettings } from './settings.provider';
+import { useSpotterState } from './state.provider';
+import { useStorage } from './storage.provider';
 
 const PLUGINS_STORAGE_KEY = 'PLUGINS_0.1-beta.5';
 
 type Context = {
-  sendCommand: (command: SpotterCommand, pluginName: string) => void;
+  sendCommand: (command: SpotterCommand, pluginName: string) => void,
 };
 
 const context: Context = {
   sendCommand: () => null,
-};
+}
 
 export const PluginsContext = React.createContext<Context>(context);
 
-export const PluginsProvider: FC = (props) => {
+export const PluginsProvider: FC<{}> = (props) => {
   const {
     registeredOptions$,
     registeredPrefixes$,
@@ -57,10 +57,16 @@ export const PluginsProvider: FC = (props) => {
     resetState,
   } = useSpotterState();
 
-  const {getSettings, patchSettings} = useSettings();
-  const {getStorage, setStorage, patchStorage} = useStorage();
-  const {getHistory} = useHistory();
-  const {panel, xCallbackUrlApi, shell, notifications, storage} = useApi();
+  const { getSettings, patchSettings } = useSettings();
+  const { getStorage, setStorage, patchStorage } = useStorage();
+  const { getHistory } = useHistory();
+  const {
+    panel,
+    xCallbackUrlApi,
+    shell,
+    notifications,
+    storage,
+  } = useApi();
 
   const command$ = new Subject<PluginCommand>();
 
@@ -74,16 +80,16 @@ export const PluginsProvider: FC = (props) => {
 
   useEffect(() => {
     return () => {
-      activePlugins$.value.forEach(({pid}) => stopPluginScript(pid));
-      subscriptions.forEach((s) => s.unsubscribe());
+      activePlugins$.value.forEach(({pid}) => stopPluginScript(pid))
+      subscriptions.forEach(s => s.unsubscribe())
     };
   }, []);
 
   const onInit = async () => {
     // Start plugins
     const plugins = await getPlugins();
-    plugins.forEach((p) => startPluginScript(p.path));
-    Object.keys(INTERNAL_PLUGINS).forEach((plugin) => {
+    plugins.forEach(p => startPluginScript(p.path));
+    Object.keys(INTERNAL_PLUGINS).forEach(plugin => {
       const channel = connectPlugin(plugin);
       if (!channel) {
         console.error('Error.');
@@ -97,7 +103,10 @@ export const PluginsProvider: FC = (props) => {
         port: 0,
       };
       listenPlugin(nextActivePlugin);
-      activePlugins$.next([...activePlugins$.value, nextActivePlugin]);
+      activePlugins$.next([
+        ...activePlugins$.value,
+        nextActivePlugin,
+      ]);
     });
 
     xCallbackUrlApi.onCommand(handleCommand);
@@ -105,52 +114,51 @@ export const PluginsProvider: FC = (props) => {
   };
 
   const getPlugins: () => Promise<PluginRegistryEntry[]> = async () => {
-    const plugins = await storage.getItem<PluginRegistryEntry[]>(
-      PLUGINS_STORAGE_KEY,
-    );
+    const plugins = await storage.getItem<PluginRegistryEntry[]>(PLUGINS_STORAGE_KEY);
     return plugins ?? [];
-  };
+  }
 
-  const removePlugin: (pluginName: string) => void = async (pluginName) => {
+  const removePlugin: (
+    pluginName: string,
+  ) => void = async (pluginName) => {
     const plugins = await getPlugins();
-    storage.setItem(
-      PLUGINS_STORAGE_KEY,
-      plugins.filter((p) => p.path !== pluginName),
-    );
+    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.path !== pluginName));
     removePluginRegistries(pluginName);
-    const activePlugin = activePlugins$.value.find(
-      (p) => p.name === pluginName,
+    const activePlugin = activePlugins$.value.find(p =>
+        p.name === pluginName,
     );
     if (activePlugin) {
       stopPluginScript(activePlugin.pid);
-      activePlugins$.next(
-        activePlugins$.value.filter((p) => p.name !== pluginName),
-      );
+      activePlugins$.next(activePlugins$.value.filter(p =>
+        p.name !== pluginName,
+      ));
     }
-  };
+  }
 
-  const removePluginRegistries = (pluginName: string) => {
+  const removePluginRegistries = (
+    pluginName: string,
+  ) => {
     registeredOptions$.next(
-      registeredOptions$.value.filter((o) => o.pluginName !== pluginName),
+      registeredOptions$.value.filter(o => o.pluginName !== pluginName),
     );
     registeredPrefixes$.next(
-      registeredPrefixes$.value.filter((o) => o.pluginName !== pluginName),
+      registeredPrefixes$.value.filter(o => o.pluginName !== pluginName),
     );
-  };
+  }
 
   const registerOptionsCommand = (
     command: PluginCommand & {type: CommandType.registerOptions},
   ) => {
     const nextRegisteredOptions = command.value
-      .map((o) => ({...o, pluginName: command.pluginName}))
-      .reduce((acc: PluginOption[], curr: PluginOption) => {
-        const needsToBeReplaced = acc.find(
-          (o: PluginOption) =>
+      .map(o => ({...o, pluginName: command.pluginName}))
+      .reduce(
+        (acc: PluginOption[], curr: PluginOption) => {
+          const needsToBeReplaced = acc.find((o: PluginOption) =>
             o.title === curr.title && o.pluginName === curr.pluginName,
         );
 
         if (needsToBeReplaced) {
-          return acc.map((o) => {
+          return acc.map(o => {
             if (o.title === curr.title && o.pluginName === curr.pluginName) {
               return curr;
             }
@@ -160,54 +168,62 @@ export const PluginsProvider: FC = (props) => {
         }
 
         return [...acc, curr];
-      }, registeredOptions$.value);
+      },
+        registeredOptions$.value
+    );
     registeredOptions$.next(nextRegisteredOptions);
-  };
+  }
 
   const registerPrefixesCommand = (
-    command: PluginCommand & {type: CommandType.registerPrefixes},
+    command: (PluginCommand & {type: CommandType.registerPrefixes})
   ) => {
     const nextRegisteredPrefixes = command.value
-      .map((p) => ({...p, pluginName: command.pluginName}))
-      .reduce((acc: PluginPrefix[], curr: PluginPrefix) => {
-        const needsToBeReplaced = acc.find(
-          (p: PluginPrefix) =>
+      .map(p => ({...p, pluginName: command.pluginName}))
+      .reduce(
+        (acc: PluginPrefix[], curr: PluginPrefix) => {
+          const needsToBeReplaced = acc.find((p: PluginPrefix) =>
             p.prefix === curr.prefix && p.pluginName === curr.pluginName,
-        );
+          );
 
-        if (needsToBeReplaced) {
-          return acc.map((p) => {
-            if (p.prefix === curr.prefix && p.pluginName === curr.pluginName) {
-              return curr;
-            }
+          if (needsToBeReplaced) {
+            return acc.map(p => {
+              if (p.prefix === curr.prefix && p.pluginName === curr.pluginName) {
+                return curr;
+              }
 
-            return p;
-          });
-        }
+              return p;
+            });
+          }
 
-        return [...acc, curr];
-      }, registeredPrefixes$.value);
+          return [...acc, curr];
+        },
+        registeredPrefixes$.value,
+      );
     registeredPrefixes$.next(nextRegisteredPrefixes);
-  };
+  }
 
   const setOptionsCommand = async (
-    command: PluginCommand & {type: CommandType.setOptions},
+    command: (PluginCommand & {type: CommandType.setOptions})
   ) => {
     const history = await getHistory();
     const options = hideOptions(
-      command.value.map((o) => ({...o, pluginName: command.pluginName})),
+      command.value.map(o => ({...o, pluginName: command.pluginName}))
     );
-    const sortedOptions = sortOptions(options, selectedOption$.value, history);
+    const sortedOptions = sortOptions(
+      options,
+      selectedOption$.value,
+      history,
+    );
 
     panel.open();
     options$.next(sortedOptions);
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);
     }
-  };
+  }
 
   const getStorageCommand = async (
-    command: PluginCommand & {type: CommandType.getStorage},
+    command: (PluginCommand & {type: CommandType.getStorage})
   ) => {
     const data = await getStorage(command.pluginName);
     const cmd: SpotterOnGetStorageCommand = {
@@ -215,13 +231,13 @@ export const PluginsProvider: FC = (props) => {
       value: {
         id: command.value,
         data,
-      },
+      }
     };
     sendCommand(cmd, command.pluginName);
-  };
+  }
 
   const getSettingsCommand = async (
-    command: PluginCommand & {type: CommandType.getSettings},
+    command: (PluginCommand & {type: CommandType.getSettings})
   ) => {
     const data = await getSettings();
     const cmd: SpotterOnGetSettingsCommand = {
@@ -229,13 +245,13 @@ export const PluginsProvider: FC = (props) => {
       value: {
         id: command.value,
         data,
-      },
+      }
     };
     sendCommand(cmd, command.pluginName);
-  };
+  }
 
   const getPluginsCommand = async (
-    command: PluginCommand & {type: CommandType.getPlugins},
+    command: (PluginCommand & {type: CommandType.getPlugins})
   ) => {
     const data = await getPlugins();
     const cmd: SpotterOnGetPluginsCommand = {
@@ -243,39 +259,38 @@ export const PluginsProvider: FC = (props) => {
       value: {
         id: command.value,
         data,
-      },
+      }
     };
     sendCommand(cmd, command.pluginName);
-  };
+  }
 
   const connectPluginCommand = async (
-    command: PluginCommand & {type: CommandType.connectPlugin},
+    command: (PluginCommand & {type: CommandType.connectPlugin})
   ) => {
     // TODO: check if plugin doesn't have a uniq name
     // Otherwise there will be a conflict when setting data to storage
-    const activePlugin = activePlugins$.value.find(
-      (p) => p.name === command.value.name,
+    const activePlugin = activePlugins$.value.find(p =>
+      p.name === command.value.name,
     );
 
     if (activePlugin) {
       stopPluginScript(activePlugin.pid);
       removePluginRegistries(activePlugin.path);
       activePlugins$.next(
-        activePlugins$.value.filter((p) => p.name !== activePlugin.name),
+        activePlugins$.value.filter(p => p.name !== activePlugin.name),
       );
-    }
+    };
 
     const plugins = await getPlugins();
-    const registryEntry = plugins.find((p) => p.path === command.value.path);
+    const registryEntry = plugins.find(p => p.path === command.value.path);
 
     const isInternalPlugin = !command.value.pid;
     const isDevelopment = command.value.name === command.value.path;
 
     if (!registryEntry && !isInternalPlugin && !isDevelopment) {
-      storage.setItem(PLUGINS_STORAGE_KEY, [
-        ...plugins,
-        {name: command.value.name, path: command.value.path},
-      ]);
+      storage.setItem(
+        PLUGINS_STORAGE_KEY,
+        [...plugins, {name: command.value.name, path: command.value.path}]);
     }
 
     const channel: ChannelForSpotter | null = connectPlugin(
@@ -292,12 +307,15 @@ export const PluginsProvider: FC = (props) => {
     const plugin: ActivePlugin = {
       ...command.value,
       channel,
-    };
+    }
 
     listenPlugin(plugin);
 
-    activePlugins$.next([...activePlugins$.value, plugin]);
-  };
+    activePlugins$.next([
+      ...activePlugins$.value,
+      plugin,
+    ]);
+  }
 
   const handleCommand = async (command: PluginCommand) => {
     if (command.type === CommandType.registerOptions) {
@@ -390,11 +408,13 @@ export const PluginsProvider: FC = (props) => {
       resetState();
       return;
     }
-  };
+  }
 
-  const startPluginScript = async (pluginPath: string): Promise<string> => {
-    const activePlugin = activePlugins$.value.find(
-      (p) => p.path === pluginPath,
+  const startPluginScript = async (
+    pluginPath: string,
+  ): Promise<string> => {
+    const activePlugin = activePlugins$.value.find(p =>
+      p.path === pluginPath,
     );
 
     if (activePlugin) {
@@ -403,14 +423,14 @@ export const PluginsProvider: FC = (props) => {
 
     const port = randomPort();
 
-    return shell.execute(
-      `nohup node ${pluginPath} ${port} ${pluginPath} > /dev/null 2>&1 &`,
-    );
-  };
+    return shell.execute(`nohup node ${pluginPath} ${port} ${pluginPath} > /dev/null 2>&1 &`);
+  }
 
-  const stopPluginScript = async (pid: number) => {
+  const stopPluginScript = async (
+    pid: number,
+  ) => {
     shell.execute(`kill ${pid} || echo 'Process was not running.'`);
-  };
+  }
 
   const connectPlugin = (
     plugin: string,
@@ -424,7 +444,7 @@ export const PluginsProvider: FC = (props) => {
     return port
       ? new ExternalPluginChannel(port)
       : new InternalPluginChannel(plugin);
-  };
+  }
 
   const listenPlugin = (plugin: ActivePlugin) => {
     plugin.channel.onPlugin('open', async () => {
@@ -436,9 +456,9 @@ export const PluginsProvider: FC = (props) => {
 
     let error: string | null = null;
 
-    plugin.channel.onPlugin('error', (message) => {
+    plugin.channel.onPlugin('error', message => {
       error = message;
-      notifications.show('Error', `Plugin ${plugin}: ${error}`);
+      notifications.show('Error', `Plugin ${plugin}: ${error}`)
       removePlugin(plugin.path);
     });
 
@@ -447,14 +467,14 @@ export const PluginsProvider: FC = (props) => {
       removePluginRegistries(plugin.path);
     });
 
-    plugin.channel.onPlugin('message', (data) => {
+    plugin.channel.onPlugin('message', data => {
       const command: Command = JSON.parse(data);
       command$.next({...command, pluginName: plugin.name});
     });
-  };
+  }
 
   const sendCommand = (command: SpotterCommand, pluginName: string) => {
-    const plugin = activePlugins$.value.find((p) => p.name === pluginName);
+    const plugin = activePlugins$.value.find(p => p.name === pluginName);
 
     if (!plugin) {
       console.error('There is no connection with plugin: ', plugin);
@@ -462,14 +482,13 @@ export const PluginsProvider: FC = (props) => {
     }
 
     plugin.channel.sendToPlugin(JSON.stringify(command));
-  };
+  }
 
   return (
-    <PluginsContext.Provider
-      value={{
-        ...context,
-        sendCommand,
-      }}>
+    <PluginsContext.Provider value={{
+      ...context,
+      sendCommand,
+    }}>
       {props.children}
     </PluginsContext.Provider>
   );

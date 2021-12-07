@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useState} from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   SafeAreaView,
@@ -6,15 +6,16 @@ import {
   Text,
   View,
 } from 'react-native';
-import {useSpotterState, useTheme} from '../../providers';
-import {OptionIcon, QueryPanelOptions} from './options.queryPanel';
-import {Input} from '../../native';
-import {useEvents} from '../../providers';
-import {getHint} from '../../helpers';
-import {PluginOption} from '../../interfaces';
-import {Subscription} from 'rxjs';
+import { useSpotterState, useTheme } from '../../providers';
+import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
+import { Input } from '../../native';
+import { useEvents } from '../../providers';
+import { getHint } from '../../helpers';
+import { PluginOption } from '../../interfaces';
+import { Subscription } from 'rxjs';
 
 export const QueryPanel: FC = () => {
+
   const {colors} = useTheme();
 
   const {
@@ -46,9 +47,7 @@ export const QueryPanel: FC = () => {
   const [query, setQuery] = useState<string>('');
   const [title, setTitle] = useState<string>('');
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
-  const [selectedOption, setSelectedOption] = useState<PluginOption | null>(
-    null,
-  );
+  const [selectedOption, setSelectedOption] = useState<PluginOption | null>(null);
   const [waitingFor, setWaitingFor] = useState<string | null>(null);
   const [
     displayedOptionsForCurrentWorkflow,
@@ -67,19 +66,13 @@ export const QueryPanel: FC = () => {
       hoveredOptionIndex$.subscribe(setHoveredOptionIndex),
       selectedOption$.subscribe(setSelectedOption),
       waitingFor$.subscribe(setWaitingFor),
-      displayedOptionsForCurrentWorkflow$.subscribe(
-        setDisplayedOptionsForCurrentWorkflow,
-      ),
+      displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
     );
   }, []);
 
   useEffect(() => {
-    return () => subscriptions.forEach((s) => s.unsubscribe());
+    return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
-
-  useEffect(() => {
-    console.log(title);
-  }, [title]);
 
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
 

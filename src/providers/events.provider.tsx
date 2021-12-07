@@ -1,24 +1,24 @@
-import {SpotterCommandType, SpotterCommand} from '@spotter-app/core';
-import React, {FC, useEffect} from 'react';
-import {ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER} from '../constants';
-import {SpotterHotkeyEvent} from '../interfaces';
-import {useApi} from './api.provider';
-import {useSettings} from './settings.provider';
-import {hideOptions, getHistoryPath, sortOptions} from '../helpers';
-import {useHistory} from './history.provider';
-import {useSpotterState} from './state.provider';
-import {usePlugins} from './plugins.provider';
-import {debounceTime, filter, Subscription, tap} from 'rxjs';
+import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
+import React, { FC, useEffect } from 'react';
+import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { SpotterHotkeyEvent } from '../interfaces';
+import { useApi } from './api.provider';
+import { useSettings } from './settings.provider';
+import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
+import { useHistory } from './history.provider';
+import { useSpotterState } from './state.provider';
+import { usePlugins } from './plugins.provider';
+import { debounceTime, filter, Subscription, tap } from 'rxjs';
 
 type Context = {
-  onQuery: (query: string) => Promise<void>;
-  onSubmit: (index?: number) => void;
-  onArrowUp: () => void;
-  onArrowDown: () => void;
-  onEscape: () => void;
-  onCommandComma: () => void;
-  onTab: () => void;
-  onBackspace: () => void;
+  onQuery: (query: string) => Promise<void>,
+  onSubmit: (index?: number) => void,
+  onArrowUp: () => void,
+  onArrowDown: () => void,
+  onEscape: () => void,
+  onCommandComma: () => void,
+  onTab: () => void,
+  onBackspace: () => void,
 };
 
 const context: Context = {
@@ -35,9 +35,9 @@ const context: Context = {
 export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
-  const {panel, shell, hotkey} = useApi();
-  const {getSettings} = useSettings();
-  const {getHistory, increaseHistory} = useHistory();
+  const { panel, shell, hotkey } = useApi();
+  const { getSettings } = useSettings();
+  const { getHistory, increaseHistory } = useHistory();
   const {
     query$,
     altQuery$,
@@ -51,7 +51,7 @@ export const EventsProvider: FC<{}> = (props) => {
     displayedOptionsForCurrentWorkflow$,
     resetState,
   } = useSpotterState();
-  const {sendCommand} = usePlugins();
+  const { sendCommand } = usePlugins();
 
   const subscriptions: Subscription[] = [];
 
@@ -60,24 +60,23 @@ export const EventsProvider: FC<{}> = (props) => {
     checkDependencies();
 
     subscriptions.push(
-      altQuery$
-        .pipe(
-          tap((altQuery) => {
-            if (altQuery.length) {
-              panel.open();
-              onQuery(altQuery);
-            }
-          }),
-          debounceTime(500),
-          filter((altQuery) => !!altQuery.length),
-          tap(() => onSubmit()),
-        )
-        .subscribe(),
-    );
+      altQuery$.pipe(
+        tap(altQuery => {
+          if (altQuery.length) {
+            panel.open();
+            onQuery(altQuery);
+          };
+
+        }),
+        debounceTime(500),
+        filter(altQuery => !!altQuery.length),
+        tap(() => onSubmit()),
+      ).subscribe(),
+    )
   }, []);
 
   useEffect(() => {
-    return () => subscriptions.forEach((s) => s.unsubscribe());
+    return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
 
   const registerHotkeys = async () => {
@@ -100,7 +99,7 @@ export const EventsProvider: FC<{}> = (props) => {
     hotkey.onPress((e) => {
       onPressHotkey(e);
     });
-  };
+  }
 
   const onPressHotkey = (e: SpotterHotkeyEvent) => {
     if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
@@ -112,7 +111,7 @@ export const EventsProvider: FC<{}> = (props) => {
       altQuery$.next(altQuery$.value + e.identifier);
       return;
     }
-  };
+  }
 
   const checkDependencies = async () => {
     const nodeInstalled = await shell.execute('node -v').catch(() => false);
@@ -123,24 +122,22 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const brewInstalled = await shell.execute('brew -v').catch(() => false);
     if (!brewInstalled) {
-      await shell.execute(
-        '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
-      );
+      await shell.execute('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',);
     }
 
     await shell.execute('brew install node');
-  };
+  }
 
   const onEscape = () => {
     resetState();
     panel.close();
-  };
+  }
 
   const onBackspace = () => {
     if (selectedOption$.value && !query$.value.length) {
       resetState();
     }
-  };
+  }
 
   const onTab = async () => {
     const nextSelectedOption = options$.value[hoveredOptionIndex$.value];
@@ -160,7 +157,7 @@ export const EventsProvider: FC<{}> = (props) => {
     sendCommand(command, nextSelectedOption.pluginName);
     increaseHistory(getHistoryPath(nextSelectedOption, null));
     hoveredOptionIndex$.next(0);
-  };
+  }
 
   const onQuery = async (nextQuery: string) => {
     query$.next(nextQuery);
@@ -191,7 +188,7 @@ export const EventsProvider: FC<{}> = (props) => {
     );
 
     if (matchedPrefixes.length) {
-      matchedPrefixes.forEach(async (p) => {
+      matchedPrefixes.forEach(async p => {
         const command: SpotterCommand = {
           type: SpotterCommandType.onAction,
           query: nextQuery,
@@ -202,10 +199,10 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     // Check for registered options
-    const filteredRegisteredOptions = registeredOptions$.value.filter((o) =>
+    const filteredRegisteredOptions = registeredOptions$.value.filter(o =>
       o.title
         .split(' ')
-        .find((t) => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
+        .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
     );
 
     const history = await getHistory();
@@ -219,7 +216,7 @@ export const EventsProvider: FC<{}> = (props) => {
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);
     }
-  };
+  }
 
   const onArrowUp = () => {
     if (hoveredOptionIndex$.value <= 0) {
@@ -271,7 +268,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
     sendCommand(command, option.pluginName);
     increaseHistory(getHistoryPath(option, null));
-  };
+  }
 
   return (
     <EventsContext.Provider

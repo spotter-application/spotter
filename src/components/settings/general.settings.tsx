@@ -38,12 +38,12 @@ export const GeneralSettings: FC<{}> = () => {
   return <View>
       <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
+          trackColor={{false: '#767577', true: '#81b0ff'}}
           thumbColor={launchAtLoginEnabled ? '#f5dd4b' : '#f4f3f4'}
           onValueChange={onChangeLaunchAtLogin}
           value={launchAtLoginEnabled}
           style={{width: 25}}
-        ></Switch>
+        />
         <Text>Auto launch</Text>
       </View>
   </View>
