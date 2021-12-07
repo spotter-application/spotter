@@ -6,130 +6,69 @@
 
 <a href="https://www.producthunt.com/posts/spotter-4?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-spotter-4" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=280842&theme=dark&period=daily" alt="Spotter - Productivity tool that allows you to launch everything | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
-Productivity tool to launch everything (e.g. switch the next song, connect bluetooth device, set a timer, etc.) so you can stay focused on your current task.
+Productivity tool to launch everything.<br/>
+Switch song, connect bluetooth device, set a timer, and a lot of other things.<br />
+So you can stay focused on your current task.
 
 * ❤️&nbsp;&nbsp;&nbsp;<b>Open source</b>
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
-* 🔌&nbsp;&nbsp;&nbsp;<b>Plugins</b>
-* ⌨️&nbsp;&nbsp;&nbsp;<b>Custom hotkeys</b>
+* 🔮&nbsp;&nbsp;&nbsp;<b>Fast</b>
+* 📦&nbsp;&nbsp;&nbsp;<b>Lightweight</b>
+* 🔌&nbsp;&nbsp;&nbsp;<b>[Plug-in support](https://github.com/ziulev/spotter-core/tree/main/packages)</b>
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
-* 📦&nbsp;&nbsp;&nbsp;<b>Small size</b>
 
 ## 💬 Community
-[telegram channel](https://t.me/joinchat/HG4MQi1-91Y0NGVk)
+[Telegram channel](https://t.me/joinchat/HG4MQi1-91Y0NGVk)
 
-## Usage
-
-### Installation
+## ⌨️ Installation
 ```brew install --cask spotter```
 
 Default hotkey to run the app ```double shift```
 
-### Plugins
+## 🔮 Plugins
 
-#### Applications
-* ```<app_name>```
+- [Spotter team plugins](https://github.com/ziulev/spotter-core/tree/main/packages)
 
-#### Bluetooth
-* ```bluetooth```
-* ```<device_name>```
-
-#### Currency converter
-* ```1 usd```
-* ```100 euro in usd```
-
-#### System commands
-* ```sleep```
-* ```shutdown```
-* ```restart```
-* ```logout```
-
-#### Timer
-* ```15m```
-
-#### Emoji
-* ```e rocket```
-
-#### Kill applications
-* ```<app_name> <tab> close```
-
-#### Applications dimensions
-* ```save application positions```
-* ```restore application positions```
-
-#### Spotify
-* ```spotify <tab> play```
-* ```spotify <tab> pause```
-* ```spotify <tab> next```
-* ```spotify <tab> previous```
-* ```spotify <tab> mute```
-* ```spotify <tab> unmute```
-* ```spotify <tab> share```
-
-#### Calculator
-* ```256/8```
-* ```256*8=```
-
-#### Browser
-* ```github.com```
-
-#### [Pass](https://www.passwordstore.org/)
-* ```p email/gmail```
-
-## The main idea
-
-* 🔮&nbsp;&nbsp;&nbsp;Provide an api on the native level
-* ⚛️&nbsp;&nbsp;&nbsp;React app uses it and implements various plugins
-
-It will allow the application to remain native and be available for developing javascript/typescript plugins.
-
-## Requirements
+## 🤖 Requirements
 * macOS Big Sur
+* Node
 
-## Contributing
-After cloning & setting up the local project you can push the changes to your github fork and make a pull request.
+## 🖤 How to develop
 
 Contributions are always welcome, no matter how large or small.
 
-## How to develop
-**React native requirements:**
-*  [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)  version 11.3.1 or newer
+**Requirements:**
+* [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
 
-* Ensure to install Xcode Command Line Tools. Open Xcode, then choose “Preferences…” from the Xcode menu. Go to the Locations panel and install the tools by selecting the most recent version in the Command Line Tools dropdown.
-
-* Install  [CocoaPods](https://guides.cocoapods.org/using/getting-started.html)
+* [CocoaPods](https://guides.cocoapods.org/using/getting-started.html)
 `sudo gem install cocoapods`
 
-* Install  [Node.js](https://nodejs.org/)  version 12 LTS or newer via  [HomeBrew](https://brew.sh/)
+* [Node.js](https://nodejs.org/)
  `brew install node`
 
-* Install  [Watchman](https://facebook.github.io/watchman)
+* [Watchman](https://facebook.github.io/watchman)
 `brew install watchman`
 
-**Project**
+**Run spotter**
 * Clone repo
-`git clone  https://github.com/spotter-application/spotter.git`
+`git clone https://github.com/ziulev/spotter.git spotter && cd $_`
 
-* Install node modules
-`cd spotter && npm i`
+* Install deps
+`yarn && npx pod-install`
 
-* Install pods
-`npm run install:macos`
+* Run
+`yarn start`
 
-* Run project
-`npm start`
+## ⚠️ Troubleshooting
 
-## Troubleshooting
-
-#### "spotter.app" is damaged and can’t be opened.
-```xattr -cr /Applications/spotter.app```
-
-#### The application "spotter" can’t be opened.
-```chmod +x "/Applications/spotter.app/Contents/MacOS/Spotter"```
-
-#### spotter can’t be opened because Apple cannot check it for malicious software.
-
+#### Spotter can’t be opened because Apple cannot check it for malicious software.
 Go to System Preference -> Security & Privacy -> General -> And Press "Open Anyway"
+
+#### "Spotter.app" is damaged and can’t be opened.
+```xattr -cr /Applications/Spotter.app```
+
+#### The application "Spotter" can’t be opened.
+```chmod +x "/Applications/Spotter.app/Contents/MacOS/Spotter"```
 
 ## License
 GNU General Public License
