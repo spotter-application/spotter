@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/preview/icon.png?raw=true" alt="" height="100" />
+  <img src="/preview/icon_2.0.png?raw=true" alt="" height="100" />
 </p>
 
 # Spotter [![Thanks](https://bit.ly/saythankss)](https://github.com/sponsors/ziulev)
