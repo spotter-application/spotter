@@ -15,6 +15,10 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onShiftEnter: RCTDirectEventBlock?
   @objc var onBackspace: RCTDirectEventBlock?
   
+  func onOpenSpotterCallback() -> Void {
+    self.becomeFirstResponder()
+  }
+  
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
   }
@@ -43,6 +47,8 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.font = NSFont.systemFont(ofSize: 26)
     
     self.delegate = self
+    
+    self.appDelegate.onOpenSpotterCallback = self.onOpenSpotterCallback
     
     // TODO: Find a way to add listener for "command + ," event
     NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) {

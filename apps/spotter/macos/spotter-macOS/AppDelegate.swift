@@ -11,6 +11,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var spotterPanel: NSPanel!
   var settingsPanel: NSPanel!
   var isActiveSettingsPanel = false
+  var onOpenSpotterCallback: (() -> Void)? = nil
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     #if DEBUG
@@ -134,6 +135,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   @objc func openSpotter() {
     spotterPanel.makeKeyAndOrderFront(nil)
     spotterPanel.center()
+    onOpenSpotterCallback!()
   }
   
   @objc func closeSpotter() {
