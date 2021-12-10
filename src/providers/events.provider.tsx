@@ -178,9 +178,12 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     // Check for matched prefixes
-    const matchedPrefixes = registeredPrefixes$.value.filter(
-      p => nextQuery.toLowerCase().startsWith(p.prefix.toLowerCase()),
-    );
+    const queryItems = nextQuery.toLowerCase().split(' ');
+    const matchedPrefixes = queryItems.length > 1
+      ? registeredPrefixes$.value.filter(
+          p => queryItems[0] === p.prefix.toLowerCase(),
+        )
+      : [];
 
     if (matchedPrefixes.length) {
       matchedPrefixes.forEach(async p => {
