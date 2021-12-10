@@ -1,0 +1,22 @@
+{
+  "root": "apps/spotter",
+  "sourceRoot": "apps/spotter/src",
+  "projectType": "application",
+  "targets": {
+    "start": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "cwd": "apps/spotter",
+        "command": "node ../../node_modules/react-native-macos/local-cli/cli.js run-macos"
+      }
+    },
+    "pod-install": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "cwd": "apps/spotter",
+        "command": "npx pod-install"
+      }
+    }
+  },
+  "tags": []
+}

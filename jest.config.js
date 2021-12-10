@@ -1,4 +1,5 @@
+const { getJestProjects } = require('@nrwl/jest');
+
 module.exports = {
-  preset: 'react-native',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  projects: getJestProjects(),
 };

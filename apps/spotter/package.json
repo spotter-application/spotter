@@ -1,0 +1,51 @@
+{
+  "name": "@spotter-app/spotter",
+  "version": "2.0.0.beta.9",
+  "description": "🔎 macOS productivity tool to launch everything",
+  "keywords": [
+    "Spotter",
+    "launcher",
+    "productivity",
+    "macOS"
+  ],
+  "scripts": {
+    "start": "node node_modules/react-native-macos/local-cli/cli.js run-macos",
+    "build": "node node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-dotenv": "*",
+    "react-native-macos": "*",
+    "rxjs": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "*",
+    "@babel/runtime": "*",
+    "@react-native-community/eslint-config": "*",
+    "@spotter-app/core": "*",
+    "@types/jest": "*",
+    "@types/react": "*",
+    "@types/react-native": "*",
+    "@types/react-test-renderer": "*",
+    "@typescript-eslint/eslint-plugin": "*",
+    "@typescript-eslint/parser": "*",
+    "babel-jest": "*",
+    "babel-plugin-module-resolver": "*",
+    "eslint": "*",
+    "eslint-config-airbnb": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-jsx-a11y": "*",
+    "eslint-plugin-react": "*",
+    "jest": "*",
+    "metro-react-native-babel-preset": "*",
+    "react-native-codegen": "*",
+    "react-test-renderer": "*",
+    "typescript": "*"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
