@@ -14,8 +14,8 @@ export const getHistoryPath = (
   selectedOption: PluginOption | null,
 ): string => {
   const path = selectedOption
-    ? `${option.plugin}:${selectedOption.title}#${option.title}`
-    : `${option.plugin}:${option.title}`;
+    ? `${option.pluginName}:${selectedOption.title}#${option.title}`
+    : `${option.pluginName}:${option.title}`;
 
   return path;
 };

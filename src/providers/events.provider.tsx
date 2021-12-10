@@ -140,8 +140,11 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
+    increaseHistory(getHistoryPath(nextSelectedOption, selectedOption$.value));
+
     selectedOption$.next(nextSelectedOption);
     query$.next('');
+    options$.next([]);
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onAction,
@@ -150,7 +153,6 @@ export const EventsProvider: FC<{}> = (props) => {
     };
 
     sendCommand(command, nextSelectedOption.pluginName);
-    increaseHistory(getHistoryPath(nextSelectedOption, null));
     hoveredOptionIndex$.next(0);
   }
 
@@ -188,9 +190,10 @@ export const EventsProvider: FC<{}> = (props) => {
     if (matchedPrefixes.length) {
       matchedPrefixes.forEach(async p => {
         const command: SpotterCommand = {
-          type: SpotterCommandType.onAction,
-          query: nextQuery,
-          actionId: p.actionId,
+          type: SpotterCommandType.onQuery,
+          prefix: queryItems[0],
+          query: nextQuery.replace(`${queryItems[0]} `, ''),
+          onQueryId: p.onQueryId,
         };
         sendCommand(command, p.pluginName);
       });
@@ -265,7 +268,7 @@ export const EventsProvider: FC<{}> = (props) => {
     };
 
     sendCommand(command, option.pluginName);
-    increaseHistory(getHistoryPath(option, null));
+    increaseHistory(getHistoryPath(option, selectedOption$.value));
   }
 
   return (

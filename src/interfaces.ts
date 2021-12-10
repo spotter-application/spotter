@@ -1,8 +1,8 @@
 import {
   Hotkey,
   Command,
-  Prefix,
-  Option,
+  SpotterPrefix,
+  SpotterOption,
   ChannelForSpotter,
 } from '@spotter-app/core';
  
@@ -10,11 +10,11 @@ export type PluginCommand = Command & {
   pluginName: string,
 }
 
-export type PluginOption = Option & {
+export type PluginOption = SpotterOption & {
   pluginName: string,
 }
 
-export type PluginPrefix = Prefix & {
+export type PluginPrefix = SpotterPrefix & {
   pluginName: string,
 }
 

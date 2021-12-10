@@ -18,6 +18,7 @@ import {
   InternalPluginChannel,
   sortOptions,
   ExternalPluginChannel,
+  getHistoryPath,
 } from '../helpers';
 import {
   ActivePlugin,
@@ -258,15 +259,15 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredPrefixes$.next(nextRegisteredPrefixes);
   }
 
-  const setOptionsCommand = async (
-    command: (PluginCommand & {type: CommandType.setOptions})
+  const patchOptionsCommand = async (
+    command: (PluginCommand & {type: CommandType.patchOptions})
   ) => {
     const history = await getHistory();
     const options = hideOptions(
       command.value.map(o => ({...o, pluginName: command.pluginName}))
     );
     const sortedOptions = sortOptions(
-      options,
+      [...options, ...options$.value],
       selectedOption$.value,
       history,
     );
@@ -394,8 +395,8 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.setOptions) {
-      setOptionsCommand(command);
+    if (command.type === CommandType.patchOptions) {
+      patchOptionsCommand(command);
       return;
     }
 
