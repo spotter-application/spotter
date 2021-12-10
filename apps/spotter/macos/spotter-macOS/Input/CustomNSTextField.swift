@@ -19,8 +19,9 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.placeholderString = String(describing: val)
   }
 
-  @objc func setValue(_ val: NSNumber) {
-    self.stringValue = String(describing: val)
+  @objc func setValue(_ val: NSString) {
+    self.stringValue = String(val)
+    self.currentEditor()?.moveToEndOfDocument(nil)
   }
   
   @objc func setFontSize(_ val: NSNumber) {
