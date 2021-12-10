@@ -90,7 +90,7 @@ export const QueryPanel: FC<{}> = () => {
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: colors.active.highlight,
+              backgroundColor: colors.activeOptionBackground,
               paddingLeft: 10,
               paddingRight: 10,
               borderRadius: 10,
@@ -98,12 +98,14 @@ export const QueryPanel: FC<{}> = () => {
               padding: 5,
             }}>
               <OptionIcon style={{ paddingRight: 3 }} icon={selectedOption.icon}></OptionIcon>
-              <Text style={{ fontSize: 16 }}>{selectedOption.title}</Text>
+              <Text style={{ fontSize: 16, color: colors.activeOptionText }}>{selectedOption.title}</Text>
             </View>
           : null
         }
         <Input
-          style={{ flex: 1 }}
+          style={{
+            color: colors.text,
+          }}
           value={query}
           placeholder={placeholder ?? 'Query...'}
           hint={getHint(query, options[hoveredOptionIndex])}
@@ -119,7 +121,7 @@ export const QueryPanel: FC<{}> = () => {
 
         <View style={{marginLeft: 10}}>
           {loading
-            ? <ActivityIndicator size="small" color={colors.active.highlight} style={{
+            ? <ActivityIndicator size="small" color={colors.activeOptionBackground} style={{
               opacity: 0.3,
               right: 3,
               bottom: 0,

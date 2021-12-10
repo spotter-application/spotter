@@ -104,7 +104,7 @@ export const EventsProvider: FC<{}> = (props) => {
     };
 
     if (Object.values(ALT_QUERY_KEY_MAP).find(key => key === e.identifier)) {
-      altQuery$.next(altQuery$.value + e.identifier);
+      // altQuery$.next(altQuery$.value + e.identifier);
       return;
     }
   }
@@ -144,13 +144,13 @@ export const EventsProvider: FC<{}> = (props) => {
     increaseHistory(getHistoryPath(nextSelectedOption, selectedOption$.value));
 
     selectedOption$.next(nextSelectedOption);
-    query$.next('');
+    // query$.next('');
     options$.next([]);
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onAction,
       actionId: nextSelectedOption.tabActionId,
-      query: '',
+      query: query$.value,
     };
 
     sendCommand(command, nextSelectedOption.pluginName);
@@ -158,10 +158,11 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onQuery = async (nextQuery: string) => {
+    console.log(nextQuery);
     query$.next(nextQuery);
 
     if (nextQuery === '') {
-      resetState();
+      // resetState();
       return;
     }
 

@@ -85,7 +85,7 @@ export const Option = ({
       marginLeft: 10,
       marginRight: 10,
       padding: 10,
-      backgroundColor: active ? colors.active.background : colors.background,
+      backgroundColor: active ? colors.hoveredOptionBackground : colors.background,
       borderRadius: 10,
     }}
   >
@@ -99,21 +99,21 @@ export const Option = ({
     >
       <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
       <Text style={{
-        color: active ? colors.active.text : colors.text,
+        color: active ? colors.hoveredOptionText : colors.text,
         fontSize: 14,
       }}>{option.title}</Text>
 
       {option.subtitle &&
         <Text style={{
           opacity: 0.3,
-          color: active ? colors.active.text : colors.text,
+          color: active ? colors.hoveredOptionText : colors.text,
           fontSize: 14,
-        }}> ― {option.subtitle.slice(0, 50)}{option.subtitle.length > 49 ? '...' : ''}</Text>
+        }}> ― {option.subtitle.slice(0, 45)}{option.subtitle.length > 44 ? '...' : ''}</Text>
       }
     </View>
     {active &&
       <View>
-        <OptionHotkeyHints option={option} style={{opacity: 0.5}}></OptionHotkeyHints>
+        <OptionHotkeyHints option={option}></OptionHotkeyHints>
       </View>
     }
   </View>
@@ -167,13 +167,17 @@ export const OptionHotkeyHint = ({
   const { colors } = useTheme();
 
   return <View style={{
-    backgroundColor: colors.active.highlight,
+    backgroundColor: colors.background,
+    opacity: 0.2,
     padding: 5,
     paddingLeft: 7,
     paddingRight: 7,
     borderRadius: 5,
     ...style,
   }}>
-    <Text style={{fontSize: 10, opacity: 0.7, color: colors.active.text}}>{placeholder}</Text>
+    <Text style={{
+      fontSize: 10,
+      color: colors.text,
+    }}>{placeholder}</Text>
   </View>
 };

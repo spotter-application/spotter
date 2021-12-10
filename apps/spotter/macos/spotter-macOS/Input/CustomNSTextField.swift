@@ -40,6 +40,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.isBordered = false
     self.focusRingType = NSFocusRingType.none
     self.font = NSFont.systemFont(ofSize: 26)
+    self.textColor = NSColor.clear
     
     self.delegate = self
     
@@ -47,6 +48,8 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) {
       return self.hotkeyDown(with: $0)
     }
+    
+    self.appDelegate.onOpenSpotterCallback = self.onOpenSpotterCallback
     
     /* OnEscape event on click outside */
     NSEvent.addGlobalMonitorForEvents(matching: [
@@ -59,6 +62,10 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
         self.onEscape!(["text": ""])
       }
     }
+  }
+  
+  func onOpenSpotterCallback() -> Void {
+    self.becomeFirstResponder()
   }
   
   func hotkeyDown(with event: NSEvent) -> NSEvent? {

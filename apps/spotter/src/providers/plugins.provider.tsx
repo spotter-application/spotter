@@ -400,7 +400,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.setQuery) {
-      query$.next(command.value);
+      // query$.next(command.value);
       return;
     }
 

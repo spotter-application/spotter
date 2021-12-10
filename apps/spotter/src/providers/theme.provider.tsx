@@ -9,28 +9,20 @@ type Context = {
 
 const themes: { [theme: string]: SpotterThemeColors } = {
   light: {
-    background: '#ffffff',
-    highlight: 'rgba(0, 0, 0, 0.05)',
-    text: '#000000',
-    description: 'rgba(0, 0, 0, 0.3)',
-    active: {
-      background: '#1877dd',
-      highlight: 'rgba(0, 0, 0, 0.1)',
-      text: '#ffffff',
-      description: 'rgba(255, 255, 255, 0.5)',
-    },
+    background: '#efefef',
+    text: '#101010',
+    activeOptionBackground: '#dddddd',
+    activeOptionText: '#000000',
+    hoveredOptionBackground: '#0f60cf',
+    hoveredOptionText: '#fefefe',
   },
   dark: {
     background: '#212121',
-    highlight: 'rgba(255, 255, 255, 0.05)',
     text: '#ffffff',
-    description: 'rgba(255, 255, 255, 0.3)',
-    active: {
-      background: '#1877dd',
-      highlight: 'rgba(255, 255, 255, 0.1)',
-      text: '#ffffff',
-      description: 'rgba(255, 255, 255, 0.5)',
-    },
+    activeOptionBackground: '#3c3c3c',
+    activeOptionText: '#ffffff',
+    hoveredOptionBackground: '#0f60cf',
+    hoveredOptionText: '#fefefe',
   },
 };
 

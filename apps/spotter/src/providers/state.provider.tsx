@@ -37,8 +37,8 @@ export const StateContext = React.createContext<Context>(context);
 export const StateProvider: FC<{}> = (props) => {
 
   const resetState = () => {
-    context.query$.next('');
-    context.altQuery$.next('');
+    // context.query$.next('');
+    // context.altQuery$.next('');
     context.placeholder$.next(null);
     context.options$.next([]);
     context.loading$.next(false);

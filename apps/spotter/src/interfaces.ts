@@ -56,15 +56,11 @@ export declare abstract class SpotterStorageApi {
 // TODO: check
 export interface SpotterThemeColors {
   background: string,
-  highlight: string,
   text: string,
-  description: string,
-  active: {
-    background: string,
-    highlight: string,
-    text: string,
-    description: string,
-  },
+  activeOptionBackground: string,
+  activeOptionText: string,
+  hoveredOptionBackground: string,
+  hoveredOptionText: string,
 }
 
 export interface SpotterHotkeyEvent {

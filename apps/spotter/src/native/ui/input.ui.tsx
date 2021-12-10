@@ -6,7 +6,6 @@ const RNInput = requireNativeComponent<any>('RNInput');
 type InputProps = {
   value: string,
   placeholder: string,
-  disabled?: boolean,
   fontSize?: number,
   hint?: string,
   style?: TextStyle,
@@ -20,6 +19,16 @@ type InputProps = {
   onShiftTab?: () => void,
   onShiftEnter?: () => void,
   onBackspace?: (text: string) => void,
+};
+
+const centeredTextStyles: TextStyle = {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 2,
+  margin: 'auto',
+  fontSize: 26,
+  zIndex: 2,
 };
 
 export class Input extends React.PureComponent<InputProps> {
@@ -110,22 +119,34 @@ export class Input extends React.PureComponent<InputProps> {
     }
 
     return <View
-      style={{ position: 'relative', ...(this.props.style ? this.props.style : {})}}
+      style={{ position: 'relative', flex: 1 }}
     >
       <RNInput
         {...nativeProps}
         placeholder={this.props.hint ?? this.props.placeholder}
-        style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
+        style={{ padding: 17, backgroundColor: 'transparent', flex: 1, opacity: 0 }}
       />
-      {this.props.hint ? <Text
-        style={{
+      <Text style={{
+        ...this.props.style,
+        ...centeredTextStyles,
+      }}>
+        {this.props.value}
+        {(!this.props.value || this.props.value.endsWith(' ')) && <Text style={{
+          ...this.props.style,
           position: 'absolute',
           top: 0,
           bottom: 0,
-          left: 2,
           margin: 'auto',
           fontSize: 26,
           opacity: 0.5,
+        }}>|</Text>}
+      </Text>
+      {this.props.hint ? <Text
+        style={{
+          ...centeredTextStyles,
+          ...this.props.style,
+          opacity: 0.3,
+          zIndex: 1,
         }}>
           {this.props.hint}
         </Text> : null}
