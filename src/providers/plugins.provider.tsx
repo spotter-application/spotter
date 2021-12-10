@@ -18,7 +18,6 @@ import {
   InternalPluginChannel,
   sortOptions,
   ExternalPluginChannel,
-  getHistoryPath,
 } from '../helpers';
 import {
   ActivePlugin,

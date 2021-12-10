@@ -94,6 +94,7 @@ export const Option = ({
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
@@ -101,6 +102,14 @@ export const Option = ({
         color: active ? colors.active.text : colors.text,
         fontSize: 14,
       }}>{option.title}</Text>
+
+      {option.subtitle &&
+        <Text style={{
+          opacity: 0.3,
+          color: active ? colors.active.text : colors.text,
+          fontSize: 14,
+        }}> ― {option.subtitle.slice(0, 50)}{option.subtitle.length > 49 ? '...' : ''}</Text>
+      }
     </View>
     {active &&
       <View>
