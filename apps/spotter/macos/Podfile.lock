@@ -13,10 +13,10 @@ PODS:
     - React-jsi (= 0.64.14)
     - ReactCommon/turbomodule/core (= 0.64.14)
   - glog (0.3.5)
-  - KeyHolder (4.0.0):
-    - Magnet (~> 3.2)
-  - Magnet (3.2.0):
-    - Sauce (~> 2.1)
+  - KeyHolder (4.1.0):
+    - Magnet (~> 3.3.0)
+  - Magnet (3.3.0):
+    - Sauce (~> 2.2.0)
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
     - DoubleConversion
@@ -276,7 +276,7 @@ PODS:
     - React-perflogger (= 0.64.14)
   - RNCAsyncStorage (1.15.14):
     - React-Core
-  - Sauce (2.1.0)
+  - Sauce (2.2.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -392,8 +392,8 @@ SPEC CHECKSUMS:
   FBLazyVector: 54b0b353a19db053cc037451ecd8060b03703779
   FBReactNativeSpec: 23b81cecaefc4e7ca6066f8581e359409448e1c1
   glog: 0dc7efada961c0793012970b60faebbd58b0decb
-  KeyHolder: 457d8dde330a17452672756ae0e3b9c2e180a7e2
-  Magnet: 8316a30fe91fdc6f2816ec0f04e20c72e341ca2e
+  KeyHolder: 7fce073043392cddc3e3126f3f9bdaa5ecf1f19e
+  Magnet: a44a5a14eecc77433cbaad1431b78f7d20725bf2
   RCT-Folly: b3998425a8ee9f695f57a204dc494534246f0fe9
   RCTRequired: cdbab69b8c393735711d3a009b8585d86678fb20
   RCTTypeSafety: f05485788ac8a6dcc0da42f18314626cc1cec708
@@ -418,7 +418,7 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 02dae2be6de9c6d2d9d7308a2bcccdf1f8886565
   ReactCommon: c6a5e2eb2346fec57df0a5b46fae705b3fc7a656
   RNCAsyncStorage: ea6b5c280997b2b32a587793163b1f10e580c4f7
-  Sauce: a4075a04b6041e7a0c992a952cc79f7a0ebdb8e3
+  Sauce: 3ade51738563f86b08888cf4b91ae5943012088b
   Yoga: f3aec8dd6ae8787468f9d305afc8b5bcd5630e43
 
 PODFILE CHECKSUM: 5a613cbe79d9ef3589c1ec1decfcb3b29405b98f

@@ -1,13 +1,20 @@
 {
   "name": "spotter",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "license": "MIT",
   "scripts": {
     "start": "nx start spotter",
     "pod-install": "nx pod-install spotter",
-    "build": "nx start",
+    "build": "nx build spotter",
     "test": "nx test"
   },
+  "description": "🔭 macOS productivity tool to launch everything",
+  "keywords": [
+    "Spotter",
+    "launcher",
+    "productivity",
+    "macOS"
+  ],
   "private": true,
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.13",

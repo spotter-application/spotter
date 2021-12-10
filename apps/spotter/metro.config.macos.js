@@ -16,7 +16,6 @@ module.exports = {
     platforms: ['macos'],
     blacklistRE: blacklist([
       /..\/..\/node_modules\/react-native\/.*/,
-      // /node_modules\/@spotter-app\/core\/dist\/plugin.js/,
     ]),
     blockList: [
       new RegExp(/..\/..\/node_modules\/@spotter-app\/.*/),

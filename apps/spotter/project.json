@@ -10,6 +10,13 @@
         "command": "node ../../node_modules/react-native-macos/local-cli/cli.js run-macos"
       }
     },
+    "build": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "cwd": "apps/spotter",
+        "command": "node ../../node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
+      }
+    },
     "pod-install": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
