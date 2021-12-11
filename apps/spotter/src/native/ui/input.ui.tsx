@@ -23,7 +23,7 @@ type InputProps = {
 
 const centeredTextStyles: TextStyle = {
   position: 'absolute',
-  top: 0,
+  top: 2,
   bottom: 0,
   left: 2,
   margin: 'auto',
@@ -118,29 +118,35 @@ export class Input extends React.PureComponent<InputProps> {
       onBackspace: this._onBackspace,
     }
 
-    return <View
-      style={{ position: 'relative', flex: 1 }}
-    >
-      <RNInput
-        {...nativeProps}
-        placeholder={this.props.hint ?? this.props.placeholder}
-        style={{ padding: 17, backgroundColor: 'transparent', flex: 1, opacity: 0 }}
-      />
+    return <View style={{
+      position: 'relative',
+      flex: 1,
+    }}>
+      <RNInput {...nativeProps} style={{ padding: 18, opacity: 0 }} />
+
       <Text style={{
         ...this.props.style,
         ...centeredTextStyles,
       }}>
         {this.props.value}
-      </Text>
-      {this.props.hint ? <Text
+        {(!this.props.value || this.props.value.endsWith(' ')) && <Text
         style={{
-          position: 'absolute',
-          top: 0,
-          bottom: 0,
           margin: 'auto',
-          fontSize: 26,
-          opacity: 0.5,
-        }}>|</Text>}
+          ...this.props.style,
+        }}>│</Text>}
+      </Text>
+
+      {(this.props.placeholder && !this.props.value) ? <Text
+        style={{
+          ...centeredTextStyles,
+          ...this.props.style,
+          left: 10,
+          opacity: 0.3,
+          zIndex: 1,
+        }}>
+          {this.props.placeholder}
+        </Text> : null}
+
       {this.props.hint ? <Text
         style={{
           ...centeredTextStyles,

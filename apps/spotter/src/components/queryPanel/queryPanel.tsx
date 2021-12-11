@@ -72,7 +72,6 @@ export const QueryPanel: FC<{}> = () => {
   }, []);
 
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
-
   return <>
     <SafeAreaView>
       <View style={{
@@ -105,7 +104,7 @@ export const QueryPanel: FC<{}> = () => {
         <Input
           style={{ color: colors.text }}
           value={query}
-          placeholder={placeholder ?? 'Query...'}
+          placeholder={placeholder?.length ? placeholder : 'Query...'}
           hint={getHint(query, options[hoveredOptionIndex])}
           onChangeText={onQuery}
           onSubmit={onSubmit}

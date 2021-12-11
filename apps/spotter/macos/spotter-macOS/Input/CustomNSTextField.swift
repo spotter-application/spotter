@@ -15,10 +15,6 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onShiftEnter: RCTDirectEventBlock?
   @objc var onBackspace: RCTDirectEventBlock?
   
-  func onOpenSpotterCallback() -> Void {
-    self.becomeFirstResponder()
-  }
-  
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
   }
