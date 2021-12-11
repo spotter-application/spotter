@@ -140,7 +140,7 @@ export class Input extends React.PureComponent<InputProps> {
         style={{
           ...centeredTextStyles,
           ...this.props.style,
-          left: 10,
+          left: 6,
           opacity: 0.3,
           zIndex: 1,
         }}>

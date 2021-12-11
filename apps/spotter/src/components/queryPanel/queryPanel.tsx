@@ -110,7 +110,11 @@ export const QueryPanel: FC<{}> = () => {
         <Input
           style={{ color: colors.text }}
           value={query}
-          placeholder={placeholder?.length ? placeholder : 'Query...'}
+          placeholder={
+            placeholder?.length
+              ? placeholder
+              : selectedOption ? `${selectedOption.title} search...` : 'Spotter search...'
+          }
           hint={getHint(query, options[hoveredOptionIndex])}
           onChangeText={onQuery}
           onSubmit={onSubmit}
