@@ -5,18 +5,18 @@ import {
   StyleSheet,
   Text,
   View,
+  Appearance,
 } from 'react-native';
-import { useSpotterState, useTheme } from '../../providers';
+import { useSettings, useSpotterState } from '../../providers';
 import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
 import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
-import { PluginOption } from '../../interfaces';
+import { PluginOption, SpotterThemeColors } from '../../interfaces';
 import { Subscription } from 'rxjs';
+import { DARK_THEME, LIGHT_THEME } from '../../constants';
 
 export const QueryPanel: FC<{}> = () => {
-
-  const { colors } = useTheme();
 
   const {
     onQuery,
@@ -40,6 +40,8 @@ export const QueryPanel: FC<{}> = () => {
     displayedOptionsForCurrentWorkflow$,
   } = useSpotterState();
 
+  const { colors$ } = useSettings();
+
   const [options, setOptions] = useState<PluginOption[]>([]);
   const [placeholder, setPlaceholder] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -51,10 +53,15 @@ export const QueryPanel: FC<{}> = () => {
     displayedOptionsForCurrentWorkflow,
     setDisplayedOptionsForCurrentWorkflow,
   ] = useState<boolean>(false);
+  const [colors, setColors] = useState<SpotterThemeColors>();
 
   const subscriptions: Subscription[] = [];
 
   useEffect(() => {
+    // TODO: set dark/light themes
+    // Appearance.addChangeListener(preferences => {
+    //   setIsDark(preferences.colorScheme === 'dark');
+    // });
     subscriptions.push(
       options$.subscribe(setOptions),
       placeholder$.subscribe(setPlaceholder),
@@ -64,6 +71,7 @@ export const QueryPanel: FC<{}> = () => {
       selectedOption$.subscribe(setSelectedOption),
       waitingFor$.subscribe(setWaitingFor),
       displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
+      colors$.subscribe(setColors),
     );
   }, []);
 
@@ -75,7 +83,7 @@ export const QueryPanel: FC<{}> = () => {
   return <>
     <SafeAreaView>
       <View style={{
-        backgroundColor: colors.background,
+        backgroundColor: colors?.background,
         ...styles.input,
         ...(displayOptions || waitingFor ? styles.inputWithResults : {}),
         display: 'flex',
@@ -89,7 +97,7 @@ export const QueryPanel: FC<{}> = () => {
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: colors.activeOptionBackground,
+              backgroundColor: colors?.activeOptionBackground,
               paddingLeft: 10,
               paddingRight: 10,
               borderRadius: 10,
@@ -103,12 +111,12 @@ export const QueryPanel: FC<{}> = () => {
                 }}
                 icon={selectedOption.icon}
               ></OptionIcon>
-              <Text style={{ fontSize: 16, color: colors.activeOptionText }}>{selectedOption.title}</Text>
+              <Text style={{ fontSize: 16, color: colors?.activeOptionText }}>{selectedOption.title}</Text>
             </View>
           : null
         }
         <Input
-          style={{ color: colors.text }}
+          style={{ color: colors?.text }}
           value={query}
           placeholder={
             placeholder?.length
@@ -128,7 +136,7 @@ export const QueryPanel: FC<{}> = () => {
 
         <View style={{marginLeft: 10}}>
           {loading
-            ? <ActivityIndicator size="small" color={colors.activeOptionBackground} style={{
+            ? <ActivityIndicator size="small" color={colors?.activeOptionBackground} style={{
               opacity: 0.3,
               right: 3,
               bottom: 0,
@@ -145,7 +153,7 @@ export const QueryPanel: FC<{}> = () => {
       </View>
       { waitingFor?.length ?
         <View style={{
-          backgroundColor: colors.background,
+          backgroundColor: colors?.background,
           ...styles.input,
           padding: 10,
           paddingTop: 0,
@@ -156,7 +164,7 @@ export const QueryPanel: FC<{}> = () => {
       }
       {
         <QueryPanelOptions
-          style={{ ...styles.options, backgroundColor: colors.background }}
+          style={{ ...styles.options, backgroundColor: colors?.background }}
           hoveredOptionIndex={hoveredOptionIndex}
           displayOptions={displayOptions}
           options={options}

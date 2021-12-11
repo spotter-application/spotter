@@ -258,7 +258,7 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    loading$.next(true);
+    // loading$.next(true);
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onAction,

@@ -1,6 +1,8 @@
 import { SpotterPlugin } from '@spotter-app/core';
-import { PluginsManager } from './plugin-manager.plugin';
+import { PluginsManagerPlugin } from './plugin-manager.plugin';
+import { SpotterThemesPlugin } from './spotter-themes.plugin';
 
 export const INTERNAL_PLUGINS: {[plugin: string]: typeof SpotterPlugin} = {
-  ['plugins-manager']: PluginsManager,
+  ['plugins-manager']: PluginsManagerPlugin,
+  ['spotter-themes']: SpotterThemesPlugin,
 }

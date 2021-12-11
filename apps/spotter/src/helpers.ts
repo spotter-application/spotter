@@ -5,7 +5,7 @@ import {
   Option,
   SpotterPlugin,
 } from '@spotter-app/core';
-import { PluginOption } from './interfaces';
+import { PluginOption, SpotterThemeColors } from './interfaces';
 import { INTERNAL_PLUGINS } from './plugins';
 import { History } from './providers';
 
@@ -170,3 +170,23 @@ export const getHint = (query: string, option: Option) => {
     '',
   );
 }
+
+export const parseTheme = (value: string | null): SpotterThemeColors | null => {
+  if (!value) {
+    return null;
+  }
+
+  const colors = value.split(',');
+  if (colors.length !== 6) {
+    return null;
+  }
+
+  return {
+    background: colors[0],
+    text: colors[1],
+    activeOptionBackground: colors[2],
+    activeOptionText: colors[3],
+    hoveredOptionBackground: colors[4],
+    hoveredOptionText: colors[5],
+  }
+};

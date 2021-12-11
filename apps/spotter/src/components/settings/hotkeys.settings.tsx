@@ -1,9 +1,11 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { HotkeyInput } from '../../native/ui/hotkey-input.ui';
-import { useApi, useSettings, useTheme } from '../../providers';
+import { useApi, useSettings } from '../../providers';
 import { Hotkey, PluginHotkeys, Settings } from '@spotter-app/core';
 import { SPOTTER_HOTKEY_IDENTIFIER } from '../../constants';
+import { SpotterThemeColors } from '../../interfaces';
+import { Subscription } from 'rxjs';
 
 interface SpotterOptionShortcut {
   title: string,
@@ -17,7 +19,21 @@ const SettingsPluginShortcut: FC<{
   shortcut,
   onSaveHotkey,
 }) => {
-  const { colors } = useTheme();
+  const { colors$ } = useSettings();
+
+  const [colors, setColors] = useState<SpotterThemeColors>();
+
+  const subscriptions: Subscription[] = [];
+
+  useEffect(() => {
+    subscriptions.push(
+      colors$.subscribe(setColors),
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => subscriptions.forEach(s => s.unsubscribe());
+  }, []);
 
   return <>
     <Text style={{
@@ -25,7 +41,7 @@ const SettingsPluginShortcut: FC<{
     }}>{shortcut.title}</Text>
     <View style={{
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: colors?.background,
       marginTop: 5,
       borderRadius: 15,
     }}>

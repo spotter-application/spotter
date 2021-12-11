@@ -57,7 +57,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     resetState,
   } = useSpotterState();
 
-  const { getSettings, patchSettings } = useSettings();
+  const { getSettings, patchSettings, setTheme } = useSettings();
   const { getStorage, setStorage, patchStorage } = useStorage();
   const { getHistory } = useHistory();
   const {
@@ -458,6 +458,11 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
+    if (command.type === CommandType.setTheme) {
+      setTheme(command.value);
+      return;
+    }
+
     if (command.type === CommandType.open) {
       panel.open();
       return;
@@ -546,7 +551,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     const plugin = activePlugins$.value.find(p => p.name === pluginName);
 
     if (!plugin) {
-      console.error('There is no connection with plugin: ', plugin);
+      console.error('There is no connection with plugin: ', pluginName);
       return;
     }
 

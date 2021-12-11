@@ -1,3 +1,5 @@
+import { SpotterThemeColors } from "./interfaces";
+
 export const SPOTTER_HOTKEY_IDENTIFIER = 'spotter';
 
 export const PLUGINS_REGISTRY = 'PLUGINS_REGISTRY'
@@ -40,4 +42,22 @@ export const ALT_QUERY_KEY_MAP = {
   '46': 'm',
   '49': ' ',
   '43': 'esc',
+};
+
+export const LIGHT_THEME: SpotterThemeColors = {
+  background: '#efefef',
+  text: '#101010',
+  activeOptionBackground: '#dddddd',
+  activeOptionText: '#000000',
+  hoveredOptionBackground: '#0f60cf',
+  hoveredOptionText: '#fefefe',
+};
+
+export const DARK_THEME: SpotterThemeColors = {
+  background: '#212121',
+  text: '#ffffff',
+  activeOptionBackground: '#3c3c3c',
+  activeOptionText: '#ffffff',
+  hoveredOptionBackground: '#0f60cf',
+  hoveredOptionText: '#fefefe',
 };

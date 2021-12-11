@@ -1,6 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Switch, Text, View } from 'react-native';
-import { useTheme } from '../../providers';
+import { Subscription } from 'rxjs';
+import { SpotterThemeColors } from '../../interfaces';
+import { useSettings } from '../../providers';
 import { OptionHotkeyHint, OptionIcon } from '../queryPanel/options.queryPanel';
 
 interface ThemeProps {
@@ -219,8 +221,6 @@ export const ThemeSelect: FC<{
 }
 
 export const ThemesSettings: FC<{}> = ({}) => {
-  const { colors } = useTheme();
-
   return <>
     <View style={{
       flex: 1,

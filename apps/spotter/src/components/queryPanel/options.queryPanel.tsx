@@ -1,5 +1,5 @@
 import { Icon } from '@spotter-app/core';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -9,9 +9,10 @@ import {
   TouchableOpacity,
   ImageStyle,
 } from 'react-native';
-import { PluginOption } from '../../interfaces';
+import { Subscription } from 'rxjs';
+import { PluginOption, SpotterThemeColors } from '../../interfaces';
 import { IconImage } from '../../native';
-import { useTheme } from '../../providers';
+import { useSettings } from '../../providers';
 
 type OptionsProps = {
   options: PluginOption[];
@@ -74,7 +75,20 @@ export const Option = ({
   option: PluginOption,
   active: boolean,
 }) => {
-  const { colors } = useTheme();
+  const { colors$ } = useSettings();
+  const [colors, setColors] = useState<SpotterThemeColors>();
+
+  const subscriptions: Subscription[] = [];
+
+  useEffect(() => {
+    subscriptions.push(
+      colors$.subscribe(setColors),
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => subscriptions.forEach(s => s.unsubscribe());
+  }, []);
 
   return <View
     style={{
@@ -85,7 +99,7 @@ export const Option = ({
       marginLeft: 10,
       marginRight: 10,
       padding: 10,
-      backgroundColor: active ? colors.hoveredOptionBackground : colors.background,
+      backgroundColor: active ? colors?.hoveredOptionBackground : colors?.background,
       borderRadius: 10,
     }}
   >
@@ -99,21 +113,21 @@ export const Option = ({
     >
       <OptionIcon icon={option.icon} style={{ marginRight: 5, height: 25 }}></OptionIcon>
       <Text style={{
-        color: active ? colors.hoveredOptionText : colors.text,
+        color: active ? colors?.hoveredOptionText : colors?.text,
         fontSize: 14,
       }}>{option.title}</Text>
 
       {option.subtitle &&
         <Text style={{
           opacity: 0.3,
-          color: active ? colors.hoveredOptionText : colors.text,
+          color: active ? colors?.hoveredOptionText : colors?.text,
           fontSize: 14,
         }}> ― {option.subtitle.slice(0, 45)}{option.subtitle.length > 44 ? '...' : ''}</Text>
       }
     </View>
     {active &&
       <View>
-        <OptionHotkeyHints option={option}></OptionHotkeyHints>
+        <OptionHotkeyHints colors={colors} option={option}></OptionHotkeyHints>
       </View>
     }
   </View>
@@ -135,10 +149,12 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
 
 export const OptionHotkeyHints = ({
   option,
+  colors,
   style,
 }: {
   option: PluginOption,
   style?: ViewStyle,
+  colors?: SpotterThemeColors,
 }) => {
   return <View style={{
     display: 'flex',
@@ -147,11 +163,11 @@ export const OptionHotkeyHints = ({
     ...(style ? style : {}),
   }}>
     {option?.tabActionId
-      ? <OptionHotkeyHint style={{}} placeholder={'tab'}></OptionHotkeyHint>
+      ? <OptionHotkeyHint colors={colors} style={{}} placeholder={'tab'}></OptionHotkeyHint>
       : null
     }
     {option?.actionId
-      ? <OptionHotkeyHint style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
+      ? <OptionHotkeyHint colors={colors} style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
     }
   </View>
@@ -160,14 +176,15 @@ export const OptionHotkeyHints = ({
 export const OptionHotkeyHint = ({
   style,
   placeholder,
+  colors,
 }: {
   style: ViewStyle,
   placeholder: string,
+  colors?: SpotterThemeColors,
 }) => {
-  const { colors } = useTheme();
 
   return <View style={{
-    backgroundColor: colors.background,
+    backgroundColor: colors?.background,
     opacity: 0.2,
     padding: 5,
     paddingLeft: 7,
@@ -177,7 +194,7 @@ export const OptionHotkeyHint = ({
   }}>
     <Text style={{
       fontSize: 10,
-      color: colors.text,
+      color: colors?.text,
     }}>{placeholder}</Text>
   </View>
 };
