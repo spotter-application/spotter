@@ -131,8 +131,9 @@ export class Input extends React.PureComponent<InputProps> {
         ...centeredTextStyles,
       }}>
         {this.props.value}
-        {(!this.props.value || this.props.value.endsWith(' ')) && <Text style={{
-          ...this.props.style,
+      </Text>
+      {this.props.hint ? <Text
+        style={{
           position: 'absolute',
           top: 0,
           bottom: 0,
@@ -140,7 +141,6 @@ export class Input extends React.PureComponent<InputProps> {
           fontSize: 26,
           opacity: 0.5,
         }}>|</Text>}
-      </Text>
       {this.props.hint ? <Text
         style={{
           ...centeredTextStyles,

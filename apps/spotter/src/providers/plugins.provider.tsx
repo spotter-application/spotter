@@ -271,7 +271,6 @@ export const PluginsProvider: FC<{}> = (props) => {
       history,
     );
 
-    panel.open();
     options$.next(sortedOptions);
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);

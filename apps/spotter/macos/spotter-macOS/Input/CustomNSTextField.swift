@@ -15,12 +15,22 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onShiftEnter: RCTDirectEventBlock?
   @objc var onBackspace: RCTDirectEventBlock?
   
+  func onOpenSpotterCallback() -> Void {
+    self.becomeFirstResponder()
+  }
+  
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
   }
 
-  @objc func setValue(_ val: NSNumber) {
-    self.stringValue = String(describing: val)
+  @objc func setValue(_ val: NSString) {
+    let nextVal = String(val)
+    if (nextVal == self.stringValue) {
+      return
+    }
+    
+    self.stringValue = nextVal
+    self.currentEditor()?.moveToEndOfDocument(nil)
   }
   
   @objc func setFontSize(_ val: NSNumber) {
@@ -41,15 +51,14 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.focusRingType = NSFocusRingType.none
     self.font = NSFont.systemFont(ofSize: 26)
     self.textColor = NSColor.clear
-    
     self.delegate = self
+    
+    self.appDelegate.onOpenSpotterCallback = self.onOpenSpotterCallback
     
     // TODO: Find a way to add listener for "command + ," event
     NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) {
       return self.hotkeyDown(with: $0)
     }
-    
-    self.appDelegate.onOpenSpotterCallback = self.onOpenSpotterCallback
     
     /* OnEscape event on click outside */
     NSEvent.addGlobalMonitorForEvents(matching: [

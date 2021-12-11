@@ -11,7 +11,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   var spotterPanel: NSPanel!
   var settingsPanel: NSPanel!
   var isActiveSettingsPanel = false
-  
   var onOpenSpotterCallback: (() -> Void)? = nil
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
