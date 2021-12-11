@@ -181,19 +181,17 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     // Check for matched prefixes
-    const queryItems = nextQuery.toLowerCase().split(' ');
-    const matchedPrefixes = queryItems.length > 1
-      ? registeredPrefixes$.value.filter(
-          p => queryItems[0] === p.prefix.toLowerCase(),
-        )
-      : [];
+    const loweCaseQuery = nextQuery.toLowerCase();
+    const matchedPrefixes = registeredPrefixes$.value.filter(
+      p => loweCaseQuery.startsWith(p.prefix.toLowerCase()),
+    );
 
     if (matchedPrefixes.length) {
       matchedPrefixes.forEach(async p => {
         const command: SpotterCommand = {
           type: SpotterCommandType.onQuery,
-          prefix: queryItems[0],
-          query: nextQuery.replace(`${queryItems[0]} `, ''),
+          prefix: p.prefix,
+          query: nextQuery.replace(`${p.prefix}`, ''),
           onQueryId: p.onQueryId,
         };
         sendCommand(command, p.pluginName);
