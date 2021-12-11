@@ -1,12 +1,12 @@
 import React, { FC } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { PluginOption, PluginPrefix } from '../interfaces';
+import { PluginOnQueryOption, PluginOption, PluginPrefix } from '../interfaces';
 
 type Context = {
   query$: BehaviorSubject<string>,
   altQuery$: BehaviorSubject<string>,
   placeholder$: BehaviorSubject<string | null>,
-  options$: BehaviorSubject<PluginOption[]>,
+  options$: BehaviorSubject<Array<PluginOption | PluginOnQueryOption>>,
   selectedOption$: BehaviorSubject<PluginOption | null>,
   loading$: BehaviorSubject<boolean>,
   hoveredOptionIndex$: BehaviorSubject<number>,

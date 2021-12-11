@@ -21,6 +21,7 @@ import {
 } from '../helpers';
 import {
   ActivePlugin,
+  isPluginOnQueryOption,
   PluginCommand,
   PluginOption,
   PluginPrefix,
@@ -54,6 +55,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     query$,
     displayedOptionsForCurrentWorkflow$,
     placeholder$,
+    hoveredOptionIndex$,
     resetState,
   } = useSpotterState();
 
@@ -258,8 +260,8 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredPrefixes$.next(nextRegisteredPrefixes);
   }
 
-  const setOptionsCommand = async (
-    command: (PluginCommand & {type: CommandType.setOptions})
+  const setOnQueryOptionsCommand = async (
+    command: (PluginCommand & {type: CommandType.setOnQueryOptions})
   ) => {
     const history = await getHistory();
     const options = hideOptions(
@@ -270,6 +272,14 @@ export const PluginsProvider: FC<{}> = (props) => {
       selectedOption$.value,
       history,
     );
+
+    const nextHoveredOptionIndex = sortedOptions.findIndex(o =>
+      isPluginOnQueryOption(o) && o.hovered,
+    );
+
+    if (nextHoveredOptionIndex !== -1) {
+      hoveredOptionIndex$.next(nextHoveredOptionIndex);
+    }
 
     options$.next(sortedOptions);
     if (sortedOptions.length) {
@@ -393,8 +403,8 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.setOptions) {
-      setOptionsCommand(command);
+    if (command.type === CommandType.setOnQueryOptions) {
+      setOnQueryOptionsCommand(command);
       return;
     }
 

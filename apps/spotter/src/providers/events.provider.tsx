@@ -1,7 +1,7 @@
 import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
-import { SpotterHotkeyEvent } from '../interfaces';
+import { isPluginOnQueryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
 import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
@@ -141,12 +141,33 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const onEscape = () => {
+    const selectedOption = selectedOption$.value;
+    if (
+      selectedOption &&
+      isPluginOnQueryOption(selectedOption) &&
+      selectedOption.onQueryCancelId
+    ) {
+      const command: SpotterCommand = {
+        type: SpotterCommandType.onQueryCancel,
+        onQueryCancelId: selectedOption.onQueryCancelId,
+      };
+      sendCommand(command, selectedOption$.value.pluginName);
+    }
+
     resetState();
     panel.close();
   }
 
   const onBackspace = () => {
-    if (selectedOption$.value && !query$.value.length) {
+    const selectedOption = selectedOption$.value;
+    if (selectedOption && query$.value.length <= 1) {
+      if (isPluginOnQueryOption(selectedOption) && selectedOption.onQueryCancelId) {
+        const command: SpotterCommand = {
+          type: SpotterCommandType.onQueryCancel,
+          onQueryCancelId: selectedOption.onQueryCancelId,
+        };
+        sendCommand(command, selectedOption$.value.pluginName);
+      }
       resetState();
     }
   }

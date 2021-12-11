@@ -41,7 +41,7 @@
     "@react-native-community/cli-platform-android": "6.1.0",
     "@react-native-community/cli-platform-ios": "6.1.0",
     "@react-native-community/eslint-config": "^3.0.1",
-    "@spotter-app/core": "2.0.0-beta.4",
+    "@spotter-app/core": "2.0.0-beta.8",
     "@testing-library/jest-dom": "5.15.0",
     "@testing-library/jest-native": "4.0.4",
     "@testing-library/react-native": "8.0.0",

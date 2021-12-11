@@ -4,9 +4,14 @@ import {
   SpotterPrefix,
   SpotterOption,
   ChannelForSpotter,
+  SpotterOnQueryOption,
 } from '@spotter-app/core';
  
 export type PluginCommand = Command & {
+  pluginName: string,
+}
+
+export type PluginOnQueryOption = SpotterOnQueryOption & {
   pluginName: string,
 }
 
@@ -74,4 +79,11 @@ export interface ActivePlugin {
   channel: ChannelForSpotter,
   port: number,
   pid: number,
+}
+
+export function isPluginOnQueryOption(
+  value: PluginOption | PluginOnQueryOption): value is PluginOnQueryOption {
+    return (value as PluginOnQueryOption).onHoverId !== undefined ||
+    (value as PluginOnQueryOption).hovered !== undefined ||
+    (value as PluginOnQueryOption).onQueryCancelId !== undefined
 }

@@ -5,7 +5,7 @@ import {
   Option,
   SpotterPlugin,
 } from '@spotter-app/core';
-import { PluginOption, SpotterThemeColors } from './interfaces';
+import { PluginOnQueryOption, PluginOption, SpotterThemeColors } from './interfaces';
 import { INTERNAL_PLUGINS } from './plugins';
 import { History } from './providers';
 
@@ -21,17 +21,19 @@ export const getHistoryPath = (
 };
 
 export const sortOptions = (
-  options: PluginOption[],
-  selectedOption: PluginOption | null,
+  options: Array<PluginOption | PluginOnQueryOption>,
+  selectedOption: PluginOption | PluginOnQueryOption | null,
   history: History,
-): PluginOption[] => {
+): Array<PluginOption | PluginOnQueryOption> => {
   return options.sort((a, b) => {
     return (history[getHistoryPath(b, selectedOption)] ?? 0) -
       (history[getHistoryPath(a, selectedOption)] ?? 0);
   });
 };
 
-export const hideOptions = (options: PluginOption[]): PluginOption[] => {
+export const hideOptions = (
+  options: Array<PluginOption | PluginOnQueryOption>
+): Array<PluginOption | PluginOnQueryOption> => {
   const optionsToHide: string[] = options.reduce<string[]>((acc, curr) => {
     return [...acc, ...(curr?.hideOptions ? curr.hideOptions : [])];
   }, []);
