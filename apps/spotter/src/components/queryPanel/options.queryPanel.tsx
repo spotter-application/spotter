@@ -97,7 +97,7 @@ export const Option = ({
         justifyContent: 'center',
       }}
     >
-      <OptionIcon icon={option.icon} style={{ marginRight: 5 }}></OptionIcon>
+      <OptionIcon icon={option.icon} style={{ marginRight: 5, height: 25 }}></OptionIcon>
       <Text style={{
         color: active ? colors.hoveredOptionText : colors.text,
         fontSize: 14,
@@ -128,7 +128,7 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
           : <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
         }
       </View>
-      : null
+      : <View style={style} />
   }
   </>
 };

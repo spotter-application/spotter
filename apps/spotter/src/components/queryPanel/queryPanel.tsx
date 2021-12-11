@@ -96,7 +96,13 @@ export const QueryPanel: FC<{}> = () => {
               marginRight: 5,
               padding: 5,
             }}>
-              <OptionIcon style={{ paddingRight: 3 }} icon={selectedOption.icon}></OptionIcon>
+              <OptionIcon
+                style={{
+                  paddingRight: 3,
+                  height: 25,
+                }}
+                icon={selectedOption.icon}
+              ></OptionIcon>
               <Text style={{ fontSize: 16, color: colors.activeOptionText }}>{selectedOption.title}</Text>
             </View>
           : null
