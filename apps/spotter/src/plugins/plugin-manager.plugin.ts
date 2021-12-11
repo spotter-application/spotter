@@ -27,7 +27,7 @@ const toTitleCase = (path: string) => {
 
 // const icon = RNFS.MainBundlePath;
 
-export class PluginsManager extends SpotterPlugin {
+export class PluginsManagerPlugin extends SpotterPlugin {
 
   async onInit() {
     this.spotter.registries.options.set([{

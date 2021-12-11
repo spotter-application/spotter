@@ -4,7 +4,6 @@ import { QueryPanel } from './src/components/queryPanel/queryPanel.tsx';
 import { name as appName } from './app.json';
 import { Settings } from './src/components/settings/settings.tsx';
 import {
-  ThemeProvider,
   ApiProvider,
   EventsProvider,
   SettingsProvider,
@@ -22,9 +21,7 @@ const AppWithModules = () => (
           <StateProvider>
             <PluginsProvider>
               <EventsProvider>
-                <ThemeProvider>
-                  <QueryPanel />
-                </ThemeProvider>
+                <QueryPanel />
               </EventsProvider>
             </PluginsProvider>
           </StateProvider>
@@ -37,9 +34,7 @@ const SettingsWithModules = () => (
   <ApiProvider>
     <SettingsProvider>
       {/* <EventsProvider> */}
-        <ThemeProvider>
-          <Settings />
-        </ThemeProvider>
+        <Settings />
       {/* </EventsProvider> */}
     </SettingsProvider>
   </ApiProvider>

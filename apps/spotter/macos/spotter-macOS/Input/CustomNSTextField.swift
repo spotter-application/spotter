@@ -15,10 +15,6 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onShiftEnter: RCTDirectEventBlock?
   @objc var onBackspace: RCTDirectEventBlock?
   
-  func onOpenSpotterCallback() -> Void {
-    self.becomeFirstResponder()
-  }
-  
   @objc func setPlaceholder(_ val: NSNumber) {
     self.placeholderString = String(describing: val)
   }
@@ -71,6 +67,10 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
         self.onEscape!(["text": ""])
       }
     }
+  }
+  
+  func onOpenSpotterCallback() -> Void {
+    self.becomeFirstResponder()
   }
   
   func hotkeyDown(with event: NSEvent) -> NSEvent? {

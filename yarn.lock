@@ -2231,10 +2231,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@spotter-app/core@2.0.0-beta.1":
-  version "2.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-2.0.0-beta.1.tgz#0306be7f71bc82b51c8168036369022412cf25d1"
-  integrity sha512-NPAQ7h3KB3zKoDwB4862m6ky2cFbe0h0SPQmSk6qAHitZWkG6J1rIqNGsWSHgb66Fz7EQ6AtV2ivi2HZLXHtPQ==
+"@spotter-app/core@2.0.0-beta.3":
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@spotter-app/core/-/core-2.0.0-beta.3.tgz#0f34271d974b7bb13f6114f5aa2b89b4c61a6cb3"
+  integrity sha512-XLCmjgPIemYfep6e1cPGO7ogWNx2FlTHNwy91sNyOBCTbZ63zfcrw3xGjDaANsr91UvCd+yGIGjcNRjUEIf2BA==
 
 "@storybook/node-logger@6.1.20":
   version "6.1.20"

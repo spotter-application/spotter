@@ -1,9 +1,10 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../../providers';
 import { HotkeysSettings } from './hotkeys.settings';
 import { GeneralSettings } from './general.settings';
-import { ThemesSettings } from './themes.settings';
+import { useSettings } from '../../providers';
+import { Subscription } from 'rxjs';
+import { SpotterThemeColors } from '../../interfaces';
 
 enum Pages {
   general = 'general',
@@ -14,7 +15,6 @@ enum Pages {
 
 export const Settings: FC<{}> = () => {
 
-  const { colors } = useTheme();
   const [activePage, setActivePage] = useState<Pages>(Pages.general);
 
   const onSelectPage = useCallback(setActivePage, []);
@@ -37,7 +37,6 @@ export const Settings: FC<{}> = () => {
       <View style={{
         display: 'flex',
         flexDirection: 'row',
-        borderBottomColor: colors.highlight,
         borderBottomWidth: 1,
       }}>
         {Object.values(Pages).map(page => (
@@ -48,7 +47,7 @@ export const Settings: FC<{}> = () => {
           >
             <Text
               style={{
-                color: page === activePage ? colors.text : colors.description,
+                // color: page === activePage ? colors?.text : colors?.hoveredOptionText,
               }}
             >{page[0].toUpperCase() + page.slice(1)}</Text>
           </TouchableOpacity>
