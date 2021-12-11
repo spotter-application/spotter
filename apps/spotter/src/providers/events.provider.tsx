@@ -160,7 +160,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onBackspace = () => {
     const selectedOption = selectedOption$.value;
-    if (selectedOption && query$.value.length <= 1) {
+    if (selectedOption && !query$.value.length) {
       if (isPluginOnQueryOption(selectedOption) && selectedOption.onQueryCancelId) {
         const command: SpotterCommand = {
           type: SpotterCommandType.onQueryCancel,
@@ -198,7 +198,7 @@ export const EventsProvider: FC<{}> = (props) => {
   const onQuery = async (nextQuery: string) => {
     query$.next(nextQuery);
 
-    if (nextQuery === '') {
+    if (!selectedOption$.value && nextQuery === '') {
       resetState();
       return;
     }
