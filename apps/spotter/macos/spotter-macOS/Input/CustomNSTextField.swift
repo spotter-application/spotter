@@ -24,7 +24,12 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   }
 
   @objc func setValue(_ val: NSString) {
-    self.stringValue = String(val)
+    let nextVal = String(val)
+    if (nextVal == self.stringValue) {
+      return
+    }
+    
+    self.stringValue = nextVal
     self.currentEditor()?.moveToEndOfDocument(nil)
   }
   
@@ -45,7 +50,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
     self.isBordered = false
     self.focusRingType = NSFocusRingType.none
     self.font = NSFont.systemFont(ofSize: 26)
-    
+    self.textColor = NSColor.clear
     self.delegate = self
     
     self.appDelegate.onOpenSpotterCallback = self.onOpenSpotterCallback

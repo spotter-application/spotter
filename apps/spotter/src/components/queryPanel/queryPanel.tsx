@@ -103,7 +103,7 @@ export const QueryPanel: FC<{}> = () => {
           : null
         }
         <Input
-          style={{ flex: 1 }}
+          style={{ color: colors.text }}
           value={query}
           placeholder={placeholder ?? 'Query...'}
           hint={getHint(query, options[hoveredOptionIndex])}

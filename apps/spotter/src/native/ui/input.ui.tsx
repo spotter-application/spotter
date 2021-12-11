@@ -22,6 +22,16 @@ type InputProps = {
   onBackspace?: (text: string) => void,
 };
 
+const centeredTextStyles: TextStyle = {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 2,
+  margin: 'auto',
+  fontSize: 26,
+  zIndex: 2,
+};
+
 export class Input extends React.PureComponent<InputProps> {
 
   _onChangeText = (event: { nativeEvent: { text: string }}) => {
@@ -110,13 +120,19 @@ export class Input extends React.PureComponent<InputProps> {
     }
 
     return <View
-      style={{ position: 'relative', ...(this.props.style ? this.props.style : {})}}
+      style={{ position: 'relative', flex: 1 }}
     >
       <RNInput
         {...nativeProps}
         placeholder={this.props.hint ?? this.props.placeholder}
         style={{ padding: 17, backgroundColor: 'transparent', flex: 1 }}
       />
+      <Text style={{
+        ...centeredTextStyles,
+        ...this.props.style,
+      }}>
+        {this.props.value}
+      </Text>
       {this.props.hint ? <Text
         style={{
           position: 'absolute',
