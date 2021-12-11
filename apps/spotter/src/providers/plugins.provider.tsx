@@ -258,15 +258,15 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredPrefixes$.next(nextRegisteredPrefixes);
   }
 
-  const patchOptionsCommand = async (
-    command: (PluginCommand & {type: CommandType.patchOptions})
+  const setOptionsCommand = async (
+    command: (PluginCommand & {type: CommandType.setOptions})
   ) => {
     const history = await getHistory();
     const options = hideOptions(
       command.value.map(o => ({...o, pluginName: command.pluginName}))
     );
     const sortedOptions = sortOptions(
-      [...options, ...options$.value],
+      options,
       selectedOption$.value,
       history,
     );
@@ -393,8 +393,8 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.patchOptions) {
-      patchOptionsCommand(command);
+    if (command.type === CommandType.setOptions) {
+      setOptionsCommand(command);
       return;
     }
 

@@ -8,7 +8,7 @@ import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
-import { Subscription } from 'rxjs';
+import { combineLatest, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 type Context = {
@@ -68,6 +68,22 @@ export const EventsProvider: FC<{}> = (props) => {
           };
         }),
       ).subscribe(),
+
+      combineLatest([
+        hoveredOptionIndex$,
+        options$,
+      ]).subscribe(([i, options]) => {
+        const nextHoveredOption = options[i];
+        if (!nextHoveredOption?.onHoverId) {
+          return;
+        }
+
+        const command: SpotterCommand = {
+          type: SpotterCommandType.onHover,
+          onHoverId: nextHoveredOption.onHoverId,
+        };
+        sendCommand(command, nextHoveredOption.pluginName);
+      })
     )
   }, []);
 
@@ -137,7 +153,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onTab = async () => {
     const nextSelectedOption = options$.value[hoveredOptionIndex$.value];
-    if (!nextSelectedOption || !nextSelectedOption.tabActionId) {
+    if (!nextSelectedOption || !nextSelectedOption.onQueryId) {
       return;
     }
 
@@ -148,8 +164,9 @@ export const EventsProvider: FC<{}> = (props) => {
     options$.next([]);
 
     const command: SpotterCommand = {
-      type: SpotterCommandType.onAction,
-      actionId: nextSelectedOption.tabActionId,
+      type: SpotterCommandType.onQuery,
+      onQueryId: nextSelectedOption.onQueryId,
+      prefix: '',
       query: query$.value,
     };
 
@@ -167,13 +184,14 @@ export const EventsProvider: FC<{}> = (props) => {
 
     // Execute selected option tabAction
     if (selectedOption$.value) {
-      if (!selectedOption$.value.tabActionId) {
-        console.error('There is no tabActionId in selected option');
+      if (!selectedOption$.value.onQueryId) {
+        console.error('There is no onQueryId in selected option');
         return;
       }
       const command: SpotterCommand = {
-        type: SpotterCommandType.onAction,
-        actionId: selectedOption$.value.tabActionId,
+        type: SpotterCommandType.onQuery,
+        onQueryId: selectedOption$.value.onQueryId,
+        prefix: '',
         query: nextQuery,
       };
       sendCommand(command, selectedOption$.value.pluginName);
@@ -219,21 +237,17 @@ export const EventsProvider: FC<{}> = (props) => {
   };
 
   const onArrowUp = () => {
-    if (hoveredOptionIndex$.value <= 0) {
-      hoveredOptionIndex$.next(options$.value.length - 1);
-      return;
-    }
-
-    hoveredOptionIndex$.next(hoveredOptionIndex$.value - 1);
+    const nextIndex = hoveredOptionIndex$.value <= 0
+      ? options$.value.length - 1
+      : hoveredOptionIndex$.value - 1;
+    hoveredOptionIndex$.next(nextIndex);
   };
 
   const onArrowDown = () => {
-    if (hoveredOptionIndex$.value >= options$.value.length - 1) {
-      hoveredOptionIndex$.next(0);
-      return;
-    }
-
-    hoveredOptionIndex$.next(hoveredOptionIndex$.value + 1);
+    const nextIndex = hoveredOptionIndex$.value >= options$.value.length - 1
+      ? 0
+      : hoveredOptionIndex$.value + 1;
+    hoveredOptionIndex$.next(nextIndex);
   };
 
   const onSubmit = async (index?: number) => {
@@ -249,21 +263,20 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (!option.actionId && option.tabActionId) {
+    if (!option.onSubmitId && option.onQueryId) {
       onTab();
       return;
     }
 
-    if (!option.actionId) {
+    if (!option.onSubmitId) {
       return;
     }
 
     // loading$.next(true);
 
     const command: SpotterCommand = {
-      type: SpotterCommandType.onAction,
-      actionId: option.actionId,
-      query: query$.value,
+      type: SpotterCommandType.onSubmit,
+      onSubmitId: option.onSubmitId,
     };
 
     sendCommand(command, option.pluginName);

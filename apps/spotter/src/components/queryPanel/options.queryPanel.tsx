@@ -162,11 +162,11 @@ export const OptionHotkeyHints = ({
     alignItems: 'center',
     ...(style ? style : {}),
   }}>
-    {option?.tabActionId
+    {option?.onQueryId
       ? <OptionHotkeyHint colors={colors} style={{}} placeholder={'tab'}></OptionHotkeyHint>
       : null
     }
-    {option?.actionId
+    {option?.onSubmitId
       ? <OptionHotkeyHint colors={colors} style={{marginLeft: 5}} placeholder={'enter'}></OptionHotkeyHint>
       : null
     }

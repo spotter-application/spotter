@@ -32,7 +32,7 @@ export class PluginsManagerPlugin extends SpotterPlugin {
   async onInit() {
     this.spotter.registries.options.set([{
       title: 'Plugins',
-      tabAction: this.pluginsMenu,
+      onQuery: this.pluginsMenu,
     }])
   }
 
