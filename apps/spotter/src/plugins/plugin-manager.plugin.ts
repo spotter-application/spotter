@@ -33,6 +33,7 @@ export class PluginsManagerPlugin extends SpotterPlugin {
     this.spotter.setRegisteredOptions([{
       prefix: 'plg',
       title: 'Plugins',
+      icon: '🔌',
       onQuery: this.pluginsMenu,
     }]);
   }
