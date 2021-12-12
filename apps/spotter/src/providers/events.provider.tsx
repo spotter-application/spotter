@@ -186,7 +186,7 @@ export const EventsProvider: FC<{}> = (props) => {
     const command: SpotterCommand = {
       type: SpotterCommandType.onQuery,
       onQueryId: nextSelectedOption.onQueryId,
-      query: query$.value,
+      query: '',
     };
 
     sendCommand(command, nextSelectedOption.pluginName);
@@ -253,7 +253,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
         const command: SpotterCommand = {
           type: SpotterCommandType.onQuery,
-          query: nextQuery.replace(`${option.prefix}`, ''),
+          query: '',
           onQueryId: option.onQueryId,
         };
         sendCommand(command, option.pluginName);
