@@ -10,12 +10,12 @@ import {
   ImageStyle,
 } from 'react-native';
 import { Subscription } from 'rxjs';
-import { PluginOption, SpotterThemeColors } from '../../interfaces';
+import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
 import { IconImage } from '../../native';
 import { useSettings } from '../../providers';
 
 type OptionsProps = {
-  options: PluginOption[];
+  options: Array<PluginOnQueryOption | PluginRegistryOption>;
   hoveredOptionIndex: number;
   displayOptions: boolean,
   onSubmit: (index: number) => void;
@@ -72,7 +72,7 @@ export const Option = ({
   option,
   active,
 }: {
-  option: PluginOption,
+  option: PluginOnQueryOption | PluginRegistryOption,
   active: boolean,
 }) => {
   const { colors$ } = useSettings();
@@ -132,16 +132,25 @@ export const Option = ({
     }
   </View>
 }
-
+const uriRegExp = /(\/.*\.\w+)/g;
 export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon?: Icon }) => {
   return <>
     {icon
-      ? <View style={style}>
-        {icon.endsWith('.app') || icon.endsWith('.prefPane')
-          ? <IconImage style={{ width: 25, height: 25, ...style, }} source={icon}></IconImage>
-          : <Image style={{ width: 22, height: 22, ...style }} source={{ uri: icon }}></Image>
-        }
-      </View>
+      ? <View style={{
+          ...style,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 25,
+          height: 25,
+        }}>
+          {icon.endsWith('.app') || icon.endsWith('.prefPane')
+            ? <IconImage style={{ width: 25, height: 25 }} source={icon}></IconImage>
+            : uriRegExp.test(icon)
+              ? <Image style={{ width: 22, height: 22 }} source={{ uri: icon }}></Image>
+              : <Text style={{ margin: 'auto' }}>{icon}</Text>
+          }
+        </View>
       : <View style={style} />
   }
   </>
@@ -152,7 +161,7 @@ export const OptionHotkeyHints = ({
   colors,
   style,
 }: {
-  option: PluginOption,
+  option: PluginOnQueryOption | PluginRegistryOption,
   style?: ViewStyle,
   colors?: SpotterThemeColors,
 }) => {
