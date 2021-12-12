@@ -22,9 +22,9 @@ export class SpotterThemesPlugin extends SpotterPlugin {
       title: 'Spotter themes',
       icon: '🎨',
       prefix: 'thm',
-      onQuery: async () => {
+      onQuery: async (q: string) => {
         const settings = await this.spotter.getSettings();
-        return THEMES.map(theme => {
+        const themes = THEMES.map(theme => {
           const active = settings.theme === theme.value;
           return {
             title: `${theme.title} ${active ? '- active' : ''}`,
@@ -33,6 +33,13 @@ export class SpotterThemesPlugin extends SpotterPlugin {
             onSubmit: () => this.spotter.patchSettings({theme: theme.value}),
           }
         });
+
+        if (!q.length) {
+          return themes;
+        }
+
+        const lowercasedQuery = q.toLowerCase();
+        return themes.filter(t => t.title.toLowerCase().startsWith(lowercasedQuery));
       },
       onQueryCancel: async () => {
         const settings = await this.spotter.getSettings();

@@ -212,15 +212,17 @@ export const PluginsProvider: FC<{}> = (props) => {
       history,
     );
 
-    const nextHoveredOptionIndex = sortedOptions.findIndex(o =>
+    const optionWithHoveredPropIndex = sortedOptions.findIndex(o =>
       isPluginOnQueryOption(o) && o.hovered,
     );
 
-    if (nextHoveredOptionIndex !== -1) {
-      hoveredOptionIndex$.next(nextHoveredOptionIndex);
-    }
+    const nextHoveredOptionIndex = optionWithHoveredPropIndex !== -1
+      ? optionWithHoveredPropIndex
+      : 0;
 
     options$.next(sortedOptions);
+    hoveredOptionIndex$.next(nextHoveredOptionIndex);
+
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);
     }
