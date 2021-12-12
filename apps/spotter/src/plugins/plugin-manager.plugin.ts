@@ -30,10 +30,11 @@ const toTitleCase = (path: string) => {
 export class PluginsManagerPlugin extends SpotterPlugin {
 
   async onInit() {
-    this.spotter.registries.options.set([{
+    this.spotter.setRegisteredOptions([{
+      prefix: 'plg',
       title: 'Plugins',
       onQuery: this.pluginsMenu,
-    }])
+    }]);
   }
 
   private async pluginsMenu() {

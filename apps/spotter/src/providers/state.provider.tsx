@@ -1,19 +1,18 @@
 import React, { FC } from 'react';
 import { BehaviorSubject } from 'rxjs';
-import { PluginOnQueryOption, PluginOption, PluginPrefix } from '../interfaces';
+import { PluginOnQueryOption, PluginRegistryOption } from '../interfaces';
 
 type Context = {
   query$: BehaviorSubject<string>,
   altQuery$: BehaviorSubject<string>,
   placeholder$: BehaviorSubject<string | null>,
-  options$: BehaviorSubject<Array<PluginOption | PluginOnQueryOption>>,
-  selectedOption$: BehaviorSubject<PluginOption | null>,
+  options$: BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>,
+  selectedOption$: BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>,
   loading$: BehaviorSubject<boolean>,
   hoveredOptionIndex$: BehaviorSubject<number>,
   waitingFor$: BehaviorSubject<string | null>,
   displayedOptionsForCurrentWorkflow$: BehaviorSubject<boolean>,
-  registeredOptions$: BehaviorSubject<PluginOption[]>,
-  registeredPrefixes$: BehaviorSubject<PluginPrefix[]>,
+  registeredOptions$: BehaviorSubject<PluginRegistryOption[]>,
   resetState: () => void,
 };
 
@@ -21,14 +20,13 @@ const context: Context = {
   query$: new BehaviorSubject<string>(''),
   altQuery$: new BehaviorSubject<string>(''),
   placeholder$: new BehaviorSubject<string | null>(null),
-  options$: new BehaviorSubject<PluginOption[]>([]),
-  selectedOption$: new BehaviorSubject<PluginOption | null>(null),
+  options$: new BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>([]),
+  selectedOption$: new BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>(null),
   loading$: new BehaviorSubject<boolean>(false),
   hoveredOptionIndex$: new BehaviorSubject<number>(0),
   waitingFor$: new BehaviorSubject<string | null>(null),
   displayedOptionsForCurrentWorkflow$: new BehaviorSubject<boolean>(false),
-  registeredOptions$: new BehaviorSubject<PluginOption[]>([]),
-  registeredPrefixes$: new BehaviorSubject<PluginPrefix[]>([]),
+  registeredOptions$: new BehaviorSubject<PluginRegistryOption[]>([]),
   resetState: () => null,
 }
 

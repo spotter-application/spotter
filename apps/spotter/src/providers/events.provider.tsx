@@ -1,7 +1,7 @@
-import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
+import { SpotterCommandType, SpotterCommand, SpotterRegistryOption } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
-import { isPluginOnQueryOption, SpotterHotkeyEvent } from '../interfaces';
+import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
 import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
@@ -47,7 +47,6 @@ export const EventsProvider: FC<{}> = (props) => {
     loading$,
     hoveredOptionIndex$,
     registeredOptions$,
-    registeredPrefixes$,
     displayedOptionsForCurrentWorkflow$,
     resetState,
   } = useSpotterState();
@@ -187,12 +186,24 @@ export const EventsProvider: FC<{}> = (props) => {
     const command: SpotterCommand = {
       type: SpotterCommandType.onQuery,
       onQueryId: nextSelectedOption.onQueryId,
-      prefix: '',
       query: query$.value,
     };
 
     sendCommand(command, nextSelectedOption.pluginName);
     hoveredOptionIndex$.next(0);
+  }
+
+  const printHelpOptions = () => {
+    const nextOptions: PluginRegistryOption[] = registeredOptions$.value
+      .filter(o => o.prefix)
+      .map(o => ({
+        title: o.prefix ?? '',
+        subtitle: o.title,
+        icon: o.icon,
+        pluginName: o.pluginName,
+      }));
+
+    options$.next(nextOptions);
   }
 
   const onQuery = async (nextQuery: string) => {
@@ -212,28 +223,40 @@ export const EventsProvider: FC<{}> = (props) => {
       const command: SpotterCommand = {
         type: SpotterCommandType.onQuery,
         onQueryId: selectedOption$.value.onQueryId,
-        prefix: '',
         query: nextQuery,
       };
       sendCommand(command, selectedOption$.value.pluginName);
       return;
     }
+    
+
+    // Help
+    if (nextQuery === '?') {
+      printHelpOptions();
+      return;
+    }
 
     // Check for matched prefixes
     const loweCaseQuery = nextQuery.toLowerCase();
-    const matchedPrefixes = registeredPrefixes$.value.filter(
-      p => loweCaseQuery.startsWith(p.prefix.toLowerCase()),
+    const matchedPrefixes = registeredOptions$.value.filter(
+      p => p.prefix && loweCaseQuery.startsWith(p.prefix.toLowerCase()),
     );
 
     if (matchedPrefixes.length) {
-      matchedPrefixes.forEach(async p => {
+      matchedPrefixes.forEach(async option => {
+        if (!option.onQueryId) {
+          return;
+        }
+
+        selectedOption$.next(option);
+        query$.next('');
+
         const command: SpotterCommand = {
           type: SpotterCommandType.onQuery,
-          prefix: p.prefix,
-          query: nextQuery.replace(`${p.prefix}`, ''),
-          onQueryId: p.onQueryId,
+          query: nextQuery.replace(`${option.prefix}`, ''),
+          onQueryId: option.onQueryId,
         };
-        sendCommand(command, p.pluginName);
+        sendCommand(command, option.pluginName);
       });
     }
 

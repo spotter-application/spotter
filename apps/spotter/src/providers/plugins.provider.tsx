@@ -23,8 +23,7 @@ import {
   ActivePlugin,
   isPluginOnQueryOption,
   PluginCommand,
-  PluginOption,
-  PluginPrefix,
+  PluginRegistryOption,
 } from '../interfaces';
 import { INTERNAL_PLUGINS } from '../plugins';
 import { useApi } from './api.provider';
@@ -49,7 +48,6 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const {
     registeredOptions$,
-    registeredPrefixes$,
     selectedOption$,
     options$,
     query$,
@@ -143,9 +141,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     registeredOptions$.next(
       registeredOptions$.value.filter(o => o.pluginName !== pluginName),
     );
-    registeredPrefixes$.next(
-      registeredPrefixes$.value.filter(o => o.pluginName !== pluginName),
-    );
   }
 
   const setRegisteredOptionsCommand = (
@@ -154,8 +149,8 @@ export const PluginsProvider: FC<{}> = (props) => {
     const nextRegisteredOptions = command.value
     .map(o => ({...o, pluginName: command.pluginName}))
     .reduce(
-      (acc: PluginOption[], curr: PluginOption) => {
-        const needsToBeReplaced = acc.find((o: PluginOption) =>
+      (acc: PluginRegistryOption[], curr: PluginRegistryOption) => {
+        const needsToBeReplaced = acc.find((o: PluginRegistryOption) =>
           o.title === curr.title && o.pluginName === curr.pluginName,
         );
 
@@ -182,8 +177,8 @@ export const PluginsProvider: FC<{}> = (props) => {
     const nextRegisteredOptions = command.value
     .map(o => ({...o, pluginName: command.pluginName}))
     .reduce(
-      (acc: PluginOption[], curr: PluginOption) => {
-        const needsToBeReplaced = acc.find((o: PluginOption) =>
+      (acc: PluginRegistryOption[], curr: PluginRegistryOption) => {
+        const needsToBeReplaced = acc.find((o: PluginRegistryOption) =>
           o.title === curr.title && o.pluginName === curr.pluginName,
         );
 
@@ -202,62 +197,6 @@ export const PluginsProvider: FC<{}> = (props) => {
       registeredOptions$.value,
     );
     registeredOptions$.next(nextRegisteredOptions);
-  }
-
-  const setRegisteredPrefixesCommand = (
-    command: (PluginCommand & {type: CommandType.setRegisteredPrefixes})
-  ) => {
-    const nextRegisteredPrefixes = command.value
-    .map(p => ({...p, pluginName: command.pluginName}))
-    .reduce(
-      (acc: PluginPrefix[], curr: PluginPrefix) => {
-        const needsToBeReplaced = acc.find((p: PluginPrefix) =>
-          p.prefix === curr.prefix && p.pluginName === curr.pluginName,
-        );
-
-        if (needsToBeReplaced) {
-          return acc.map(p => {
-            if (p.prefix === curr.prefix && p.pluginName === curr.pluginName) {
-              return curr;
-            }
-
-            return p;
-          });
-        }
-
-        return [...acc, curr];
-      },
-      registeredPrefixes$.value.filter(p => p.pluginName !== command.pluginName),
-    );
-    registeredPrefixes$.next(nextRegisteredPrefixes);
-  }
-
-  const patchRegisteredPrefixesCommand = (
-    command: (PluginCommand & {type: CommandType.patchRegisteredPrefixes})
-  ) => {
-    const nextRegisteredPrefixes = command.value
-    .map(p => ({...p, pluginName: command.pluginName}))
-    .reduce(
-      (acc: PluginPrefix[], curr: PluginPrefix) => {
-        const needsToBeReplaced = acc.find((p: PluginPrefix) =>
-          p.prefix === curr.prefix && p.pluginName === curr.pluginName,
-        );
-
-        if (needsToBeReplaced) {
-          return acc.map(p => {
-            if (p.prefix === curr.prefix && p.pluginName === curr.pluginName) {
-              return curr;
-            }
-
-            return p;
-          });
-        }
-
-        return [...acc, curr];
-      },
-      registeredPrefixes$.value,
-    );
-    registeredPrefixes$.next(nextRegisteredPrefixes);
   }
 
   const setOnQueryOptionsCommand = async (
@@ -390,16 +329,6 @@ export const PluginsProvider: FC<{}> = (props) => {
 
     if (command.type === CommandType.patchRegisteredOptions) {
       patchRegisteredOptionsCommand(command);
-      return;
-    }
-
-    if (command.type === CommandType.setRegisteredPrefixes) {
-      setRegisteredPrefixesCommand(command);
-      return;
-    }
-
-    if (command.type === CommandType.patchRegisteredPrefixes) {
-      patchRegisteredPrefixesCommand(command);
       return;
     }
 

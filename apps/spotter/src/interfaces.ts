@@ -1,10 +1,9 @@
 import {
   Hotkey,
   Command,
-  SpotterPrefix,
-  SpotterOption,
   ChannelForSpotter,
   SpotterOnQueryOption,
+  SpotterRegistryOption,
 } from '@spotter-app/core';
  
 export type PluginCommand = Command & {
@@ -15,11 +14,7 @@ export type PluginOnQueryOption = SpotterOnQueryOption & {
   pluginName: string,
 }
 
-export type PluginOption = SpotterOption & {
-  pluginName: string,
-}
-
-export type PluginPrefix = SpotterPrefix & {
+export type PluginRegistryOption = SpotterRegistryOption & {
   pluginName: string,
 }
 
@@ -82,7 +77,7 @@ export interface ActivePlugin {
 }
 
 export function isPluginOnQueryOption(
-  value: PluginOption | PluginOnQueryOption): value is PluginOnQueryOption {
+  value: PluginRegistryOption | PluginOnQueryOption): value is PluginOnQueryOption {
     return (value as PluginOnQueryOption).onHoverId !== undefined ||
     (value as PluginOnQueryOption).hovered !== undefined ||
     (value as PluginOnQueryOption).onQueryCancelId !== undefined

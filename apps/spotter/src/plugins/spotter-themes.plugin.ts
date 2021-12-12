@@ -5,6 +5,7 @@ export class SpotterThemesPlugin extends SpotterPlugin {
   async onInit() {
     this.spotter.setRegisteredOptions([{
       title: 'Spotter themes',
+      prefix: 'thm',
       onQuery: () => ([
         {
           title: 'Dark theme',
