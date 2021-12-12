@@ -23,11 +23,15 @@ export class SpotterThemesPlugin extends SpotterPlugin {
       prefix: 'thm',
       onQuery: async () => {
         const settings = await this.spotter.getSettings();
-        return THEMES.map(theme => ({
-          title: `${theme.title} ${settings.theme === theme.value ? '- active' : ''}`,
-          onHover: () => this.spotter.setTheme(theme.value),
-          onSubmit: () => this.spotter.patchSettings({theme: theme.value}),
-        }));
+        return THEMES.map(theme => {
+          const active = settings.theme === theme.value;
+          return {
+            title: `${theme.title} ${active ? '- active' : ''}`,
+            hovered: active,
+            onHover: () => this.spotter.setTheme(theme.value),
+            onSubmit: () => this.spotter.patchSettings({theme: theme.value}),
+          }
+        });
       },
       onQueryCancel: async () => {
         const settings = await this.spotter.getSettings();
