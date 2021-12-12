@@ -239,7 +239,7 @@ export const EventsProvider: FC<{}> = (props) => {
     // Check for matched prefixes
     const loweCaseQuery = nextQuery.toLowerCase();
     const matchedPrefixes = registeredOptions$.value.filter(
-      p => p.prefix && loweCaseQuery.startsWith(p.prefix.toLowerCase()),
+      p => p.prefix && loweCaseQuery.startsWith(`${p.prefix.toLowerCase()} `),
     );
 
     if (matchedPrefixes.length) {
