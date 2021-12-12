@@ -14,7 +14,7 @@ import React, { FC, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Subject, Subscription, BehaviorSubject } from 'rxjs';
 import {
-  hideOptions,
+  replaceOptions,
   InternalPluginChannel,
   sortOptions,
   ExternalPluginChannel,
@@ -203,7 +203,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     command: (PluginCommand & {type: CommandType.setOnQueryOptions})
   ) => {
     const history = await getHistory();
-    const options = hideOptions(
+    const options = replaceOptions(
       command.value.map(o => ({...o, pluginName: command.pluginName}))
     );
     const sortedOptions = sortOptions(

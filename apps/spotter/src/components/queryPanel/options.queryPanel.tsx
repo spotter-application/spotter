@@ -90,6 +90,10 @@ export const Option = ({
     return () => subscriptions.forEach(s => s.unsubscribe());
   }, []);
 
+  const subtitle = option.subtitle
+    ? `${option.subtitle.slice(0, 45)} ${option.subtitle.length > 44 ? '...' : ''}`
+    : null;
+
   return <View
     style={{
       display: 'flex',
@@ -117,12 +121,12 @@ export const Option = ({
         fontSize: 14,
       }}>{option.title}</Text>
 
-      {option.subtitle &&
+      {subtitle &&
         <Text style={{
           opacity: 0.3,
           color: active ? colors?.hoveredOptionText : colors?.text,
           fontSize: 14,
-        }}> ― {option.subtitle.slice(0, 45)}{option.subtitle.length > 44 ? '...' : ''}</Text>
+        }}> ― {subtitle}</Text>
       }
     </View>
     {active &&
@@ -146,7 +150,7 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
         }}>
           {icon.endsWith('.app') || icon.endsWith('.prefPane')
             ? <IconImage style={{ width: 25, height: 25 }} source={icon}></IconImage>
-            : uriRegExp.test(icon)
+            : uriRegExp.test(icon) || icon.startsWith('https://') || icon.startsWith('http://')
               ? <Image style={{ width: 22, height: 22 }} source={{ uri: icon }}></Image>
               : <Text style={{ margin: 'auto' }}>{icon}</Text>
           }

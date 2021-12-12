@@ -4,7 +4,7 @@ import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { hideOptions, getHistoryPath, sortOptions } from '../helpers';
+import { replaceOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
@@ -268,7 +268,7 @@ export const EventsProvider: FC<{}> = (props) => {
     );
 
     const history = await getHistory();
-    const prioritizedOptions = hideOptions(filteredRegisteredOptions);
+    const prioritizedOptions = replaceOptions(filteredRegisteredOptions);
     const sortedOptions = sortOptions(
       prioritizedOptions ,
       selectedOption$.value,

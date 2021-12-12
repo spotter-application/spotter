@@ -31,11 +31,11 @@ export const sortOptions = (
   });
 };
 
-export const hideOptions = (
+export const replaceOptions = (
   options: Array<PluginRegistryOption | PluginOnQueryOption>
 ): Array<PluginRegistryOption | PluginOnQueryOption> => {
   const optionsToHide: string[] = options.reduce<string[]>((acc, curr) => {
-    return [...acc, ...(curr?.hideOptions ? curr.hideOptions : [])];
+    return [...acc, ...(curr?.replaceOptions ? curr.replaceOptions : [])];
   }, []);
 
   if (!optionsToHide.length) {
@@ -44,7 +44,7 @@ export const hideOptions = (
 
   return options.filter(o => {
     const optionToHide = optionsToHide.find(opt => opt === o.title);
-    const shouldHide = optionToHide && !o.hideOptions?.find(opt => opt === optionToHide);
+    const shouldHide = optionToHide && !o.replaceOptions?.find(opt => opt === optionToHide);
     return !shouldHide;
   });
 };
