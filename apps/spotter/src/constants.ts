@@ -44,20 +44,22 @@ export const ALT_QUERY_KEY_MAP = {
   '43': 'esc',
 };
 
-export const LIGHT_THEME: SpotterThemeColors = {
-  background: '#efefef',
-  text: '#101010',
-  activeOptionBackground: '#dddddd',
-  activeOptionText: '#000000',
-  hoveredOptionBackground: '#0f60cf',
-  hoveredOptionText: '#fefefe',
-};
+// export const LIGHT_THEME: SpotterThemeColors = {
+//   background: '#efefef',
+//   text: '#101010',
+//   activeOptionBackground: '#dddddd',
+//   activeOptionText: '#000000',
+//   hoveredOptionBackground: '#0f60cf',
+//   hoveredOptionText: '#fefefe',
+// };
+export const LIGHT_THEME = '#efefef,#101010,#dddddd,#000000,#0f60cf,#fefefe';
+export const DARK_THEME = '#212121,#ffffff,#3c3c3c,#ffffff,#0f60cf,#fefefe';
 
-export const DARK_THEME: SpotterThemeColors = {
-  background: '#212121',
-  text: '#ffffff',
-  activeOptionBackground: '#3c3c3c',
-  activeOptionText: '#ffffff',
-  hoveredOptionBackground: '#0f60cf',
-  hoveredOptionText: '#fefefe',
-};
+// export const DARK_THEME: SpotterThemeColors = {
+//   background: '#212121',
+//   text: '#ffffff',
+//   activeOptionBackground: '#3c3c3c',
+//   activeOptionText: '#ffffff',
+//   hoveredOptionBackground: '#0f60cf',
+//   hoveredOptionText: '#fefefe',
+// };

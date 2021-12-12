@@ -5,13 +5,13 @@ import {
   Option,
   SpotterPlugin,
 } from '@spotter-app/core';
-import { PluginOnQueryOption, PluginOption, SpotterThemeColors } from './interfaces';
+import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
 import { INTERNAL_PLUGINS } from './plugins';
 import { History } from './providers';
 
 export const getHistoryPath = (
-  option: PluginOption,
-  selectedOption: PluginOption | null,
+  option: PluginRegistryOption | PluginOnQueryOption,
+  selectedOption: PluginRegistryOption | PluginOnQueryOption | null,
 ): string => {
   const path = selectedOption
     ? `${option.pluginName}:${selectedOption.title}#${option.title}`
@@ -21,10 +21,10 @@ export const getHistoryPath = (
 };
 
 export const sortOptions = (
-  options: Array<PluginOption | PluginOnQueryOption>,
-  selectedOption: PluginOption | PluginOnQueryOption | null,
+  options: Array<PluginRegistryOption | PluginOnQueryOption>,
+  selectedOption: PluginRegistryOption | PluginOnQueryOption | null,
   history: History,
-): Array<PluginOption | PluginOnQueryOption> => {
+): Array<PluginRegistryOption | PluginOnQueryOption> => {
   return options.sort((a, b) => {
     return (history[getHistoryPath(b, selectedOption)] ?? 0) -
       (history[getHistoryPath(a, selectedOption)] ?? 0);
@@ -32,8 +32,8 @@ export const sortOptions = (
 };
 
 export const hideOptions = (
-  options: Array<PluginOption | PluginOnQueryOption>
-): Array<PluginOption | PluginOnQueryOption> => {
+  options: Array<PluginRegistryOption | PluginOnQueryOption>
+): Array<PluginRegistryOption | PluginOnQueryOption> => {
   const optionsToHide: string[] = options.reduce<string[]>((acc, curr) => {
     return [...acc, ...(curr?.hideOptions ? curr.hideOptions : [])];
   }, []);
@@ -173,15 +173,8 @@ export const getHint = (query: string, option: Option) => {
   );
 }
 
-export const parseTheme = (value: string | null): SpotterThemeColors | null => {
-  if (!value) {
-    return null;
-  }
-
+export const parseTheme = (value: string): SpotterThemeColors => {
   const colors = value.split(',');
-  if (colors.length !== 6) {
-    return null;
-  }
 
   return {
     background: colors[0],

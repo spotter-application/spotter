@@ -1,7 +1,7 @@
 import { Settings } from '@spotter-app/core';
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { Appearance } from 'react-native';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { DARK_THEME, LIGHT_THEME } from '../constants';
 import { parseTheme } from '../helpers';
 import { SpotterThemeColors } from '../interfaces';
@@ -19,13 +19,17 @@ type Context = {
 const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
+  theme: Appearance.getColorScheme() === 'dark' ? DARK_THEME : LIGHT_THEME,
 };
 
 const context: Context = {
   getSettings: () => Promise.resolve(initialSettings),
   patchSettings: () => null,
   setTheme: () => null,
-  colors$: of(Appearance.getColorScheme() === 'dark' ? DARK_THEME : LIGHT_THEME),
+  colors$: of(parseTheme(Appearance.getColorScheme() === 'dark'
+    ? DARK_THEME
+    : LIGHT_THEME
+  )),
 }
 
 export const SettingsContext = React.createContext<Context>(context);
@@ -35,15 +39,21 @@ export const SettingsProvider: FC<{}> = (props) => {
   const { storage } = useApi();
 
   const colorsSubject$ = new BehaviorSubject<SpotterThemeColors>(
-    Appearance.getColorScheme() === 'dark' ? DARK_THEME : LIGHT_THEME
+    parseTheme(Appearance.getColorScheme() === 'dark' ? DARK_THEME : LIGHT_THEME)
   );
 
-  // useEffect(() => {
+  useEffect(() => {
+    initTheme();
     // TODO: set dark/light themes
     // Appearance.addChangeListener(preferences => {
     //   setIsDark(preferences.colorScheme === 'dark');
     // });
-  // }, []);
+  }, []);
+
+  const initTheme = async () => {
+    const settings = await getSettings();
+    setTheme(settings.theme);
+  }
 
   const getSettings: () => Promise<Settings> = async () => {
     const settings = await storage.getItem<Settings>(SETTINGS_STORAGE_KEY);
@@ -54,16 +64,23 @@ export const SettingsProvider: FC<{}> = (props) => {
     const {
       hotkey,
       pluginHotkeys,
+      theme,
     } = settings;
 
     return {
       hotkey: hotkey ?? initialSettings.hotkey,
       pluginHotkeys: pluginHotkeys ?? initialSettings.pluginHotkeys,
+      theme: theme ?? initialSettings.theme,
     };
   }
 
   const patchSettings: (newSettings: Partial<Settings>) => void = async (newSettings) => {
     const settings = await getSettings();
+
+    if (newSettings.theme) {
+      setTheme(newSettings.theme);
+    }
+
     storage.setItem(SETTINGS_STORAGE_KEY, { ...settings, ...newSettings });
   }
 
