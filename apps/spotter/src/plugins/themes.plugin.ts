@@ -20,6 +20,7 @@ export class SpotterThemesPlugin extends SpotterPlugin {
   async onInit() {
     this.spotter.setRegisteredOptions([{
       title: 'Spotter themes',
+      icon: '🎨',
       prefix: 'thm',
       onQuery: async () => {
         const settings = await this.spotter.getSettings();
