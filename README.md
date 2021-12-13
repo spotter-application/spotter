@@ -14,7 +14,7 @@ So you can stay focused on your current task.
 * 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
 * 🔮&nbsp;&nbsp;&nbsp;<b>Fast</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Lightweight</b>
-* 🔌&nbsp;&nbsp;&nbsp;<b>[Plug-in support](https://github.com/ziulev/spotter-core/tree/main/packages)</b>
+* 🔌&nbsp;&nbsp;&nbsp;<b>[Plug-in support](https://github.com/ziulev/spotter/tree/main/packages)</b>
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 
 ## 💬 Community
@@ -31,7 +31,7 @@ Default hotkey to run the app ```double shift```
 Type `plugins <tab>`
 
 #### Install plugins
-- [Spotter team plugins](https://github.com/ziulev/spotter-core/tree/main/packages)
+- [Spotter team plugins](https://github.com/ziulev/spotter/tree/main/packages)
 
 ## 🤖 Requirements
 * macOS Monterey
