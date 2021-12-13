@@ -1,0 +1,41 @@
+{
+  "root": "packages/applications-plugin",
+  "sourceRoot": "packages/applications-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "applications-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/applications-plugin",
+        "tsConfig": "packages/applications-plugin/tsconfig.lib.json",
+        "packageJson": "packages/applications-plugin/package.json",
+        "main": "packages/applications-plugin/src/index.ts",
+        "assets": [],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/applications-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/applications-plugin"],
+      "options": {
+        "jestConfig": "packages/applications-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

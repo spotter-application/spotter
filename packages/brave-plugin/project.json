@@ -1,0 +1,41 @@
+{
+  "root": "packages/brave-plugin",
+  "sourceRoot": "packages/brave-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "brave-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/brave-plugin",
+        "tsConfig": "packages/brave-plugin/tsconfig.lib.json",
+        "packageJson": "packages/brave-plugin/package.json",
+        "main": "packages/brave-plugin/src/index.ts",
+        "assets": [],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/brave-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/brave-plugin"],
+      "options": {
+        "jestConfig": "packages/brave-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

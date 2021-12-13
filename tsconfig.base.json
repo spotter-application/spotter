@@ -10,11 +10,24 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": ["es2021", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@spotter-app/applications-plugin": [
+        "packages/applications-plugin/src/index.ts"
+      ],
+      "@spotter-app/brave-plugin": ["packages/brave-plugin/src/index.ts"],
+      "@spotter-app/calculator-plugin": [
+        "packages/calculator-plugin/src/index.ts"
+      ],
+      "@spotter-app/core": ["packages/core/src/index.ts"],
+      "@spotter-app/emoji-plugin": ["packages/emoji-plugin/src/index.ts"],
+      "@spotter-app/plugin": ["packages/plugin/src/index.ts"],
+      "@spotter-app/spotify-plugin": ["packages/spotify-plugin/src/index.ts"],
+      "@spotter-app/web-plugin": ["packages/web-plugin/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

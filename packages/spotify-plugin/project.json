@@ -1,0 +1,41 @@
+{
+  "root": "packages/spotify-plugin",
+  "sourceRoot": "packages/spotify-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "spotify-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/spotify-plugin",
+        "tsConfig": "packages/spotify-plugin/tsconfig.lib.json",
+        "packageJson": "packages/spotify-plugin/package.json",
+        "main": "packages/spotify-plugin/src/index.ts",
+        "assets": [],
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/spotify-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/spotify-plugin"],
+      "options": {
+        "jestConfig": "packages/spotify-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

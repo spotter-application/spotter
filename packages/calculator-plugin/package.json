@@ -1,0 +1,16 @@
+{
+  "name": "@spotter-app/calculator-plugin",
+  "version": "1.9.1",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "postinstall": "spotter-link-plugin"
+  },
+  "dependencies": {
+    "mathjs": "*",
+    "@spotter-app/plugin": "*",
+    "@spotter-app/core": "*"
+  }
+}

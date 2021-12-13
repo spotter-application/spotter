@@ -1,0 +1,16 @@
+{
+  "name": "@spotter-app/spotify-plugin",
+  "version": "1.9.3",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "postinstall": "spotter-link-plugin"
+  },
+  "dependencies": {
+    "spotify-web-api-node": "*",
+    "@spotter-app/plugin": "*",
+    "@spotter-app/core": "*"
+  }
+}

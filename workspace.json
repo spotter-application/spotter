@@ -2,7 +2,14 @@
   "version": 2,
   "projects": {
     "spotter": "apps/spotter",
-    "test": "apps/test",
-    "test-e2e": "apps/test-e2e"
+    "": "packages",
+    "applications-plugin": "packages/applications-plugin",
+    "brave-plugin": "packages/brave-plugin",
+    "calculator-plugin": "packages/calculator-plugin",
+    "core": "packages/core",
+    "emoji-plugin": "packages/emoji-plugin",
+    "plugin": "packages/plugin",
+    "spotify-plugin": "packages/spotify-plugin",
+    "web-plugin": "packages/web-plugin"
   }
 }
