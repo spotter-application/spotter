@@ -1,4 +1,4 @@
-import { SpotterCommandType, SpotterCommand, SpotterRegistryOption } from '@spotter-app/core';
+import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';

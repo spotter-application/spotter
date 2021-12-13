@@ -17,8 +17,5 @@ module.exports = {
     blacklistRE: blacklist([
       /..\/..\/node_modules\/react-native\/.*/,
     ]),
-    blockList: [
-      new RegExp(/..\/..\/node_modules\/@spotter-app\/.*/),
-    ]
   },
 };

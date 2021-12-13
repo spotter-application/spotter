@@ -11,8 +11,7 @@
     "package.json": {
       "dependencies": "*",
       "devDependencies": "*"
-    },
-    ".eslintrc.json": "*"
+    }
   },
   "tasksRunnerOptions": {
     "default": {
