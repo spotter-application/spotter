@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
     "declaration": false,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -22,7 +23,7 @@
       "@spotter-app/calculator-plugin": [
         "packages/calculator-plugin/src/index.ts"
       ],
-      "@spotter-app/core": ["packages/core/src/index.ts"],
+      "@spotter-app/core": ["packages/core/index.ts"],
       "@spotter-app/emoji-plugin": ["packages/emoji-plugin/src/index.ts"],
       "@spotter-app/plugin": ["packages/plugin/src/index.ts"],
       "@spotter-app/spotify-plugin": ["packages/spotify-plugin/src/index.ts"],

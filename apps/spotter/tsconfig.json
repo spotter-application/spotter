@@ -10,7 +10,11 @@
     "noEmit": true,
     "strict": true,
     "target": "esnext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "paths": {
+      "@spotter-app/core": ["../../packages/core/index.ts"],
+    }
   },
   "exclude": [
     "node_modules",

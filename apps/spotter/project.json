@@ -7,14 +7,14 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "cwd": "apps/spotter",
-        "command": "node ../../node_modules/react-native-macos/local-cli/cli.js run-macos"
+        "command": "node generate-env.js && react-native run-macos"
       }
     },
     "build": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "cwd": "apps/spotter",
-        "command": "node ../../node_modules/react-native-macos/local-cli/cli.js run-macos --configuration Release"
+        "command": "node generate-env.js && react-native run-macos --configuration Release"
       }
     },
     "pod-install": {

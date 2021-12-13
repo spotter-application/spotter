@@ -1,7 +1,6 @@
 {
   "version": 2,
   "projects": {
-    "spotter": "apps/spotter",
     "": "packages",
     "applications-plugin": "packages/applications-plugin",
     "brave-plugin": "packages/brave-plugin",
@@ -10,6 +9,7 @@
     "emoji-plugin": "packages/emoji-plugin",
     "plugin": "packages/plugin",
     "spotify-plugin": "packages/spotify-plugin",
+    "spotter": "apps/spotter",
     "web-plugin": "packages/web-plugin"
   }
 }

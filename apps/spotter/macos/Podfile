@@ -4,6 +4,7 @@ require_relative '../../../node_modules/@react-native-community/cli-platform-ios
 pod 'Magnet'
 pod 'KeyHolder'
 pod 'CallbackURLKit'
+pod 'RNFS', :path => '../../../node_modules/react-native-fs'
 
 target 'spotter-macOS' do
   platform :macos, '11.0'

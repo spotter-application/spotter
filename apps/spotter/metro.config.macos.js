@@ -16,6 +16,10 @@ module.exports = {
     platforms: ['macos'],
     blacklistRE: blacklist([
       /..\/..\/node_modules\/react-native\/.*/,
+      /..\/..\/dist\/*/,
     ]),
+    // blockList: [
+    //   /..\/..\/dist\/packages\/*/,
+    // ],
   },
 };

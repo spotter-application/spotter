@@ -5,7 +5,6 @@
     "@react-native-async-storage/async-storage": "*",
     "react": "*",
     "react-native": "*",
-    "react-native-dotenv": "*",
     "react-native-macos": "*",
     "rxjs": "*"
   },
@@ -13,7 +12,6 @@
     "@babel/core": "*",
     "@babel/runtime": "*",
     "@react-native-community/eslint-config": "*",
-    "@spotter-app/core": "*",
     "@types/jest": "*",
     "@types/react": "*",
     "@types/react-native": "*",

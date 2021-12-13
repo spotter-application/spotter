@@ -101,3 +101,12 @@ apps/spotter-e2e/artifacts
 node_modules/
 
 apps/test-e2e/artifacts
+
+## Env
+.env
+## Nested node_modules
+
+node_modules/
+## Nested node_modules
+
+node_modules/
