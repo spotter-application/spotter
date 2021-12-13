@@ -1,25 +1,17 @@
-import { promisedExec } from '@spotter-app/plugin';
 import { PREFERENCES } from './constants';
 import { Application } from './interfaces';
+import { exec } from 'child_process';
 
 export const getAllApplications = async (): Promise<Application[]> => {
-  const paths = [
-    '/System/Applications',
-    '/System/Applications/Utilities',
-    '/Applications',
-    '~/Applications',
-    '~/Applications/Chrome Apps.localized',
-  ];
 
-  const applications: Application[] = await paths.reduce(
-    async (asyncAcc, path) => {
-      return [
-        ...(await asyncAcc),
-        ...(await getDeepApplications(path)),
-      ];
-    },
-    Promise.resolve([]),
-  );
+  const paths: string[] = (await execPromise('mdfind -onlyin /Applications -onlyin $HOME  kMDItemContentTypeTree=com.apple.application-bundle')).split('\n');
+
+  const applications: Application[] = paths.map((p) => {
+    return {
+      path: p,
+      title: p.substring(p.lastIndexOf('/') + 1)
+    }
+  })
 
   return [
     ...applications,
@@ -31,41 +23,15 @@ export const getAllApplications = async (): Promise<Application[]> => {
   ];
 }
 
-async function getDeepApplications(path: string): Promise<Application[]> {
-  if (path.startsWith('~')) {
-    const user = await promisedExec('echo $USER');
-    path = path.replace('~', `/Users/${user}`);
-  }
-
-  const applicationsStrings = await promisedExec(
-    `cd ${path.replace(/(\s+)/g, '\\$1')} && ls || echo ''`
-  )
-    .then((res: string) => res.split('\n')
-    .reduce(async (acc, title) => {
-      const resolvedAcc = await acc;
-
-      if (title.endsWith('.app')) {
-        return [
-          ...resolvedAcc,
-          {
-            title: title.replace('.app', ''),
-            path: `${path}/${title}`,
-          },
-        ];
+export function execPromise(command: string): Promise<string> {
+  return new Promise(function(resolve, reject) {
+    exec(command, (error, stdout) => {
+      if (error) {
+        reject(error);
+        return;
       }
 
-      if (path.split('/').length > 2) {
-        return resolvedAcc;
-      }
-
-      if (!title) {
-        return resolvedAcc;
-      }
-
-      const deepApplicationsStrings =
-        await getDeepApplications(`${path}/${title}`);
-      return [...resolvedAcc, ...deepApplicationsStrings];
-    }, Promise.resolve([])));
-
-  return applicationsStrings;
+      resolve(stdout.trim());
+    });
+  });
 }
