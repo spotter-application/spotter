@@ -129,11 +129,7 @@ export class Input extends React.PureComponent<InputProps> {
         ...centeredTextStyles,
       }}>
         {this.props.value}
-        {(!this.props.value || this.props.value.endsWith(' ')) && <Text
-        style={{
-          margin: 'auto',
-          ...this.props.style,
-        }}>│</Text>}
+        <Text style={{ margin: 'auto', ...this.props.style }}>│</Text>
       </Text>
 
       {(this.props.placeholder && !this.props.value) ? <Text

@@ -206,6 +206,68 @@ export const EventsProvider: FC<{}> = (props) => {
     options$.next(nextOptions);
   }
 
+  const onQueryForSelectedOption = async (nextQuery: string) => {
+    if (!selectedOption$.value || !selectedOption$.value.onQueryId) {
+      return;
+    }
+
+    const command: SpotterCommand = {
+      type: SpotterCommandType.onQuery,
+      onQueryId: selectedOption$.value.onQueryId,
+      query: nextQuery,
+    };
+
+    sendCommand(command, selectedOption$.value.pluginName);
+  }
+
+  const onQueryForOptionsWithPrefixes = async (nextQuery: string) => {
+    const loweCaseQuery = nextQuery.toLowerCase();
+    const matchedPrefixes = registeredOptions$.value.filter(
+      p => p.prefix && loweCaseQuery.startsWith(`${p.prefix.toLowerCase()} `),
+    );
+
+    if (!matchedPrefixes.length) {
+      return;
+    }
+
+    matchedPrefixes.forEach(async option => {
+      if (!option.onQueryId) {
+        return;
+      }
+
+      selectedOption$.next(option);
+      query$.next('');
+
+      const command: SpotterCommand = {
+        type: SpotterCommandType.onQuery,
+        query: '',
+        onQueryId: option.onQueryId,
+      };
+      sendCommand(command, option.pluginName);
+    });
+  }
+
+  const onQueryForRegisteredOptions = async (nextQuery: string) => {
+    const filteredRegisteredOptions = registeredOptions$.value.filter(
+      o => o.title
+          .split(' ')
+          .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
+    );
+    const history = await getHistory();
+    const prioritizedOptions = replaceOptions(filteredRegisteredOptions);
+    const sortedOptions = sortOptions(
+      prioritizedOptions ,
+      selectedOption$.value,
+      history,
+    );
+
+    options$.next(sortedOptions);
+
+    if (sortedOptions.length) {
+      displayedOptionsForCurrentWorkflow$.next(true);
+    }
+  }
+
   const onQuery = async (nextQuery: string) => {
     query$.next(nextQuery);
 
@@ -214,70 +276,17 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    // Execute selected option tabAction
-    if (selectedOption$.value) {
-      if (!selectedOption$.value.onQueryId) {
-        console.error('There is no onQueryId in selected option');
-        return;
-      }
-      const command: SpotterCommand = {
-        type: SpotterCommandType.onQuery,
-        onQueryId: selectedOption$.value.onQueryId,
-        query: nextQuery,
-      };
-      sendCommand(command, selectedOption$.value.pluginName);
-      return;
-    }
-    
-
     // Help
     if (nextQuery === '?') {
       printHelpOptions();
       return;
     }
 
-    // Check for matched prefixes
-    const loweCaseQuery = nextQuery.toLowerCase();
-    const matchedPrefixes = registeredOptions$.value.filter(
-      p => p.prefix && loweCaseQuery.startsWith(`${p.prefix.toLowerCase()} `),
-    );
+    onQueryForSelectedOption(nextQuery);
 
-    if (matchedPrefixes.length) {
-      matchedPrefixes.forEach(async option => {
-        if (!option.onQueryId) {
-          return;
-        }
-
-        selectedOption$.next(option);
-        query$.next('');
-
-        const command: SpotterCommand = {
-          type: SpotterCommandType.onQuery,
-          query: '',
-          onQueryId: option.onQueryId,
-        };
-        sendCommand(command, option.pluginName);
-      });
-    }
-
-    // Check for registered options
-    const filteredRegisteredOptions = registeredOptions$.value.filter(
-      o => o.title
-          .split(' ')
-          .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
-    );
-
-    const history = await getHistory();
-    const prioritizedOptions = replaceOptions(filteredRegisteredOptions);
-    const sortedOptions = sortOptions(
-      prioritizedOptions ,
-      selectedOption$.value,
-      history,
-    );
-    options$.next(sortedOptions);
-    if (sortedOptions.length) {
-      displayedOptionsForCurrentWorkflow$.next(true);
-    }
+    onQueryForOptionsWithPrefixes(nextQuery);
+    
+    onQueryForRegisteredOptions(nextQuery);
   };
 
   const onArrowUp = () => {

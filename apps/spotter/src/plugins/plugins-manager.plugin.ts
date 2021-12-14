@@ -1,4 +1,4 @@
-import { Command, CommandType, SpotterPlugin } from '@spotter-app/core';
+import { SpotterPlugin } from '@spotter-app/core';
 
 const shortPath = (path: string): string => {
   const pluginName = path.split('/').find(item => item.endsWith('-plugin'));
@@ -43,7 +43,7 @@ export class PluginsManagerPlugin extends SpotterPlugin {
     const plugins = await this.spotter.plugins.get();
     return plugins.map(p => ({
       title: toTitleCase(shortPath(p.path)),
-      tabAction: () => this.pluginMenu(p.path),
+      onQuery: () => this.pluginMenu(p.path),
     }));
   }
 
@@ -51,7 +51,7 @@ export class PluginsManagerPlugin extends SpotterPlugin {
     return [
       {
         title: 'Remove',
-        action: () => this.remove(plugin),
+        onSubmit: () => this.remove(plugin),
       },
     ];
   }
