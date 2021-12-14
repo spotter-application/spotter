@@ -9,8 +9,8 @@ type Context = {
   options$: BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>,
   selectedOption$: BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>,
   loading$: BehaviorSubject<boolean>,
+  doing$: BehaviorSubject<string | null>,
   hoveredOptionIndex$: BehaviorSubject<number>,
-  waitingFor$: BehaviorSubject<string | null>,
   displayedOptionsForCurrentWorkflow$: BehaviorSubject<boolean>,
   registeredOptions$: BehaviorSubject<PluginRegistryOption[]>,
   resetState: () => void,
@@ -23,8 +23,8 @@ const context: Context = {
   options$: new BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>([]),
   selectedOption$: new BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>(null),
   loading$: new BehaviorSubject<boolean>(false),
+  doing$: new BehaviorSubject<string | null>(null),
   hoveredOptionIndex$: new BehaviorSubject<number>(0),
-  waitingFor$: new BehaviorSubject<string | null>(null),
   displayedOptionsForCurrentWorkflow$: new BehaviorSubject<boolean>(false),
   registeredOptions$: new BehaviorSubject<PluginRegistryOption[]>([]),
   resetState: () => null,
@@ -42,7 +42,6 @@ export const StateProvider: FC<{}> = (props) => {
     context.loading$.next(false);
     context.hoveredOptionIndex$.next(0);
     context.selectedOption$.next(null);
-    context.waitingFor$.next(null);
     context.displayedOptionsForCurrentWorkflow$.next(false);
   }
 

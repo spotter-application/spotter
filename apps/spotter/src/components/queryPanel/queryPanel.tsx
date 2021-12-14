@@ -12,7 +12,7 @@ import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
 import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
-import { PluginOption, SpotterThemeColors } from '../../interfaces';
+import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
 import { Subscription } from 'rxjs';
 import { DARK_THEME, LIGHT_THEME } from '../../constants';
 
@@ -36,19 +36,19 @@ export const QueryPanel: FC<{}> = () => {
     query$,
     hoveredOptionIndex$,
     selectedOption$,
-    waitingFor$,
     displayedOptionsForCurrentWorkflow$,
+    doing$,
   } = useSpotterState();
 
   const { colors$ } = useSettings();
 
-  const [options, setOptions] = useState<PluginOption[]>([]);
+  const [options, setOptions] = useState<PluginOnQueryOption[] | PluginRegistryOption[]>([]);
   const [placeholder, setPlaceholder] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [doing, setDoing] = useState<string | null>(null);
   const [query, setQuery] = useState<string>('');
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
-  const [selectedOption, setSelectedOption] = useState<PluginOption | null>(null);
-  const [waitingFor, setWaitingFor] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<PluginOnQueryOption | PluginRegistryOption | null>(null);
   const [
     displayedOptionsForCurrentWorkflow,
     setDisplayedOptionsForCurrentWorkflow,
@@ -58,18 +58,14 @@ export const QueryPanel: FC<{}> = () => {
   const subscriptions: Subscription[] = [];
 
   useEffect(() => {
-    // TODO: set dark/light themes
-    // Appearance.addChangeListener(preferences => {
-    //   setIsDark(preferences.colorScheme === 'dark');
-    // });
     subscriptions.push(
       options$.subscribe(setOptions),
       placeholder$.subscribe(setPlaceholder),
       loading$.subscribe(setLoading),
+      doing$.subscribe(setDoing),
       query$.subscribe(setQuery),
       hoveredOptionIndex$.subscribe(setHoveredOptionIndex),
       selectedOption$.subscribe(setSelectedOption),
-      waitingFor$.subscribe(setWaitingFor),
       displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
       colors$.subscribe(setColors),
     );
@@ -85,24 +81,14 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors?.background,
         ...styles.input,
-        ...(displayOptions || waitingFor ? styles.inputWithResults : {}),
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
+        ...(displayOptions || doing ? styles.inputWithResults : {}),
       }}>
         {
           selectedOption ?
           // TODO: Create component
             <View style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
+              ...styles.selectedOptionContainer,
               backgroundColor: colors?.activeOptionBackground,
-              paddingLeft: 10,
-              paddingRight: 10,
-              borderRadius: 10,
-              marginRight: 5,
-              padding: 5,
             }}>
               <OptionIcon
                 style={{
@@ -111,7 +97,10 @@ export const QueryPanel: FC<{}> = () => {
                 }}
                 icon={selectedOption.icon}
               ></OptionIcon>
-              <Text style={{ fontSize: 16, color: colors?.activeOptionText }}>{selectedOption.title}</Text>
+              <Text style={{
+                fontSize: 16,
+                color: colors?.activeOptionText
+              }}>{selectedOption.title}</Text>
             </View>
           : null
         }
@@ -151,16 +140,19 @@ export const QueryPanel: FC<{}> = () => {
         </View>
 
       </View>
-      { waitingFor?.length ?
+      {doing &&
         <View style={{
           backgroundColor: colors?.background,
-          ...styles.input,
-          padding: 10,
-          paddingTop: 0,
-          ...(options?.length ? styles.inputWithResults : {}),
+          paddingLeft: 14,
+          paddingBottom: 10,
+          borderBottomLeftRadius: 10,
+          borderBottomRightRadius: 10,
+          ...(displayOptions ? styles.inputWithResults : {}),
         }}>
-          <Text style={{ opacity: 0.5, fontSize: 12 }}>{waitingFor}</Text>
-        </View> : null
+          <Text style={{
+            fontSize: 12,
+          }}>{doing}</Text>
+        </View>
       }
       {
         <QueryPanelOptions
@@ -185,6 +177,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     padding: 10,
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   options: {
     borderBottomLeftRadius: 10,
@@ -194,4 +189,14 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     height: 510,
   },
+  selectedOptionContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 10,
+    marginRight: 5,
+    padding: 5,
+  }
 });

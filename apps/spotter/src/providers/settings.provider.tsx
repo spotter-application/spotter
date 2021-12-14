@@ -7,7 +7,7 @@ import { parseTheme } from '../helpers';
 import { SpotterThemeColors } from '../interfaces';
 import { useApi } from './api.provider';
 
-const SETTINGS_STORAGE_KEY = 'SETTINGS_0.1';
+const SETTINGS_STORAGE_KEY = 'SETTINGS_0.2-beta.0';
 
 type Context = {
   getSettings: () => Promise<Settings>,
@@ -20,6 +20,7 @@ const initialSettings: Settings = {
   hotkey: { doubledModifiers: true, keyCode: 0, modifiers: 512 },
   pluginHotkeys: {},
   theme: Appearance.getColorScheme() === 'dark' ? DARK_THEME : LIGHT_THEME,
+  pluginsPreinstalled: false,
 };
 
 const context: Context = {
@@ -65,12 +66,14 @@ export const SettingsProvider: FC<{}> = (props) => {
       hotkey,
       pluginHotkeys,
       theme,
+      pluginsPreinstalled,
     } = settings;
 
     return {
       hotkey: hotkey ?? initialSettings.hotkey,
       pluginHotkeys: pluginHotkeys ?? initialSettings.pluginHotkeys,
       theme: theme ?? initialSettings.theme,
+      pluginsPreinstalled: pluginsPreinstalled ?? initialSettings.pluginsPreinstalled,
     };
   }
 

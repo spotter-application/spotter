@@ -1,6 +1,6 @@
 import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
-import { ALT_QUERY_KEY_MAP, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { ALT_QUERY_KEY_MAP, PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
@@ -10,6 +10,7 @@ import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
 import { combineLatest, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { Alert } from 'react-native';
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -37,17 +38,17 @@ export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
   const { panel, shell, hotkey } = useApi();
-  const { getSettings } = useSettings();
+  const { getSettings, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const {
     query$,
     altQuery$,
     options$,
     selectedOption$,
-    loading$,
     hoveredOptionIndex$,
     registeredOptions$,
     displayedOptionsForCurrentWorkflow$,
+    doing$,
     resetState,
   } = useSpotterState();
   const { sendCommand } = usePlugins();
@@ -55,8 +56,25 @@ export const EventsProvider: FC<{}> = (props) => {
   const subscriptions: Subscription[] = [];
 
   useEffect(() => {
-    registerHotkeys();
-    checkDependencies();
+    init();
+  }, []);
+
+  useEffect(() => {
+    return () => subscriptions.forEach(s => s.unsubscribe());
+  }, []);
+
+  const init = async () => {
+    await registerHotkeys();
+
+    const settings = await getSettings();
+    if (!settings.pluginsPreinstalled) {
+      doing$.next('Installing dependencies...');
+      await checkDependencies();
+      doing$.next('Installing plugins...');
+      await installPlugins();
+      doing$.next(null);
+      patchSettings({pluginsPreinstalled: true});
+    }
 
     subscriptions.push(
       altQuery$.pipe(
@@ -83,12 +101,8 @@ export const EventsProvider: FC<{}> = (props) => {
         };
         sendCommand(command, nextHoveredOption.pluginName);
       })
-    )
-  }, []);
-
-  useEffect(() => {
-    return () => subscriptions.forEach(s => s.unsubscribe());
-  }, []);
+    );
+  }
 
   const registerHotkeys = async () => {
     const settings = await getSettings();
@@ -137,6 +151,17 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     await shell.execute('brew install node');
+  }
+
+  const installPlugins = async () => {
+    return await Promise.all(PLUGINS_TO_INSTALL.map(async plugin => {
+      try {
+        await shell.execute(`npm uninstall -g ${plugin}`);
+        await shell.execute(`npm i -g ${plugin}`);
+      } catch (e) {
+        Alert.alert(`${e}`);
+      }
+    }));
   }
 
   const onEscape = () => {

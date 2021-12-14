@@ -41,3 +41,12 @@ export const ALT_QUERY_KEY_MAP = {
 
 export const LIGHT_THEME = '#efefef,#101010,#dddddd,#000000,#0f60cf,#fefefe';
 export const DARK_THEME = '#212121,#ffffff,#3c3c3c,#ffffff,#0f60cf,#fefefe';
+
+export const PLUGINS_TO_INSTALL = [
+  '@spotter-app/applications-plugin',
+  '@spotter-app/brave-plugin',
+  '@spotter-app/calculator-plugin',
+  '@spotter-app/emoji-plugin',
+  '@spotter-app/spotify-plugin@1.9.8',
+  '@spotter-app/web-plugin',
+];

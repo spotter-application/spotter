@@ -7,6 +7,7 @@ export interface Settings {
   hotkey: Hotkey | null,
   pluginHotkeys: PluginHotkeys,
   theme: string,
+  pluginsPreinstalled: boolean,
 }
 
 export interface PluginRegistryEntry {
