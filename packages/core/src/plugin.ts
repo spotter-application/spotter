@@ -33,123 +33,123 @@ export class SpotterPlugin {
   private actionsRegistry: {[id: string]: Action | OnQueryAction} = {};
 
   constructor(channel: Promise<ChannelForPlugin>) {
-    this.init(channel);
+    this.spotterInitPlugin(channel);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onInit() {}
 
   // API
-  private getSettings = (): Promise<Settings> => {
+  private spotterGetSettings = (): Promise<Settings> => {
     const id = generateId();
-    this.sendCommand(CommandType.getSettings, id);
-    return this.reciveDataWithId<Settings>(id);
+    this.spotterSendCommand(CommandType.getSettings, id);
+    return this.spotterReciveDataWithId<Settings>(id);
   }
 
-  private patchSettings = (value: Partial<Settings>) => {
-    this.sendCommand(CommandType.patchSettings, value);
+  private spotterPatchSettings = (value: Partial<Settings>) => {
+    this.spotterSendCommand(CommandType.patchSettings, value);
   }
 
-  private getStorage = <T>(): Promise<Storage<T>> => {
+  private spotterGetStorage = <T>(): Promise<Storage<T>> => {
     const id = generateId();
-    this.sendCommand(CommandType.getStorage, id);
-    return this.reciveDataWithId<Storage<T>>(id);
+    this.spotterSendCommand(CommandType.getStorage, id);
+    return this.spotterReciveDataWithId<Storage<T>>(id);
   }
 
-  private patchStorage = <T>(value: Partial<Storage<T>>) => {
-    this.sendCommand(CommandType.patchStorage, value);
+  private spotterPatchStorage = <T>(value: Partial<Storage<T>>) => {
+    this.spotterSendCommand(CommandType.patchStorage, value);
   }
 
-  private setStorage = <T>(value: Storage<T>) => {
-    this.sendCommand(CommandType.setStorage, value);
+  private spotterSetStorage = <T>(value: Storage<T>) => {
+    this.spotterSendCommand(CommandType.setStorage, value);
   }
 
-  private setRegisteredOptions = (input: RegistryOption[]) => {
-    const value = this.registredOptionsToSpotterRegistredOptions(input);
-    this.sendCommand(CommandType.setRegisteredOptions, value);
+  private spotterSetRegisteredOptions = (input: RegistryOption[]) => {
+    const value = this.spotterRegistredOptionsToSpotterRegistredOptions(input);
+    this.spotterSendCommand(CommandType.setRegisteredOptions, value);
   }
 
-  private patchRegisteredOptions = (input: RegistryOption[]) => {
-    const value = this.registredOptionsToSpotterRegistredOptions(input);
-    this.sendCommand(CommandType.patchRegisteredOptions, value);
+  private sptoterPatchRegisteredOptions = (input: RegistryOption[]) => {
+    const value = this.spotterRegistredOptionsToSpotterRegistredOptions(input);
+    this.spotterSendCommand(CommandType.patchRegisteredOptions, value);
   }
 
-  private setOnQueryOptions = (input: OnQueryOption[]) => {
-    const value = this.onQueryOptionsToSpotterOnQueryOptions(input);
-    this.sendCommand(CommandType.setOnQueryOptions, value);
+  private spotterSetOnQueryOptions = (input: OnQueryOption[]) => {
+    const value = this.spotterOnQueryOptionsToSpotterOnQueryOptions(input);
+    this.spotterSendCommand(CommandType.setOnQueryOptions, value);
   }
 
-  private setPlaceholder = (value: string) => {
-    this.sendCommand(CommandType.setPlaceholder, value);
+  private spotterSetPlaceholder = (value: string) => {
+    this.spotterSendCommand(CommandType.setPlaceholder, value);
   }
 
-  private setQuery = (value: string) => {
-    this.sendCommand(CommandType.setQuery, value);
+  private sptoterSetQuery = (value: string) => {
+    this.spotterSendCommand(CommandType.setQuery, value);
   }
 
-  private setError = (value: string) => {
-    this.sendCommand(CommandType.setError, value);
+  private spotterSetError = (value: string) => {
+    this.spotterSendCommand(CommandType.setError, value);
   }
 
-  private open = () => {
-    this.sendCommand(CommandType.open);
+  private spotterOpen = () => {
+    this.spotterSendCommand(CommandType.open);
   }
 
-  private close = () => {
-    this.sendCommand(CommandType.close);
+  private spotterClose = () => {
+    this.spotterSendCommand(CommandType.close);
   }
 
-  private getPlugins = () => {
+  private spotterGetPlugins = () => {
     const id = generateId();
-    this.sendCommand(CommandType.getPlugins, id);
-    return this.reciveDataWithId<PluginRegistryEntry[]>(id);
+    this.spotterSendCommand(CommandType.getPlugins, id);
+    return this.spotterReciveDataWithId<PluginRegistryEntry[]>(id);
   }
 
-  private addPlugin = (value: string) => {
-    this.sendCommand(CommandType.addPlugin, value);
+  private spotterAddPlugin = (value: string) => {
+    this.spotterSendCommand(CommandType.addPlugin, value);
   }
 
-  private connectPlugin = (value: ConnectPluginData) => {
-    this.sendCommand(CommandType.connectPlugin, value);
+  private spotterConnectPlugin = (value: ConnectPluginData) => {
+    this.spotterSendCommand(CommandType.connectPlugin, value);
   }
 
-  private updatePlugin = (value: string) => {
-    this.sendCommand(CommandType.updatePlugin, value);
+  private spotterUpdatePlugin = (value: string) => {
+    this.spotterSendCommand(CommandType.updatePlugin, value);
   }
 
-  private removePlugin = (value: string) => {
-    this.sendCommand(CommandType.removePlugin, value);
+  private spotterRemovePlugin = (value: string) => {
+    this.spotterSendCommand(CommandType.removePlugin, value);
   }
 
-  private setTheme = (value: string) => {
-    this.sendCommand(CommandType.setTheme, value);
+  private spotterSetTheme = (value: string) => {
+    this.spotterSendCommand(CommandType.setTheme, value);
   }
 
   readonly spotter = {
-    getSettings: this.getSettings,
-    patchSettings: this.patchSettings,
-    getStorage: this.getStorage,
-    setStorage: this.setStorage,
-    patchStorage: this.patchStorage,
-    setRegisteredOptions: this.setRegisteredOptions,
-    patchRegisteredOptions: this.patchRegisteredOptions,
-    setPlaceholder: this.setPlaceholder,
-    setQuery: this.setQuery,
-    setError: this.setError,
-    open: this.open,
-    close: this.close,
+    getSettings: this.spotterGetSettings,
+    patchSettings: this.spotterPatchSettings,
+    getStorage: this.spotterGetStorage,
+    setStorage: this.spotterSetStorage,
+    patchStorage: this.spotterPatchStorage,
+    setRegisteredOptions: this.spotterSetRegisteredOptions,
+    patchRegisteredOptions: this.sptoterPatchRegisteredOptions,
+    setPlaceholder: this.spotterSetPlaceholder,
+    setQuery: this.sptoterSetQuery,
+    setError: this.spotterSetError,
+    open: this.spotterOpen,
+    close: this.spotterClose,
     plugins: {
-      get: this.getPlugins,
-      add: this.addPlugin,
-      connect: this.connectPlugin,
-      update: this.updatePlugin,
-      remove: this.removePlugin,
+      get: this.spotterGetPlugins,
+      add: this.spotterAddPlugin,
+      connect: this.spotterConnectPlugin,
+      update: this.spotterUpdatePlugin,
+      remove: this.spotterRemovePlugin,
     },
-    setTheme: this.setTheme,
+    setTheme: this.spotterSetTheme,
   }
 
   // Helpers
-  private onQueryOptionsToSpotterOnQueryOptions(
+  private spotterOnQueryOptionsToSpotterOnQueryOptions(
     value: Array<OnQueryOption>,
   ): Array<SpotterOnQueryOption> {
     return value.map<OnQueryOption>(option => {
@@ -192,7 +192,7 @@ export class SpotterPlugin {
     });
   }
 
-  private registredOptionsToSpotterRegistredOptions(
+  private spotterRegistredOptionsToSpotterRegistredOptions(
     value: Array<RegistryOption>,
   ): Array<SpotterRegistryOption> {
     return value.map<RegistryOption>(option => {
@@ -228,7 +228,7 @@ export class SpotterPlugin {
     });
   }
 
-  private reciveDataWithId<T>(id: string): Promise<T> {
+  private spotterReciveDataWithId<T>(id: string): Promise<T> {
     return lastValueFrom(
       this.getDataCommand.pipe(
         filter(command => command.id === id),
@@ -239,29 +239,29 @@ export class SpotterPlugin {
   }
 
   // function func(p1: TypeA, p2: ab): void;
-  private sendCommand(type: CommandType.startPluginScript, value: string): void;
-  private sendCommand(type: CommandType.close, value?: null): void;
-  private sendCommand(type: CommandType.getPlugins, value: string): void;
-  private sendCommand(type: CommandType.getSettings, value: string): void;
-  private sendCommand(type: CommandType.getStorage, value: string): void;
-  private sendCommand(type: CommandType.open, value?: null): void;
-  private sendCommand(type: CommandType.patchSettings, value: Partial<Settings>): void;
-  private sendCommand<T>(type: CommandType.patchStorage, value: Partial<Storage<T>>): void;
-  private sendCommand(type: CommandType.setRegisteredOptions, value: SpotterOption[]): void;
-  private sendCommand(type: CommandType.patchRegisteredOptions, value: SpotterOption[]): void;
-  private sendCommand(type: CommandType.removePlugin, value: string): void;
-  private sendCommand(type: CommandType.setError, value: string): void;
-  private sendCommand(type: CommandType.setPlaceholder, value: string): void;
-  private sendCommand(type: CommandType.setOnQueryOptions, value: SpotterOnQueryOption[]): void;
-  private sendCommand(type: CommandType.setQuery, value: string): void;
-  private sendCommand<T>(type: CommandType.setStorage, value: Storage<T>): void;
-  private sendCommand(type: CommandType.addPlugin, value: string): void;
-  private sendCommand(type: CommandType.connectPlugin, value: ConnectPluginData): void;
-  private sendCommand(type: CommandType.updatePlugin, value: string): void;
-  private sendCommand(type: CommandType.removePlugin, value: string): void;
-  private sendCommand(type: CommandType.setTheme, value: string): void;
+  private spotterSendCommand(type: CommandType.startPluginScript, value: string): void;
+  private spotterSendCommand(type: CommandType.close, value?: null): void;
+  private spotterSendCommand(type: CommandType.getPlugins, value: string): void;
+  private spotterSendCommand(type: CommandType.getSettings, value: string): void;
+  private spotterSendCommand(type: CommandType.getStorage, value: string): void;
+  private spotterSendCommand(type: CommandType.open, value?: null): void;
+  private spotterSendCommand(type: CommandType.patchSettings, value: Partial<Settings>): void;
+  private spotterSendCommand<T>(type: CommandType.patchStorage, value: Partial<Storage<T>>): void;
+  private spotterSendCommand(type: CommandType.setRegisteredOptions, value: SpotterOption[]): void;
+  private spotterSendCommand(type: CommandType.patchRegisteredOptions, value: SpotterOption[]): void;
+  private spotterSendCommand(type: CommandType.removePlugin, value: string): void;
+  private spotterSendCommand(type: CommandType.setError, value: string): void;
+  private spotterSendCommand(type: CommandType.setPlaceholder, value: string): void;
+  private spotterSendCommand(type: CommandType.setOnQueryOptions, value: SpotterOnQueryOption[]): void;
+  private spotterSendCommand(type: CommandType.setQuery, value: string): void;
+  private spotterSendCommand<T>(type: CommandType.setStorage, value: Storage<T>): void;
+  private spotterSendCommand(type: CommandType.addPlugin, value: string): void;
+  private spotterSendCommand(type: CommandType.connectPlugin, value: ConnectPluginData): void;
+  private spotterSendCommand(type: CommandType.updatePlugin, value: string): void;
+  private spotterSendCommand(type: CommandType.removePlugin, value: string): void;
+  private spotterSendCommand(type: CommandType.setTheme, value: string): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private sendCommand(type: CommandType, value: any) {
+  private spotterSendCommand(type: CommandType, value: any) {
     if (!this.channel) {
       console.error(CHANNEL_ERROR);
       return;
@@ -276,7 +276,7 @@ export class SpotterPlugin {
   }
 
   // Init plugin
-  private async init(channel: Promise<ChannelForPlugin>) {
+  private async spotterInitPlugin(channel: Promise<ChannelForPlugin>) {
     this.channel = await channel;
     this.channel.onSpotter('message', async (data: string) => {
       const command: SpotterCommand = JSON.parse(data);
@@ -321,7 +321,7 @@ export class SpotterPlugin {
         );
 
         if (Array.isArray(result)) {
-          this.setOnQueryOptions(result);
+          this.spotterSetOnQueryOptions(result);
           return;
         }
 
@@ -330,7 +330,7 @@ export class SpotterPlugin {
         }
 
         if (command.type !== SpotterCommandType.onHover) {
-          this.close();
+          this.spotterClose();
         }
         return;
       }
