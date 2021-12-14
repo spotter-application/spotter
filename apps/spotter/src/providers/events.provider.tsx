@@ -274,7 +274,9 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onQueryForRegisteredOptions = async (nextQuery: string) => {
     const filteredRegisteredOptions = registeredOptions$.value.filter(
-      o => o.title
+      o =>
+        o.prefix?.toLowerCase().startsWith(nextQuery.toLowerCase()) ||
+        o.title
           .split(' ')
           .find(t => t.toLowerCase().startsWith(nextQuery.toLowerCase())),
     );
