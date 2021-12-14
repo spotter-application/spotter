@@ -1,5 +1,3 @@
-import { SpotterThemeColors } from "./interfaces";
-
 export const SPOTTER_HOTKEY_IDENTIFIER = 'spotter';
 
 export const PLUGINS_REGISTRY = 'PLUGINS_REGISTRY'
