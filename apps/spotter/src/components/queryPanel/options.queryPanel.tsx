@@ -136,8 +136,7 @@ export const Option = ({
     }
   </View>
 }
-const uriRegExp = /(\/.*\.\w+)/g;
-export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, icon?: Icon }) => {
+export const OptionIcon = ({ style, icon }: { style?: ViewStyle & ImageStyle, icon?: Icon }) => {
   return <>
     {icon
       ? <View style={{
@@ -150,7 +149,7 @@ export const OptionIcon = ({ style, icon }: { style: ViewStyle & ImageStyle, ico
         }}>
           {icon.endsWith('.app') || icon.endsWith('.prefPane')
             ? <IconImage style={{ width: 25, height: 25 }} source={icon}></IconImage>
-            : uriRegExp.test(icon) || icon.startsWith('https://') || icon.startsWith('http://')
+            : icon.endsWith('.png') || icon.startsWith('https://') || icon.startsWith('http://')
               ? <Image style={{ width: 22, height: 22 }} source={{ uri: icon }}></Image>
               : <Text style={{ margin: 'auto' }}>{icon}</Text>
           }

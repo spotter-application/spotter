@@ -1,3 +1,3 @@
-export * from './src/interfaces';
-export * from './src/plugin';
-export * from './src/helpers';
+export * from './interfaces';
+export * from './plugin';
+export * from './helpers';

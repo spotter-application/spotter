@@ -98,6 +98,7 @@ export enum CommandType {
   updatePlugin = 'updatePlugin',
   removePlugin = 'removePlugin',
   setTheme = 'setTheme',
+  setLoading = 'setLoading',
   open = 'open',
   close = 'close',
 }
@@ -163,6 +164,9 @@ export type Command = {
 } | {
   type: CommandType.setTheme,
   value: string,
+} | {
+  type: CommandType.setLoading,
+  value: boolean,
 } | {
   type: CommandType.open,
 } | {

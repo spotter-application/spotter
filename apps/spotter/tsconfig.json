@@ -11,7 +11,10 @@
     "strict": true,
     "target": "esnext",
     "resolveJsonModule": true,
-    "rootDir": ".",
+    "rootDirs": [
+      ".",
+      "../../packages/core",
+    ],
     "paths": {
       "@spotter-app/core": ["../../packages/core/index.ts"],
     }

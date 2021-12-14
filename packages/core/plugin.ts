@@ -1,7 +1,6 @@
 import { Subject, filter, lastValueFrom, map, first } from 'rxjs';
 import {
   SpotterOption,
-  Command,
   CommandType,
   Settings,
   SpotterCommand,
@@ -43,7 +42,7 @@ export class SpotterPlugin {
   private spotterGetSettings = (): Promise<Settings> => {
     const id = generateId();
     this.spotterSendCommand(CommandType.getSettings, id);
-    return this.spotterReciveDataWithId<Settings>(id);
+    return this.spotterReceiveDataWithId<Settings>(id);
   }
 
   private spotterPatchSettings = (value: Partial<Settings>) => {
@@ -53,7 +52,7 @@ export class SpotterPlugin {
   private spotterGetStorage = <T>(): Promise<Storage<T>> => {
     const id = generateId();
     this.spotterSendCommand(CommandType.getStorage, id);
-    return this.spotterReciveDataWithId<Storage<T>>(id);
+    return this.spotterReceiveDataWithId<Storage<T>>(id);
   }
 
   private spotterPatchStorage = <T>(value: Partial<Storage<T>>) => {
@@ -69,7 +68,7 @@ export class SpotterPlugin {
     this.spotterSendCommand(CommandType.setRegisteredOptions, value);
   }
 
-  private sptoterPatchRegisteredOptions = (input: RegistryOption[]) => {
+  private spotterPatchRegisteredOptions = (input: RegistryOption[]) => {
     const value = this.spotterRegistredOptionsToSpotterRegistredOptions(input);
     this.spotterSendCommand(CommandType.patchRegisteredOptions, value);
   }
@@ -83,7 +82,7 @@ export class SpotterPlugin {
     this.spotterSendCommand(CommandType.setPlaceholder, value);
   }
 
-  private sptoterSetQuery = (value: string) => {
+  private spotterSetQuery = (value: string) => {
     this.spotterSendCommand(CommandType.setQuery, value);
   }
 
@@ -102,7 +101,7 @@ export class SpotterPlugin {
   private spotterGetPlugins = () => {
     const id = generateId();
     this.spotterSendCommand(CommandType.getPlugins, id);
-    return this.spotterReciveDataWithId<PluginRegistryEntry[]>(id);
+    return this.spotterReceiveDataWithId<PluginRegistryEntry[]>(id);
   }
 
   private spotterAddPlugin = (value: string) => {
@@ -125,6 +124,10 @@ export class SpotterPlugin {
     this.spotterSendCommand(CommandType.setTheme, value);
   }
 
+  private spotterSetLoading = (value: boolean) => {
+    this.spotterSendCommand(CommandType.setLoading, value);
+  }
+
   readonly spotter = {
     getSettings: this.spotterGetSettings,
     patchSettings: this.spotterPatchSettings,
@@ -132,9 +135,9 @@ export class SpotterPlugin {
     setStorage: this.spotterSetStorage,
     patchStorage: this.spotterPatchStorage,
     setRegisteredOptions: this.spotterSetRegisteredOptions,
-    patchRegisteredOptions: this.sptoterPatchRegisteredOptions,
+    patchRegisteredOptions: this.spotterPatchRegisteredOptions,
     setPlaceholder: this.spotterSetPlaceholder,
-    setQuery: this.sptoterSetQuery,
+    setQuery: this.spotterSetQuery,
     setError: this.spotterSetError,
     open: this.spotterOpen,
     close: this.spotterClose,
@@ -228,7 +231,7 @@ export class SpotterPlugin {
     });
   }
 
-  private spotterReciveDataWithId<T>(id: string): Promise<T> {
+  private spotterReceiveDataWithId<T>(id: string): Promise<T> {
     return lastValueFrom(
       this.getDataCommand.pipe(
         filter(command => command.id === id),
@@ -238,7 +241,6 @@ export class SpotterPlugin {
     ) as Promise<T>;
   }
 
-  // function func(p1: TypeA, p2: ab): void;
   private spotterSendCommand(type: CommandType.startPluginScript, value: string): void;
   private spotterSendCommand(type: CommandType.close, value?: null): void;
   private spotterSendCommand(type: CommandType.getPlugins, value: string): void;
@@ -260,6 +262,7 @@ export class SpotterPlugin {
   private spotterSendCommand(type: CommandType.updatePlugin, value: string): void;
   private spotterSendCommand(type: CommandType.removePlugin, value: string): void;
   private spotterSendCommand(type: CommandType.setTheme, value: string): void;
+  private spotterSendCommand(type: CommandType.setLoading, value: boolean): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private spotterSendCommand(type: CommandType, value: any) {
     if (!this.channel) {
@@ -267,7 +270,7 @@ export class SpotterPlugin {
       return;
     }
 
-    const command: Command = {
+    const command = {
       type,
       value,
     };
@@ -314,6 +317,13 @@ export class SpotterPlugin {
           return;
         }
 
+        if (
+          command.type !== SpotterCommandType.onHover &&
+          command.type !== SpotterCommandType.onQueryCancel
+        ) {
+          this.spotterSetLoading(true);
+        }
+
         const result: ActionResult = await action.bind(this)(
           command.type === SpotterCommandType.onQuery
             ? command.query
@@ -322,14 +332,30 @@ export class SpotterPlugin {
 
         if (Array.isArray(result)) {
           this.spotterSetOnQueryOptions(result);
+
+          if (
+            command.type !== SpotterCommandType.onHover &&
+            command.type !== SpotterCommandType.onQueryCancel
+          ) {
+            this.spotterSetLoading(false);
+          }
           return;
         }
 
         if (typeof result === 'boolean' && !result) {
+          if (
+            command.type !== SpotterCommandType.onHover &&
+            command.type !== SpotterCommandType.onQueryCancel
+          ) {
+            this.spotterSetLoading(false);
+          }
           return;
         }
 
         if (command.type !== SpotterCommandType.onHover) {
+          if (command.type !== SpotterCommandType.onQueryCancel) {
+            this.spotterSetLoading(false);
+          }
           this.spotterClose();
         }
         return;

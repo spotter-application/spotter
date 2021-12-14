@@ -54,6 +54,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     displayedOptionsForCurrentWorkflow$,
     placeholder$,
     hoveredOptionIndex$,
+    loading$,
     resetState,
   } = useSpotterState();
 
@@ -380,7 +381,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.setError) {
-      Alert.alert(command.value ?? `${command.pluginName} error...`);
+      Alert.alert(command.value);
       return;
     }
 
@@ -401,6 +402,11 @@ export const PluginsProvider: FC<{}> = (props) => {
 
     if (command.type === CommandType.setTheme) {
       setTheme(command.value);
+      return;
+    }
+
+    if (command.type === CommandType.setLoading) {
+      loading$.next(command.value);
       return;
     }
 
