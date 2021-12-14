@@ -1,21 +1,6 @@
 import { evaluate, format } from 'mathjs';
 import { Plugin } from '@spotter-app/plugin';
-
-const PREFIXES = [
-  '0',
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  'sin',
-  'cos',
-  'tan',
-];
+import { exec } from 'node:child_process';
 
 const OPERATORS = [
   '+',
@@ -35,18 +20,25 @@ new class CalculatorPlugin extends Plugin {
   }
 
   onInit() {
-    // TODO: check
-    // this.spotter.setRegisteredPrefixes(PREFIXES.map(prefix => ({
-    //   prefix,
-    //   onQuery: this.calculate,
-    // })));
+    this.spotter.setRegisteredOptions([{
+      title: 'Calculator',
+      prefix: 'clc',
+      icon: this.calculatorPath,
+      replaceOptions: ['Calculator'],
+      onSubmit: this.open,
+      onQuery: this.calculate,
+    }]);
+  }
+
+  open() {
+    exec(`open "${this.calculatorPath}"`);
   }
 
   calculate(query: string) {
     const hasOperator = OPERATORS.find(o => query.indexOf(o) !== -1);
 
     if (!hasOperator) {
-      return;
+      return [];
     }
 
     const execution = query.replaceAll('=', '');
@@ -59,12 +51,12 @@ new class CalculatorPlugin extends Plugin {
     }
 
     if (!result) {
-      return;
+      return [];
     }
 
     if (query.endsWith('=')) {
       this.spotter.setQuery(result);
-      return;
+      return [];
     }
 
     return [{
