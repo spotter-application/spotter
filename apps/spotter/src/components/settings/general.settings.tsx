@@ -11,11 +11,12 @@ export const GeneralSettings: FC<{}> = () => {
   useEffect(() => {
     const setSettings = async () => {
       const loginItems = await shell.execute('osascript -e \'tell application "System Events" to get the name of every login item\' || echo \'\'');
-      const launchAtLoginStatus = !!loginItems.split(',').find(item => item === 'spotter');
+      const launchAtLoginStatus = !!loginItems.split(',').find((item: string) => item.includes('Spotter'));
 
       setLaunchAtLoginEnabled(launchAtLoginStatus);
 
-      const spotterPath = await shell.execute('osascript -e \'POSIX path of (path to application "Spotify")\'');
+      const spotterPath = await shell.execute('osascript -e \'POSIX path of (path to application "Spotter")\'');
+
       setSpotterPath(spotterPath);
     };
 
@@ -28,9 +29,10 @@ export const GeneralSettings: FC<{}> = () => {
         Alert.alert('You have to move Spotter.app to Applications folder');
         return;
       }
-      shell.execute(`osascript -e 'tell application "System Events" to make login item at end with properties {path:"${spotterPath}", hidden:false}'`)
+      const properties = `{path:\"${spotterPath}\", hidden:false}`
+      shell.execute(`osascript -e 'tell application "System Events" to make login item at end with properties ${properties}'`)
     } else {
-      shell.execute('osascript -e \'tell application "System Events" to delete login item "spotter"\'')
+      shell.execute('osascript -e \'tell application "System Events" to delete login item "Spotter"\'')
     }
     setLaunchAtLoginEnabled(value);
   };

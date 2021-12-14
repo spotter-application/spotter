@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Appearance,
 } from 'react-native';
 import { useSettings, useSpotterState } from '../../providers';
 import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
@@ -14,7 +13,6 @@ import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
 import { Subscription } from 'rxjs';
-import { DARK_THEME, LIGHT_THEME } from '../../constants';
 
 export const QueryPanel: FC<{}> = () => {
 

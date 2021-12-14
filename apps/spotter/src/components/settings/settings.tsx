@@ -19,6 +19,22 @@ export const Settings: FC<{}> = () => {
 
   const onSelectPage = useCallback(setActivePage, []);
 
+  const { colors$ } = useSettings();
+
+  const [colors, setColors] = useState<SpotterThemeColors>();
+
+  const subscriptions: Subscription[] = [];
+
+  useEffect(() => {
+    subscriptions.push(
+      colors$.subscribe(setColors),
+    );
+  }, []);
+
+  useEffect(() => {
+    return () => subscriptions.forEach(s => s.unsubscribe());
+  }, []);
+
   const renderPage = (page: Pages) => {
     switch(page) {
       case Pages.general:
@@ -37,7 +53,7 @@ export const Settings: FC<{}> = () => {
       <View style={{
         display: 'flex',
         flexDirection: 'row',
-        borderBottomWidth: 1,
+        backgroundColor: colors?.background,
       }}>
         {Object.values(Pages).map(page => (
           <TouchableOpacity
@@ -47,14 +63,23 @@ export const Settings: FC<{}> = () => {
           >
             <Text
               style={{
-                // color: page === activePage ? colors?.text : colors?.hoveredOptionText,
+                color: page === activePage ? colors?.hoveredOptionBackground: colors?.text,
               }}
             >{page[0].toUpperCase() + page.slice(1)}</Text>
           </TouchableOpacity>
         ))}
       </View>
-      <ScrollView>
-        <View style={{margin: 15}}>
+      <View style={{
+        height: 1,
+        backgroundColor: colors?.text,
+        opacity: 0.2,
+      }}></View>
+      <ScrollView style={{
+        backgroundColor: colors?.background,
+      }}>
+        <View style={{
+          margin: 15,
+        }}>
           {renderPage(activePage)}
         </View>
       </ScrollView>
