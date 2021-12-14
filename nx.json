@@ -7,6 +7,12 @@
   "cli": {
     "defaultCollection": "@nrwl/workspace"
   },
+  "implicitDependencies": {
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    }
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",

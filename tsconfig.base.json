@@ -25,9 +25,10 @@
       ],
       "@spotter-app/core": ["packages/core/index.ts"],
       "@spotter-app/emoji-plugin": ["packages/emoji-plugin/src/index.ts"],
-      "@spotter-app/plugin": ["packages/plugin/src/index.ts"],
+      "@spotter-app/plugin": ["packages/plugin/index.ts"],
       "@spotter-app/spotify-plugin": ["packages/spotify-plugin/src/index.ts"],
-      "@spotter-app/web-plugin": ["packages/web-plugin/src/index.ts"]
+      "@spotter-app/web-plugin": ["packages/web-plugin/src/index.ts"],
+      "@spotter-app/vscode-plugin": ["packages/vscode-plugin/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
