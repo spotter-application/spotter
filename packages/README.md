@@ -44,12 +44,9 @@
 - `yandex.com <tab> query`
 
 ## Calculator plugin
-<p align="center">
-  <img src="/packages/previews/calc.gif?raw=true" alt="" height="400" />
-</p>
 
 #### Install
 `npm i -g @spotter-app/calculator-plugin`
 
 #### Usage
-- `expression =`
+- `calculator <tab> <EXPRESSION> =`
