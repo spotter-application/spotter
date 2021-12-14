@@ -17,8 +17,7 @@
         "tsConfig": "packages/calculator-plugin/tsconfig.lib.json",
         "packageJson": "packages/calculator-plugin/package.json",
         "main": "packages/calculator-plugin/src/index.ts",
-        "assets": [],
-        "generatePackageJson": true
+        "assets": []
       }
     },
     "lint": {

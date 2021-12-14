@@ -11,8 +11,7 @@
         "tsConfig": "packages/core/tsconfig.lib.json",
         "packageJson": "packages/core/package.json",
         "main": "packages/core/index.ts",
-        "assets": ["packages/core/*.md"],
-        "generatePackageJson": true
+        "assets": ["packages/core/*.md"]
       }
     },
     "lint": {

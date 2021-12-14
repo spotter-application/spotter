@@ -1,4 +1,7 @@
 {
   "name": "spotter",
-  "displayName": "spotter"
+  "displayName": "spotter",
+  "packagerOpts": {
+    "config": "metro.config.js"
+  }
 }

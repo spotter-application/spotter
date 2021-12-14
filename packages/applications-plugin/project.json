@@ -17,8 +17,7 @@
         "tsConfig": "packages/applications-plugin/tsconfig.lib.json",
         "packageJson": "packages/applications-plugin/package.json",
         "main": "packages/applications-plugin/src/index.ts",
-        "assets": [],
-        "generatePackageJson": true
+        "assets": []
       }
     },
     "lint": {

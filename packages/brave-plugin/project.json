@@ -17,8 +17,7 @@
         "tsConfig": "packages/brave-plugin/tsconfig.lib.json",
         "packageJson": "packages/brave-plugin/package.json",
         "main": "packages/brave-plugin/src/index.ts",
-        "assets": [],
-        "generatePackageJson": true
+        "assets": []
       }
     },
     "lint": {

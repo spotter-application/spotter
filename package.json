@@ -14,14 +14,14 @@
     "serve:web-plugin": "nx serve web-plugin",
     "serve:emoji-plugin": "nx serve emoji-plugin",
     "serve:brave-plugin": "nx serve brave-plugin",
-    "publish:plugin": "nx build plugin && cd dist/packages/plugin && npm publish",
-    "publish:core": "nx build core && cd dist/packages/core && npm publish",
-    "publish:calculator-plugin": "nx build calculator-plugin && cd dist/packages/calculator-plugin && npm publish",
-    "publish:applications-plugin": "nx build applications-plugin && cd dist/packages/applications-plugin && npm publish",
-    "publish:spotify-plugin": "nx build spotify-plugin && cd dist/packages/spotify-plugin && npm publish",
-    "publish:web-plugin": "nx build web-plugin && cd dist/packages/web-plugin && npm publish",
-    "publish:emoji-plugin": "nx build emoji-plugin && cd dist/packages/emoji-plugin && npm publish",
-    "publish:brave-plugin": "nx build brave-plugin && cd dist/packages/brave-plugin && npm publish"
+    "publish:plugin": "nx build plugin && cp packages/plugin/package.json dist/packages/plugin/package.json && cd dist/packages/plugin && npm publish && rm package.json",
+    "publish:core": "nx build plugin && cp packages/core/package.json dist/packages/core/package.json && cd dist/packages/core && npm publish && rm package.json",
+    "publish:calculator-plugin": "nx build calculator-plugin && cp packages/calculator-plugin/package.json dist/packages/calculator-plugin/package.json && cd dist/packages/calculator-plugin && npm publish && rm package.json",
+    "publish:applications-plugin": "nx build applications-plugin && cp packages/applications-plugin/package.json dist/packages/applications-plugin/package.json && cd dist/packages/applications-plugin && npm publish && rm package.json",
+    "publish:spotify-plugin": "nx build spotify-plugin && cp packages/spotify-plugin/package.json dist/packages/spotify-plugin/package.json && cd dist/packages/spotify-plugin && npm publish && rm package.json",
+    "publish:web-plugin": "nx build web-plugin && cp packages/web-plugin/package.json dist/packages/web-plugin/package.json && cd dist/packages/web-plugin && npm publish && rm package.json",
+    "publish:emoji-plugin": "nx build emoji-plugin && cp packages/emoji-plugin/package.json dist/packages/emoji-plugin/package.json && cd dist/packages/emoji-plugin && npm publish && rm package.json",
+    "publish:brave-plugin": "nx build brave-plugin && cp packages/brave-plugin/package.json dist/packages/brave-plugin/package.json && cd dist/packages/brave-plugin && npm publish && rm package.json"
   },
   "description": "🔭 macOS productivity tool to launch everything",
   "keywords": [
