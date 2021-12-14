@@ -4,14 +4,15 @@
   "projectType": "library",
   "targets": {
     "build": {
-      "executor": "@nrwl/node:package",
+      "executor": "@nrwl/node:build",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/packages/core",
         "tsConfig": "packages/core/tsconfig.lib.json",
         "packageJson": "packages/core/package.json",
         "main": "packages/core/index.ts",
-        "assets": ["packages/core/*.md"]
+        "assets": [],
+        "generatePackageJson": false
       }
     },
     "lint": {
