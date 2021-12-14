@@ -10,6 +10,7 @@
     "spotify-plugin": "packages/spotify-plugin",
     "spotter": "apps/spotter",
     "web-plugin": "packages/web-plugin",
-    "vscode-plugin": "packages/vscode-plugin"
+    "vscode-plugin": "packages/vscode-plugin",
+    "bluetooth-plugin": "packages/bluetooth-plugin"
   }
 }

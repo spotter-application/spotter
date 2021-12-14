@@ -1,0 +1,40 @@
+{
+  "root": "packages/bluetooth-plugin",
+  "sourceRoot": "packages/bluetooth-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "bluetooth-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/bluetooth-plugin",
+        "tsConfig": "packages/bluetooth-plugin/tsconfig.lib.json",
+        "packageJson": "packages/bluetooth-plugin/package.json",
+        "main": "packages/bluetooth-plugin/src/index.ts",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/bluetooth-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/bluetooth-plugin"],
+      "options": {
+        "jestConfig": "packages/bluetooth-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
