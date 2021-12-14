@@ -245,6 +245,7 @@ export const EventsProvider: FC<{}> = (props) => {
     sendCommand(command, selectedOption$.value.pluginName);
   }
 
+  // TODO: remove
   const onQueryForOptionsWithPrefixes = async (nextQuery: string) => {
     const loweCaseQuery = nextQuery.toLowerCase();
     const matchedPrefixes = registeredOptions$.value.filter(
