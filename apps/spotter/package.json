@@ -1,6 +1,6 @@
 {
   "name": "@spotter-app/spotter",
-  "version": "2.0.0-beta.2",
+  "version": "2.0.0-beta.12",
   "dependencies": {
     "@react-native-async-storage/async-storage": "*",
     "react": "*",
