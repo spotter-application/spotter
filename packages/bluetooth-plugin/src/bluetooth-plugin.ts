@@ -3,17 +3,13 @@ import { Plugin, promisedExec } from '@spotter-app/plugin';
 
 interface Device {
   title: string,
-  id: string,
   connected: boolean,
+  id: string,
 }
 
-const url = import.meta.url.replace('file://', '').split('/');
-url.pop();
-const path = url.join('/');
-
 new class CalculatorPlugin extends Plugin {
-  private activeIcon = `${path}/icons/active.png`;
-  private inactiveIcon = `${path}/icons/inactive.png`;
+  activeIcon = `${__dirname}/icons/active.png`;
+  inactiveIcon = `${__dirname}/icons/inactive.png`;
 
   constructor() {
     super('bluetooth-plugin');
@@ -21,25 +17,25 @@ new class CalculatorPlugin extends Plugin {
 
   async onInit() {
     this.spotter.setRegisteredOptions([{
-      title: 'Bluetooth',
+      title: 'Bluetooth Preferences',
       prefix: 'blt',
       icon: this.activeIcon,
+      replaceOptions: ['Bluetooth Preferences'],
       onQuery: async (q: string) => await this.getDevicesOptions(q),
     }]);
   }
 
   private async getDevicesOptions(q: string, hoveredId?: string): Promise<OnQueryOption[]> {
-    const pairedDevices: Device[] = await promisedExec(`${path}/blueutil --paired`)
-    .then(result => result
-      .split('\n')
-      .filter(d => !!d)
-      .map(d => ({
-        title: /name: (.+?),/.exec(d)[1].replaceAll('"', ''),
-        id: /address: (.+?),/.exec(d)[1].replaceAll('"', ''),
-        connected: !d.includes('not connected'),
-      }))
-    )
-    .catch(() => []);
+    const pairedDevicesData = await promisedExec(`osascript ${__dirname}/scripts/list.applescript`);
+
+    const pairedDevices: Device[] = pairedDevicesData.split('\n').filter(d => !!d).map(d => {
+      const values = d.split('%%$$');
+      return {
+        title: values[0],
+        connected: values[1] === 'connected',
+        id: values[2],
+      }
+    })
 
     const options: OnQueryOption[] = pairedDevices.map(device => ({
       title: device.title,
@@ -59,7 +55,7 @@ new class CalculatorPlugin extends Plugin {
   }
 
   private async connect(device: Device, query: string) {
-    const result = await promisedExec(`${path}/blueutil --connect ${device.id} --info ${device.id}`)
+    const result = await promisedExec(`osascript ${__dirname}/scripts/connect.applescript ${device.id}`)
       .then(() => true)
       .catch(() => false);
 
@@ -67,11 +63,14 @@ new class CalculatorPlugin extends Plugin {
       this.spotter.setError(`Can not connect ${device.title}`);
     }
 
-    return await this.getDevicesOptions(query, device.id);
+    return await this.getDevicesOptions(
+      query,
+      device.id
+    );
   }
 
   private async disconnect(device: Device, query: string) {
-    const result = await promisedExec(`${path}/blueutil --disconnect ${device.id} --info ${device.id}`)
+    const result = await promisedExec(`osascript ${__dirname}/scripts/disconnect.applescript ${device.id}`)
       .then(() => true)
       .catch(() => false);
 
@@ -81,6 +80,6 @@ new class CalculatorPlugin extends Plugin {
 
     return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
       res(await this.getDevicesOptions(query, device.id))
-    }, 2500));
+    }, 2000));
   }
 }
