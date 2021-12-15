@@ -185,3 +185,23 @@ export const parseTheme = (value: string): SpotterThemeColors => {
     hoveredOptionText: colors[5],
   }
 };
+
+const versionToNumber = (version: string): number => {
+  const values = version.replaceAll('.', '').split('-beta')
+  return Number(
+    values.length === 2
+    ? values[0] + (values[1].length === 1 ? `0${values[1]}` : values[1])
+    : values[0]
+  );
+}
+
+// 0.0.1-beta.1 < 0.0.1-beta.2
+export const shouldUpgrade = (
+  current: string,
+  nextVersion: string,
+): boolean => {
+  const currentNumber = versionToNumber(current);
+  const nextVersionNumber = versionToNumber(nextVersion);
+
+  return currentNumber < nextVersionNumber;
+}

@@ -4,13 +4,16 @@ import { ALT_QUERY_KEY_MAP, PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { replaceOptions, getHistoryPath, sortOptions } from '../helpers';
+import { replaceOptions, getHistoryPath, sortOptions, shouldUpgrade } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
 import { combineLatest, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Alert } from 'react-native';
+import packageJson from '../../package.json';
+
+const FIVE_MIN = 5 * 60 * 1000;
 
 type Context = {
   onQuery: (query: string) => Promise<void>,
@@ -18,7 +21,7 @@ type Context = {
   onArrowUp: () => void,
   onArrowDown: () => void,
   onEscape: () => void,
-  onCommandComma: () => void,
+  onCommandKey: (key: number) => void,
   onTab: () => void,
   onBackspace: () => void,
 };
@@ -29,7 +32,7 @@ const context: Context = {
   onArrowUp: () => null,
   onArrowDown: () => null,
   onEscape: () => null,
-  onCommandComma: () => null,
+  onCommandKey: () => null,
   onTab: () => null,
   onBackspace: () => null,
 }
@@ -37,7 +40,7 @@ const context: Context = {
 export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
-  const { panel, shell, hotkey } = useApi();
+  const { panel, shell, hotkey, notifications } = useApi();
   const { getSettings, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
   const {
@@ -48,12 +51,21 @@ export const EventsProvider: FC<{}> = (props) => {
     hoveredOptionIndex$,
     registeredOptions$,
     displayedOptionsForCurrentWorkflow$,
+    systemOption$,
     doing$,
     resetState,
   } = useSpotterState();
   const { sendCommand } = usePlugins();
 
   const subscriptions: Subscription[] = [];
+
+  const nextSpotterVersion: {
+    version: {
+      name: string,
+      bundleUrl: string,
+    } | null,
+    requestedAt: number,
+  } = { version: null, requestedAt: 0 };
 
   useEffect(() => {
     init();
@@ -104,6 +116,13 @@ export const EventsProvider: FC<{}> = (props) => {
     );
   }
 
+  const onCommandKey = (key: number) => {
+    if (key === 32) {
+      upgradeSpotter(nextSpotterVersion.version?.bundleUrl);
+      return;
+    }
+  }
+
   const registerHotkeys = async () => {
     const settings = await getSettings();
     hotkey.register(settings?.hotkey, SPOTTER_HOTKEY_IDENTIFIER);
@@ -126,8 +145,64 @@ export const EventsProvider: FC<{}> = (props) => {
     });
   }
 
+  const checkLatestVersion = async () => {
+    // const isDev = FS.MainBundlePath.includes('Xcode/DerivedData');
+    // if (isDev) {
+    //   return;
+    // }
+
+    const now = new Date().getTime();
+    if (
+      !nextSpotterVersion.version &&
+      (now - nextSpotterVersion.requestedAt) > FIVE_MIN
+    ) {
+      const latestVersion = await fetch(
+        'https://api.github.com/repos/ziulev/spotter/releases/latest'
+      ).then(r => r.json());
+
+      nextSpotterVersion.requestedAt = now;
+
+      if (!shouldUpgrade(packageJson.version, latestVersion.name)) {
+        return;
+      }
+
+      const bundle = latestVersion.assets.find((a: {name: string}) => a.name === 'spotter.dmg');
+      nextSpotterVersion.version = {
+        name: latestVersion.name,
+        bundleUrl: bundle.browser_download_url,
+      };
+    }
+
+    if (!nextSpotterVersion.version) {
+      return;
+    }
+
+    systemOption$.next({
+      title: 'Upgrade Spotter',
+      subtitle: nextSpotterVersion.version?.name,
+      onSubmit: () => upgradeSpotter(nextSpotterVersion.version?.bundleUrl),
+    });
+  }
+
+  const upgradeSpotter = async (buildUrl?: string) => {
+    if (!buildUrl) {
+      return;
+    }
+
+    systemOption$.next(null);
+    doing$.next('Upgrading spotter...');
+    await shell.execute(`cd ~ && rm spotter.dmg || true`);
+    await shell.execute(`cd ~ && curl -L ${buildUrl} > spotter.dmg`);
+    await shell.execute('cd ~ && hdiutil attach -nobrowse spotter.dmg')
+    await shell.execute(`cp -r /Volumes/Spotter/spotter.app /Applications`);
+    await shell.execute(`hdiutil unmount '/Volumes/Spotter'`);
+    doing$.next(null);
+    shell.execute(`osascript -e 'quit app "Spotter"' && osascript -e 'activate app "Spotter"'`);
+  }
+
   const onPressHotkey = (e: SpotterHotkeyEvent) => {
     if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+      checkLatestVersion();
       panel.open();
       return;
     };
@@ -374,6 +449,7 @@ export const EventsProvider: FC<{}> = (props) => {
       onTab,
       onBackspace,
       onSubmit,
+      onCommandKey,
     }}>
       {props.children}
     </EventsContext.Provider>

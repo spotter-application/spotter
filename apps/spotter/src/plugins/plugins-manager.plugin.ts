@@ -25,8 +25,6 @@ const toTitleCase = (path: string) => {
     .join(' ');
 };
 
-// const icon = RNFS.MainBundlePath;
-
 export class PluginsManagerPlugin extends SpotterPlugin {
 
   async onInit() {

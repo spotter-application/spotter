@@ -9,19 +9,19 @@ export const GeneralSettings: FC<{}> = () => {
   const [spotterPath, setSpotterPath] = useState<string>();
 
   useEffect(() => {
-    const setSettings = async () => {
-      const loginItems = await shell.execute('osascript -e \'tell application "System Events" to get the name of every login item\' || echo \'\'');
-      const launchAtLoginStatus = !!loginItems.split(',').find((item: string) => item.includes('Spotter'));
-
-      setLaunchAtLoginEnabled(launchAtLoginStatus);
-
-      const spotterPath = await shell.execute('osascript -e \'POSIX path of (path to application "Spotter")\'');
-
-      setSpotterPath(spotterPath);
-    };
-
     setSettings();
   }, []);
+
+  const setSettings = async () => {
+    const loginItems = await shell.execute('osascript -e \'tell application "System Events" to get the name of every login item\' || echo \'\'');
+    const launchAtLoginStatus = !!loginItems.split(',').find((item: string) => item.includes('Spotter'));
+
+    setLaunchAtLoginEnabled(launchAtLoginStatus);
+
+    const spotterPath = await shell.execute('osascript -e \'POSIX path of (path to application "Spotter")\'');
+
+    setSpotterPath(spotterPath);
+  };
 
   const onChangeLaunchAtLogin = (value: boolean) => {
     if (value) {

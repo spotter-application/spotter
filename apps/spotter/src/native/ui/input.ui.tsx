@@ -14,7 +14,7 @@ type InputProps = {
   onEscape?: () => void,
   onArrowDown?: () => void,
   onArrowUp?: () => void,
-  onCommandComma?: () => void,
+  onCommandKey?: (key: number) => void,
   onTab?: () => void,
   onShiftTab?: () => void,
   onShiftEnter?: () => void,
@@ -37,70 +37,70 @@ export class Input extends React.PureComponent<InputProps> {
     if (!this.props.onChangeText) {
       return;
     }
-    this.props.onChangeText(event?.nativeEvent?.text)
+    this.props.onChangeText(event?.nativeEvent?.text);
   }
 
   _onSubmit = () => {
     if (!this.props.onSubmit) {
       return;
     }
-    this.props.onSubmit()
+    this.props.onSubmit();
   }
 
   _onEscape = () => {
     if (!this.props.onEscape) {
       return;
     }
-    this.props.onEscape()
+    this.props.onEscape();
   }
 
   _onArrowDown = () => {
     if (!this.props.onArrowDown) {
       return;
     }
-    this.props.onArrowDown()
+    this.props.onArrowDown();
   }
 
   _onArrowUp = () => {
     if (!this.props.onArrowUp) {
       return;
     }
-    this.props.onArrowUp()
+    this.props.onArrowUp();
   }
 
-  _onCommandComma = () => {
-    if (!this.props.onCommandComma) {
+  _onCommandKey = (event: { nativeEvent: { key: number}}) => {
+    if (!this.props.onCommandKey) {
       return;
     }
-    this.props.onCommandComma()
+    this.props.onCommandKey(event.nativeEvent.key);
   }
 
   _onTab = () => {
     if (!this.props.onTab) {
       return;
     }
-    this.props.onTab()
+    this.props.onTab();
   }
 
   _onShiftTab = () => {
     if (!this.props.onShiftTab) {
       return;
     }
-    this.props.onShiftTab()
+    this.props.onShiftTab();
   }
 
   _onShiftEnter = () => {
     if (!this.props.onShiftEnter) {
       return;
     }
-    this.props.onShiftEnter()
+    this.props.onShiftEnter();
   }
 
   _onBackspace = (event: { nativeEvent: { text: string } }) => {
     if (!this.props.onBackspace) {
       return;
     }
-    this.props.onBackspace(event.nativeEvent.text)
+    this.props.onBackspace(event.nativeEvent.text);
   }
 
   render() {
@@ -111,7 +111,7 @@ export class Input extends React.PureComponent<InputProps> {
       onEscape: this._onEscape,
       onArrowDown: this._onArrowDown,
       onArrowUp: this._onArrowUp,
-      onCommandComma: this._onCommandComma,
+      onCommandKey: this._onCommandKey,
       onTab: this._onTab,
       onShiftTab: this._onShiftTab,
       onShiftEnter: this._onShiftEnter,

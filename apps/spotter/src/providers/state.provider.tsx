@@ -1,3 +1,4 @@
+import { Option } from '@spotter-app/core';
 import React, { FC } from 'react';
 import { BehaviorSubject } from 'rxjs';
 import { PluginOnQueryOption, PluginRegistryOption } from '../interfaces';
@@ -9,10 +10,11 @@ type Context = {
   options$: BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>,
   selectedOption$: BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>,
   loading$: BehaviorSubject<boolean>,
-  doing$: BehaviorSubject<string | null>,
   hoveredOptionIndex$: BehaviorSubject<number>,
   displayedOptionsForCurrentWorkflow$: BehaviorSubject<boolean>,
   registeredOptions$: BehaviorSubject<PluginRegistryOption[]>,
+  systemOption$: BehaviorSubject<Option | null>,
+  doing$: BehaviorSubject<string | null>,
   resetState: () => void,
 };
 
@@ -23,10 +25,11 @@ const context: Context = {
   options$: new BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>([]),
   selectedOption$: new BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>(null),
   loading$: new BehaviorSubject<boolean>(false),
-  doing$: new BehaviorSubject<string | null>(null),
   hoveredOptionIndex$: new BehaviorSubject<number>(0),
   displayedOptionsForCurrentWorkflow$: new BehaviorSubject<boolean>(false),
   registeredOptions$: new BehaviorSubject<PluginRegistryOption[]>([]),
+  systemOption$: new BehaviorSubject<Option | null>(null),
+  doing$: new BehaviorSubject<string | null>(null),
   resetState: () => null,
 }
 
@@ -39,7 +42,6 @@ export const StateProvider: FC<{}> = (props) => {
     context.altQuery$.next('');
     context.placeholder$.next(null);
     context.options$.next([]);
-    context.loading$.next(false);
     context.hoveredOptionIndex$.next(0);
     context.selectedOption$.next(null);
     context.displayedOptionsForCurrentWorkflow$.next(false);

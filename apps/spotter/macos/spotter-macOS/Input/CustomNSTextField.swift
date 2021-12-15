@@ -9,7 +9,7 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   @objc var onEscape: RCTDirectEventBlock?
   @objc var onArrowDown: RCTDirectEventBlock?
   @objc var onArrowUp: RCTDirectEventBlock?
-  @objc var onCommandComma: RCTDirectEventBlock?
+  @objc var onCommandKey: RCTDirectEventBlock?
   @objc var onTab: RCTDirectEventBlock?
   @objc var onShiftTab: RCTDirectEventBlock?
   @objc var onShiftEnter: RCTDirectEventBlock?
@@ -74,9 +74,8 @@ class CustomNSTextField: NSTextField, NSTextFieldDelegate {
   }
   
   func hotkeyDown(with event: NSEvent) -> NSEvent? {
-    // Command + Comma
-    if (event.keyCode == 43 && event.modifierFlags.contains(NSEvent.ModifierFlags.command)) {
-      self.onCommandComma!(["text": self.stringValue]);
+    if (event.modifierFlags.contains(NSEvent.ModifierFlags.command)) {
+      self.onCommandKey!(["key": event.keyCode]);
       return nil
     }
     

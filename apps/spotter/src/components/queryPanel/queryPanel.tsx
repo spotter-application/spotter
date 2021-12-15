@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useSettings, useSpotterState } from '../../providers';
@@ -13,6 +14,7 @@ import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
 import { Subscription } from 'rxjs';
+import { Option } from '@spotter-app/core';
 
 export const QueryPanel: FC<{}> = () => {
 
@@ -22,7 +24,7 @@ export const QueryPanel: FC<{}> = () => {
     onArrowUp,
     onArrowDown,
     onEscape,
-    onCommandComma,
+    onCommandKey,
     onTab,
     onBackspace,
   } = useEvents();
@@ -35,6 +37,7 @@ export const QueryPanel: FC<{}> = () => {
     hoveredOptionIndex$,
     selectedOption$,
     displayedOptionsForCurrentWorkflow$,
+    systemOption$,
     doing$,
   } = useSpotterState();
 
@@ -42,7 +45,7 @@ export const QueryPanel: FC<{}> = () => {
 
   const [options, setOptions] = useState<PluginOnQueryOption[] | PluginRegistryOption[]>([]);
   const [placeholder, setPlaceholder] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean | string>(false);
   const [doing, setDoing] = useState<string | null>(null);
   const [query, setQuery] = useState<string>('');
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
@@ -52,6 +55,7 @@ export const QueryPanel: FC<{}> = () => {
     setDisplayedOptionsForCurrentWorkflow,
   ] = useState<boolean>(false);
   const [colors, setColors] = useState<SpotterThemeColors>();
+  const [systemOption, setSystemOption] = useState<Option | null>();
 
   const subscriptions: Subscription[] = [];
 
@@ -66,6 +70,7 @@ export const QueryPanel: FC<{}> = () => {
       selectedOption$.subscribe(setSelectedOption),
       displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
       colors$.subscribe(setColors),
+      systemOption$.subscribe(setSystemOption),
     );
   }, []);
 
@@ -79,7 +84,7 @@ export const QueryPanel: FC<{}> = () => {
       <View style={{
         backgroundColor: colors?.background,
         ...styles.input,
-        ...(displayOptions || doing ? styles.inputWithResults : {}),
+        ...(displayOptions ? styles.inputWithResults : {}),
       }}>
         {
           selectedOption ?
@@ -116,51 +121,87 @@ export const QueryPanel: FC<{}> = () => {
           onArrowDown={onArrowDown}
           onArrowUp={onArrowUp}
           onEscape={onEscape}
-          onCommandComma={onCommandComma}
+          onCommandKey={onCommandKey}
           onTab={onTab}
           onBackspace={onBackspace}
         ></Input>
 
-        <View style={{marginLeft: 10}}>
-          {loading
-            ? <ActivityIndicator
+        <View style={{
+          display: 'flex',
+          marginLeft: 10,
+        }}>
+          {(loading || doing) &&
+            <View style={{
+              opacity: 0.75,
+            }}>
+              {doing &&
+                <Text style={{
+                  fontSize: 14,
+                  color: colors?.text,
+                  paddingRight: 30,
+                }}>{doing}</Text>
+              }
+              <ActivityIndicator
                 size="small"
                 color={colors?.text}
                 style={{
-                  opacity: 0.75,
-                  right: 3,
-                  bottom: 0,
-                  top: 0,
-                  margin: 'auto',
                   position: 'absolute',
+                  right: 3,
+                  top: -1,
                   zIndex: 100,
                 }}
               />
-            : null
+            </View>
           }
           {
-            (options[hoveredOptionIndex] && !loading) &&
+            (options[hoveredOptionIndex] && !loading && !systemOption && !doing) &&
             <OptionIcon style={{
               opacity: loading ? 0.1 : 1,
             }} icon={options[hoveredOptionIndex].icon}></OptionIcon>
           }
+          {
+            (!loading && systemOption) &&
+            <TouchableOpacity style={{
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 10,
+              backgroundColor: colors?.hoveredOptionBackground,
+            }} onPress={systemOption.onSubmit}>
+              <Text style={{
+                fontSize: 12,
+              }}>{systemOption.title}</Text>
+              <View style={{
+                marginTop: 2,
+                margin: 'auto',
+                alignItems: 'flex-end',
+              }}>
+                <Text style={{
+                  fontSize: 9,
+                  opacity: 0.5,
+                }}>{systemOption.subtitle}</Text>
+              </View>
+
+              <View style={{
+                position: 'absolute',
+                left: 4,
+                bottom: 3.2,
+                backgroundColor: colors?.background,
+                opacity: 0.3,
+                padding: 1,
+                paddingLeft: 4,
+                paddingRight: 4,
+                borderRadius: 5,
+              }}>
+                <Text style={{
+                  fontSize: 8,
+                  color: colors?.text,
+                }}>cmd + u</Text>
+              </View>
+            </TouchableOpacity>
+          }
         </View>
 
       </View>
-      {doing &&
-        <View style={{
-          backgroundColor: colors?.background,
-          paddingLeft: 14,
-          paddingBottom: 10,
-          borderBottomLeftRadius: 10,
-          borderBottomRightRadius: 10,
-          ...(displayOptions ? styles.inputWithResults : {}),
-        }}>
-          <Text style={{
-            fontSize: 12,
-          }}>{doing}</Text>
-        </View>
-      }
       {
         <QueryPanelOptions
           style={{ ...styles.options, backgroundColor: colors?.background }}
