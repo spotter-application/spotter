@@ -10,6 +10,7 @@ interface Device {
 new class CalculatorPlugin extends Plugin {
   activeIcon = `${__dirname}/icons/active.png`;
   inactiveIcon = `${__dirname}/icons/inactive.png`;
+  interval: number;
 
   constructor() {
     super('bluetooth-plugin');
@@ -22,6 +23,12 @@ new class CalculatorPlugin extends Plugin {
       icon: this.activeIcon,
       replaceOptions: ['Bluetooth Preferences'],
       onQuery: async (q: string) => await this.getDevicesOptions(q),
+      onQueryCancel: () => {
+        if (this.interval) {
+          clearInterval(this.interval);
+          this.interval = null;
+        }
+      }
     }]);
   }
 
@@ -78,8 +85,17 @@ new class CalculatorPlugin extends Plugin {
       this.spotter.setError(`Can not connect ${device.title}`);
     }
 
-    return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
-      res(await this.getDevicesOptions(query, device.id))
-    }, 2000));
+    return new Promise<OnQueryOption[]>(resolve => {
+      this.interval = setInterval(async () => {
+        const disconnected = await promisedExec(`osascript ${__dirname}/scripts/connected.applescript ${device.id}`)
+          .then(res => res.includes('not-connected'))
+          .catch(() => false);
+        if (disconnected) {
+          clearInterval(this.interval);
+          this.interval = null;
+          resolve(await this.getDevicesOptions(query, device.id));
+        }
+      }, 500)
+    });
   }
 }

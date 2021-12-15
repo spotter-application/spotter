@@ -19,6 +19,7 @@
         "main": "packages/bluetooth-plugin/src/index.ts",
         "assets": [
           "packages/bluetooth-plugin/src/scripts/connect.applescript",
+          "packages/bluetooth-plugin/src/scripts/connected.applescript",
           "packages/bluetooth-plugin/src/scripts/disconnect.applescript",
           "packages/bluetooth-plugin/src/scripts/list.applescript",
           "packages/bluetooth-plugin/src/icons/active.png",
