@@ -18,7 +18,8 @@
     "paths": {
       "@spotter-app/core": ["packages/core/index.ts"],
       "@spotter-app/plugin": ["packages/plugin/index.ts"]
-    }
+    },
+    "resolveJsonModule": true
   },
   "exclude": ["node_modules", "tmp"]
 }

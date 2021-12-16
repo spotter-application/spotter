@@ -10,11 +10,6 @@ export interface Settings {
   pluginsPreinstalled: boolean,
 }
 
-export interface PluginRegistryEntry {
-  name: string,
-  path: string,
-};
-
 export interface Hotkey {
   keyCode: number,
   modifiers: number,
@@ -103,11 +98,17 @@ export enum CommandType {
   close = 'close',
 }
 
-export interface ConnectPluginData {
-  name: string,
-  path: string,
+export type PluginConnection = PluginInfo & {
   port: number,
   pid: number,
+  path: string,
+}
+
+export interface PluginInfo {
+  name: string,
+  icon?: string,
+  version?: string,
+  documentationUrl?: string,
 }
 
 export type Command = {
@@ -154,7 +155,7 @@ export type Command = {
   value: string,
 } | {
   type: CommandType.connectPlugin,
-  value: ConnectPluginData,
+  value: PluginConnection,
 } | {
   type: CommandType.updatePlugin,
   value: string,
@@ -229,7 +230,7 @@ export type SpotterOnGetPluginsCommand = {
   type: SpotterCommandType.onGetPlugins,
   value: {
     id: string,
-    data: PluginRegistryEntry[],
+    data: PluginConnection[],
   },
 }
 

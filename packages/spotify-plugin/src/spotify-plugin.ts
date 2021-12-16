@@ -3,20 +3,21 @@ import { Plugin } from '@spotter-app/plugin';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { SPOTIFY_SCOPES } from './constants';
 import { execPromise } from './helpers';
+import packageJSON from '../package.json';
 
 new class CalculatorPlugin extends Plugin {
-  private appPath: string;
+  private appPath = '/Applications/Spotify.app';
   private spotifyApi: SpotifyWebApi;
 
   constructor() {
-    super('spotify-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '/Applications/Spotify.app',
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {
-    this.appPath = await execPromise(
-      `osascript -e 'POSIX path of (path to application "Spotify")'`
-    ).then(data => data.slice(0, -1));
-
     const storage = await this.spotter.getStorage();
     this.spotifyApi = new SpotifyWebApi(storage.tokens);
 
@@ -109,8 +110,7 @@ new class CalculatorPlugin extends Plugin {
   }
 
   private getAuthLinkOptions() {
-
-    const authorizeURL = this.spotifyApi.createAuthorizeURL(SPOTIFY_SCOPES, this.pluginName);
+    const authorizeURL = this.spotifyApi.createAuthorizeURL(SPOTIFY_SCOPES, packageJSON.name);
     return [
       {
         title: 'Authorize',

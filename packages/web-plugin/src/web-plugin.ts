@@ -6,24 +6,22 @@ import axios from 'axios';
 import { INITIAL_SITES, SEARCH_TERMS } from './constants';
 import { Site } from './interface';
 import pDebounce from './promise-debounce';
-import { execPromise } from './helper';
+import packageJSON from '../package.json';
 
 new class WebPlugin extends Plugin {
-  private appPath: string;
+  private icon = '🌐';
 
   private debouncedGetSiteSearchUrl = pDebounce<string>(this.getSiteSearchUrl, 300);
 
   constructor() {
-    super('web-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '🌐',
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {
-    const browser = await execPromise(
-      "mdfind \"kMDItemCFBundleIdentifier == $(defaults read ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure | awk -F'\"' '/http;/{print window[(NR)-1]}{window[NR]=$2}')\""
-    );
-    this.appPath = browser ?? '/Applications/Safari.app';
-
-
     const storage = await this.spotter.getStorage<{sites: Site[]}>();
 
     if (!storage.sites) {
@@ -40,7 +38,7 @@ new class WebPlugin extends Plugin {
     this.spotter.setRegisteredOptions([
       {
         title: 'Web plugin',
-        icon: this.appPath,
+        icon: this.icon,
         onQuery: () => this.menu(sites),
       },
       ...sites.map((site) => ({
@@ -55,7 +53,7 @@ new class WebPlugin extends Plugin {
     const options: Option[] = [
       {
         title: 'Add site',
-        icon: this.appPath,
+        icon: this.icon,
         onQuery: (q) => this.addSite(q),
       },
       ...sites.map(({title, icon}) => ({

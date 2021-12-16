@@ -1,6 +1,7 @@
 import { evaluate, format } from 'mathjs';
 import { Plugin } from '@spotter-app/plugin';
 import { exec } from 'node:child_process';
+import packageJSON from '../package.json';
 
 const OPERATORS = [
   '+',
@@ -16,7 +17,11 @@ new class CalculatorPlugin extends Plugin {
   private calculatorPath = '/System/Applications/Calculator.app';
 
   constructor() {
-    super('calculator-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '/System/Applications/Calculator.app',
+      version: packageJSON.version,
+    });
   }
 
   onInit() {

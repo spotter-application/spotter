@@ -1,20 +1,14 @@
-import { SpotterPlugin } from '@spotter-app/core';
+import { PluginConnection, SpotterPlugin } from '@spotter-app/core';
 
-const shortPath = (path: string): string => {
-  const pluginName = path.split('/').find(item => item.endsWith('-plugin'));
-  if (pluginName) {
-    return pluginName.replace('-plugin', '');
-  }
+const INTERNAL_PLUGINS = [
+  'plugins-manager',
+  'spotter-themes',
+];
 
-  return path.split('/').reduce((acc, curr, index, array) => {
-    if (!curr[0] || curr.endsWith('.js')) {
-      return acc;
-    }
-
-    const lastItem = index === (array.length - 2);
-    const item = lastItem ? curr : curr[0];
-    return `${acc}/${item}`;
-  }, '');
+const shortPath = (pluginName: string): string => {
+  return pluginName
+    .replace('@spotter-app/', '')
+    .replace('-plugin', '');
 };
 
 const toTitleCase = (path: string) => {
@@ -37,16 +31,23 @@ export class PluginsManagerPlugin extends SpotterPlugin {
   }
 
   private async pluginsMenu() {
-    // TODO: display dev plugins as well
     const plugins = await this.spotter.plugins.get();
-    return plugins.map(p => ({
-      title: toTitleCase(shortPath(p.path)),
-      onQuery: () => this.pluginMenu(p.path),
-    }));
+    return plugins
+      .filter(p => !INTERNAL_PLUGINS.includes(p.name))
+      .map(p => ({
+        title: `${p.name === p.path ? '[DEV] ' : ''}${toTitleCase(shortPath(p.name))}${p.version ? ('@' + p.version) : ''}`,
+        subtitle: `${p.pid ? 'Connected' : 'Not connected'}`,
+        icon: p.icon,
+        onQuery: () => this.pluginMenu(p),
+      }));
   }
 
-  private pluginMenu(plugin: string) {
+  private pluginMenu(plugin: PluginConnection) {
     return [
+      {
+        title: 'Reconnect',
+        onSubmit: () => this.reconnect(plugin),
+      },
       {
         title: 'Remove',
         onSubmit: () => this.remove(plugin),
@@ -54,8 +55,13 @@ export class PluginsManagerPlugin extends SpotterPlugin {
     ];
   }
 
-  private remove(plugin: string) {
-    this.spotter.plugins.remove(plugin);
+  private async reconnect(plugin: PluginConnection) {
+    this.spotter.plugins.start(plugin.path);
+    return true;
+  }
+
+  private remove(plugin: PluginConnection) {
+    this.spotter.plugins.remove(plugin.name);
     return true;
   }
 }

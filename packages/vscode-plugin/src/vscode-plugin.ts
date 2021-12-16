@@ -1,11 +1,16 @@
 import { OnQueryOption } from '@spotter-app/core';
 import { Plugin, promisedExec } from '@spotter-app/plugin';
+import packageJSON from '../package.json';
 
 new class CalculatorPlugin extends Plugin {
   private appPath = '/Applications/Visual Studio Code.app';
 
   constructor() {
-    super('vscode-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '/Applications/Visual Studio Code.app',
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {

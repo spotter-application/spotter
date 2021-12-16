@@ -4,15 +4,16 @@ import {
   SpotterCommandType,
   SpotterOnGetStorageCommand,
   SpotterOnGetSettingsCommand,
-  PluginRegistryEntry,
   SpotterOnGetPluginsCommand,
   ChannelForSpotter,
   randomPort,
   Command,
+  PluginConnection,
 } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Subject, Subscription, BehaviorSubject } from 'rxjs';
+import { INTERNAL_PLUGINS } from '../constants';
 import {
   replaceOptions,
   InternalPluginChannel,
@@ -25,14 +26,13 @@ import {
   PluginCommand,
   PluginRegistryOption,
 } from '../interfaces';
-import { INTERNAL_PLUGINS } from '../plugins';
 import { useApi } from './api.provider';
 import { useHistory } from './history.provider';
 import { useSettings } from './settings.provider';
 import { useSpotterState } from './state.provider';
 import { useStorage } from './storage.provider';
 
-const PLUGINS_STORAGE_KEY = 'PLUGINS_0.1-beta.5';
+const PLUGINS_STORAGE_KEY = 'PLUGINS_0.2';
 
 type Context = {
   sendCommand: (command: SpotterCommand, pluginName: string) => void,
@@ -88,7 +88,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const onInit = async () => {
     // Start plugins
-    const plugins = await getPlugins();
+    const plugins = await getRegisteredPlugins();
     plugins.forEach(p => startPluginScript(p.path));
     Object.keys(INTERNAL_PLUGINS).forEach(plugin => {
       const channel = connectPlugin(plugin);
@@ -114,16 +114,16 @@ export const PluginsProvider: FC<{}> = (props) => {
     subscriptions.push(command$.subscribe(handleCommand));
   };
 
-  const getPlugins: () => Promise<PluginRegistryEntry[]> = async () => {
-    const plugins = await storage.getItem<PluginRegistryEntry[]>(PLUGINS_STORAGE_KEY);
+  const getRegisteredPlugins: () => Promise<PluginConnection[]> = async () => {
+    const plugins = await storage.getItem<PluginConnection[]>(PLUGINS_STORAGE_KEY);
     return plugins ?? [];
   }
 
   const removePlugin: (
     pluginName: string,
   ) => void = async (pluginName) => {
-    const plugins = await getPlugins();
-    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.path !== pluginName));
+    const plugins = await getRegisteredPlugins();
+    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.name !== pluginName));
     removePluginRegistries(pluginName);
     const activePlugin = activePlugins$.value.find(p => 
       p.name === pluginName,
@@ -260,12 +260,26 @@ export const PluginsProvider: FC<{}> = (props) => {
   const getPluginsCommand = async (
     command: (PluginCommand & {type: CommandType.getPlugins})
   ) => {
-    const data = await getPlugins();
+    const registeredPlugins = await getRegisteredPlugins();
+
+    const connectedPlugins: PluginConnection[] = activePlugins$.value.map(({
+      name, path, port, pid, icon, version, documentationUrl,
+    }) => ({
+      name, path, port, pid, icon, version, documentationUrl,
+    }));
+
+    const notConnectedPlugins: PluginConnection[] = registeredPlugins
+      .filter(p => !connectedPlugins.find(cp => cp.path === p.path))
+      .map(p => ({ ...p, port: 0, pid: 0 }));
+
     const cmd: SpotterOnGetPluginsCommand = {
       type: SpotterCommandType.onGetPlugins,
       value: {
         id: command.value,
-        data,
+        data: [
+          ...notConnectedPlugins,
+          ...connectedPlugins,
+        ],
       }
     };
     sendCommand(cmd, command.pluginName);
@@ -274,6 +288,15 @@ export const PluginsProvider: FC<{}> = (props) => {
   const connectPluginCommand = async (
     command: (PluginCommand & {type: CommandType.connectPlugin})
   ) => {
+    // Parse emoji
+    if (command.value.icon) {
+      if (!isNaN(parseInt(command.value.icon, 16))) {
+        command.value.icon = String.fromCodePoint(
+          parseInt(command.value.icon, 16),
+        );
+      }
+    }
+
     // TODO: check if plugin doesn't have a uniq name
     // Otherwise there will be a conflict when setting data to storage
     const activePlugin = activePlugins$.value.find(p =>
@@ -281,23 +304,24 @@ export const PluginsProvider: FC<{}> = (props) => {
     );
 
     if (activePlugin) {
-      stopPluginScript(activePlugin.pid);
-      removePluginRegistries(activePlugin.path);
       activePlugins$.next(
         activePlugins$.value.filter(p => p.name !== activePlugin.name),
       );
+      stopPluginScript(activePlugin.pid);
+      removePluginRegistries(activePlugin.name);
     };
 
-    const plugins = await getPlugins();
+    const plugins = await getRegisteredPlugins();
     const registryEntry = plugins.find(p => p.path === command.value.path);
 
     const isInternalPlugin = !command.value.pid;
     const isDevelopment = command.value.name === command.value.path;
-
+    
     if (!registryEntry && !isInternalPlugin && !isDevelopment) {
       storage.setItem(
         PLUGINS_STORAGE_KEY,
-        [...plugins, {name: command.value.name, path: command.value.path}]);
+        [...plugins, command.value]);
+      notifications.show('Plugin', `${command.value.name} has been added to registry`);
     }
 
     const channel: ChannelForSpotter | null = connectPlugin(
@@ -475,17 +499,32 @@ export const PluginsProvider: FC<{}> = (props) => {
       plugin.channel.sendToPlugin(JSON.stringify(onInitCommand));
     });
 
-    let error: string | null = null;
-
-    plugin.channel.onPlugin('error', message => {
-      error = message;
-      notifications.show('Error', `Plugin ${plugin}: ${error}`)
-      removePlugin(plugin.path);
+    plugin.channel.onPlugin('error', () => {
+      const activePlugin = activePlugins$.value.find(p =>
+        p.pid === plugin.pid && p.port === p.port,
+      );
+      if (!activePlugin) {
+        return;
+      }
+      stopPluginScript(plugin.pid);
+      removePluginRegistries(plugin.name);
+      activePlugins$.next(
+        activePlugins$.value.filter(p => p.pid !== plugin.pid),
+      );
     });
 
     plugin.channel.onPlugin('close', () => {
+      const activePlugin = activePlugins$.value.find(p =>
+        p.pid === plugin.pid && p.port === p.port,
+      );
+      if (!activePlugin) {
+        return;
+      }
       stopPluginScript(plugin.pid);
-      removePluginRegistries(plugin.path);
+      removePluginRegistries(plugin.name);
+      activePlugins$.next(
+        activePlugins$.value.filter(p => p.pid !== plugin.pid),
+      );
     });
 
     plugin.channel.onPlugin('message', data => {

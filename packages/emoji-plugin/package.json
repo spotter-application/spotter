@@ -1,6 +1,6 @@
 {
   "name": "@spotter-app/emoji-plugin",
-  "version": "1.0.1",
+  "version": "1.9.10",
   "private": false,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

@@ -1,5 +1,6 @@
 import { OnQueryOption } from '@spotter-app/core';
 import { Plugin, promisedExec } from '@spotter-app/plugin';
+import packageJSON from '../package.json';
 
 interface Device {
   title: string,
@@ -13,7 +14,11 @@ new class CalculatorPlugin extends Plugin {
   interval: number;
 
   constructor() {
-    super('bluetooth-plugin');
+    super({
+      name: packageJSON.name,
+      icon: `${__dirname}/icons/active.png`,
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {

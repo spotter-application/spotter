@@ -5,8 +5,8 @@ import {
   Option,
   SpotterPlugin,
 } from '@spotter-app/core';
+import { INTERNAL_PLUGINS } from './constants';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
-import { INTERNAL_PLUGINS } from './plugins';
 import { History } from './providers';
 
 export const getHistoryPath = (

@@ -16,6 +16,105 @@ import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '.
 import { Subscription } from 'rxjs';
 import { Option } from '@spotter-app/core';
 
+export const QueryPanelLoading: FC<{
+  doing: string | null,
+  colors?: SpotterThemeColors,
+}> = ({ doing, colors }) => {
+  return <View style={{
+    opacity: 0.75,
+    position: 'absolute',
+    right: 3,
+    top: -8,
+    zIndex: 100,
+    display: 'flex',
+    flexWrap: 'nowrap',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}>
+    {doing &&
+      <Text style={{
+        fontSize: 14,
+        color: colors?.text,
+        paddingRight: 30,
+      }}>{doing}</Text>
+    }
+    <ActivityIndicator
+      size="small"
+      color={colors?.text}
+      style={{
+        position: 'absolute',
+        right: 3,
+        top: -1,
+      }}
+    />
+  </View>
+}
+
+export const QueryPanelSystemOption: FC<{
+  systemOption: Option,
+  colors?: SpotterThemeColors,
+}> = ({ systemOption, colors }) => {
+  return <TouchableOpacity style={{
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 10,
+    backgroundColor: colors?.hoveredOptionBackground,
+  }} onPress={systemOption.onSubmit}>
+    <Text style={{
+      fontSize: 12,
+    }}>{systemOption.title}</Text>
+    <View style={{
+      marginTop: 2,
+      margin: 'auto',
+      alignItems: 'flex-end',
+    }}>
+      <Text style={{
+        fontSize: 9,
+        opacity: 0.5,
+      }}>{systemOption.subtitle}</Text>
+    </View>
+
+    <View style={{
+      position: 'absolute',
+      left: 4,
+      bottom: 3.2,
+      backgroundColor: colors?.background,
+      opacity: 0.3,
+      padding: 1,
+      paddingLeft: 4,
+      paddingRight: 4,
+      borderRadius: 5,
+    }}>
+      <Text style={{
+        fontSize: 8,
+        color: colors?.text,
+      }}>cmd + u</Text>
+    </View>
+  </TouchableOpacity>
+}
+
+export const QueryPanelSelectedOption: FC<{
+  selectedOption: PluginOnQueryOption | PluginRegistryOption
+  colors?: SpotterThemeColors,
+}> = ({ colors, selectedOption }) => {
+  return <View style={{
+    ...styles.selectedOptionContainer,
+    backgroundColor: colors?.activeOptionBackground,
+  }}>
+    <OptionIcon
+      style={{
+        paddingRight: 3,
+        height: 25,
+      }}
+      icon={selectedOption.icon}
+    ></OptionIcon>
+    <Text style={{
+      fontSize: 16,
+      color: colors?.activeOptionText
+    }}>{selectedOption.title}</Text>
+  </View>
+}
+
 export const QueryPanel: FC<{}> = () => {
 
   const {
@@ -79,6 +178,12 @@ export const QueryPanel: FC<{}> = () => {
   }, []);
 
   const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
+  const placeholderValue = placeholder?.length
+    ? placeholder
+    : selectedOption
+      ? `${selectedOption.title} search...`
+      : 'Spotter search...';
+
   return <>
     <SafeAreaView>
       <View style={{
@@ -86,35 +191,16 @@ export const QueryPanel: FC<{}> = () => {
         ...styles.input,
         ...(displayOptions ? styles.inputWithResults : {}),
       }}>
-        {
-          selectedOption ?
-          // TODO: Create component
-            <View style={{
-              ...styles.selectedOptionContainer,
-              backgroundColor: colors?.activeOptionBackground,
-            }}>
-              <OptionIcon
-                style={{
-                  paddingRight: 3,
-                  height: 25,
-                }}
-                icon={selectedOption.icon}
-              ></OptionIcon>
-              <Text style={{
-                fontSize: 16,
-                color: colors?.activeOptionText
-              }}>{selectedOption.title}</Text>
-            </View>
-          : null
+        {selectedOption &&
+          <QueryPanelSelectedOption
+            colors={colors}
+            selectedOption={selectedOption} 
+          />
         }
         <Input
           style={{ color: colors?.text }}
           value={query}
-          placeholder={
-            placeholder?.length
-              ? placeholder
-              : selectedOption ? `${selectedOption.title} search...` : 'Spotter search...'
-          }
+          placeholder={placeholderValue}
           hint={getHint(query, options[hoveredOptionIndex])}
           onChangeText={onQuery}
           onSubmit={onSubmit}
@@ -131,87 +217,31 @@ export const QueryPanel: FC<{}> = () => {
           marginLeft: 10,
         }}>
           {(loading || doing) &&
-            <View style={{
-              opacity: 0.75,
-            }}>
-              {doing &&
-                <Text style={{
-                  fontSize: 14,
-                  color: colors?.text,
-                  paddingRight: 30,
-                }}>{doing}</Text>
-              }
-              <ActivityIndicator
-                size="small"
-                color={colors?.text}
-                style={{
-                  position: 'absolute',
-                  right: 3,
-                  top: -1,
-                  zIndex: 100,
-                }}
-              />
-            </View>
+            <QueryPanelLoading
+              doing={doing}
+              colors={colors}
+            />
           }
-          {
-            (options[hoveredOptionIndex] && !loading && !systemOption && !doing) &&
+          {(options[hoveredOptionIndex] && !loading && !systemOption && !doing) &&
             <OptionIcon style={{
               opacity: loading ? 0.1 : 1,
             }} icon={options[hoveredOptionIndex].icon}></OptionIcon>
           }
-          {
-            (!loading && systemOption) &&
-            <TouchableOpacity style={{
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-              borderRadius: 10,
-              backgroundColor: colors?.hoveredOptionBackground,
-            }} onPress={systemOption.onSubmit}>
-              <Text style={{
-                fontSize: 12,
-              }}>{systemOption.title}</Text>
-              <View style={{
-                marginTop: 2,
-                margin: 'auto',
-                alignItems: 'flex-end',
-              }}>
-                <Text style={{
-                  fontSize: 9,
-                  opacity: 0.5,
-                }}>{systemOption.subtitle}</Text>
-              </View>
-
-              <View style={{
-                position: 'absolute',
-                left: 4,
-                bottom: 3.2,
-                backgroundColor: colors?.background,
-                opacity: 0.3,
-                padding: 1,
-                paddingLeft: 4,
-                paddingRight: 4,
-                borderRadius: 5,
-              }}>
-                <Text style={{
-                  fontSize: 8,
-                  color: colors?.text,
-                }}>cmd + u</Text>
-              </View>
-            </TouchableOpacity>
+          {(!loading && systemOption) &&
+            <QueryPanelSystemOption
+              systemOption={systemOption}
+              colors={colors}
+            />
           }
         </View>
-
       </View>
-      {
-        <QueryPanelOptions
-          style={{ ...styles.options, backgroundColor: colors?.background }}
-          hoveredOptionIndex={hoveredOptionIndex}
-          displayOptions={displayOptions}
-          options={options}
-          onSubmit={onSubmit}
-        ></QueryPanelOptions>
-      }
-
+      <QueryPanelOptions
+        style={{ ...styles.options, backgroundColor: colors?.background }}
+        hoveredOptionIndex={hoveredOptionIndex}
+        displayOptions={displayOptions}
+        options={options}
+        onSubmit={onSubmit}
+      ></QueryPanelOptions>
     </SafeAreaView>
   </>
 }

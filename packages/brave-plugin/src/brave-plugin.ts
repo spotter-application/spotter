@@ -1,13 +1,18 @@
 import { Plugin, promisedExec } from '@spotter-app/plugin';
 import axios from 'axios';
+import packageJSON from '../package.json';
 
 const SEPARATOR = '%%%';
 
 new class CalculatorPlugin extends Plugin {
-  private appPath = '/applications/Brave Browser.app';
+  private appPath = '/Applications/Brave Browser.app';
 
   constructor() {
-    super('brave-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '/Applications/Brave Browser.app',
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {

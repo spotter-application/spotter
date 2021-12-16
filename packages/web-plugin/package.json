@@ -1,6 +1,6 @@
 {
   "name": "@spotter-app/web-plugin",
-  "version": "1.9.3",
+  "version": "1.9.12",
   "private": false,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
@@ -9,6 +9,8 @@
     "postinstall": "spotter-link-plugin"
   },
   "dependencies": {
+    "axios": "*",
+    "jsdom": "*",
     "@spotter-app/plugin": "*",
     "@spotter-app/core": "*"
   }

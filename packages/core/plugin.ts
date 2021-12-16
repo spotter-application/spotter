@@ -1,4 +1,4 @@
-import { Subject, filter, lastValueFrom, map, first } from 'rxjs';
+import { filter, lastValueFrom, map, first, BehaviorSubject } from 'rxjs';
 import {
   SpotterOption,
   CommandType,
@@ -9,13 +9,13 @@ import {
   OnQueryAction,
   ActionResult,
   ChannelForPlugin,
-  PluginRegistryEntry,
   Action,
-  ConnectPluginData,
   OnQueryOption,
   SpotterOnQueryOption,
   RegistryOption,
   SpotterRegistryOption,
+  PluginInfo,
+  PluginConnection,
 } from './interfaces';
 import { generateId } from './helpers';
 
@@ -24,10 +24,10 @@ const CHANNEL_ERROR = 'CHANNEL has not been passed/initialized.';
 export class SpotterPlugin {
   private channel?: ChannelForPlugin;
 
-  private getDataCommand = new Subject<{
+  private getDataCommand$ = new BehaviorSubject<{
     id: string,
-    data: Settings | Storage<unknown> | PluginRegistryEntry[],
-  }>();
+    data: Settings | Storage<unknown> | PluginInfo[],
+  } | null>(null);
 
   private actionsRegistry: {[id: string]: Action | OnQueryAction} = {};
 
@@ -101,15 +101,15 @@ export class SpotterPlugin {
   private spotterGetPlugins = () => {
     const id = generateId();
     this.spotterSendCommand(CommandType.getPlugins, id);
-    return this.spotterReceiveDataWithId<PluginRegistryEntry[]>(id);
+    return this.spotterReceiveDataWithId<PluginConnection[]>(id);
   }
 
   private spotterAddPlugin = (value: string) => {
     this.spotterSendCommand(CommandType.addPlugin, value);
   }
 
-  private spotterConnectPlugin = (value: ConnectPluginData) => {
-    this.spotterSendCommand(CommandType.connectPlugin, value);
+  private spotterStartPlugin = (value: string) => {
+    this.spotterSendCommand(CommandType.startPluginScript, value);
   }
 
   private spotterUpdatePlugin = (value: string) => {
@@ -144,7 +144,7 @@ export class SpotterPlugin {
     plugins: {
       get: this.spotterGetPlugins,
       add: this.spotterAddPlugin,
-      connect: this.spotterConnectPlugin,
+      start: this.spotterStartPlugin,
       update: this.spotterUpdatePlugin,
       remove: this.spotterRemovePlugin,
     },
@@ -233,8 +233,8 @@ export class SpotterPlugin {
 
   private spotterReceiveDataWithId<T>(id: string): Promise<T> {
     return lastValueFrom(
-      this.getDataCommand.pipe(
-        filter(command => command.id === id),
+      this.getDataCommand$.pipe(
+        filter(command => command?.id === id),
         map(command => command.data),
         first(),
       ),
@@ -258,7 +258,7 @@ export class SpotterPlugin {
   private spotterSendCommand(type: CommandType.setQuery, value: string): void;
   private spotterSendCommand<T>(type: CommandType.setStorage, value: Storage<T>): void;
   private spotterSendCommand(type: CommandType.addPlugin, value: string): void;
-  private spotterSendCommand(type: CommandType.connectPlugin, value: ConnectPluginData): void;
+  private spotterSendCommand(type: CommandType.connectPlugin, value: PluginConnection): void;
   private spotterSendCommand(type: CommandType.updatePlugin, value: string): void;
   private spotterSendCommand(type: CommandType.removePlugin, value: string): void;
   private spotterSendCommand(type: CommandType.setTheme, value: string): void;
@@ -366,7 +366,7 @@ export class SpotterPlugin {
         command.type === SpotterCommandType.onGetStorage ||
         command.type === SpotterCommandType.onGetPlugins
       ) {
-        this.getDataCommand.next(command.value);
+        this.getDataCommand$.next(command.value);
         return;
       }
 

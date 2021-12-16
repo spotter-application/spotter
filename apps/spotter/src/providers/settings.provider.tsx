@@ -7,7 +7,7 @@ import { parseTheme } from '../helpers';
 import { SpotterThemeColors } from '../interfaces';
 import { useApi } from './api.provider';
 
-const SETTINGS_STORAGE_KEY = 'SETTINGS_0.2-beta.0';
+const SETTINGS_STORAGE_KEY = 'SETTINGS_0.2';
 
 type Context = {
   getSettings: () => Promise<Settings>,

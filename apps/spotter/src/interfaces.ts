@@ -4,6 +4,7 @@ import {
   ChannelForSpotter,
   SpotterOnQueryOption,
   SpotterRegistryOption,
+  PluginConnection,
 } from '@spotter-app/core';
  
 export type PluginCommand = Command & {
@@ -68,12 +69,8 @@ export interface SpotterHotkeyEvent {
   identifier: string,
 }
 
-export interface ActivePlugin {
-  name: string,
-  path: string,
+export type ActivePlugin = PluginConnection & {
   channel: ChannelForSpotter,
-  port: number,
-  pid: number,
 }
 
 export function isPluginOnQueryOption(

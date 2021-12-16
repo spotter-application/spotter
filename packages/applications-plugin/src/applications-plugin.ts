@@ -4,11 +4,16 @@ import { exec } from 'node:child_process';
 import { ADDITIONAL_ACTIONS } from './constants';
 import { getAllApplications } from './helpers';
 import { ActionType } from './interfaces';
+import packageJSON from '../package.json';
 
 new class ApplicationsPlugin extends Plugin {
 
   constructor() {
-    super('applications-plugin');
+    super({
+      name: packageJSON.name,
+      icon: "🗂️",
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {

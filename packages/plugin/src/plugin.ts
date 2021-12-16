@@ -6,6 +6,8 @@ import {
   ChannelForPlugin,
   randomPort,
   CommandType,
+  PluginConnection,
+  PluginInfo,
 } from '@spotter-app/core';
 
 const PASSED_PORT: number = process.argv[2] ? Number(process.argv[2]) : null;
@@ -53,22 +55,34 @@ const channel: Promise<ChannelForPlugin> = new Promise(resolve => {
   });
 });
 
-export class Plugin extends SpotterPlugin {
-  pluginName: string;
+type PluginInfoInput = PluginInfo | string;
 
-  constructor(pluginName: string) {
+export class Plugin extends SpotterPlugin {
+  constructor(plugin: PluginInfoInput) {
+
     super(channel);
 
-    this.pluginName = pluginName;
+    const pluginInfo: PluginInfo = typeof plugin === 'string'
+      ? { name: plugin }
+      : plugin;
+    
+    const connectData: PluginConnection = {
+      port,
+      path: PASSED_PLUGIN_PATH ?? pluginInfo.name,
+      pid: process.pid,
+      ...pluginInfo,
+    }
 
     const command = {
       type: CommandType.connectPlugin,
-      pluginName: this.pluginName,
-      // command.value:
-      port,
-      name: this.pluginName,
-      path: PASSED_PLUGIN_PATH ?? this.pluginName,
-      pid: process.pid,
+      pluginName: pluginInfo.name,
+      ...connectData,
+    }
+
+    if (command.icon) {
+      command.icon = command.icon.replace(/\p{Emoji}/ug, (m) =>
+        m.codePointAt(0).toString(16)
+      );
     }
 
     const params = Object.entries(command).reduce(

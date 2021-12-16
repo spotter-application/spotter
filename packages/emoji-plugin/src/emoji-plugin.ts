@@ -1,22 +1,25 @@
 import { Plugin, promisedExec } from '@spotter-app/plugin';
 import { OnQueryOption } from '@spotter-app/core';
 import { dictionary } from './dictionary';
+import packageJSON from '../package.json';
 
 new class EmojiPlugin extends Plugin {
 
   constructor() {
-    super('emoji-plugin');
+    super({
+      name: packageJSON.name,
+      icon: '🚀',
+      version: packageJSON.version,
+    });
   }
 
   async onInit() {
-    const randomIndex = Math.floor(Math.random() * Object.keys(dictionary).length);
-    const icon = Object.keys(dictionary)[randomIndex];
     this.spotter.setRegisteredOptions([
       {
         title: 'Emoji',
         prefix: 'emj',
-        icon: icon,
-        onQuery: (q) => this.searchEmoji(q),
+        icon: '🚀',
+        onQuery: this.searchEmoji,
       },
     ])
   }
