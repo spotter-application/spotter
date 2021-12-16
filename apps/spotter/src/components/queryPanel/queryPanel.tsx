@@ -1,6 +1,7 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -13,7 +14,7 @@ import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { Option } from '@spotter-app/core';
 
 export const QueryPanelLoading: FC<{
@@ -156,10 +157,52 @@ export const QueryPanel: FC<{}> = () => {
   const [colors, setColors] = useState<SpotterThemeColors>();
   const [systemOption, setSystemOption] = useState<Option | null>();
 
+  const heightAnim = useRef(new Animated.Value(0)).current;
+  const borderRadiusAnim = useRef(new Animated.Value(10)).current;
+
   const subscriptions: Subscription[] = [];
 
   useEffect(() => {
     subscriptions.push(
+      displayedOptionsForCurrentWorkflow$.pipe(
+        distinctUntilChanged(),
+      ).subscribe(
+        (v) => {
+          const timing = Animated.timing;
+          if (v) {
+            borderRadiusAnim.setValue(0);
+            heightAnim.setValue(100);
+            Animated.parallel([timing(heightAnim, {
+              toValue: 450,
+              duration: 100,
+              useNativeDriver: false,
+            })]).start();
+
+            Animated.delay(50).start(() => {
+              Animated.parallel([timing(heightAnim, {
+                toValue: 500,
+                duration: 100,
+                useNativeDriver: false
+              })]).start();
+            });
+          } else {
+            const timing = Animated.timing;
+            Animated.parallel([
+              timing(heightAnim, {
+                toValue: 0,
+                duration: 150,
+                useNativeDriver: false,
+              }),
+              timing(borderRadiusAnim, {
+                toValue: 10,
+                duration: 0,
+                delay: 150,
+                useNativeDriver: false,
+              })
+            ]).start();
+          }
+        }
+      ),
       options$.subscribe(setOptions),
       placeholder$.subscribe(setPlaceholder),
       loading$.subscribe(setLoading),
@@ -171,13 +214,12 @@ export const QueryPanel: FC<{}> = () => {
       colors$.subscribe(setColors),
       systemOption$.subscribe(setSystemOption),
     );
-  }, []);
+  }, [heightAnim, borderRadiusAnim]);
 
-  useEffect(() => {
-    return () => subscriptions.forEach(s => s.unsubscribe());
-  }, []);
+    useEffect(() => {
+      return () => subscriptions.forEach(s => s.unsubscribe());
+    }, []);
 
-  const displayOptions = !!options.length || displayedOptionsForCurrentWorkflow;
   const placeholderValue = placeholder?.length
     ? placeholder
     : selectedOption
@@ -186,10 +228,11 @@ export const QueryPanel: FC<{}> = () => {
 
   return <>
     <SafeAreaView>
-      <View style={{
+      <Animated.View style={{
         backgroundColor: colors?.background,
         ...styles.input,
-        ...(displayOptions ? styles.inputWithResults : {}),
+        borderBottomLeftRadius: borderRadiusAnim,
+        borderBottomRightRadius: borderRadiusAnim,
       }}>
         {selectedOption &&
           <QueryPanelSelectedOption
@@ -234,11 +277,16 @@ export const QueryPanel: FC<{}> = () => {
             />
           }
         </View>
-      </View>
+      </Animated.View>
       <QueryPanelOptions
-        style={{ ...styles.options, backgroundColor: colors?.background }}
+        style={{
+          ...styles.options,
+          backgroundColor: colors?.background,
+          height: heightAnim,
+          paddingTop: 0,
+          paddingBottom: 0,
+        }}
         hoveredOptionIndex={hoveredOptionIndex}
-        displayOptions={displayOptions}
         options={options}
         onSubmit={onSubmit}
       ></QueryPanelOptions>

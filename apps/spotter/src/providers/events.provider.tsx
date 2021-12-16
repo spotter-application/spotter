@@ -371,11 +371,11 @@ export const EventsProvider: FC<{}> = (props) => {
       history,
     );
 
-    options$.next(sortedOptions);
-
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);
     }
+
+    options$.next(sortedOptions);
   }
 
   const onQuery = async (nextQuery: string) => {

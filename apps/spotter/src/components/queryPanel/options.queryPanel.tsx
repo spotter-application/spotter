@@ -8,6 +8,7 @@ import {
   ViewStyle,
   TouchableOpacity,
   ImageStyle,
+  Animated,
 } from 'react-native';
 import { Subscription } from 'rxjs';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
@@ -17,15 +18,13 @@ import { useSettings } from '../../providers';
 type OptionsProps = {
   options: Array<PluginOnQueryOption | PluginRegistryOption>;
   hoveredOptionIndex: number;
-  displayOptions: boolean,
   onSubmit: (index: number) => void;
-  style: ViewStyle;
+  style: Animated.WithAnimatedObject<ViewStyle>;
 }
 
 export const QueryPanelOptions = ({
   options,
   hoveredOptionIndex = 0,
-  displayOptions = false,
   onSubmit,
   style,
 }: OptionsProps) => {
@@ -47,10 +46,9 @@ export const QueryPanelOptions = ({
   });
 
   return <>
-    {displayOptions  ?
+    <Animated.View style={style}>
       <FlatList
         ref={refContainer}
-        style={style}
         data={options}
         keyExtractor={(item, i) => item.title + i}
         persistentScrollbar={true}
@@ -63,8 +61,8 @@ export const QueryPanelOptions = ({
             />
           </TouchableOpacity>
         )}
-      /> : null
-    }
+      />
+    </Animated.View>
   </>
 };
 

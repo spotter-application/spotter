@@ -221,12 +221,12 @@ export const PluginsProvider: FC<{}> = (props) => {
       ? optionWithHoveredPropIndex
       : 0;
 
-    options$.next(sortedOptions);
-    hoveredOptionIndex$.next(nextHoveredOptionIndex);
-
     if (sortedOptions.length) {
       displayedOptionsForCurrentWorkflow$.next(true);
     }
+
+    options$.next(sortedOptions);
+    hoveredOptionIndex$.next(nextHoveredOptionIndex);
   }
 
   const getStorageCommand = async (
