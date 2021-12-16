@@ -11,6 +11,7 @@ import { usePlugins } from './plugins.provider';
 import { combineLatest, Subscription } from 'rxjs';
 import { Alert } from 'react-native';
 import packageJson from '../../package.json';
+import FS from 'react-native-fs';
 
 const FIVE_MIN = 5 * 60 * 1000;
 
@@ -36,6 +37,11 @@ const context: Context = {
   onBackspace: () => null,
 }
 
+type NextSpotterVersion = {
+  name: string,
+  bundleUrl: string,
+} | null;
+
 export const EventsContext = React.createContext<Context>(context);
 
 export const EventsProvider: FC<{}> = (props) => {
@@ -58,12 +64,9 @@ export const EventsProvider: FC<{}> = (props) => {
   const subscriptions: Subscription[] = [];
 
   const nextSpotterVersion: {
-    version: {
-      name: string,
-      bundleUrl: string,
-    } | null,
-    requestedAt: number,
-  } = { version: null, requestedAt: 0 };
+    version: NextSpotterVersion,
+    lastRequestedAt: number,
+  } = { version: null, lastRequestedAt: 0 };
 
   useEffect(() => {
     init();
@@ -105,8 +108,18 @@ export const EventsProvider: FC<{}> = (props) => {
     );
   }
 
-  const onCommandKey = (key: number) => {
+  const onCommandKey = async (key: number) => {
     if (key === 32) {
+      if (!nextSpotterVersion.version) {
+        doing$.next('Checking for a new version...');
+        await requestLastSpotterOption(true);
+        setTimeout(() => doing$.next(null), 1000);
+      }
+
+      if (!nextSpotterVersion.version) {
+        return;
+      }
+
       upgradeSpotter(nextSpotterVersion.version?.bundleUrl);
       return;
     }
@@ -127,34 +140,68 @@ export const EventsProvider: FC<{}> = (props) => {
     });
   }
 
-  const checkLatestVersion = async () => {
-    // const isDev = FS.MainBundlePath.includes('Xcode/DerivedData');
-    // if (isDev) {
-    //   return;
-    // }
-
-    const now = new Date().getTime();
-    if (
-      !nextSpotterVersion.version &&
-      (now - nextSpotterVersion.requestedAt) > FIVE_MIN
-    ) {
-      const latestVersion = await fetch(
-        'https://api.github.com/repos/ziulev/spotter/releases/latest'
-      ).then(r => r.json());
-
-      nextSpotterVersion.requestedAt = now;
-
-      if (!shouldUpgrade(packageJson.version, latestVersion.name)) {
-        return;
-      }
-
-      const bundle = latestVersion.assets.find((a: {name: string}) => a.name === 'spotter.dmg');
-      nextSpotterVersion.version = {
-        name: latestVersion.name,
-        bundleUrl: bundle.browser_download_url,
-      };
+  const checkLatestVersion = async (
+    now: number,
+    lastRequestedAt: number
+  ): Promise<NextSpotterVersion> => {
+    if ((now - lastRequestedAt) < FIVE_MIN) {
+      return null;
     }
 
+    const latestVersion = await fetch(
+      'https://api.github.com/repos/ziulev/spotter/releases/latest'
+    ).then(r => r.json());
+
+    if (!shouldUpgrade(packageJson.version, latestVersion.name)) {
+      return null;
+    }
+
+    const bundle = latestVersion.assets.find((a: {name: string}) => a.name === 'spotter.dmg');
+    return {
+      name: latestVersion.name,
+      bundleUrl: bundle.browser_download_url,
+    };
+  }
+
+  const upgradeSpotter = async (buildUrl?: string) => {
+    if (!buildUrl) {
+      return;
+    }
+
+    const isDev = FS.MainBundlePath.includes('Xcode/DerivedData');
+    if (isDev) {
+      notifications.show('Can not update dev version', 'It looks like you are cheating 🙂') ;
+      return;
+    }
+
+    systemOption$.next(null);
+    doing$.next('Upgrading spotter...');
+
+    await shell.execute(`cd ~ && rm spotter.dmg || true`);
+    await shell.execute(`cd ~ && curl -L ${buildUrl} > spotter.dmg`);
+    const volume = (await shell.execute(`cd ~ && hdiutil attach -nobrowse spotter.dmg | awk 'END {$1=$2=""; print $0}'; exit \${PIPESTATUS[0]}`)).trimStart();
+    await shell.execute(`cp -r ${volume}/spotter.app/MacOS/spotter ${FS.MainBundlePath}/MacOS/spotter`);
+    await shell.execute(`cp -r ${volume}/spotter.app/Resources/main.jsbundle ${FS.MainBundlePath}/Resources/main.jsbundle`);
+    await shell.execute(`hdiutil unmount '${volume}'`);
+    shell.execute(`osascript -e 'quit app "Spotter"' && open "${FS.MainBundlePath}"`);
+
+    doing$.next(null);
+  }
+
+  const onPressHotkey = async (e: SpotterHotkeyEvent) => {
+    if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
+      requestLastSpotterOption();
+      panel.open();
+      return;
+    };
+  }
+
+  const requestLastSpotterOption = async (force?: boolean) => {
+    const now = new Date().getTime();
+    nextSpotterVersion.version = await checkLatestVersion(
+      now,
+      force ? 0 : nextSpotterVersion.lastRequestedAt,
+    );
     if (!nextSpotterVersion.version) {
       return;
     }
@@ -164,30 +211,6 @@ export const EventsProvider: FC<{}> = (props) => {
       subtitle: nextSpotterVersion.version?.name,
       onSubmit: () => upgradeSpotter(nextSpotterVersion.version?.bundleUrl),
     });
-  }
-
-  const upgradeSpotter = async (buildUrl?: string) => {
-    if (!buildUrl) {
-      return;
-    }
-
-    systemOption$.next(null);
-    doing$.next('Upgrading spotter...');
-    await shell.execute(`cd ~ && rm spotter.dmg || true`);
-    await shell.execute(`cd ~ && curl -L ${buildUrl} > spotter.dmg`);
-    await shell.execute('cd ~ && hdiutil attach -nobrowse spotter.dmg')
-    await shell.execute(`cp -r /Volumes/Spotter/spotter.app /Applications`);
-    await shell.execute(`hdiutil unmount '/Volumes/Spotter'`);
-    doing$.next(null);
-    shell.execute(`osascript -e 'quit app "Spotter"' && osascript -e 'activate app "Spotter"'`);
-  }
-
-  const onPressHotkey = (e: SpotterHotkeyEvent) => {
-    if (e.identifier === SPOTTER_HOTKEY_IDENTIFIER) {
-      checkLatestVersion();
-      panel.open();
-      return;
-    };
   }
 
   const checkDependencies = async () => {
@@ -271,16 +294,23 @@ export const EventsProvider: FC<{}> = (props) => {
   }
 
   const printHelpOptions = () => {
-    const nextOptions: PluginRegistryOption[] = registeredOptions$.value
+    const prefixes: PluginRegistryOption[] = registeredOptions$.value
       .filter(o => o.prefix)
       .map(o => ({
-        title: o.prefix ?? '',
+        title: o.prefix ? `[Prefix] ${o.prefix}` : '',
         subtitle: o.title,
         icon: o.icon,
         pluginName: o.pluginName,
       }));
+    
+    const hotkeys: PluginRegistryOption[] = [
+      { title: '[Hotkey] cmd + u', icon: '⬆️', subtitle: 'Check for a new version', pluginName: '' }
+    ];
 
-    options$.next(nextOptions);
+    options$.next([
+      ...prefixes,
+      ...hotkeys,
+    ]);
   }
 
   const onQueryForSelectedOption = async (nextQuery: string) => {
@@ -362,6 +392,14 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
+    if (nextQuery === '-v') {
+      options$.next([{
+        title: packageJson.version,
+        pluginName: '',
+      }]);
+      return;
+    }
+
     onQueryForSelectedOption(nextQuery);
 
     onQueryForOptionsWithPrefixes(nextQuery);
@@ -404,8 +442,6 @@ export const EventsProvider: FC<{}> = (props) => {
     if (!option.onSubmitId) {
       return;
     }
-
-    // loading$.next(true);
 
     const command: SpotterCommand = {
       type: SpotterCommandType.onSubmit,
