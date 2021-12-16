@@ -5,7 +5,6 @@ import { PluginOnQueryOption, PluginRegistryOption } from '../interfaces';
 
 type Context = {
   query$: BehaviorSubject<string>,
-  altQuery$: BehaviorSubject<string>,
   placeholder$: BehaviorSubject<string | null>,
   options$: BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>,
   selectedOption$: BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>,
@@ -20,7 +19,6 @@ type Context = {
 
 const context: Context = {
   query$: new BehaviorSubject<string>(''),
-  altQuery$: new BehaviorSubject<string>(''),
   placeholder$: new BehaviorSubject<string | null>(null),
   options$: new BehaviorSubject<Array<PluginRegistryOption | PluginOnQueryOption>>([]),
   selectedOption$: new BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>(null),
@@ -39,7 +37,6 @@ export const StateProvider: FC<{}> = (props) => {
 
   const resetState = () => {
     context.query$.next('');
-    context.altQuery$.next('');
     context.placeholder$.next(null);
     context.options$.next([]);
     context.hoveredOptionIndex$.next(0);

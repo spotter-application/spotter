@@ -1,6 +1,6 @@
 import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
-import { ALT_QUERY_KEY_MAP, PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
@@ -9,7 +9,6 @@ import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
 import { combineLatest, Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { Alert } from 'react-native';
 import packageJson from '../../package.json';
 
@@ -45,7 +44,6 @@ export const EventsProvider: FC<{}> = (props) => {
   const { getHistory, increaseHistory } = useHistory();
   const {
     query$,
-    altQuery$,
     options$,
     selectedOption$,
     hoveredOptionIndex$,
@@ -89,15 +87,6 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     subscriptions.push(
-      altQuery$.pipe(
-        tap(altQuery => {
-          if (altQuery.length) {
-            panel.open();
-            onQuery(altQuery);
-          };
-        }),
-      ).subscribe(),
-
       combineLatest([
         hoveredOptionIndex$,
         options$,
@@ -131,13 +120,6 @@ export const EventsProvider: FC<{}> = (props) => {
       Object.entries(options).forEach(([option, shortcut]) => {
         hotkey.register(shortcut, `${plugin}#${option}`);
       });
-    });
-
-    Object.entries(ALT_QUERY_KEY_MAP).forEach(([code, key]) => {
-      hotkey.register(
-        {doubledModifiers: false, keyCode: Number(code), modifiers: 2048},
-        key,
-      );
     });
 
     hotkey.onPress((e) => {
@@ -206,11 +188,6 @@ export const EventsProvider: FC<{}> = (props) => {
       panel.open();
       return;
     };
-
-    if (Object.values(ALT_QUERY_KEY_MAP).find(key => key === e.identifier)) {
-      altQuery$.next(altQuery$.value + e.identifier);
-      return;
-    }
   }
 
   const checkDependencies = async () => {
