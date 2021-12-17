@@ -35,33 +35,6 @@ Type `plugins <tab>`
 
 ## 🤖 Requirements
 * macOS Monterey
-* Node
-
-## 🖤 How to develop
-
-Contributions are always welcome, no matter how large or small.
-
-**Requirements:**
-* [Xcode](https://apps.apple.com/us/app/xcode/id497799835?mt=12)
-
-* [CocoaPods](https://guides.cocoapods.org/using/getting-started.html)
-`sudo gem install cocoapods`
-
-* [Node.js](https://nodejs.org/)
- `brew install node`
-
-* [Watchman](https://facebook.github.io/watchman)
-`brew install watchman`
-
-**Run:**
-* Clone repo
-`git clone https://github.com/ziulev/spotter.git spotter && cd $_`
-
-* Install deps
-`yarn && npx pod-install`
-
-* Run
-`yarn start`
 
 ## ⚠️ Troubleshooting
 
