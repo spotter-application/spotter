@@ -395,7 +395,10 @@ export const EventsProvider: FC<{}> = (props) => {
       return;
     }
 
-    onQueryForSelectedOption(nextQuery);
+    if (selectedOption$.value) {
+      onQueryForSelectedOption(nextQuery);
+      return;
+    }
 
     onQueryForOptionsWithPrefixes(nextQuery);
     
