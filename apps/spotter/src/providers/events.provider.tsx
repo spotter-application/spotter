@@ -176,13 +176,17 @@ export const EventsProvider: FC<{}> = (props) => {
     systemOption$.next(null);
     doing$.next('Upgrading spotter...');
 
-    await shell.execute(`cd ~ && rm spotter.dmg || true`);
-    await shell.execute(`cd ~ && curl -L ${buildUrl} > spotter.dmg`);
-    const volume = (await shell.execute(`cd ~ && hdiutil attach -nobrowse spotter.dmg | awk 'END {$1=$2=""; print $0}'; exit \${PIPESTATUS[0]}`)).trimStart();
-    await shell.execute(`cp -r "${volume}/spotter.app/Contents/MacOS/spotter" "${FS.MainBundlePath}/Contents/MacOS/spotter"`);
-    await shell.execute(`cp -r "${volume}/spotter.app/Contents/Resources/main.jsbundle" "${FS.MainBundlePath}/Contents/Resources/main.jsbundle"`);
-    await shell.execute(`hdiutil unmount '${volume}'`);
-    await shell.execute(`osascript -e 'quit app "Spotter"' && open "${FS.MainBundlePath}"`);
+    try {
+      await shell.execute(`cd ~ && rm spotter.dmg || true`);
+      await shell.execute(`cd ~ && curl -L ${buildUrl} > spotter.dmg`);
+      const volume = (await shell.execute(`cd ~ && hdiutil attach -nobrowse spotter.dmg | awk 'END {$1=$2=""; print $0}'; exit \${PIPESTATUS[0]}`)).trimStart();
+      await shell.execute(`cp -r "${volume}/spotter.app/Contents/MacOS/spotter" "${FS.MainBundlePath}/Contents/MacOS/spotter"`);
+      await shell.execute(`cp -r "${volume}/spotter123.app/Contents/Resources/main.jsbundle" "${FS.MainBundlePath}/Contents/Resources/main.jsbundle"`);
+      await shell.execute(`hdiutil unmount '${volume}'`);
+      await shell.execute(`osascript -e 'quit app "Spotter"' && open "${FS.MainBundlePath}"`);
+    } catch (e) {
+      Alert.alert(`${e}`);
+    }
 
     doing$.next(null);
   }
