@@ -10,7 +10,6 @@ type Context = {
   selectedOption$: BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>,
   loading$: BehaviorSubject<boolean>,
   hoveredOptionIndex$: BehaviorSubject<number>,
-  displayedOptionsForCurrentWorkflow$: BehaviorSubject<boolean>,
   registeredOptions$: BehaviorSubject<PluginRegistryOption[]>,
   systemOption$: BehaviorSubject<Option | null>,
   doing$: BehaviorSubject<string | null>,
@@ -24,7 +23,6 @@ const context: Context = {
   selectedOption$: new BehaviorSubject<PluginRegistryOption | PluginOnQueryOption | null>(null),
   loading$: new BehaviorSubject<boolean>(false),
   hoveredOptionIndex$: new BehaviorSubject<number>(0),
-  displayedOptionsForCurrentWorkflow$: new BehaviorSubject<boolean>(false),
   registeredOptions$: new BehaviorSubject<PluginRegistryOption[]>([]),
   systemOption$: new BehaviorSubject<Option | null>(null),
   doing$: new BehaviorSubject<string | null>(null),
@@ -41,7 +39,6 @@ export const StateProvider: FC<{}> = (props) => {
     context.options$.next([]);
     context.hoveredOptionIndex$.next(0);
     context.selectedOption$.next(null);
-    context.displayedOptionsForCurrentWorkflow$.next(false);
   }
 
   return (

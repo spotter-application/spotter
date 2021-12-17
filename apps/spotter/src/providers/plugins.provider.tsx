@@ -51,7 +51,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     selectedOption$,
     options$,
     query$,
-    displayedOptionsForCurrentWorkflow$,
     placeholder$,
     hoveredOptionIndex$,
     loading$,
@@ -220,10 +219,6 @@ export const PluginsProvider: FC<{}> = (props) => {
     const nextHoveredOptionIndex = optionWithHoveredPropIndex !== -1
       ? optionWithHoveredPropIndex
       : 0;
-
-    if (sortedOptions.length) {
-      displayedOptionsForCurrentWorkflow$.next(true);
-    }
 
     options$.next(sortedOptions);
     hoveredOptionIndex$.next(nextHoveredOptionIndex);

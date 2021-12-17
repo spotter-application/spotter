@@ -14,7 +14,7 @@ import { Input } from '../../native';
 import { useEvents } from '../../providers/events.provider';
 import { getHint } from '../../helpers';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
-import { distinctUntilChanged, Subscription } from 'rxjs';
+import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
 import { Option } from '@spotter-app/core';
 
 export const QueryPanelLoading: FC<{
@@ -136,7 +136,6 @@ export const QueryPanel: FC<{}> = () => {
     query$,
     hoveredOptionIndex$,
     selectedOption$,
-    displayedOptionsForCurrentWorkflow$,
     systemOption$,
     doing$,
   } = useSpotterState();
@@ -150,10 +149,6 @@ export const QueryPanel: FC<{}> = () => {
   const [query, setQuery] = useState<string>('');
   const [hoveredOptionIndex, setHoveredOptionIndex] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<PluginOnQueryOption | PluginRegistryOption | null>(null);
-  const [
-    displayedOptionsForCurrentWorkflow,
-    setDisplayedOptionsForCurrentWorkflow,
-  ] = useState<boolean>(false);
   const [colors, setColors] = useState<SpotterThemeColors>();
   const [systemOption, setSystemOption] = useState<Option | null>();
 
@@ -164,45 +159,44 @@ export const QueryPanel: FC<{}> = () => {
 
   useEffect(() => {
     subscriptions.push(
-      displayedOptionsForCurrentWorkflow$.pipe(
+      combineLatest([query$, selectedOption$]).pipe(
+        map(([q, so]) => !!q.length || !!so),
         distinctUntilChanged(),
-      ).subscribe(
-        (v) => {
-          const timing = Animated.timing;
-          if (v) {
-            borderRadiusAnim.setValue(0);
-            heightAnim.setValue(100);
-            Animated.parallel([timing(heightAnim, {
-              toValue: 450,
-              duration: 100,
-              useNativeDriver: false,
-            })]).start();
+      ).subscribe(displayOptions => {
+        const timing = Animated.timing;
+        if (displayOptions) {
+          borderRadiusAnim.setValue(0);
+          heightAnim.setValue(100);
+          Animated.parallel([timing(heightAnim, {
+            toValue: 450,
+            duration: 100,
+            useNativeDriver: false,
+          })]).start();
 
-            Animated.delay(50).start(() => {
-              Animated.parallel([timing(heightAnim, {
-                toValue: 500,
-                duration: 100,
-                useNativeDriver: false
-              })]).start();
-            });
-          } else {
-            const timing = Animated.timing;
-            Animated.parallel([
-              timing(heightAnim, {
-                toValue: 0,
-                duration: 150,
-                useNativeDriver: false,
-              }),
-              timing(borderRadiusAnim, {
-                toValue: 10,
-                duration: 0,
-                delay: 150,
-                useNativeDriver: false,
-              })
-            ]).start();
-          }
+          Animated.delay(50).start(() => {
+            Animated.parallel([timing(heightAnim, {
+              toValue: 500,
+              duration: 100,
+              useNativeDriver: false
+            })]).start();
+          });
+        } else {
+          const timing = Animated.timing;
+          Animated.parallel([
+            timing(heightAnim, {
+              toValue: 0,
+              duration: 150,
+              useNativeDriver: false,
+            }),
+            timing(borderRadiusAnim, {
+              toValue: 10,
+              duration: 0,
+              delay: 150,
+              useNativeDriver: false,
+            })
+          ]).start();
         }
-      ),
+      }),
       options$.subscribe(setOptions),
       placeholder$.subscribe(setPlaceholder),
       loading$.subscribe(setLoading),
@@ -210,7 +204,6 @@ export const QueryPanel: FC<{}> = () => {
       query$.subscribe(setQuery),
       hoveredOptionIndex$.subscribe(setHoveredOptionIndex),
       selectedOption$.subscribe(setSelectedOption),
-      displayedOptionsForCurrentWorkflow$.subscribe(setDisplayedOptionsForCurrentWorkflow),
       colors$.subscribe(setColors),
       systemOption$.subscribe(setSystemOption),
     );

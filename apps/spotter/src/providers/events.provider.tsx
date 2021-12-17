@@ -54,7 +54,6 @@ export const EventsProvider: FC<{}> = (props) => {
     selectedOption$,
     hoveredOptionIndex$,
     registeredOptions$,
-    displayedOptionsForCurrentWorkflow$,
     systemOption$,
     doing$,
     resetState,
@@ -370,10 +369,6 @@ export const EventsProvider: FC<{}> = (props) => {
       selectedOption$.value,
       history,
     );
-
-    if (sortedOptions.length) {
-      displayedOptionsForCurrentWorkflow$.next(true);
-    }
 
     options$.next(sortedOptions);
   }
