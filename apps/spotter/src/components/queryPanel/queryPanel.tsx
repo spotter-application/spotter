@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 import { useSettings, useSpotterState } from '../../providers';
 import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
@@ -46,6 +47,7 @@ export const QueryPanelLoading: FC<{
         position: 'absolute',
         right: 3,
         top: -1,
+        opacity: 0.3,
       }}
     />
   </View>
@@ -95,25 +97,28 @@ export const QueryPanelSystemOption: FC<{
 }
 
 export const QueryPanelSelectedOption: FC<{
-  selectedOption: PluginOnQueryOption | PluginRegistryOption
+  selectedOption: PluginOnQueryOption | PluginRegistryOption | null,
+  selectedOptionLeftAnim: Animated.Value,
+  style: Animated.WithAnimatedObject<ViewStyle>,
   colors?: SpotterThemeColors,
-}> = ({ colors, selectedOption }) => {
-  return <View style={{
-    ...styles.selectedOptionContainer,
-    backgroundColor: colors?.activeOptionBackground,
-  }}>
+}> = ({ colors, selectedOption, style, selectedOptionLeftAnim }) => {
+  return <Animated.View style={style}>
     <OptionIcon
       style={{
         paddingRight: 3,
         height: 25,
       }}
-      icon={selectedOption.icon}
+      icon={selectedOption?.icon}
     ></OptionIcon>
-    <Text style={{
+    <Animated.Text style={{
+      // opacity: selectedOptionLeftAnim.interpolate({
+      //   inputRange: [-200, 0],
+      //   outputRange: [0, 1],
+      // }),
       fontSize: 16,
       color: colors?.activeOptionText
-    }}>{selectedOption.title}</Text>
-  </View>
+    }}>{selectedOption?.title}</Animated.Text>
+  </Animated.View>
 }
 
 export const QueryPanel: FC<{}> = () => {
@@ -154,6 +159,7 @@ export const QueryPanel: FC<{}> = () => {
 
   const heightAnim = useRef(new Animated.Value(0)).current;
   const borderRadiusAnim = useRef(new Animated.Value(10)).current;
+  const selectedOptionLeftAnim = useRef(new Animated.Value(-20)).current;
 
   const subscriptions: Subscription[] = [];
 
@@ -203,7 +209,26 @@ export const QueryPanel: FC<{}> = () => {
       doing$.subscribe(setDoing),
       query$.subscribe(setQuery),
       hoveredOptionIndex$.subscribe(setHoveredOptionIndex),
-      selectedOption$.subscribe(setSelectedOption),
+      selectedOption$.subscribe(option => {
+        setSelectedOption(option);
+
+        const timing = Animated.timing;
+        if (option) {
+          selectedOptionLeftAnim.setValue(-20);
+          Animated.parallel([timing(selectedOptionLeftAnim, {
+            toValue: 0,
+            duration: 100,
+            useNativeDriver: false,
+          })]).start();
+        } else {
+          Animated.parallel([timing(selectedOptionLeftAnim, {
+            toValue: -20,
+            duration: 100,
+            useNativeDriver: false,
+          })]).start();
+
+        }
+      }),
       colors$.subscribe(setColors),
       systemOption$.subscribe(setSystemOption),
     );
@@ -227,14 +252,38 @@ export const QueryPanel: FC<{}> = () => {
         borderBottomLeftRadius: borderRadiusAnim,
         borderBottomRightRadius: borderRadiusAnim,
       }}>
-        {selectedOption &&
-          <QueryPanelSelectedOption
-            colors={colors}
-            selectedOption={selectedOption} 
-          />
-        }
+        <QueryPanelSelectedOption
+          selectedOptionLeftAnim={selectedOptionLeftAnim}
+          style={{
+            ...styles.selectedOptionContainer,
+            backgroundColor: colors?.activeOptionBackground,
+            left: selectedOptionLeftAnim,
+            overflow: 'hidden',
+            paddingLeft: selectedOptionLeftAnim.interpolate({
+              inputRange: [-20, 0],
+              outputRange: [0, 10],
+            }),
+            marginLeft: selectedOptionLeftAnim.interpolate({
+              inputRange: [-20, 0],
+              outputRange: [0, 10],
+            }),
+            paddingRight: selectedOptionLeftAnim.interpolate({
+              inputRange: [-20, 0],
+              outputRange: [0, 10],
+            }),
+            opacity: selectedOptionLeftAnim.interpolate({
+              inputRange: [-20, 0],
+              outputRange: [0, 1],
+            }),
+          }}
+          colors={colors}
+          selectedOption={selectedOption}
+        />
         <Input
-          style={{ color: colors?.text }}
+          style={{
+            color: colors?.text,
+            // backgroundColor: 'yellow',
+          }}
           value={query}
           placeholder={placeholderValue}
           hint={getHint(query, options[hoveredOptionIndex])}
@@ -247,7 +296,6 @@ export const QueryPanel: FC<{}> = () => {
           onTab={onTab}
           onBackspace={onBackspace}
         ></Input>
-
         <View style={{
           display: 'flex',
           marginLeft: 10,
@@ -257,11 +305,6 @@ export const QueryPanel: FC<{}> = () => {
               doing={doing}
               colors={colors}
             />
-          }
-          {(options[hoveredOptionIndex] && !loading && !systemOption && !doing) &&
-            <OptionIcon style={{
-              opacity: loading ? 0.1 : 1,
-            }} icon={options[hoveredOptionIndex].icon}></OptionIcon>
           }
           {(!loading && systemOption) &&
             <QueryPanelSystemOption
@@ -295,7 +338,8 @@ const styles = StyleSheet.create({
   input: {
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    padding: 10,
+    paddingVertical: 10,
+    paddingRight: 10,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
