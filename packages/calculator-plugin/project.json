@@ -1,0 +1,40 @@
+{
+  "root": "packages/calculator-plugin",
+  "sourceRoot": "packages/calculator-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "calculator-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/calculator-plugin",
+        "tsConfig": "packages/calculator-plugin/tsconfig.lib.json",
+        "packageJson": "packages/calculator-plugin/package.json",
+        "main": "packages/calculator-plugin/src/index.ts",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/calculator-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/calculator-plugin"],
+      "options": {
+        "jestConfig": "packages/calculator-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

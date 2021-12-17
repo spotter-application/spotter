@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "projects": {
+    "applications-plugin": "packages/applications-plugin",
+    "brave-plugin": "packages/brave-plugin",
+    "calculator-plugin": "packages/calculator-plugin",
+    "core": "packages/core",
+    "emoji-plugin": "packages/emoji-plugin",
+    "plugin": "packages/plugin",
+    "spotify-plugin": "packages/spotify-plugin",
+    "spotter": "apps/spotter",
+    "web-plugin": "packages/web-plugin",
+    "vscode-plugin": "packages/vscode-plugin",
+    "bluetooth-plugin": "packages/bluetooth-plugin"
+  }
+}

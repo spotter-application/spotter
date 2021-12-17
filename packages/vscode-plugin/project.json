@@ -1,0 +1,40 @@
+{
+  "root": "packages/vscode-plugin",
+  "sourceRoot": "packages/vscode-plugin/src",
+  "projectType": "library",
+  "targets": {
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "vscode-plugin:build"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/vscode-plugin",
+        "tsConfig": "packages/vscode-plugin/tsconfig.lib.json",
+        "packageJson": "packages/vscode-plugin/package.json",
+        "main": "packages/vscode-plugin/src/index.ts",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/vscode-plugin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/packages/vscode-plugin"],
+      "options": {
+        "jestConfig": "packages/vscode-plugin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

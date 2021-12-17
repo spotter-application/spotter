@@ -1,0 +1,16 @@
+{
+  "name": "@spotter-app/brave-plugin",
+  "version": "1.9.12",
+  "private": false,
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "postinstall": "spotter-link-plugin"
+  },
+  "dependencies": {
+    "axios": "*",
+    "@spotter-app/plugin": "*",
+    "@spotter-app/core": "*"
+  }
+}
