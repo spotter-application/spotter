@@ -29,9 +29,9 @@ new class CalculatorPlugin extends Plugin {
   }
 
   private async getOptions(q: string): Promise<OnQueryOption[]> {
-    // const projects = await this.getDeepGitProjects('~/Developer');
     const storage = await this.spotter.getStorage<Storage>();
-    const projects = await (storage.folders ?? [])
+    const folders = storage.folders ?? [];
+    const projects = await folders
       .reduce<Promise<OnQueryOption[]>>(async (acc, f) => {
         const resolvedAcc = await acc;
         const projects = await this.getDeepGitProjects(f);
@@ -44,23 +44,49 @@ new class CalculatorPlugin extends Plugin {
     return onQueryFilter(
       q,
       [
+        ...projects,
         {
           title: 'Add root folder',
-          onQuery: q => this.getFolders(q),
+          onQuery: (q: string) => this.getFolders(q),
           icon: this.appPath,
         },
-        ...projects,
+        ...(folders?.length ? [{
+          title: 'Root folders',
+          onQuery: (q: string) => onQueryFilter(
+            q,
+            folders.map(f => ({
+              title: f,
+              subtitle: 'Remove',
+              icon: this.appPath,
+              onSubmit: () => this.removeRootFolder(f),
+            })),
+          ),
+          icon: this.appPath,
+        }] : []),
       ],
     );
   }
 
   private async addRootFolder(folder: string) {
     const storage = await this.spotter.getStorage<Storage>();
+    const folders = storage.folders ?? [];
+
+    if (folders.find(f => f === folder)) {
+      return;
+    }
+
     this.spotter.setStorage<Storage>({
       folders: [
-        ...(storage.folders ?? []),
+        ...folders,
         folder,
       ],
+    });
+  }
+
+  private async removeRootFolder(folder: string) {
+    const storage = await this.spotter.getStorage<Storage>();
+    this.spotter.setStorage<Storage>({
+      folders: (storage.folders ?? []).filter(f => f !== folder),
     });
   }
 
@@ -70,14 +96,19 @@ new class CalculatorPlugin extends Plugin {
       return [];
     }
 
-    let folder = '';
+    if (query.startsWith('~')) {
+      const root = await promisedExec(`echo $HOME`).then(r => r.split('\n')[0]);
+      query = query.replace('~', root);
+    }
 
-    if (query.endsWith('/')) {
-      folder = query.substring(0, query.length - 1);
+    let folder = query;
+
+    if (folder.endsWith('/')) {
+      folder = folder.substring(0, folder.length - 1);
     } else {
-      const paths = query.split('/');
+      const paths = folder.split('/').filter(f => !!f);
       paths.pop();
-      folder = paths.join('/');
+      folder = `/${paths.join('/')}`;
     }
 
     const folders: OnQueryOption[] = await promisedExec(`cd ${folder} && ls`)
