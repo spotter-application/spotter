@@ -17,7 +17,8 @@
         "tsConfig": "packages/spotify-plugin/tsconfig.lib.json",
         "packageJson": "packages/spotify-plugin/package.json",
         "main": "packages/spotify-plugin/src/index.ts",
-        "assets": []
+        "assets": [],
+        "generatePackageJson": true
       }
     },
     "lint": {

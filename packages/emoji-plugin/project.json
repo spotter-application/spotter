@@ -17,7 +17,8 @@
         "tsConfig": "packages/emoji-plugin/tsconfig.lib.json",
         "packageJson": "packages/emoji-plugin/package.json",
         "main": "packages/emoji-plugin/src/index.ts",
-        "assets": []
+        "assets": [],
+        "generatePackageJson": true
       }
     },
     "lint": {

@@ -24,7 +24,8 @@
           "packages/bluetooth-plugin/src/scripts/list.applescript",
           "packages/bluetooth-plugin/src/icons/active.png",
           "packages/bluetooth-plugin/src/icons/inactive.png"
-        ]
+        ],
+        "generatePackageJson": true
       }
     },
     "lint": {
