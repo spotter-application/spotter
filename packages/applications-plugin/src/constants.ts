@@ -39,147 +39,147 @@ export const PREFERENCES: Application[] = [
     path: '/System/Library/PreferencePanes/Accounts.prefPane',
   },
   {
-    title: 'Appearance Preferences',
+    title: 'Appearance',
     path: '/System/Library/PreferencePanes/Appearance.prefPane',
   },
   {
-    title: 'Apple ID Preferences',
+    title: 'Apple ID',
     path: '/System/Library/PreferencePanes/AppleIDPrefPane.prefPane',
   },
   {
-    title: 'Battery Preferences',
+    title: 'Battery',
     path: '/System/Library/PreferencePanes/Battery.prefPane',
   },
   {
-    title: 'Bluetooth Preferences',
+    title: 'Bluetooth',
     path: '/System/Library/PreferencePanes/Bluetooth.prefPane',
   },
   {
-    title: 'Classroom Settings Preferences',
+    title: 'Classroom Settings',
     path: '/System/Library/PreferencePanes/ClassroomSettings.prefPane',
   },
   {
-    title: 'Date & Time Preferences',
+    title: 'Date & Time',
     path: '/System/Library/PreferencePanes/DateAndTime.prefPane',
   },
   {
-    title: 'Desktop & Screen Saver Preferences',
+    title: 'Desktop & Screen Saver',
     path: '/System/Library/PreferencePanes/DesktopScreenEffectsPref.prefPane',
   },
   {
-    title: 'Displays Preferences',
+    title: 'Displays',
     path: '/System/Library/PreferencePanes/Displays.prefPane',
   },
   {
-    title: 'Dock & Menu Bar Preferences',
+    title: 'Dock & Menu Bar',
     path: '/System/Library/PreferencePanes/Dock.prefPane',
   },
   {
-    title: 'Energy Saver Preferences',
+    title: 'Energy Saver',
     path: '/System/Library/PreferencePanes/EnergySaver.prefPane',
   },
   {
-    title: 'Mission Control Preferences',
+    title: 'Mission Control',
     path: '/System/Library/PreferencePanes/Expose.prefPane',
   },
   {
-    title: 'Extensions Preferences',
+    title: 'Extensions',
     path: '/System/Library/PreferencePanes/Extensions.prefPane',
   },
   {
-    title: 'Family Sharing Preferences',
+    title: 'Family Sharing',
     path: '/System/Library/PreferencePanes/FamilySharingPrefPane.prefPane',
   },
   {
-    title: 'Fibre Channel Preferences',
+    title: 'Fibre Channel',
     path: '/System/Library/PreferencePanes/FibreChannel.prefPane',
   },
   {
-    title: 'Internet Accounts Preferences',
+    title: 'Internet Accounts',
     path: '/System/Library/PreferencePanes/InternetAccounts.prefPane',
   },
   {
-    title: 'Keyboard Preferences',
+    title: 'Keyboard',
     path: '/System/Library/PreferencePanes/Keyboard.prefPane',
   },
   {
-    title: 'Localization Preferences',
+    title: 'Localization',
     path: '/System/Library/PreferencePanes/Localization.prefPane',
   },
   {
-    title: 'Mouse Preferences',
+    title: 'Mouse',
     path: '/System/Library/PreferencePanes/Mouse.prefPane',
   },
   {
-    title: 'Network Preferences',
+    title: 'Network',
     path: '/System/Library/PreferencePanes/Network.prefPane',
   },
   {
-    title: 'Notifications Preferences',
+    title: 'Notifications',
     path: '/System/Library/PreferencePanes/Notifications.prefPane',
   },
   {
-    title: 'Printers & Scanners Preferences',
+    title: 'Printers & Scanners',
     path: '/System/Library/PreferencePanes/PrintAndScan.prefPane',
   },
   {
-    title: 'Profiles Preferences',
+    title: 'Profiles',
     path: '/System/Library/PreferencePanes/Profiles.prefPane',
   },
   {
-    title: 'Screen Time Preferences',
+    title: 'Screen Time',
     path: '/System/Library/PreferencePanes/ScreenTime.prefPane',
   },
   {
-    title: 'Security & Privacy Preferences',
+    title: 'Security & Privacy',
     path: '/System/Library/PreferencePanes/Security.prefPane',
   },
   {
-    title: 'Sharing Preferences',
+    title: 'Sharing',
     path: '/System/Library/PreferencePanes/SharingPref.prefPane',
   },
   {
-    title: 'Sidecar Preferences',
+    title: 'Sidecar',
     path: '/System/Library/PreferencePanes/Sidecar.prefPane',
   },
   {
-    title: 'Software Update Preferences',
+    title: 'Software Update',
     path: '/System/Library/PreferencePanes/SoftwareUpdate.prefPane',
   },
   {
-    title: 'Sound Preferences',
+    title: 'Sound',
     path: '/System/Library/PreferencePanes/Sound.prefPane',
   },
   {
-    title: 'Siri Preferences',
+    title: 'Siri',
     path: '/System/Library/PreferencePanes/Speech.prefPane',
   },
   {
-    title: 'Spotlight Preferences',
+    title: 'Spotlight',
     path: '/System/Library/PreferencePanes/Spotlight.prefPane',
   },
   {
-    title: 'Startup Disk Preferences',
+    title: 'Startup Disk',
     path: '/System/Library/PreferencePanes/StartupDisk.prefPane',
   },
   {
-    title: 'Time Machine Preferences',
+    title: 'Time Machine',
     path: '/System/Library/PreferencePanes/TimeMachine.prefPane',
   },
   {
-    title: 'Touch ID Preferences',
+    title: 'Touch ID',
     path: '/System/Library/PreferencePanes/TouchID.prefPane',
   },
   {
-    title: 'Trackpad Preferences',
+    title: 'Trackpad',
     path: '/System/Library/PreferencePanes/Trackpad.prefPane',
   },
   {
-    title: 'Accessibility Preferences',
+    title: 'Accessibility',
     path: '/System/Library/PreferencePanes/UniversalAccessPref.prefPane',
   },
   {
-    title: 'Wallet & Apple Pay Preferences',
+    title: 'Wallet & Apple Pay',
     path: '/System/Library/PreferencePanes/Wallet.prefPane',
   },
 ];

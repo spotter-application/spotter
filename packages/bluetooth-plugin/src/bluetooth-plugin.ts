@@ -11,7 +11,7 @@ interface Device {
 new class CalculatorPlugin extends Plugin {
   activeIcon = `${__dirname}/icons/active.png`;
   inactiveIcon = `${__dirname}/icons/inactive.png`;
-  interval: number;
+  interval: NodeJS.Timeout;
 
   constructor() {
     super({
@@ -23,7 +23,7 @@ new class CalculatorPlugin extends Plugin {
 
   async onInit() {
     this.spotter.setRegisteredOptions([{
-      title: 'Bluetooth Preferences',
+      title: 'Bluetooth',
       prefix: 'blt',
       icon: this.activeIcon,
       replaceOptions: ['Bluetooth Preferences'],

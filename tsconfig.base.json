@@ -16,8 +16,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@spotter-app/core": ["packages/core/index.ts"],
-      "@spotter-app/plugin": ["packages/plugin/index.ts"]
+      // "@spotter-app/core": ["node_modules/@spotter-app/core/main.js"],
+      // "@spotter-app/plugin": ["node_modules/@spotter-app/plugin/main.js"],
     },
     "resolveJsonModule": true
   },

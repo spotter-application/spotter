@@ -1,7 +1,0 @@
-{
-  "name": "@spotter-app/core",
-  "version": "2.0.0-beta.15",
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
-  }
-}

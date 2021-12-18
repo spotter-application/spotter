@@ -2,6 +2,7 @@
   "name": "@spotter-app/bluetooth-plugin",
   "version": "1.9.10",
   "private": false,
+  "type": "module",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

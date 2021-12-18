@@ -1,5 +1,4 @@
 import { promisedExec } from '@spotter-app/plugin';
-import { PREFERENCES } from './constants';
 import { Application } from './interfaces';
 
 export const getAllApplications = async (): Promise<Application[]> => {
@@ -22,8 +21,7 @@ export const getAllApplications = async (): Promise<Application[]> => {
   );
 
   return [
-    ...applications,
-    ...PREFERENCES,
+    ...applications.filter(a => a.title === 'System Preferences'),
     {
       title: 'Finder',
       path: '/System/Library/CoreServices/Finder.app',

@@ -1,7 +1,7 @@
 import { RegistryOption } from '@spotter-app/core';
-import { Plugin } from '@spotter-app/plugin';
+import { onQueryFilter, Plugin } from '@spotter-app/plugin';
 import { exec } from 'node:child_process';
-import { ADDITIONAL_ACTIONS } from './constants';
+import { ADDITIONAL_ACTIONS, PREFERENCES } from './constants';
 import { getAllApplications } from './helpers';
 import { ActionType } from './interfaces';
 import packageJSON from '../package.json';
@@ -17,22 +17,35 @@ new class ApplicationsPlugin extends Plugin {
   }
 
   async onInit() {
-    const applications = await getAllApplications()
+    const applications = await getAllApplications();
+
     this.spotter.setRegisteredOptions([
       ...applications.map<RegistryOption>(application => ({
         title: application.title,
         icon: application.path,
-        onSubmit: () => this.runApplication(application.path),
+        onSubmit: () => this.open(application.path),
       })),
       ...ADDITIONAL_ACTIONS.map(action => ({
         title: action.title,
         icon: action.icon,
         onSubmit: () => this.runAction(action.type),
-      }))
+      })),
+      {
+        title: 'System Preferences',
+        icon: '/System/Applications/System Preferences.app',
+        onQuery: q => onQueryFilter(
+          q,
+          PREFERENCES.map(action => ({
+            title: action.title,
+            icon: action.path,
+            onSubmit: () => this.open(action.path),
+          })),
+        ),
+      }
     ]);
   }
 
-  private runApplication(path: string) {
+  private open(path: string) {
     exec(`open "${path}"`);
     return true;
   }
