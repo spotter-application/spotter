@@ -1,6 +1,6 @@
 {
   "name": "@spotter-app/vscode-plugin",
-  "version": "1.9.10",
+  "version": "1.9.11",
   "private": false,
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
