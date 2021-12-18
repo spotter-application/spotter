@@ -1,6 +1,8 @@
 {
   "version": 2,
   "projects": {
+    "core": "packages/core",
+    "plugin": "packages/plugin",
     "applications-plugin": "packages/applications-plugin",
     "brave-plugin": "packages/brave-plugin",
     "calculator-plugin": "packages/calculator-plugin",

@@ -3,6 +3,8 @@
   "version": "2.0.0",
   "license": "MIT",
   "scripts": {
+    "build:core": "nx build core",
+    "build:plugin": "nx build plugin",
     "serve:calculator-plugin": "nx serve calculator-plugin",
     "serve:applications-plugin": "nx serve applications-plugin",
     "serve:spotify-plugin": "nx serve spotify-plugin",
@@ -11,14 +13,16 @@
     "serve:brave-plugin": "nx serve brave-plugin",
     "serve:vscode-plugin": "nx serve vscode-plugin",
     "serve:bluetooth-plugin": "nx serve bluetooth-plugin",
-    "publish:calculator-plugin": "nx build calculator-plugin && cp packages/calculator-plugin/package.json dist/packages/calculator-plugin/package.json && cd dist/packages/calculator-plugin && npm publish && rm package.json",
-    "publish:applications-plugin": "nx build applications-plugin && cp packages/applications-plugin/package.json dist/packages/applications-plugin/package.json && cd dist/packages/applications-plugin && npm publish && rm package.json",
-    "publish:spotify-plugin": "nx build spotify-plugin && cp packages/spotify-plugin/package.json dist/packages/spotify-plugin/package.json && cd dist/packages/spotify-plugin && npm publish && rm package.json",
-    "publish:web-plugin": "nx build web-plugin && cp packages/web-plugin/package.json dist/packages/web-plugin/package.json && cd dist/packages/web-plugin && npm publish && rm package.json",
-    "publish:emoji-plugin": "nx build emoji-plugin && cp packages/emoji-plugin/package.json dist/packages/emoji-plugin/package.json && cd dist/packages/emoji-plugin && npm publish && rm package.json",
-    "publish:brave-plugin": "nx build brave-plugin && cp packages/brave-plugin/package.json dist/packages/brave-plugin/package.json && cd dist/packages/brave-plugin && npm publish && rm package.json",
-    "publish:vscode-plugin": "nx build vscode-plugin && cp packages/vscode-plugin/package.json dist/packages/vscode-plugin/package.json && cd dist/packages/vscode-plugin && npm publish && rm package.json",
-    "publish:bluetooth-plugin": "nx build bluetooth-plugin && cp packages/bluetooth-plugin/package.json dist/packages/bluetooth-plugin/package.json && cd dist/packages/bluetooth-plugin && npm publish && rm package.json"
+    "publish:plugin": "nx build plugin && cd dist/packages/plugin && npm publish",
+    "publish:core": "nx build plugin && cd dist/packages/core && npm publish",
+    "publish:calculator-plugin": "nx build calculator-plugin && cd dist/packages/calculator-plugin && npm publish",
+    "publish:applications-plugin": "nx build applications-plugin && cd dist/packages/applications-plugin && npm publish",
+    "publish:spotify-plugin": "nx build spotify-plugin && cd dist/packages/spotify-plugin && npm publish",
+    "publish:web-plugin": "nx build web-plugin && cd dist/packages/web-plugin && npm publish",
+    "publish:emoji-plugin": "nx build emoji-plugin && cd dist/packages/emoji-plugin && npm publish",
+    "publish:brave-plugin": "nx build brave-plugin && cd dist/packages/brave-plugin && npm publish",
+    "publish:vscode-plugin": "nx build vscode-plugin && cd dist/packages/vscode-plugin && npm publish",
+    "publish:bluetooth-plugin": "nx build bluetooth-plugin && cd dist/packages/bluetooth-plugin && npm publish"
   },
   "description": "🔭 macOS productivity tool to launch everything",
   "keywords": [
@@ -29,15 +33,14 @@
   ],
   "private": true,
   "dependencies": {
-    "@spotter-app/core": "2.0.0-beta.22",
-    "@spotter-app/plugin": "2.0.0-beta.25",
     "axios": "^0.24.0",
     "jsdom": "^19.0.0",
     "mathjs": "^10.0.0",
     "patch-package": "^6.4.7",
     "rxjs": "^7.4.0",
     "spotify-web-api-node": "^5.0.2",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "ws": "^8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.16.0",
@@ -55,6 +58,7 @@
     "@types/jsdom": "^16.2.13",
     "@types/node": "14.14.33",
     "@types/spotify-web-api-node": "^5.0.4",
+    "@types/ws": "^8.2.1",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
     "babel-jest": "^27.4.0",

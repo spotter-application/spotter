@@ -17,7 +17,8 @@
         "tsConfig": "packages/vscode-plugin/tsconfig.lib.json",
         "packageJson": "packages/vscode-plugin/package.json",
         "main": "packages/vscode-plugin/src/index.ts",
-        "assets": []
+        "assets": [],
+        "generatePackageJson": true
       }
     },
     "lint": {

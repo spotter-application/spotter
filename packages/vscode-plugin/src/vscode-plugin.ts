@@ -46,11 +46,13 @@ new class CalculatorPlugin extends Plugin {
       [
         ...projects,
         {
+          priority: -1,
           title: 'Add root folder',
           onQuery: (q: string) => this.getFolders(q),
           icon: this.appPath,
         },
         ...(folders?.length ? [{
+          priority: -2,
           title: 'Root folders',
           onQuery: (q: string) => onQueryFilter(
             q,

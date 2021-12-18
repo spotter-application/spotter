@@ -4,11 +4,11 @@
     "rootDir": ".",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
-    "declaration": false,
+    "declaration": true,
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2021", "dom"],
@@ -16,8 +16,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      // "@spotter-app/core": ["node_modules/@spotter-app/core/main.js"],
-      // "@spotter-app/plugin": ["node_modules/@spotter-app/plugin/main.js"],
+      "@spotter-app/core": ["packages/core/index.ts"],
+      "@spotter-app/plugin": ["packages/plugin/index.ts"]
     },
     "resolveJsonModule": true
   },
