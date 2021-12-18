@@ -49,6 +49,22 @@ new class CalculatorPlugin extends Plugin {
         icon: this.appPath,
         onSubmit: this.previous,
       },
+      {
+        title: '-debug spotify',
+        icon: this.appPath,
+        onQuery: async () => {
+          return [
+            {
+              title: 'getStorage',
+              onSubmit: async () => {
+                const storage = await this.spotter.getStorage();
+                this.spotter.setError(JSON.stringify(storage));
+                return false;
+              }
+            }
+          ]
+        }
+      }
     ]);
   }
 
