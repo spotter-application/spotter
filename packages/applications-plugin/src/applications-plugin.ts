@@ -33,6 +33,7 @@ new class ApplicationsPlugin extends Plugin {
       {
         title: 'System Preferences',
         icon: '/System/Applications/System Preferences.app',
+        onSubmit: () => this.open('/System/Applications/System Preferences.app'),
         onQuery: q => onQueryFilter(
           q,
           PREFERENCES.map(action => ({

@@ -40,6 +40,7 @@ new class CalculatorPlugin extends Plugin {
   }
 
   calculate(query: string) {
+    this.spotter.setPlaceholder('Expression');
     const hasOperator = OPERATORS.find(o => query.indexOf(o) !== -1);
 
     if (!hasOperator) {

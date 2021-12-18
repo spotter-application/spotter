@@ -21,7 +21,7 @@ export const getAllApplications = async (): Promise<Application[]> => {
   );
 
   return [
-    ...applications.filter(a => a.title === 'System Preferences'),
+    ...applications.filter(a => a.title !== 'System Preferences'),
     {
       title: 'Finder',
       path: '/System/Library/CoreServices/Finder.app',
