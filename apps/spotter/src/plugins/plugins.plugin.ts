@@ -11,6 +11,7 @@ const INTERNAL_PLUGINS = [
 const IGNORE_EXTERNAL_PLUGINS = [
   '@spotter-app/core',
   '@spotter-app/plugin',
+  '@spotter-app/applications-plugin',
 ];
 
 interface ExternalPlugin {
