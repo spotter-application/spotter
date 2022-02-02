@@ -2,8 +2,8 @@ import { Hotkey } from "@spotter-app/core";
 import React from "react";
 import { FC } from "react";
 import { View } from "react-native";
-import { SpotterThemeColors } from "../../interfaces";
-import { HotkeyInput } from "../../native/ui/hotkey-input.ui";
+import { SpotterThemeColors } from "../interfaces";
+import { HotkeyInput } from "../native/ui/hotkey-input.ui";
 
 export interface SpotterOptionShortcut {
   title: string,

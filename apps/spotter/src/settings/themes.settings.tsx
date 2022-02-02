@@ -1,9 +1,6 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC } from 'react';
 import { Switch, Text, View } from 'react-native';
-import { Subscription } from 'rxjs';
-import { SpotterThemeColors } from '../../interfaces';
-import { useSettings } from '../../providers';
-import { OptionHotkeyHint, OptionIcon } from '../queryPanel/options.queryPanel';
+import { OptionHotkeyHint, OptionIcon } from '../options';
 
 interface ThemeProps {
   backgroundColor?: string,

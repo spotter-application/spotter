@@ -1,8 +1,8 @@
 import React from 'react';
 import { AppRegistry, YellowBox } from 'react-native';
-import { QueryPanel } from './src/components/queryPanel/queryPanel.tsx';
+import { QueryPanel } from './src/index.tsx';
 import { name as appName } from './app.json';
-import { Settings } from './src/components/settings/settings.tsx';
+import { Settings } from './src/settings/settings.tsx';
 import {
   ApiProvider,
   EventsProvider,

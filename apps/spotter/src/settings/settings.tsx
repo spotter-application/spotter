@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { GeneralSettings } from './general.settings';
-import { useSettings } from '../../providers';
+import { useSettings } from '../providers';
 import { Subscription } from 'rxjs';
-import { SpotterThemeColors } from '../../interfaces';
+import { SpotterThemeColors } from '../interfaces';
 
 enum Pages {
   general = 'general',
