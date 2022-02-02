@@ -160,8 +160,8 @@ export const QueryPanel: FC<{}> = () => {
 
   useEffect(() => {
     subscriptions.push(
-      combineLatest([query$, selectedOption$]).pipe(
-        map(([q, so]) => !!q.length || !!so),
+      combineLatest([query$, options$, selectedOption$]).pipe(
+        map(([_, options, so]) => !!options.length || !!so),
         distinctUntilChanged(),
       ).subscribe(displayOptions => {
         const timing = Animated.timing;
