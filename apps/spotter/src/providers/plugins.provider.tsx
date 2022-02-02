@@ -85,8 +85,8 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const onInit = async () => {
     // Start plugins
-    // const plugins = await getRegisteredPlugins();
-    // plugins.forEach(p => startPluginScript(p.path));
+    const plugins = await getRegisteredPlugins();
+    plugins.forEach(p => startPluginScript(p.path));
     Object.keys(INTERNAL_PLUGINS).forEach(plugin => {
       const channel = connectPlugin(plugin);
       if (!channel) {
