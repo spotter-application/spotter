@@ -85,16 +85,16 @@ export class PluginsManagerPlugin extends SpotterPlugin {
           onSubmit: () => ([{
             title: `Install ${p.name}@${p.version}`,
             onSubmit: async () => {
-              const result = await this.shell.execute('echo "hey there"').catch(e => console.log(e));
-              console.log(result);
-              return !!result;
-              // const result = await this.shell.execute(`npm i -g ${p.name}@${p.version}`);
-              // if (!result) {
-              //   return false;
-              // }
-              // return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
-              //   res(await this.pluginsMenu(''))
-              // }, 2000));
+              // const result = await this.shell.execute('echo "hey there"').catch(e => console.log(e));
+              // console.log(result);
+              // return !!result;
+              const result = await this.shell.execute(`npm i -g ${p.name}@${p.version}`);
+              if (!result) {
+                return false;
+              }
+              return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
+                res(await this.pluginsMenu(''))
+              }, 2000));
             }
           }])
         })),
