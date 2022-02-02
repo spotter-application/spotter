@@ -1,61 +1,61 @@
 {
   "images" : [
     {
-      "filename" : "icon 2.0 (21)-16.png",
+      "filename" : "123-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "icon 2.0 (21)-32.png",
+      "filename" : "123-32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "icon 2.0 (21)-32.png",
+      "filename" : "123-32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "icon 2.0 (21)-64.png",
+      "filename" : "123-64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "icon 2.0 (21)-128.png",
+      "filename" : "123-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "icon 2.0 (21)-256.png",
+      "filename" : "123-256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "icon 2.0 (21)-256.png",
+      "filename" : "123-256.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "icon 2.0 (21)-512.png",
+      "filename" : "123-512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "icon 2.0 (21)-512.png",
+      "filename" : "123-512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "icon 2.0 (21)-1024.png",
+      "filename" : "123-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
