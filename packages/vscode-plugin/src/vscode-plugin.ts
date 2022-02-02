@@ -1,5 +1,5 @@
-import { OnQueryOption } from '@spotter-app/core';
-import { onQueryFilter, Plugin, promisedExec } from '@spotter-app/plugin';
+import { OnQueryOption, onQueryFilter } from '@spotter-app/core';
+import { Plugin, promisedExec } from '@spotter-app/plugin';
 import packageJSON from '../package.json';
 
 interface Storage {

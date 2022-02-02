@@ -1,5 +1,5 @@
-import { RegistryOption } from '@spotter-app/core';
-import { onQueryFilter, Plugin } from '@spotter-app/plugin';
+import { RegistryOption, onQueryFilter } from '@spotter-app/core';
+import { Plugin } from '@spotter-app/plugin';
 import { exec } from 'node:child_process';
 import { ADDITIONAL_ACTIONS, PREFERENCES } from './constants';
 import { getAllApplications } from './helpers';

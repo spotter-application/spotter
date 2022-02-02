@@ -1,0 +1,22 @@
+#import <React/RCTViewManager.h>
+
+@interface RCT_EXTERN_MODULE(RNInput, RCTViewManager)
+RCT_EXPORT_VIEW_PROPERTY(onChangeText, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onSubmit, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onEscape, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onArrowDown, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onArrowUp, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onCommandKey, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onTab, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onShiftTab, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onShiftArrowDown, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onShiftArrowUp, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onBackspace, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onShiftEnter, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(placeholder, NSString)
+RCT_EXPORT_VIEW_PROPERTY(value, NSString)
+RCT_EXPORT_VIEW_PROPERTY(disabled, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(fontSize, NSNumber)
+RCT_EXPORT_VIEW_PROPERTY(color, NSString)
+RCT_EXPORT_VIEW_PROPERTY(background, NSString)
+@end

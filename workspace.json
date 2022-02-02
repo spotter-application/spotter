@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
+    "spotter": "apps/spotter",
     "core": "packages/core",
     "plugin": "packages/plugin",
     "applications-plugin": "packages/applications-plugin",
