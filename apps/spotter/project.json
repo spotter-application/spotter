@@ -14,7 +14,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "cwd": "apps/spotter",
-        "command": "node generate-env.js && react-native run-macos --configuration Release"
+        "command": "node generate-env.js && rm ../../dist/packages/core/package.json && react-native run-macos --configuration Release"
       }
     },
     "pod-install": {
