@@ -9,14 +9,13 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { useSettings, useSpotterState } from '../../providers';
-import { OptionIcon, QueryPanelOptions } from './options.queryPanel';
-import { Input } from '../../native';
-import { useEvents } from '../../providers/events.provider';
-import { getHint } from '../../helpers';
-import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
+import { OptionIcon, QueryPanelOptions } from './options';
 import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
 import { Option } from '@spotter-app/core';
+import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
+import { useEvents, useSettings, useSpotterState } from './providers';
+import { Input } from './native';
+import { getHint } from './helpers';
 
 export const QueryPanelLoading: FC<{
   doing: string | null,

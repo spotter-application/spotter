@@ -11,9 +11,9 @@ import {
   Animated,
 } from 'react-native';
 import { Subscription } from 'rxjs';
-import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from '../../interfaces';
-import { IconImage } from '../../native';
-import { useSettings } from '../../providers';
+import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
+import { IconImage } from './native';
+import { useSettings } from './providers';
 
 type OptionsProps = {
   options: Array<PluginOnQueryOption | PluginRegistryOption>;
@@ -133,9 +133,9 @@ export const Option = ({
       </View>
     }
   </View>
-}
-export const OptionIcon = ({ style, icon }: { style?: ViewStyle & ImageStyle, icon?: Icon }) => {
-  return <>
+};
+
+export const OptionIcon = ({ style, icon }: { style?: ViewStyle & ImageStyle, icon?: Icon }) => { return <>
     {icon
       ? <View style={{
           ...style,
