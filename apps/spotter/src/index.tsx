@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   input: {
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 5,
     paddingRight: 10,
     display: 'flex',
     flexDirection: 'row',
