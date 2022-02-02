@@ -100,7 +100,7 @@ export const Option = ({
       alignItems: 'center',
       marginLeft: 10,
       marginRight: 10,
-      padding: 10,
+      padding: 8,
       backgroundColor: active ? colors?.hoveredOptionBackground : colors?.background,
       borderRadius: 10,
     }}
@@ -129,7 +129,9 @@ export const Option = ({
     </View>
     {active &&
       <View>
-        <OptionHotkeyHints colors={colors} option={option}></OptionHotkeyHints>
+        <OptionHotkeyHints colors={colors} option={option} style={{
+          marginRight: 2,
+        }}></OptionHotkeyHints>
       </View>
     }
   </View>

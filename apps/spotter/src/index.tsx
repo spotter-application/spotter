@@ -109,14 +109,10 @@ export const QueryPanelSelectedOption: FC<{
       }}
       icon={selectedOption?.icon}
     ></OptionIcon>
-    <Animated.Text style={{
-      // opacity: selectedOptionLeftAnim.interpolate({
-      //   inputRange: [-200, 0],
-      //   outputRange: [0, 1],
-      // }),
+    {/* <Animated.Text style={{
       fontSize: 16,
       color: colors?.activeOptionText
-    }}>{selectedOption?.title}</Animated.Text>
+    }}>{selectedOption?.title}</Animated.Text> */}
   </Animated.View>
 }
 
