@@ -104,7 +104,7 @@ export const QueryPanelSelectedOption: FC<{
   return <Animated.View style={style}>
     <OptionIcon
       style={{
-        paddingRight: 3,
+        // paddingRight: 3,
         height: 25,
       }}
       icon={selectedOption?.icon}
@@ -252,7 +252,7 @@ export const QueryPanel: FC<{}> = () => {
           style={{
             ...styles.selectedOptionContainer,
             backgroundColor: colors?.activeOptionBackground,
-            left: selectedOptionLeftAnim,
+            // left: selectedOptionLeftAnim,
             overflow: 'hidden',
             paddingLeft: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
@@ -260,7 +260,7 @@ export const QueryPanel: FC<{}> = () => {
             }),
             marginLeft: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
-              outputRange: [0, 10],
+              outputRange: [0, 5],
             }),
             paddingRight: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
@@ -337,6 +337,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
     paddingVertical: 5,
     paddingRight: 10,
+    paddingLeft: 5,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',

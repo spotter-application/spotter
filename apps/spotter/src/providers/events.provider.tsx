@@ -78,15 +78,15 @@ export const EventsProvider: FC<{}> = (props) => {
   const init = async () => {
     await registerHotkeys();
 
-    // const settings = await getSettings();
-    // if (!settings.pluginsPreinstalled) {
-    //   doing$.next('Installing dependencies...');
-    //   await checkDependencies();
-    //   doing$.next('Installing plugins...');
-    //   await installPlugins();
-    //   doing$.next(null);
-    //   patchSettings({pluginsPreinstalled: true});
-    // }
+    const settings = await getSettings();
+    if (!settings.pluginsPreinstalled) {
+      doing$.next('Installing dependencies...');
+      await checkDependencies();
+      doing$.next('Installing plugins...');
+      await installPlugins();
+      doing$.next(null);
+      patchSettings({pluginsPreinstalled: true});
+    }
 
     subscriptions.push(
       combineLatest([
@@ -119,9 +119,6 @@ export const EventsProvider: FC<{}> = (props) => {
         doing$.next('Checking for a new version...');
         await requestLastSpotterOption(true);
         setTimeout(() => doing$.next(null), 1000);
-      }
-
-      if (!nextSpotterVersion.version) {
         return;
       }
 
