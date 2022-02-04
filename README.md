@@ -16,9 +16,6 @@ So you can stay focused on your current task.
 * 🔌&nbsp;&nbsp;&nbsp;<b>[Plug-in support](https://github.com/ziulev/spotter/tree/main/packages)</b>
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Sort options by frequency of use</b>
 
-## 💬 Community
-[Telegram channel](https://t.me/joinchat/HG4MQi1-91Y0NGVk)
-
 ## ⌨️ Installation
 ```brew install --cask spotter```
 
@@ -38,6 +35,9 @@ Type `plugins <tab>`
 
 ## 🤖 Requirements
 * macOS Monterey
+
+## 💬 Community
+[Telegram channel](https://t.me/joinchat/HG4MQi1-91Y0NGVk)
 
 ## ⚠️ Troubleshooting
 
