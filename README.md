@@ -22,6 +22,10 @@ So you can stay focused on your current task.
 ## ⌨️ Installation
 ```brew install --cask spotter```
 
+Or check new [spotter beta versions](
+https://github.com/ziulev/spotter/releases) with external plugins support 
+
+
 Default hotkey to run the app ```double shift```
 
 ## 🔌 Plugins
