@@ -104,15 +104,15 @@ export const QueryPanelSelectedOption: FC<{
   return <Animated.View style={style}>
     <OptionIcon
       style={{
-        // paddingRight: 3,
         height: 25,
       }}
       icon={selectedOption?.icon}
     ></OptionIcon>
-    {/* <Animated.Text style={{
+    <Animated.Text style={{
       fontSize: 16,
-      color: colors?.activeOptionText
-    }}>{selectedOption?.title}</Animated.Text> */}
+      color: colors?.activeOptionText,
+      paddingLeft: 5,
+    }}>{selectedOption?.title}</Animated.Text>
   </Animated.View>
 }
 
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   input: {
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    paddingVertical: 5,
+    paddingVertical: 8,
     paddingRight: 10,
     paddingLeft: 5,
     display: 'flex',
