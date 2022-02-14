@@ -134,6 +134,16 @@ export const Option = ({
         }}></OptionHotkeyHints>
       </View>
     }
+    <View style={{
+      width: '100%',
+      position: 'absolute',
+      left: 8,
+      bottom: 0,
+      height: 2,
+      backgroundColor: active ? colors?.background : colors?.text,
+      opacity: 0.05,
+      borderRadius: 10,
+    }}></View>
   </View>
 };
 
