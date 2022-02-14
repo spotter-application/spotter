@@ -10,7 +10,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { OptionIcon, QueryPanelOptions } from './options';
-import { combineLatest, distinctUntilChanged, map, Subscription } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, map, Subscription, tap } from 'rxjs';
 import { Option } from '@spotter-app/core';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
 import { useEvents, useSettings, useSpotterState } from './providers';
@@ -162,6 +162,7 @@ export const QueryPanel: FC<{}> = () => {
     subscriptions.push(
       combineLatest([query$, options$, selectedOption$]).pipe(
         map(([_, options, so]) => !!options.length || !!so),
+        debounceTime(100),
         distinctUntilChanged(),
       ).subscribe(displayOptions => {
         const timing = Animated.timing;
