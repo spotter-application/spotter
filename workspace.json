@@ -11,6 +11,7 @@
     "spotify-plugin": "packages/spotify-plugin",
     "web-plugin": "packages/web-plugin",
     "vscode-plugin": "packages/vscode-plugin",
-    "bluetooth-plugin": "packages/bluetooth-plugin"
+    "bluetooth-plugin": "packages/bluetooth-plugin",
+    "calendar-plugin": "packages/calendar-plugin"
   }
 }
