@@ -308,7 +308,7 @@ export const EventsProvider: FC<{}> = (props) => {
         icon: o.icon,
         pluginName: o.pluginName,
       }));
-    
+
     const hotkeys: PluginRegistryOption[] = [
       { title: '[Hotkey] cmd + u', icon: '⬆️', subtitle: 'Check for a new version', pluginName: '' }
     ];
@@ -382,6 +382,7 @@ export const EventsProvider: FC<{}> = (props) => {
 
   const onQuery = async (nextQuery: string) => {
     query$.next(nextQuery);
+    hoveredOptionIndex$.next(0);
 
     if (!selectedOption$.value && nextQuery === '') {
       resetState();
@@ -408,7 +409,7 @@ export const EventsProvider: FC<{}> = (props) => {
     }
 
     onQueryForOptionsWithPrefixes(nextQuery);
-    
+
     onQueryForRegisteredOptions(nextQuery);
 
     // const plugins = await storage.getItem<PluginConnection[]>(PLUGINS_STORAGE_KEY);

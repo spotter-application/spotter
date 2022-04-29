@@ -29,21 +29,21 @@ const channel: Promise<ChannelForPlugin> = new Promise(resolve => {
           };
           return;
         }
-    
+
         if (eventType === 'close') {
           ws.onclose = () => {
             callback('');
           };
           return;
         }
-    
+
         if (eventType === 'message') {
           ws.onmessage = ({ data }) => {
             callback(data as string);
           };
           return;
         }
-    
+
         if (eventType === 'error') {
           ws.onerror = ({ message }) => {
             callback(message)
@@ -65,7 +65,7 @@ export class Plugin extends SpotterPlugin {
     const pluginInfo: PluginInfo = typeof plugin === 'string'
       ? { name: plugin }
       : plugin;
-    
+
     const connectData: PluginConnection = {
       port,
       path: PASSED_PLUGIN_PATH ?? pluginInfo.name,

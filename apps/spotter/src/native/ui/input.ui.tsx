@@ -124,8 +124,10 @@ export class Input extends React.PureComponent<InputProps> {
     return <View style={{
       position: 'relative',
       flex: 1,
-      backgroundColor: this.props.background,
+      backgroundColor: 'transparent',
       marginTop: 2,
+      marginLeft: 0,
+      marginRight: 20,
     }}>
       <RNInput {...nativeProps} style={{ padding: 18, top: 2 }} />
       {(this.props.placeholder && !this.props.value) &&

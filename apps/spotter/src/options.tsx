@@ -58,6 +58,7 @@ export const QueryPanelOptions = ({
             <Option
               option={item}
               active={hoveredOptionIndex === index}
+              withScroll={options.length > 11}
             />
           </TouchableOpacity>
         )}
@@ -69,9 +70,11 @@ export const QueryPanelOptions = ({
 export const Option = ({
   option,
   active,
+  withScroll,
 }: {
   option: PluginOnQueryOption | PluginRegistryOption,
   active: boolean,
+  withScroll: boolean,
 }) => {
   const { colors$ } = useSettings();
   const [colors, setColors] = useState<SpotterThemeColors>();
@@ -98,10 +101,11 @@ export const Option = ({
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginLeft: 10,
-      marginRight: 10,
       padding: 8,
-      backgroundColor: active ? colors?.hoveredOptionBackground : colors?.background,
+      backgroundColor: active ? colors?.activeOptionBackground: 'transparent',
+      marginLeft: 10,
+      marginRight: withScroll ? 4 : -4,
+      height: 32,
       borderRadius: 10,
     }}
   >
@@ -113,10 +117,13 @@ export const Option = ({
         justifyContent: 'center',
       }}
     >
-      <OptionIcon icon={option.icon} style={{ marginRight: 5, height: 25 }}></OptionIcon>
+      {option?.icon &&
+        <OptionIcon icon={option.icon} style={{ marginRight: 5, width: 18, height: 18 }}></OptionIcon>
+      }
       <Text style={{
         color: active ? colors?.hoveredOptionText : colors?.text,
         fontSize: 14,
+        opacity: 0.75,
       }}>{option.title}</Text>
 
       {subtitle &&
@@ -129,39 +136,34 @@ export const Option = ({
     </View>
     {active &&
       <View>
-        <OptionHotkeyHints colors={colors} option={option} style={{
-          marginRight: 2,
-        }}></OptionHotkeyHints>
+        <OptionHotkeyHints colors={colors} option={option} style={{}}></OptionHotkeyHints>
       </View>
     }
-    <View style={{
-      width: '100%',
-      position: 'absolute',
-      left: 8,
-      bottom: 0,
-      height: 2,
-      backgroundColor: active ? colors?.background : colors?.text,
-      opacity: 0.05,
-      borderRadius: 10,
-    }}></View>
   </View>
 };
 
 export const OptionIcon = ({ style, icon }: { style?: ViewStyle & ImageStyle, icon?: Icon }) => { return <>
     {icon
       ? <View style={{
-          ...style,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: 25,
-          height: 25,
+          ...style,
         }}>
           {icon.endsWith('.app') || icon.endsWith('.prefPane')
-            ? <IconImage style={{ width: 25, height: 25 }} source={icon}></IconImage>
+            ? <IconImage
+                style={{
+                  width: style?.width ? (style.width as number + 2) : 25,
+                  height: style?.height? (style.height as number + 2) : 25,
+                }}
+                source={icon}
+              ></IconImage>
             : icon.endsWith('.png') || icon.startsWith('https://') || icon.startsWith('http://')
-              ? <Image style={{ width: 22, height: 22 }} source={{ uri: icon }}></Image>
-              : <Text style={{ margin: 'auto' }}>{icon}</Text>
+              ? <Image style={{ width: style?.width ?? 22, height: style?.height ?? 22 }} source={{ uri: icon }}></Image>
+              : <Text style={{
+                  margin: 'auto',
+                  fontSize: style?.width ? (style.width as number - 4) : 22,
+                }}>{icon}</Text>
           }
         </View>
       : <View style={style} />
@@ -207,11 +209,14 @@ export const OptionHotkeyHint = ({
 
   return <View style={{
     backgroundColor: colors?.background,
-    opacity: 0.2,
-    padding: 5,
+    opacity: 0.5,
     paddingLeft: 7,
     paddingRight: 7,
     borderRadius: 5,
+    display: 'flex',
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     ...style,
   }}>
     <Text style={{

@@ -3,7 +3,6 @@ import { shouldUpgrade } from '../helpers';
 import { ShellApi } from '../native';
 
 const INTERNAL_PLUGINS = [
-  'applications-plugin',
   'plugins-manager',
   'spotter-themes',
 ];
@@ -11,7 +10,6 @@ const INTERNAL_PLUGINS = [
 const IGNORE_EXTERNAL_PLUGINS = [
   '@spotter-app/core',
   '@spotter-app/plugin',
-  '@spotter-app/applications-plugin',
 ];
 
 interface ExternalPlugin {
@@ -39,7 +37,8 @@ export class PluginsManagerPlugin extends SpotterPlugin {
   async onInit() {
     this.spotter.setRegisteredOptions([{
       prefix: 'plg',
-      title: 'Plugins',
+      title: 'Plugins Manager',
+      subtitle: 'Install / Uninstall plugins',
       icon: '🔌',
       onQuery: this.pluginsMenu,
     }]);

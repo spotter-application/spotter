@@ -10,7 +10,14 @@ import {
   ViewStyle,
 } from 'react-native';
 import { OptionIcon, QueryPanelOptions } from './options';
-import { combineLatest, debounceTime, distinctUntilChanged, map, Subscription, tap } from 'rxjs';
+import {
+  combineLatest,
+  debounce,
+  distinctUntilChanged,
+  map,
+  Subscription,
+  timer,
+} from 'rxjs';
 import { Option } from '@spotter-app/core';
 import { PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
 import { useEvents, useSettings, useSpotterState } from './providers';
@@ -104,14 +111,16 @@ export const QueryPanelSelectedOption: FC<{
   return <Animated.View style={style}>
     <OptionIcon
       style={{
-        height: 25,
+        width: selectedOption ? 18: 0,
+        height: 18,
       }}
       icon={selectedOption?.icon}
     ></OptionIcon>
     <Animated.Text style={{
-      fontSize: 16,
+      fontSize: 14,
       color: colors?.activeOptionText,
-      paddingLeft: 5,
+      paddingLeft: 6,
+      opacity: 0.75,
     }}>{selectedOption?.title}</Animated.Text>
   </Animated.View>
 }
@@ -153,7 +162,6 @@ export const QueryPanel: FC<{}> = () => {
   const [systemOption, setSystemOption] = useState<Option | null>();
 
   const heightAnim = useRef(new Animated.Value(0)).current;
-  const borderRadiusAnim = useRef(new Animated.Value(10)).current;
   const selectedOptionLeftAnim = useRef(new Animated.Value(-20)).current;
 
   const subscriptions: Subscription[] = [];
@@ -162,22 +170,21 @@ export const QueryPanel: FC<{}> = () => {
     subscriptions.push(
       combineLatest([query$, options$, selectedOption$]).pipe(
         map(([_, options, so]) => !!options.length || !!so),
-        debounceTime(100),
+        debounce((displayOptions) => timer(displayOptions ? 1000 : 0)),
         distinctUntilChanged(),
       ).subscribe(displayOptions => {
         const timing = Animated.timing;
         if (displayOptions) {
-          borderRadiusAnim.setValue(0);
           heightAnim.setValue(100);
           Animated.parallel([timing(heightAnim, {
-            toValue: 450,
-            duration: 100,
+            toValue: 300,
+            duration: 50,
             useNativeDriver: false,
           })]).start();
 
           Animated.delay(50).start(() => {
             Animated.parallel([timing(heightAnim, {
-              toValue: 500,
+              toValue: 355,
               duration: 100,
               useNativeDriver: false
             })]).start();
@@ -190,12 +197,6 @@ export const QueryPanel: FC<{}> = () => {
               duration: 150,
               useNativeDriver: false,
             }),
-            timing(borderRadiusAnim, {
-              toValue: 10,
-              duration: 0,
-              delay: 150,
-              useNativeDriver: false,
-            })
           ]).start();
         }
       }),
@@ -228,7 +229,7 @@ export const QueryPanel: FC<{}> = () => {
       colors$.subscribe(setColors),
       systemOption$.subscribe(setSystemOption),
     );
-  }, [heightAnim, borderRadiusAnim]);
+  }, [heightAnim]);
 
     useEffect(() => {
       return () => subscriptions.forEach(s => s.unsubscribe());
@@ -243,29 +244,35 @@ export const QueryPanel: FC<{}> = () => {
   return <>
     <SafeAreaView>
       <Animated.View style={{
+        borderColor: colors?.activeOptionBackground,
+        borderWidth: 2,
+        borderRadius: 10,
+        overflow: 'hidden',
+      }}>
+      <Animated.View style={{
         backgroundColor: colors?.background,
         ...styles.input,
-        borderBottomLeftRadius: borderRadiusAnim,
-        borderBottomRightRadius: borderRadiusAnim,
       }}>
         <QueryPanelSelectedOption
           selectedOptionLeftAnim={selectedOptionLeftAnim}
           style={{
             ...styles.selectedOptionContainer,
             backgroundColor: colors?.activeOptionBackground,
-            // left: selectedOptionLeftAnim,
-            overflow: 'hidden',
             paddingLeft: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
-              outputRange: [0, 10],
+              outputRange: [0, 8],
             }),
             marginLeft: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
               outputRange: [0, 5],
             }),
+            marginRight: selectedOptionLeftAnim.interpolate({
+              inputRange: [-20, 0],
+              outputRange: [0, 6],
+            }),
             paddingRight: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
-              outputRange: [0, 10],
+              outputRange: [0, 8],
             }),
             opacity: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
@@ -278,7 +285,6 @@ export const QueryPanel: FC<{}> = () => {
         <Input
           style={{
             color: colors?.text,
-            // backgroundColor: 'yellow',
           }}
           color={colors?.text}
           background={colors?.background}
@@ -296,7 +302,6 @@ export const QueryPanel: FC<{}> = () => {
         ></Input>
         <View style={{
           display: 'flex',
-          marginLeft: 10,
         }}>
           {(loading || doing) &&
             <QueryPanelLoading
@@ -309,6 +314,15 @@ export const QueryPanel: FC<{}> = () => {
               systemOption={systemOption}
               colors={colors}
             />
+          }
+          {(options[hoveredOptionIndex] && !systemOption) &&
+            <OptionIcon
+              style={{
+                width: 24,
+                height: 24,
+              }}
+              icon={options[hoveredOptionIndex]?.icon}
+            ></OptionIcon>
           }
         </View>
       </Animated.View>
@@ -324,6 +338,7 @@ export const QueryPanel: FC<{}> = () => {
         options={options}
         onSubmit={onSubmit}
       ></QueryPanelOptions>
+      </Animated.View>
     </SafeAreaView>
   </>
 }
@@ -334,22 +349,16 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 0,
   },
   input: {
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    paddingVertical: 8,
+    paddingVertical: 4,
     paddingRight: 10,
-    paddingLeft: 5,
+    paddingLeft: 4,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
   options: {
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    overflow: 'hidden',
     paddingTop: 10,
     paddingBottom: 10,
-    height: 510,
   },
   selectedOptionContainer: {
     display: 'flex',
@@ -358,7 +367,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 10,
-    marginRight: 5,
-    padding: 5,
+    height: 32,
+    overflow: 'hidden',
   }
 });

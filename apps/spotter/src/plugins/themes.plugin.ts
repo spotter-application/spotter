@@ -17,7 +17,7 @@ const THEMES: Theme[] = [
   },
   {
     title: 'Light',
-    value: '#efefef,#101010,#dddddd,#000000,#0f60cf,#fefefe',
+    value: '#efefef,#101010,#dddddd,#1c1c1c,#0f60cf,#1c1c1c',
   },
 ];
 
@@ -75,7 +75,7 @@ export class SpotterThemesPlugin extends SpotterPlugin {
               title: 'Invalid theme',
             }];
           }
-          
+
           const theme = q;
           this.spotter.setTheme(theme);
           return [{
