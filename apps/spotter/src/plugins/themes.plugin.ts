@@ -54,7 +54,7 @@ export class SpotterThemesPlugin extends SpotterPluginApi {
         onHover: () => this.spotter.setTheme(theme.value),
         onSubmit: () => {
           this.spotter.patchSettings({theme: theme.value});
-          return new Promise((res) => setTimeout(() => res(this.getThemes(q)), 500));
+          return new Promise((res) => setTimeout(() => res(this.getThemes(q)), 100));
         },
         ...(theme.userTheme ? {onQuery: (q: string) => {
           return [{
