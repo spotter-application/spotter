@@ -1,37 +1,17 @@
-import { onQueryFilter, OnQueryOption, PluginConnection, SpotterPlugin } from '@spotter-app/core';
+import { onQueryFilter, OnQueryOption, Plugin, SpotterPluginApi } from '@spotter-app/core';
 import { shouldUpgrade } from '../helpers';
 import { ShellApi } from '../native';
-
-const INTERNAL_PLUGINS = [
-  'plugins-manager',
-  'spotter-themes',
-];
-
-const IGNORE_EXTERNAL_PLUGINS = [
-  '@spotter-app/core',
-  '@spotter-app/plugin',
-];
+import FS from 'react-native-fs';
+import { INTERNAL_PLUGINS } from '../constants';
 
 interface ExternalPlugin {
   name: string,
-  version: string,
+  versionName: string,
+  publishedAt: string,
+  downloadUrl: string,
 }
 
-const shortPath = (pluginName: string): string => {
-  return pluginName
-    .replace('@spotter-app/', '')
-    .replace('-plugin', '');
-};
-
-const toTitleCase = (path: string) => {
-  return path
-    .toLowerCase()
-    .split(' ')
-    .map(item => item.charAt(0).toUpperCase() + item.slice(1))
-    .join(' ');
-};
-
-export class PluginsManagerPlugin extends SpotterPlugin {
+export class PluginsManagerPlugin extends SpotterPluginApi {
   private shell =  new ShellApi();
 
   async onInit() {
@@ -47,66 +27,80 @@ export class PluginsManagerPlugin extends SpotterPlugin {
   private async pluginsMenu(query: string): Promise<OnQueryOption[]> {
     const plugins = await this.spotter.plugins.get();
 
-    const externalPlugins: ExternalPlugin[] = await fetch(
-      'https://registry.npmjs.com/-/v1/search?text=@spotter-app'
-    )
-      .then(r => r.json())
-      .then(r => r.objects)
-      .then(r => r.map(
-        (p: { package: { name: string, version: string } }) =>
-          ({ name: p.package.name, version: p.package.version })
-      ))
-      .then((r: ExternalPlugin[]) => r.filter(p => !IGNORE_EXTERNAL_PLUGINS.includes(p.name)))
-      .catch(() => []);
+    const externalPluginsRepos = [
+      'spotter-application/applications-plugin',
+    ];
 
-    const installedPlugins = plugins.filter(p => !INTERNAL_PLUGINS.includes(p.name));
+    const externalPlugins: ExternalPlugin[] = await externalPluginsRepos.reduce(
+      async (asyncAcc, repo) => {
+        const { name, published_at, assets } = await fetch(`https://api.github.com/repos/${repo}/releases/latest`).then(r => r?.json()).catch(() => {});
+        return [
+          ...(await asyncAcc),
+          {
+            name: repo.split('/')[1],
+            versionName: name,
+            publishedAt: published_at,
+            downloadUrl: assets.find((a: { name: string, browser_download_url: string }) => a.name === 'plugin.zip')?.browser_download_url
+          },
+        ];
+      },
+      Promise.resolve<ExternalPlugin[]>([]),
+    );
+
+
+    const installedPlugins = plugins.filter(p => !Object.keys(INTERNAL_PLUGINS).includes(String(p.port)));
+
+    console.log('installedPlugins: ', installedPlugins);
 
     return onQueryFilter(query, [
       ...installedPlugins.map(p => {
-        const nextVersion = externalPlugins.find(ep => ep.name === p.name)?.version ?? '';
-        const outdated = shouldUpgrade(p.version ?? '', nextVersion)
+        const nextVersion = externalPlugins.find(ep => ep.name === p.name)?.publishedAt ?? '';
+        const outdated = shouldUpgrade(p.publishedAt ?? '', nextVersion)
           ? '[Upgrade available] '
           : '';
         const dev = p.name === p.path ? '[DEV] ' : '';
-        const title = `${toTitleCase(shortPath(p.name))}${p.version ? ('@' + p.version) : ''}`;
+        const title = `${p.name}${p.versionName ? ('@' + p.versionName) : ''}`;
 
         return {
           title: `${outdated}${dev}${title}`,
-          subtitle: `${p.pid ? 'Connected' : 'Not connected'}`,
+          subtitle: `${p.connected ? 'Connected' : 'Not connected'}`,
           icon: p.icon,
           onQuery: () => this.pluginMenu(p, outdated ? nextVersion : undefined),
         }
       }),
       ...externalPlugins
         .filter(p => !installedPlugins.map(ip => ip.name).includes(p.name))
-        .map<OnQueryOption>(p => ({
-          title: `${p.name}@${p.version}`,
+        .map<OnQueryOption>(({ name, versionName, downloadUrl, publishedAt }) => ({
+          title: `${name}@${versionName}`,
           subtitle: 'Not installed',
           onSubmit: () => ([{
-            title: `Install ${p.name}@${p.version}`,
+            title: `Install ${name}@${versionName}`,
             onSubmit: async () => {
-              // const result = await this.shell.execute('echo "hey there"').catch(e => console.log(e));
-              // console.log(result);
-              // return !!result;
-              const result = await this.shell.execute(`npm i -g ${p.name}@${p.version}`);
-              if (!result) {
-                return false;
-              }
-              return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
-                res(await this.pluginsMenu(''))
-              }, 2000));
+              // const appPath = FS.MainBundlePath;
+              const appPath = '/Applications/spotter.app';
+              await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && mkdir -p ${name} && cd ${name} && wget -q ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
+
+              this.spotter.plugins.add({
+                name,
+                versionName,
+                publishedAt,
+                port: 3232, // TODO:
+                path: `${appPath}/Plugins/${name}/${name}`,
+                connected: false,
+              });
+              return this.emptyMenu();
             }
           }])
         })),
     ]);
   }
 
-  private pluginMenu(plugin: PluginConnection, nextVersion?: string) {
+  private pluginMenu(plugin: Plugin, nextVersion?: string) {
     return [
       ...(nextVersion ? [{
         title: 'Upgrade',
         onSubmit: async () => {
-          const result = this.shell.execute(`npm i -g ${plugin.name}@${nextVersion}`);
+          const result = this.shell.execute(`npm i -g ${plugin.port}@${nextVersion}`);
           return !!result;
         }
       }]: []),
@@ -121,13 +115,30 @@ export class PluginsManagerPlugin extends SpotterPlugin {
     ];
   }
 
-  private async reconnect(plugin: PluginConnection) {
-    this.spotter.plugins.start(plugin.path);
-    return true;
+  private async reconnect({ port, path }: Plugin) {
+    this.spotter.plugins.start({port, path});
+    return this.emptyMenu();
   }
 
-  private remove(plugin: PluginConnection) {
-    this.spotter.plugins.remove(plugin.name);
-    return true;
+  private async remove(plugin: Plugin) {
+    // TODO: Remove plugin folder
+    this.spotter.plugins.remove(plugin.port);
+    return this.emptyMenu();
+  }
+
+  private emptyMenu() {
+    return new Promise<OnQueryOption[]>(res => setTimeout(async () => {
+      res(await this.pluginsMenu(''))
+    }, 2000));
+  }
+
+  private getUniqPort = (): number => {
+    // const port = randomPort();
+    // const activePluginWithPort = activePlugins$.value.find(p =>
+    //   p.port === port,
+    // );
+
+    // return activePluginWithPort ? uniqPort() : port;
+    return 3232;
   }
 }

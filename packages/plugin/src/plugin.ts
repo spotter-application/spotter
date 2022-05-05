@@ -1,7 +1,7 @@
 import { WebSocketServer } from 'ws';
 import { exec } from 'child_process';
 import {
-  SpotterPlugin,
+  SpotterPluginApi,
   ChannelEventType,
   ChannelForPlugin,
   randomPort,
@@ -57,7 +57,7 @@ const channel: Promise<ChannelForPlugin> = new Promise(resolve => {
 
 type PluginInfoInput = PluginInfo | string;
 
-export class Plugin extends SpotterPlugin {
+export class Plugin extends SpotterPluginApi {
   constructor(plugin: PluginInfoInput) {
 
     super(channel);

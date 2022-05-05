@@ -1,6 +1,6 @@
 export type Storage<T> = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tokens?: any, 
+  tokens?: any,
 } & T;
 
 export interface Settings {
@@ -88,10 +88,10 @@ export enum CommandType {
   patchRegisteredOptions = 'patchRegisteredOptions',
   patchSettings = 'patchSettings',
   getSettings = 'getSettings',
-  startPluginScript = 'startPluginScript',
+  startPlugin = 'startPlugin',
   getPlugins = 'getPlugins',
   addPlugin = 'addPlugin',
-  connectPlugin = 'connectPlugin',
+  pluginStarted = 'pluginStarted',
   updatePlugin = 'updatePlugin',
   removePlugin = 'removePlugin',
   setTheme = 'setTheme',
@@ -100,17 +100,19 @@ export enum CommandType {
   close = 'close',
 }
 
-export type PluginConnection = PluginInfo & {
-  port: number,
-  pid: number,
+export interface Plugin {
+  name: string,
+  versionName: string,
+  publishedAt: string,
   path: string,
+  port: number,
+  connected: boolean,
+  icon?: string,
 }
 
-export interface PluginInfo {
-  name: string,
-  icon?: string,
-  version?: string,
-  documentationUrl?: string,
+export interface StartPluginData {
+  path: string,
+  port: number,
 }
 
 export type Command = {
@@ -150,20 +152,19 @@ export type Command = {
   type: CommandType.getPlugins,
   value: string,
 } | {
-  type: CommandType.startPluginScript,
-  value: string,
+  type: CommandType.startPlugin,
+  value: StartPluginData,
+} | {
+  type: CommandType.pluginStarted,
 } | {
   type: CommandType.addPlugin,
-  value: string,
-} | {
-  type: CommandType.connectPlugin,
-  value: PluginConnection,
+  value: Plugin,
 } | {
   type: CommandType.updatePlugin,
-  value: string,
+  value: number,
 } | {
   type: CommandType.removePlugin,
-  value: string,
+  value: number,
 } | {
   type: CommandType.setTheme,
   value: string,
@@ -232,7 +233,7 @@ export type SpotterOnGetPluginsCommand = {
   type: SpotterCommandType.onGetPlugins,
   value: {
     id: string,
-    data: PluginConnection[],
+    data: Plugin[],
   },
 }
 
@@ -240,7 +241,7 @@ export type SpotterCommand = SpotterOnInitCommand
   | SpotterOnSubmitCommand
   | SpotterOnHoverCommand
   | SpotterOnQueryCommand
-  | SpotterOnQueryCancelCommand 
+  | SpotterOnQueryCancelCommand
   | SpotterOnGetSettingsCommand
   | SpotterOnGetStorageCommand
   | SpotterOnGetPluginsCommand;

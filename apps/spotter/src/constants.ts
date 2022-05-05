@@ -1,12 +1,10 @@
-import { SpotterPlugin } from "@spotter-app/core";
+import { SpotterPluginApi } from "@spotter-app/core";
 import { PluginsManagerPlugin } from "./plugins/plugins-manager.plugin";
 import { SpotterThemesPlugin } from "./plugins/themes.plugin";
 
-export const PLUGINS_STORAGE_KEY = 'PLUGINS_0.2';
+export const PLUGINS_STORAGE_KEY = 'PLUGINS_0.10';
 
 export const SPOTTER_HOTKEY_IDENTIFIER = 'spotter';
-
-export const PLUGINS_REGISTRY = 'PLUGINS_REGISTRY'
 
 export const SHOW_OPTIONS_DELAY = 500;
 
@@ -26,7 +24,7 @@ export const PLUGINS_TO_INSTALL = [
   '@spotter-app/web-plugin',
 ];
 
-export const INTERNAL_PLUGINS: {[plugin: string]: typeof SpotterPlugin} = {
-  ['plugins-manager']: PluginsManagerPlugin,
-  ['spotter-themes']: SpotterThemesPlugin,
+export const INTERNAL_PLUGINS: {[port: number]: typeof SpotterPluginApi} = {
+  [9988771]: PluginsManagerPlugin,
+  [9988772]: SpotterThemesPlugin,
 }

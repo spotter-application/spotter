@@ -1,6 +1,6 @@
-import { SpotterCommandType, SpotterCommand, PluginConnection } from '@spotter-app/core';
+import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
-import { PLUGINS_STORAGE_KEY, PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
+import { PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
@@ -80,8 +80,6 @@ export const EventsProvider: FC<{}> = (props) => {
 
     const settings = await getSettings();
     if (!settings.pluginsPreinstalled) {
-      doing$.next('Installing dependencies...');
-      await checkDependencies();
       doing$.next('Installing plugins...');
       await installPlugins();
       doing$.next(null);
@@ -102,7 +100,7 @@ export const EventsProvider: FC<{}> = (props) => {
           type: SpotterCommandType.onHover,
           onHoverId: nextHoveredOption.onHoverId,
         };
-        sendCommand(command, nextHoveredOption.pluginName);
+        sendCommand(command, nextHoveredOption.port);
       })
     );
   }
@@ -219,30 +217,15 @@ export const EventsProvider: FC<{}> = (props) => {
     });
   }
 
-  const checkDependencies = async () => {
-    const nodeInstalled = await shell.execute('node -v').catch(() => false);
-
-    if (nodeInstalled) {
-      return;
-    }
-
-    const brewInstalled = await shell.execute('brew -v').catch(() => false);
-    if (!brewInstalled) {
-      await shell.execute('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"');
-    }
-
-    await shell.execute('brew install node');
-  }
-
   const installPlugins = async () => {
-    return await Promise.all(PLUGINS_TO_INSTALL.map(async plugin => {
-      try {
-        await shell.execute(`npm uninstall -g ${plugin}`);
-        await shell.execute(`npm i -g ${plugin}`);
-      } catch (e) {
-        Alert.alert(`${e}`);
-      }
-    }));
+    // return await Promise.all(PLUGINS_TO_INSTALL.map(async plugin => {
+    //   try {
+    //     await shell.execute(`npm uninstall -g ${plugin}`);
+    //     await shell.execute(`npm i -g ${plugin}`);
+    //   } catch (e) {
+    //     Alert.alert(`${e}`);
+    //   }
+    // }));
   }
 
   const onEscape = () => {
@@ -256,7 +239,7 @@ export const EventsProvider: FC<{}> = (props) => {
         type: SpotterCommandType.onQueryCancel,
         onQueryCancelId: selectedOption.onQueryCancelId,
       };
-      sendCommand(command, selectedOption$.value.pluginName);
+      sendCommand(command, selectedOption$.value.port);
     }
 
     resetState();
@@ -271,7 +254,7 @@ export const EventsProvider: FC<{}> = (props) => {
           type: SpotterCommandType.onQueryCancel,
           onQueryCancelId: selectedOption.onQueryCancelId,
         };
-        sendCommand(command, selectedOption$.value.pluginName);
+        sendCommand(command, selectedOption$.value.port);
       }
       resetState();
     }
@@ -295,7 +278,7 @@ export const EventsProvider: FC<{}> = (props) => {
       query: '',
     };
 
-    sendCommand(command, nextSelectedOption.pluginName);
+    sendCommand(command, nextSelectedOption.port);
     hoveredOptionIndex$.next(0);
   }
 
@@ -306,11 +289,11 @@ export const EventsProvider: FC<{}> = (props) => {
         title: o.prefix ? `[Prefix] ${o.prefix}` : '',
         subtitle: o.title,
         icon: o.icon,
-        pluginName: o.pluginName,
+        port: o.port,
       }));
 
     const hotkeys: PluginRegistryOption[] = [
-      { title: '[Hotkey] cmd + u', icon: '⬆️', subtitle: 'Check for a new version', pluginName: '' }
+      { title: '[Hotkey] cmd + u', icon: '⬆️', subtitle: 'Check for a new version', port: 0 }
     ];
 
     options$.next([
@@ -330,7 +313,7 @@ export const EventsProvider: FC<{}> = (props) => {
       query: nextQuery,
     };
 
-    sendCommand(command, selectedOption$.value.pluginName);
+    sendCommand(command, selectedOption$.value.port);
   }
 
   // TODO: remove
@@ -357,7 +340,7 @@ export const EventsProvider: FC<{}> = (props) => {
         query: '',
         onQueryId: option.onQueryId,
       };
-      sendCommand(command, option.pluginName);
+      sendCommand(command, option.port);
     });
   }
 
@@ -398,7 +381,7 @@ export const EventsProvider: FC<{}> = (props) => {
     if (nextQuery === '-v') {
       options$.next([{
         title: packageJson.version,
-        pluginName: '',
+        port: 0,
       }]);
       return;
     }
@@ -464,7 +447,7 @@ export const EventsProvider: FC<{}> = (props) => {
       onSubmitId: option.onSubmitId,
     };
 
-    sendCommand(command, option.pluginName);
+    sendCommand(command, option.port);
     increaseHistory(getHistoryPath(option, selectedOption$.value));
   }
 

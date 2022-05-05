@@ -29,10 +29,9 @@ export const QueryPanelLoading: FC<{
   colors?: SpotterThemeColors,
 }> = ({ doing, colors }) => {
   return <View style={{
-    opacity: 0.75,
     position: 'absolute',
-    right: 3,
-    top: -8,
+    right: 4,
+    top: -10,
     zIndex: 100,
     display: 'flex',
     flexWrap: 'nowrap',
@@ -49,12 +48,6 @@ export const QueryPanelLoading: FC<{
     <ActivityIndicator
       size="small"
       color={colors?.text}
-      style={{
-        position: 'absolute',
-        right: 3,
-        top: -1,
-        opacity: 0.3,
-      }}
     />
   </View>
 }
@@ -109,17 +102,19 @@ export const QueryPanelSelectedOption: FC<{
   colors?: SpotterThemeColors,
 }> = ({ colors, selectedOption, style, selectedOptionLeftAnim }) => {
   return <Animated.View style={style}>
-    <OptionIcon
-      style={{
-        width: selectedOption ? 18: 0,
-        height: 18,
-      }}
-      icon={selectedOption?.icon}
-    ></OptionIcon>
+    {selectedOption?.icon &&
+      <OptionIcon
+        style={{
+          width: selectedOption ? 18: 0,
+          height: 18,
+        }}
+        icon={selectedOption?.icon}
+      ></OptionIcon>
+    }
     <Animated.Text style={{
       fontSize: 14,
       color: colors?.activeOptionText,
-      paddingLeft: 6,
+      paddingLeft: selectedOption?.icon ? 6 : 0,
       opacity: 0.75,
     }}>{selectedOption?.title}</Animated.Text>
   </Animated.View>
@@ -169,8 +164,8 @@ export const QueryPanel: FC<{}> = () => {
   useEffect(() => {
     subscriptions.push(
       combineLatest([query$, options$, selectedOption$]).pipe(
+        debounce(([query, _, so]) => timer(so || !query ? 0 : 1000)),
         map(([_, options, so]) => !!options.length || !!so),
-        debounce((displayOptions) => timer(displayOptions ? 1000 : 0)),
         distinctUntilChanged(),
       ).subscribe(displayOptions => {
         const timing = Animated.timing;
@@ -268,7 +263,7 @@ export const QueryPanel: FC<{}> = () => {
             }),
             marginRight: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
-              outputRange: [0, 6],
+              outputRange: [0, 0],
             }),
             paddingRight: selectedOptionLeftAnim.interpolate({
               inputRange: [-20, 0],
@@ -315,11 +310,15 @@ export const QueryPanel: FC<{}> = () => {
               colors={colors}
             />
           }
-          {(options[hoveredOptionIndex] && !systemOption) &&
+          {(options[hoveredOptionIndex]?.icon && !systemOption) &&
             <OptionIcon
               style={{
                 width: 24,
                 height: 24,
+                position: 'absolute',
+                left: -26,
+                top: -12,
+                opacity: loading || doing ? 0.1 : 1,
               }}
               icon={options[hoveredOptionIndex]?.icon}
             ></OptionIcon>

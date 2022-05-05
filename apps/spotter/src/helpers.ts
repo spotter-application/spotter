@@ -3,10 +3,15 @@ import {
   ChannelForPlugin,
   ChannelForSpotter,
   Option,
-  SpotterPlugin,
+  SpotterPluginApi,
 } from '@spotter-app/core';
 import { INTERNAL_PLUGINS } from './constants';
-import { isPluginOnQueryOption, PluginOnQueryOption, PluginRegistryOption, SpotterThemeColors } from './interfaces';
+import {
+  isPluginOnQueryOption,
+  PluginOnQueryOption,
+  PluginRegistryOption,
+  SpotterThemeColors,
+} from './interfaces';
 import { History } from './providers';
 
 export const getHistoryPath = (
@@ -14,8 +19,8 @@ export const getHistoryPath = (
   selectedOption: PluginRegistryOption | PluginOnQueryOption | null,
 ): string => {
   const path = selectedOption
-    ? `${option.pluginName}:${selectedOption.title}#${option.title}`
-    : `${option.pluginName}:${option.title}`;
+    ? `${option.port}:${selectedOption.title}#${option.title}`
+    : `${option.port}:${option.title}`;
 
   return path;
 };
@@ -98,11 +103,11 @@ export class ExternalPluginChannel implements ChannelForSpotter {
 }
 
 export class InternalPluginChannel implements ChannelForPlugin, ChannelForSpotter {
-  plugin: SpotterPlugin;
+  plugin: SpotterPluginApi;
 
-  constructor(internalPluginName: string) {
+  constructor(port: number) {
     const channel = Promise.resolve(this);
-    this.plugin = new INTERNAL_PLUGINS[internalPluginName](channel);
+    this.plugin = new INTERNAL_PLUGINS[port](channel);
     setTimeout(() => this.triggerOnPluginOpen(''), 500);
   }
 

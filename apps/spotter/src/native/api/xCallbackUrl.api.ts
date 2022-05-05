@@ -10,17 +10,17 @@ export class XCallbackUrl implements SpotterXCallbackUrlApi {
     this.panelEventEmitter.addListener('onCommand', (event) => {
       try {
         const {
-          pluginName,
+          port,
           type,
           ...rest
         } = event;
 
         const command: PluginCommand  = {
-          pluginName,
           type,
-          value: rest.value
-            ? rest.value
-            : {...rest},
+          port: parseInt(port),
+          value: Object.keys(rest).length === 1
+            ? Object.values(rest)[0]
+            : rest,
         }
 
         callback(command)

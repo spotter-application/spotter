@@ -126,7 +126,7 @@ export class Input extends React.PureComponent<InputProps> {
       flex: 1,
       backgroundColor: 'transparent',
       marginTop: 2,
-      marginLeft: 0,
+      marginLeft: 4,
       marginRight: 20,
     }}>
       <RNInput {...nativeProps} style={{ padding: 18, top: 2 }} />

@@ -1,19 +1,19 @@
 import { Storage } from '@spotter-app/core';
 import React, { FC, useRef } from 'react';
 import { useApi } from './api.provider';
-import { env } from '../../env';
+// import { env } from '../../env';
 
 const STORAGE_KEY = 'STORAGE';
 
 type Context = {
-  getStorage: <T>(plugin?: string) => Promise<Storage<T>>;
-  patchStorage: <T>(data: Partial<Storage<T>>, plugin?: string) => void;
-  setStorage: <T>(data: Storage<T>, plugin?: string) => void;
+  getStorage: <T>(port?: number) => Promise<Storage<T>>;
+  patchStorage: <T>(data: Partial<Storage<T>>, port?: number) => void;
+  setStorage: <T>(data: Storage<T>, port?: number) => void;
 };
 
-const TOKENS: {[key: string]: any} = {
-  ['@spotter-app/spotify-plugin']: env.spotify,
-};
+// const TOKENS: {[key: string]: any} = {
+//   ['@spotter-app/spotify-plugin']: env.spotify,
+// };
 
 const context: Context = {
   getStorage: () => Promise.resolve<any>({}),
@@ -28,52 +28,52 @@ export const StorageProvider: FC<{}> = (props) => {
 
   const cachedStorage = useRef<Storage<any>>();
 
-  const getStorage = async (pluginName?: string): Promise<Storage<any>> => {
+  const getStorage = async (port?: number): Promise<Storage<any>> => {
 
-    const plugin = Object.keys(TOKENS).find(p => pluginName?.includes(p));
-    const tokens: Storage<any> = plugin ? { tokens: TOKENS[plugin] } : {};
+    // const plugin = Object.keys(TOKENS).find(p => port?.includes(p));
+    // const tokens: Storage<any> = plugin ? { tokens: TOKENS[plugin] } : {};
 
     if (cachedStorage.current) {
       return {
-        ...(pluginName
-          ? (cachedStorage.current[pluginName] ?? {})
+        ...(port
+          ? (cachedStorage.current[port] ?? {})
           : cachedStorage.current
         ),
-        ...tokens,
+        // ...tokens,
       };
     }
 
     const currentStorage = await storage.getItem<Storage<any>>(STORAGE_KEY);
     if (!currentStorage) {
-      return tokens;
+      return {};
     }
 
     cachedStorage.current = currentStorage;
     return {
-      ...(pluginName
-        ? (currentStorage[pluginName] ?? {})
+      ...(port
+        ? (currentStorage[port] ?? {})
         : currentStorage
       ),
-      ...tokens,
+      // ...tokens,
     };
   }
 
-  const setStorage = async (data: Storage<any>, pluginName?: string) => {
+  const setStorage = async (data: Storage<any>, port?: number) => {
     const currentStorage = await getStorage();
     const updatedStorage: Storage<any> = {
       ...currentStorage,
-      ...(pluginName ? {[pluginName]: data} : {data}),
+      ...(port ? {[port]: data} : {data}),
     };
 
     cachedStorage.current = updatedStorage;
     storage.setItem(STORAGE_KEY, updatedStorage);
   }
 
-  const patchStorage = async (data: Storage<any>, pluginName?: string) => {
+  const patchStorage = async (data: Storage<any>, port?: number) => {
     const currentStorage = await getStorage();
-    const currentPluginStorage = pluginName ? currentStorage[pluginName] ?? {} : {};
-    const nextPluginStorage = pluginName
-      ? {[pluginName]: {
+    const currentPluginStorage = port ? currentStorage[port] ?? {} : {};
+    const nextPluginStorage = port
+      ? {[port]: {
           ...currentPluginStorage,
           ...data,
         }}

@@ -6,9 +6,8 @@ import {
   SpotterOnGetSettingsCommand,
   SpotterOnGetPluginsCommand,
   ChannelForSpotter,
-  randomPort,
   Command,
-  PluginConnection,
+  Plugin,
 } from '@spotter-app/core';
 import React, { FC, useEffect } from 'react';
 import { Alert } from 'react-native';
@@ -33,7 +32,7 @@ import { useSpotterState } from './state.provider';
 import { useStorage } from './storage.provider';
 
 type Context = {
-  sendCommand: (command: SpotterCommand, pluginName: string) => void,
+  sendCommand: (command: SpotterCommand, port: number) => void,
 };
 
 const context: Context = {
@@ -68,6 +67,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   const command$ = new Subject<PluginCommand>();
 
+  // TODO: rename to plugin channels
   const activePlugins$ = new BehaviorSubject<ActivePlugin[]>([]);
 
   const subscriptions: Subscription[] = [];
@@ -78,27 +78,29 @@ export const PluginsProvider: FC<{}> = (props) => {
 
   useEffect(() => {
     return () => {
-      activePlugins$.value.forEach(({pid}) => stopPluginScript(pid))
+      activePlugins$.value.forEach(({ port }) => killPort(port))
       subscriptions.forEach(s => s.unsubscribe())
     };
   }, []);
 
   const onInit = async () => {
     // Start plugins
-    const plugins = await getRegisteredPlugins();
-    plugins.forEach(p => startPluginScript(p.path));
-    Object.keys(INTERNAL_PLUGINS).forEach(plugin => {
-      const channel = connectPlugin(plugin);
+    const plugins = await getPlugins();
+    plugins.forEach(p => restartPlugin(p.path, p.port));
+    Object.keys(INTERNAL_PLUGINS).forEach(port => {
+      const channel = getPluginChannel(parseInt(port));
       if (!channel) {
         console.error('Error.');
         return;
       }
       const nextActivePlugin: ActivePlugin = {
-        name: plugin,
-        path: plugin,
+        name: '',
+        versionName: '',
+        publishedAt: '',
+        path: '',
         channel,
-        pid: 0,
-        port: 0,
+        port: parseInt(port),
+        connected: true,
       };
       listenPlugin(nextActivePlugin);
       activePlugins$.next([
@@ -111,33 +113,50 @@ export const PluginsProvider: FC<{}> = (props) => {
     subscriptions.push(command$.subscribe(handleCommand));
   };
 
-  const getRegisteredPlugins: () => Promise<PluginConnection[]> = async () => {
-    const plugins = await storage.getItem<PluginConnection[]>(PLUGINS_STORAGE_KEY);
-    return plugins ?? [];
+  const getPlugins: () => Promise<Plugin[]> = async () => {
+    const plugins = await storage.getItem<Plugin[]>(PLUGINS_STORAGE_KEY);
+    console.log(plugins?.map(p => ({...p, connected: !!activePlugins$.value.find(ap => ap.port == p.port)})))
+    return plugins?.map(p => ({...p, connected: !!activePlugins$.value.find(ap => ap.port == p.port)})) ?? [];
+  }
+
+  const addPlugin: (
+    plugin: Plugin,
+  ) => void = async (plugin) => {
+    const plugins = await getPlugins();
+    const alreadyRegistered = plugins.find(p => p.port === plugin.port);
+
+    if (alreadyRegistered) {
+      notifications.show('Error', 'Plugin already registered.');
+      return;
+    }
+
+    storage.setItem(PLUGINS_STORAGE_KEY, [...plugins, plugin]);
+
+    restartPlugin(plugin.path, plugin.port);
   }
 
   const removePlugin: (
-    pluginName: string,
-  ) => void = async (pluginName) => {
-    const plugins = await getRegisteredPlugins();
-    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.name !== pluginName));
-    removePluginRegistries(pluginName);
-    const activePlugin = activePlugins$.value.find(p => 
-      p.name === pluginName,
+    port: number,
+  ) => void = async (port) => {
+    const plugins = await getPlugins();
+    storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.port !== port));
+    removePluginRegistries(port);
+    killPort(port);
+    const activePlugin = activePlugins$.value.find(p =>
+      p.port=== port,
     );
     if (activePlugin) {
-      stopPluginScript(activePlugin.pid);
-      activePlugins$.next(activePlugins$.value.filter(p => 
-        p.name !== pluginName,
+      activePlugins$.next(activePlugins$.value.filter(p =>
+        p.port !== port,
       ));
     }
   }
 
   const removePluginRegistries = (
-    pluginName: string,
+    port: number,
   ) => {
     registeredOptions$.next(
-      registeredOptions$.value.filter(o => o.pluginName !== pluginName),
+      registeredOptions$.value.filter(o => o.port !== port),
     );
   }
 
@@ -145,16 +164,16 @@ export const PluginsProvider: FC<{}> = (props) => {
     command: (PluginCommand & {type: CommandType.setRegisteredOptions})
   ) => {
     const nextRegisteredOptions = command.value
-    .map(o => ({...o, pluginName: command.pluginName}))
+    .map(o => ({...o, port: command.port}))
     .reduce(
       (acc: PluginRegistryOption[], curr: PluginRegistryOption) => {
         const needsToBeReplaced = acc.find((o: PluginRegistryOption) =>
-          o.title === curr.title && o.pluginName === curr.pluginName,
+          o.title === curr.title && o.port === curr.port,
         );
 
         if (needsToBeReplaced) {
           return acc.map(o => {
-            if (o.title === curr.title && o.pluginName === curr.pluginName) {
+            if (o.title === curr.title && o.port === curr.port) {
               return curr;
             }
 
@@ -164,7 +183,7 @@ export const PluginsProvider: FC<{}> = (props) => {
 
         return [...acc, curr];
       },
-      registeredOptions$.value.filter(o => o.pluginName !== command.pluginName),
+      registeredOptions$.value.filter(o => o.port !== command.port),
     );
     registeredOptions$.next(nextRegisteredOptions);
   }
@@ -173,16 +192,16 @@ export const PluginsProvider: FC<{}> = (props) => {
     command: (PluginCommand & {type: CommandType.patchRegisteredOptions})
   ) => {
     const nextRegisteredOptions = command.value
-    .map(o => ({...o, pluginName: command.pluginName}))
+    .map(o => ({...o, port: command.port}))
     .reduce(
       (acc: PluginRegistryOption[], curr: PluginRegistryOption) => {
         const needsToBeReplaced = acc.find((o: PluginRegistryOption) =>
-          o.title === curr.title && o.pluginName === curr.pluginName,
+          o.title === curr.title && o.port === curr.port,
         );
 
         if (needsToBeReplaced) {
           return acc.map(o => {
-            if (o.title === curr.title && o.pluginName === curr.pluginName) {
+            if (o.title === curr.title && o.port === curr.port) {
               return curr;
             }
 
@@ -202,7 +221,7 @@ export const PluginsProvider: FC<{}> = (props) => {
   ) => {
     const history = await getHistory();
     const options = replaceOptions(
-      command.value.map(o => ({...o, pluginName: command.pluginName}))
+      command.value.map(o => ({...o, port: command.port}))
     );
     const sortedOptions = sortOptions(
       options,
@@ -225,7 +244,7 @@ export const PluginsProvider: FC<{}> = (props) => {
   const getStorageCommand = async (
     command: (PluginCommand & {type: CommandType.getStorage})
   ) => {
-    const data = await getStorage(command.pluginName);
+    const data = await getStorage(command.port);
     const cmd: SpotterOnGetStorageCommand = {
       type: SpotterCommandType.onGetStorage,
       value: {
@@ -233,7 +252,7 @@ export const PluginsProvider: FC<{}> = (props) => {
         data,
       }
     };
-    sendCommand(cmd, command.pluginName);
+    sendCommand(cmd, command.port);
   }
 
   const getSettingsCommand = async (
@@ -247,80 +266,66 @@ export const PluginsProvider: FC<{}> = (props) => {
         data,
       }
     };
-    sendCommand(cmd, command.pluginName);
+    sendCommand(cmd, command.port);
   }
 
   const getPluginsCommand = async (
     command: (PluginCommand & {type: CommandType.getPlugins})
   ) => {
-    const registeredPlugins = await getRegisteredPlugins();
-
-    const connectedPlugins: PluginConnection[] = activePlugins$.value.map(({
-      name, path, port, pid, icon, version, documentationUrl,
-    }) => ({
-      name, path, port, pid, icon, version, documentationUrl,
-    }));
-
-    const notConnectedPlugins: PluginConnection[] = registeredPlugins
-      .filter(p => !connectedPlugins.find(cp => cp.path === p.path))
-      .map(p => ({ ...p, port: 0, pid: 0 }));
+    const plugins = await getPlugins();
 
     const cmd: SpotterOnGetPluginsCommand = {
       type: SpotterCommandType.onGetPlugins,
       value: {
         id: command.value,
-        data: [
-          ...notConnectedPlugins,
-          ...connectedPlugins,
-        ],
+        data: plugins,
       }
     };
-    sendCommand(cmd, command.pluginName);
+
+    sendCommand(cmd, command.port);
   }
 
-  const connectPluginCommand = async (
-    command: (PluginCommand & {type: CommandType.connectPlugin})
+  const pluginStartedCommand = async (
+    command: (PluginCommand & {type: CommandType.pluginStarted})
   ) => {
     // Parse emoji
-    if (command.value.icon) {
-      if (!isNaN(parseInt(command.value.icon, 16))) {
-        command.value.icon = String.fromCodePoint(
-          parseInt(command.value.icon, 16),
-        );
-      }
-    }
+    // if (command.value.icon) {
+    //   if (!isNaN(parseInt(command.value.icon, 16))) {
+    //     command.value.icon = String.fromCodePoint(
+    //       parseInt(command.value.icon, 16),
+    //     );
+    //   }
+    // }
 
     // TODO: check if plugin doesn't have a uniq name
     // Otherwise there will be a conflict when setting data to storage
-    const activePlugin = activePlugins$.value.find(p =>
-      p.name === command.value.name,
-    );
+    // const activePlugin = activePlugins$.value.find(p =>
+    //   p.port === command.value.port,
+    // );
 
-    if (activePlugin) {
-      activePlugins$.next(
-        activePlugins$.value.filter(p => p.name !== activePlugin.name),
-      );
-      stopPluginScript(activePlugin.pid);
-      removePluginRegistries(activePlugin.name);
-    };
+    // if (activePlugin) {
+    //   activePlugins$.next(
+    //     activePlugins$.value.filter(p => p.port !== activePlugin.port),
+    //   );
+    //   stopPluginScript(activePlugin.pid);
+    //   removePluginRegistries(activePlugin.name);
+    // };
 
-    const plugins = await getRegisteredPlugins();
-    const registryEntry = plugins.find(p => p.path === command.value.path);
+    const plugins = await getPlugins();
 
-    const isInternalPlugin = !command.value.pid;
-    const isDevelopment = command.value.name === command.value.path;
-    
-    if (!registryEntry && !isInternalPlugin && !isDevelopment) {
-      storage.setItem(
-        PLUGINS_STORAGE_KEY,
-        [...plugins, command.value]);
-      notifications.show('Plugin', `${command.value.name} has been added to registry`);
-    }
+    // const registryEntry = plugins.find(p => p.port === command.value.port);
 
-    const channel: ChannelForSpotter | null = connectPlugin(
-      command.value.path,
-      command.value.port,
-    );
+    // const isInternalPlugin = !command.value.pid;
+    // const isDevelopment = command.value.name === command.value.path;
+
+    // if (!registryEntry && !isInternalPlugin && !isDevelopment) {
+    //   storage.setItem(
+    //     PLUGINS_STORAGE_KEY,
+    //     [...plugins, command.value]);
+    //   notifications.show('Plugin', `${command.value.name} has been added to registry`);
+    // }
+
+    const channel: ChannelForSpotter | null = getPluginChannel(command.port);
 
     if (!channel) {
       // TODO: check
@@ -328,16 +333,22 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    const plugin: ActivePlugin = {
-      ...command.value,
+    const plugin: Plugin | undefined = plugins.find(p => p.port === command.port);
+
+    if (!plugin) {
+      console.error('Plugin not registered');
+    }
+
+    const activePlugin: ActivePlugin = {
+      ...plugin as Plugin,
       channel,
     }
 
-    listenPlugin(plugin);
+    listenPlugin(activePlugin);
 
     activePlugins$.next([
       ...activePlugins$.value,
-      plugin,
+      activePlugin,
     ]);
   }
 
@@ -368,7 +379,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.setStorage) {
-      setStorage(command.value, command.pluginName);
+      setStorage(command.value, command.port);
       return;
     }
 
@@ -378,7 +389,7 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
 
     if (command.type === CommandType.patchStorage) {
-      patchStorage(command.value, command.pluginName);
+      patchStorage(command.value, command.port);
       return;
     }
 
@@ -402,17 +413,18 @@ export const PluginsProvider: FC<{}> = (props) => {
       return;
     }
 
-    if (command.type === CommandType.startPluginScript) {
-      try {
-        startPluginScript(command.value);
-      } catch (e) {
-        Alert.alert(`${e}`)
-      }
+    if (command.type === CommandType.startPlugin) {
+      restartPlugin(command.value.path, command.value.port);
       return;
     }
 
-    if (command.type === CommandType.connectPlugin) {
-      connectPluginCommand(command);
+    if (command.type === CommandType.pluginStarted) {
+      pluginStartedCommand(command);
+      return;
+    }
+
+    if (command.type === CommandType.addPlugin) {
+      addPlugin(command.value);
       return;
     }
 
@@ -443,98 +455,84 @@ export const PluginsProvider: FC<{}> = (props) => {
     }
   }
 
-  const startPluginScript = async (
-    pluginPath: string,
+  const restartPlugin = async (
+    path: string,
+    port: number,
   ): Promise<string> => {
-    const activePlugin = activePlugins$.value.find(p => 
-      p.path === pluginPath,
-    );
-
-    if (activePlugin) {
-      await stopPluginScript(activePlugin.pid);
-    }
-
-    const port = uniqPort();
-
-    return shell.execute(`nohup node ${pluginPath} ${port} ${pluginPath} > /dev/null 2>&1 &`);
+    await killPort(port);
+    return await shell.execute(`${path} ${port}`);
   }
 
-  const uniqPort = (): number => {
-    const port = randomPort();
-    const activePluginWithPort = activePlugins$.value.find(p =>
-      p.port === port,
-    );
 
-    return activePluginWithPort ? uniqPort() : port;
-  }
-
-  const stopPluginScript = async (
-    pid: number,
+  const killPort = async (
+    port: number,
   ) => {
-    return await shell.execute(`kill ${pid} || echo 'Process was not running.'`);
+    return await shell.execute(`lsof -ti:${port} | xargs kill`);
   }
 
-  const connectPlugin = (
-    plugin: string,
-    port?: number,
-  ): ChannelForSpotter | null => {
-    if (!plugin) {
-      notifications.show('Connection', 'Wrong command has been passed');
-      return null;
+  const getPluginChannel = (port: number): ChannelForSpotter | null => {
+    const isInternalPort = Object.keys(INTERNAL_PLUGINS).find(p => parseInt(p) === port);
+    if (isInternalPort) {
+      return new InternalPluginChannel(port);
     }
 
-    return port
-      ? new ExternalPluginChannel(port)
-      : new InternalPluginChannel(plugin);
+    return new ExternalPluginChannel(port);
   }
 
   const listenPlugin = (plugin: ActivePlugin) => {
+    if (!plugin.channel) {
+      return;
+    }
+
     plugin.channel.onPlugin('open', async () => {
       const onInitCommand: SpotterCommand = {
         type: SpotterCommandType.onInit,
       };
+      if (!plugin.channel) {
+        return;
+      }
       plugin.channel.sendToPlugin(JSON.stringify(onInitCommand));
     });
 
     plugin.channel.onPlugin('error', () => {
       const activePlugin = activePlugins$.value.find(p =>
-        p.pid === plugin.pid && p.port === p.port,
+        p.port === plugin.port,
       );
       if (!activePlugin) {
         return;
       }
-      stopPluginScript(plugin.pid);
-      removePluginRegistries(plugin.name);
+      killPort(plugin.port);
+      removePluginRegistries(plugin.port);
       activePlugins$.next(
-        activePlugins$.value.filter(p => p.pid !== plugin.pid),
+        activePlugins$.value.filter(p => p.port !== plugin.port),
       );
     });
 
     plugin.channel.onPlugin('close', () => {
       const activePlugin = activePlugins$.value.find(p =>
-        p.pid === plugin.pid && p.port === p.port,
+        p.port === plugin.port,
       );
       if (!activePlugin) {
         return;
       }
-      stopPluginScript(plugin.pid);
-      removePluginRegistries(plugin.name);
+      killPort(plugin.port);
+      removePluginRegistries(plugin.port);
       activePlugins$.next(
-        activePlugins$.value.filter(p => p.pid !== plugin.pid),
+        activePlugins$.value.filter(p => p.port !== plugin.port),
       );
     });
 
     plugin.channel.onPlugin('message', data => {
       const command: Command = JSON.parse(data);
-      command$.next({...command, pluginName: plugin.name});
+      command$.next({...command, port: plugin.port});
     });
   }
 
-  const sendCommand = (command: SpotterCommand, pluginName: string) => {
-    const plugin = activePlugins$.value.find(p => p.name === pluginName);
+  const sendCommand = (command: SpotterCommand, port: number) => {
+    const plugin = activePlugins$.value.find(p => p.port === port);
 
-    if (!plugin) {
-      console.error('There is no connection with plugin: ', pluginName);
+    if (!plugin || !plugin.channel) {
+      console.error('There is no connection with plugin on port: ', port);
       return;
     }
 
