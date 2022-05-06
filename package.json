@@ -17,7 +17,7 @@
     "@babel/core": "7.17.10",
     "@babel/runtime": "7.17.9",
     "@react-native-community/eslint-config": "3.0.1",
-    "@spotter-app/core": "^2.0.0-beta.63",
+    "@spotter-app/core": "^2.0.0-beta.64",
     "@types/jest": "27.5.0",
     "@types/react": "18.0.8",
     "@types/react-native": "0.67.6",

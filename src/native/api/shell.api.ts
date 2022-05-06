@@ -1,6 +1,7 @@
 import { NativeModules } from 'react-native';
-import { PATH } from '../../constants';
 import { SpotterShellApi } from '../../interfaces';
+
+const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH"';
 
 export class ShellApi implements SpotterShellApi {
   private shell = NativeModules.Shell;

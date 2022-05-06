@@ -1,7 +1,20 @@
-import { onQueryFilter, OnQueryOption, Plugin, randomPort, SpotterPluginApi } from '@spotter-app/core';
+import {
+  onQueryFilter,
+  OnQueryOption,
+  Plugin,
+  SpotterPluginApi,
+} from '@spotter-app/core';
 import { ShellApi } from '../native';
 import FS from 'react-native-fs';
 import { INTERNAL_PLUGINS } from '../constants';
+
+const externalPluginsRepos = [
+  'spotter-application/applications-plugin',
+  'spotter-application/emoji-plugin',
+];
+
+export const randomPort = (): number =>
+  (Math.floor(10000 + Math.random() * 9000));
 
 interface ExternalPluginVersion {
   name: string,
@@ -25,10 +38,6 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
 
   private async pluginsMenu(query: string): Promise<OnQueryOption[]> {
     const plugins = await this.spotter.plugins.get();
-
-    const externalPluginsRepos = [
-      'spotter-application/applications-plugin',
-    ];
 
     const externalPlugins: ExternalPluginVersion[] = await externalPluginsRepos.reduce(
       async (asyncAcc, repo) => {

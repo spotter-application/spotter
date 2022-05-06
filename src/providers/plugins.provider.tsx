@@ -115,7 +115,6 @@ export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
 
   const getPlugins: () => Promise<Plugin[]> = async () => {
     const plugins = await storage.getItem<Plugin[]>(PLUGINS_STORAGE_KEY);
-    console.log(plugins?.map(p => ({...p, connected: !!activePlugins$.value.find(ap => ap.port == p.port)})))
     return plugins?.map(p => ({...p, connected: !!activePlugins$.value.find(ap => ap.port == p.port)})) ?? [];
   }
 
@@ -141,7 +140,6 @@ export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
     const plugins = await getPlugins();
     storage.setItem(PLUGINS_STORAGE_KEY, plugins.filter(p => p.port !== port));
     removePluginRegistries(port);
-    killPort(port);
     const activePlugin = activePlugins$.value.find(p =>
       p.port=== port,
     );
@@ -150,6 +148,7 @@ export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
         p.port !== port,
       ));
     }
+    killPort(port);
   }
 
   const removePluginRegistries = (
@@ -424,14 +423,14 @@ export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
     port: number,
   ): Promise<string> => {
     await killPort(port);
-    return await shell.execute(`${path} ${port}`);
+    return await shell.execute(`nohup ${path} ${port} > /dev/null 2>&1 &`);
   }
 
 
   const killPort = async (
     port: number,
   ) => {
-    return await shell.execute(`lsof -ti:${port} | xargs kill`);
+    return await shell.execute(`lsof -n -i:${port} | grep LISTEN | awk '{ print $2 }' | xargs kill`);
   }
 
   const getPluginChannel = (port: number): ChannelForSpotter | null => {

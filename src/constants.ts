@@ -8,8 +8,6 @@ export const SPOTTER_HOTKEY_IDENTIFIER = 'spotter';
 
 export const SHOW_OPTIONS_DELAY = 500;
 
-export const PATH = 'export PATH="/usr/local/share/npm/bin:/usr/local/bin:/usr/local/sbin:~/bin:$PATH"';
-
 export const LIGHT_THEME = '#efefef,#101010,#dddddd,#000000,#0f60cf,#fefefe';
 export const DARK_THEME = '#212121,#ffffff,#3c3c3c,#ffffff,#0f60cf,#fefefe';
 

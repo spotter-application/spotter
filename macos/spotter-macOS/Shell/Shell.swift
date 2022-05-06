@@ -8,8 +8,8 @@ class Shell: RCTEventEmitter {
                       resolver resolve: RCTPromiseResolveBlock,
                       rejecter reject: RCTPromiseRejectBlock) -> Void {
     do {
-      let output = try shellOut(to: command, at: "/")
-      resolve(output)
+      let output = try shellOut(to: command)
+      resolve(output);
     } catch {
       let error = error as! ShellOutError
       print(error.message)

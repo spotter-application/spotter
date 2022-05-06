@@ -1,10 +1,10 @@
 import { SpotterCommandType, SpotterCommand } from '@spotter-app/core';
-import React, { FC, useEffect } from 'react';
+import React, { FC, PropsWithChildren, useEffect } from 'react';
 import { PLUGINS_TO_INSTALL, SPOTTER_HOTKEY_IDENTIFIER } from '../constants';
 import { isPluginOnQueryOption, PluginRegistryOption, SpotterHotkeyEvent } from '../interfaces';
 import { useApi } from './api.provider';
 import { useSettings } from './settings.provider';
-import { replaceOptions, getHistoryPath, sortOptions, shouldUpgrade } from '../helpers';
+import { replaceOptions, getHistoryPath, sortOptions } from '../helpers';
 import { useHistory } from './history.provider';
 import { useSpotterState } from './state.provider';
 import { usePlugins } from './plugins.provider';
@@ -44,7 +44,7 @@ type NextSpotterVersion = {
 
 export const EventsContext = React.createContext<Context>(context);
 
-export const EventsProvider: FC<{}> = (props) => {
+export const EventsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
   const { panel, shell, hotkey, notifications, storage } = useApi();
   const { getSettings, patchSettings } = useSettings();
   const { getHistory, increaseHistory } = useHistory();
@@ -144,6 +144,9 @@ export const EventsProvider: FC<{}> = (props) => {
     now: number,
     lastRequestedAt: number
   ): Promise<NextSpotterVersion> => {
+    return null;
+
+
     if ((now - lastRequestedAt) < FIVE_MIN) {
       return null;
     }
@@ -152,9 +155,9 @@ export const EventsProvider: FC<{}> = (props) => {
       'https://api.github.com/repos/ziulev/spotter/releases/latest'
     ).then(r => r.json());
 
-    if (!shouldUpgrade(packageJson.version, latestVersion.name)) {
-      return null;
-    }
+    // if (!shouldUpgrade(packageJson.version, latestVersion.name)) {
+    //   return null;
+    // }
 
     const bundle = latestVersion.assets.find((a: {name: string}) => a.name === 'spotter.dmg');
     return {
