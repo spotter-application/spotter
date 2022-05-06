@@ -206,14 +206,3 @@ const versionToNumber = (version: string): number => {
     : values[0]
   );
 }
-
-// 0.0.1-beta.1 < 0.0.1-beta.2
-export const shouldUpgrade = (
-  current: string,
-  nextVersion: string,
-): boolean => {
-  const currentNumber = versionToNumber(current);
-  const nextVersionNumber = versionToNumber(nextVersion);
-
-  return currentNumber < nextVersionNumber;
-}

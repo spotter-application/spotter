@@ -1,5 +1,4 @@
-import { onQueryFilter, OnQueryOption, Plugin, SpotterPluginApi } from '@spotter-app/core';
-import { shouldUpgrade } from '../helpers';
+import { onQueryFilter, OnQueryOption, Plugin, randomPort, SpotterPluginApi } from '@spotter-app/core';
 import { ShellApi } from '../native';
 import FS from 'react-native-fs';
 import { INTERNAL_PLUGINS } from '../constants';
@@ -47,7 +46,6 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
       Promise.resolve<ExternalPluginVersion[]>([]),
     );
 
-
     const installedPlugins = plugins.filter(p => !Object.keys(INTERNAL_PLUGINS).includes(String(p.port)));
 
     return onQueryFilter(query, [
@@ -86,13 +84,17 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
     const { name, versionName, publishedAt, downloadUrl } = version;
     // const appPath = FS.MainBundlePath;
     const appPath = '/Applications/spotter.app';
-    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && mkdir -p ${name} && cd ${name} && wget -q ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
+
+    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && rm -rf ${name} && mkdir ${name} && cd ${name} && wget -q ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
+
+    const plugins = await this.spotter.plugins.get();
+    const port = this.findUnoccupiedPort(plugins);
 
     this.spotter.plugins.add({
       name,
       versionName,
       publishedAt,
-      port: 3232, // TODO:
+      port,
       path: `${appPath}/Plugins/${name}/${name}`,
       connected: false,
     });
@@ -135,13 +137,14 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
     }, 2000));
   }
 
-  private getUniqPort = (): number => {
-    // const port = randomPort();
-    // const activePluginWithPort = activePlugins$.value.find(p =>
-    //   p.port === port,
-    // );
+  private findUnoccupiedPort(installedPlugins: Plugin[]): number {
+    const port = randomPort();
+    const occupied = installedPlugins.find(p => p.port === port);
 
-    // return activePluginWithPort ? uniqPort() : port;
-    return 3232;
+    if (occupied) {
+      return this.findUnoccupiedPort(installedPlugins);
+    }
+
+    return port;
   }
 }
