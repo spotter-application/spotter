@@ -13,11 +13,7 @@
     "resolveJsonModule": true,
     "rootDirs": [
       ".",
-      "../../packages/core",
     ],
-    "paths": {
-      "@spotter-app/core": ["../../packages/core/index.ts"],
-    }
   },
   "exclude": [
     "dist",

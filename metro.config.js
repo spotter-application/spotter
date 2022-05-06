@@ -18,6 +18,6 @@ module.exports = {
     }),
   },
   resolver: {
-    blacklistRE: exclusionList([/..\/..\/dist\/.*/])
+    blacklistRE: exclusionList([])
   },
 };

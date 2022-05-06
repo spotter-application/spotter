@@ -4,7 +4,7 @@ import CallbackURLKit
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-  
+
   var bridge: RCTBridge!
   var statusBarItem: NSStatusItem!
   var jsCodeLocation: URL!
@@ -15,20 +15,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     #if DEBUG
-    jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "apps/spotter/index", fallbackResource:nil)
+    jsCodeLocation = RCTBundleURLProvider.sharedSettings().jsBundleURL(forBundleRoot: "index", fallbackResource:nil)
     #else
     jsCodeLocation = Bundle.main.url(forResource: "main", withExtension: "jsbundle")!
     #endif
-    
+
     self.bridge = RCTBridge(bundleURL: jsCodeLocation, moduleProvider: nil, launchOptions: nil)
     #if RCT_DEV
     self.bridge?.module(for: RCTDevLoadingView.self)
     #endif
-    
+
     self.setupMenubar()
     self.setupSpotterPanel()
     self.setupSettingsPanel()
-    
+
     // CallbackURLKit
     let manager = Manager.shared
     manager.callbackURLScheme = Manager.urlSchemes?.first
@@ -38,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   func setStatusBarTitle(_ title: NSString) {
     if (title.length == 0) {
       self.statusBarItem.button?.title = ""
-      
+
       DispatchQueue.main.async {
         self.statusBarItem.button?.image = NSImage(named: NSImage.Name("Icon"))
       }
@@ -47,12 +47,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     self.statusBarItem.button?.title = title as String
     self.statusBarItem.button?.image = nil
   }
-  
+
   private func setupMenubar() {
     let statusBar = NSStatusBar.system
     self.statusBarItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
     self.statusBarItem.button?.image = NSImage(named: NSImage.Name("TrayIcon"))
-    
+
     let statusBarMenu = NSMenu(title: "Cap Status Bar Menu")
     statusBarItem.menu = statusBarMenu
     statusBarMenu.addItem(
@@ -68,11 +68,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       action: #selector(AppDelegate.Quitapp),
       keyEquivalent: "q")
   }
-  
+
   private func setupSettingsPanel() {
     let width = 600
     let height = 500
-  
+
     settingsPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
       .nonactivatingPanel,
       .closable,
@@ -83,30 +83,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let rootView = RCTRootView(bridge: self.bridge, moduleName: "settings", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
-    
+
     settingsPanel.contentViewController = rootViewController
-    
+
     settingsPanel.contentMinSize = NSSize(width: width, height: height)
-    
+
     let newSize = NSSize(width: width, height: height)
     guard var frame = settingsPanel.contentView?.window?.frame else { return }
     frame.size = newSize
     settingsPanel.contentView?.setFrameSize(newSize)
     settingsPanel.contentView?.window?.setFrame(frame, display: true)
   }
-  
+
   @objc func openSettings() {
     settingsPanel.makeKeyAndOrderFront(self)
   }
-  
+
   @objc func closeSettings() {
     settingsPanel.close()
   }
-  
+
   private func setupSpotterPanel() {
     let width = 670
     let height = 670
-    
+
     spotterPanel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [
       .nonactivatingPanel,
       .titled,
@@ -115,13 +115,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     spotterPanel.titleVisibility = .hidden
     spotterPanel.level = .mainMenu
     spotterPanel.titlebarAppearsTransparent = true
-    
+
     let rootView = RCTRootView(bridge: self.bridge, moduleName: "spotter", initialProperties: nil)
     let rootViewController = NSViewController()
     rootViewController.view = rootView
-    
+
     spotterPanel.contentViewController = rootViewController
-    
+
     let newSize = NSSize(width: width, height: height)
     guard var frame = spotterPanel.contentView?.window?.frame else { return }
     frame.size = newSize
@@ -129,17 +129,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     spotterPanel.contentView?.window?.setFrame(frame, display: true)
     spotterPanel.contentView?.window?.backgroundColor = NSColor.clear
   }
-  
+
   @objc func openSpotter() {
     spotterPanel.makeKeyAndOrderFront(nil)
     spotterPanel.center()
     onOpenSpotterCallback!()
   }
-  
+
   @objc func closeSpotter() {
     spotterPanel.close()
   }
-  
+
   @objc func toggleSpotter() {
     if spotterPanel.isVisible {
       self.closeSpotter()
@@ -151,5 +151,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   @objc func Quitapp() {
     NSApp.terminate(self)
   }
-  
+
 }

@@ -105,7 +105,7 @@ export const Option = ({
       backgroundColor: active ? colors?.activeOptionBackground: 'transparent',
       marginLeft: 10,
       marginRight: withScroll ? 4 : -4,
-      height: 32,
+      height: 34,
       borderRadius: 10,
     }}
   >

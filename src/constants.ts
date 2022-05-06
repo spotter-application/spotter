@@ -2,7 +2,7 @@ import { SpotterPluginApi } from "@spotter-app/core";
 import { PluginsManagerPlugin } from "./plugins/plugins-manager.plugin";
 import { SpotterThemesPlugin } from "./plugins/themes.plugin";
 
-export const PLUGINS_STORAGE_KEY = 'PLUGINS_0.10';
+export const PLUGINS_STORAGE_KEY = 'PLUGINS_0.11';
 
 export const SPOTTER_HOTKEY_IDENTIFIER = 'spotter';
 

@@ -4,7 +4,7 @@ import { ShellApi } from '../native';
 import FS from 'react-native-fs';
 import { INTERNAL_PLUGINS } from '../constants';
 
-interface ExternalPlugin {
+interface ExternalPluginVersion {
   name: string,
   versionName: string,
   publishedAt: string,
@@ -31,7 +31,7 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
       'spotter-application/applications-plugin',
     ];
 
-    const externalPlugins: ExternalPlugin[] = await externalPluginsRepos.reduce(
+    const externalPlugins: ExternalPluginVersion[] = await externalPluginsRepos.reduce(
       async (asyncAcc, repo) => {
         const { name, published_at, assets } = await fetch(`https://api.github.com/repos/${repo}/releases/latest`).then(r => r?.json()).catch(() => {});
         return [
@@ -44,50 +44,37 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
           },
         ];
       },
-      Promise.resolve<ExternalPlugin[]>([]),
+      Promise.resolve<ExternalPluginVersion[]>([]),
     );
 
 
     const installedPlugins = plugins.filter(p => !Object.keys(INTERNAL_PLUGINS).includes(String(p.port)));
 
-    console.log('installedPlugins: ', installedPlugins);
-
     return onQueryFilter(query, [
       ...installedPlugins.map(p => {
-        const nextVersion = externalPlugins.find(ep => ep.name === p.name)?.publishedAt ?? '';
-        const outdated = shouldUpgrade(p.publishedAt ?? '', nextVersion)
-          ? '[Upgrade available] '
+        const externalVersion = externalPlugins.find(ep => ep.name === p.name);
+        const outdated = new Date(externalVersion?.publishedAt ?? '').getTime() > new Date(p.publishedAt).getTime()
+          ? ' (🔼 Upgrade available)'
           : '';
         const dev = p.name === p.path ? '[DEV] ' : '';
-        const title = `${p.name}${p.versionName ? ('@' + p.versionName) : ''}`;
+        const title = `${p.name}${p.versionName}`;
 
         return {
-          title: `${outdated}${dev}${title}`,
-          subtitle: `${p.connected ? 'Connected' : 'Not connected'}`,
+          title: `${dev}${title}`,
+          subtitle: `${p.connected ? 'Connected' : 'Not connected'}${outdated}`,
           icon: p.icon,
-          onQuery: () => this.pluginMenu(p, outdated ? nextVersion : undefined),
+          onQuery: () => this.pluginMenu(p, outdated ? externalVersion : undefined),
         }
       }),
       ...externalPlugins
         .filter(p => !installedPlugins.map(ip => ip.name).includes(p.name))
-        .map<OnQueryOption>(({ name, versionName, downloadUrl, publishedAt }) => ({
-          title: `${name}@${versionName}`,
+        .map<OnQueryOption>((v) => ({
+          title: `${v.name}@${v.versionName}`,
           subtitle: 'Not installed',
           onSubmit: () => ([{
-            title: `Install ${name}@${versionName}`,
+            title: `Install ${v.name}@${v.versionName}`,
             onSubmit: async () => {
-              // const appPath = FS.MainBundlePath;
-              const appPath = '/Applications/spotter.app';
-              await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && mkdir -p ${name} && cd ${name} && wget -q ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
-
-              this.spotter.plugins.add({
-                name,
-                versionName,
-                publishedAt,
-                port: 3232, // TODO:
-                path: `${appPath}/Plugins/${name}/${name}`,
-                connected: false,
-              });
+              await this.installVersion(v);
               return this.emptyMenu();
             }
           }])
@@ -95,13 +82,29 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
     ]);
   }
 
-  private pluginMenu(plugin: Plugin, nextVersion?: string) {
+  private async installVersion(version: ExternalPluginVersion) {
+    const { name, versionName, publishedAt, downloadUrl } = version;
+    // const appPath = FS.MainBundlePath;
+    const appPath = '/Applications/spotter.app';
+    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && mkdir -p ${name} && cd ${name} && wget -q ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
+
+    this.spotter.plugins.add({
+      name,
+      versionName,
+      publishedAt,
+      port: 3232, // TODO:
+      path: `${appPath}/Plugins/${name}/${name}`,
+      connected: false,
+    });
+  }
+
+  private pluginMenu(plugin: Plugin, nextVersion?: ExternalPluginVersion) {
     return [
       ...(nextVersion ? [{
-        title: 'Upgrade',
+        title: `Upgrade to ${nextVersion.versionName}`,
         onSubmit: async () => {
-          const result = this.shell.execute(`npm i -g ${plugin.port}@${nextVersion}`);
-          return !!result;
+          await this.installVersion(nextVersion);
+          return this.emptyMenu();
         }
       }]: []),
       {
