@@ -9,7 +9,7 @@ import {
   Command,
   Plugin,
 } from '@spotter-app/core';
-import React, { FC, useEffect } from 'react';
+import React, { FC, PropsWithChildren, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { Subject, Subscription, BehaviorSubject } from 'rxjs';
 import { INTERNAL_PLUGINS, PLUGINS_STORAGE_KEY } from '../constants';
@@ -41,7 +41,7 @@ const context: Context = {
 
 export const PluginsContext = React.createContext<Context>(context);
 
-export const PluginsProvider: FC<{}> = (props) => {
+export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
 
   const {
     registeredOptions$,
@@ -288,63 +288,27 @@ export const PluginsProvider: FC<{}> = (props) => {
   const pluginStartedCommand = async (
     command: (PluginCommand & {type: CommandType.pluginStarted})
   ) => {
-    // Parse emoji
-    // if (command.value.icon) {
-    //   if (!isNaN(parseInt(command.value.icon, 16))) {
-    //     command.value.icon = String.fromCodePoint(
-    //       parseInt(command.value.icon, 16),
-    //     );
-    //   }
-    // }
-
-    // TODO: check if plugin doesn't have a uniq name
-    // Otherwise there will be a conflict when setting data to storage
-    // const activePlugin = activePlugins$.value.find(p =>
-    //   p.port === command.value.port,
-    // );
-
-    // if (activePlugin) {
-    //   activePlugins$.next(
-    //     activePlugins$.value.filter(p => p.port !== activePlugin.port),
-    //   );
-    //   stopPluginScript(activePlugin.pid);
-    //   removePluginRegistries(activePlugin.name);
-    // };
-
     const plugins = await getPlugins();
-
-    // const registryEntry = plugins.find(p => p.port === command.value.port);
-
-    // const isInternalPlugin = !command.value.pid;
-    // const isDevelopment = command.value.name === command.value.path;
-
-    // if (!registryEntry && !isInternalPlugin && !isDevelopment) {
-    //   storage.setItem(
-    //     PLUGINS_STORAGE_KEY,
-    //     [...plugins, command.value]);
-    //   notifications.show('Plugin', `${command.value.name} has been added to registry`);
-    // }
 
     const channel: ChannelForSpotter | null = getPluginChannel(command.port);
 
     if (!channel) {
-      // TODO: check
       console.error('Error');
       return;
     }
 
-    const plugin: Plugin | undefined = plugins.find(p => p.port === command.port);
-
-    if (!plugin) {
-      console.error('Plugin not registered');
-    }
+    const registeredPlugin: Plugin | undefined = plugins.find(p => p.port === command.port);
 
     const activePlugin: ActivePlugin = {
-      ...plugin as Plugin,
+      ...registeredPlugin as Plugin,
       channel,
     }
 
     listenPlugin(activePlugin);
+
+    if (!registeredPlugin) {
+      notifications.show('Connected', 'Plugin has been connected with dev mode');
+    }
 
     activePlugins$.next([
       ...activePlugins$.value,
