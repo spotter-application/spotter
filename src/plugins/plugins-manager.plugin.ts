@@ -94,7 +94,7 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
     // const appPath = FS.MainBundlePath;
     const appPath = '/Applications/spotter.app';
 
-    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && rm -rf ${name} && mkdir ${name} && cd ${name} && curl -s ${downloadUrl} -O plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
+    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && rm -rf ${name} && mkdir ${name} && cd ${name} && curl ${downloadUrl} -L -o plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
 
     const plugins = await this.spotter.plugins.get();
     const port = this.findUnoccupiedPort(plugins);
@@ -135,7 +135,9 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
   }
 
   private async remove(plugin: Plugin) {
-    // TODO: Remove plugin folder
+    // const appPath = FS.MainBundlePath;
+    const appPath = '/Applications/spotter.app';
+    await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && rm -rf ${plugin.name}`);
     this.spotter.plugins.remove(plugin.port);
     return this.emptyMenu();
   }
