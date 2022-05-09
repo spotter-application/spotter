@@ -33,7 +33,7 @@ export const QueryPanelOptions = ({
 
   useEffect(() => {
     if (refContainer.current && options?.length) {
-      const offset = 10;
+      const offset = 9;
       const indexWithOffset = hoveredOptionIndex - offset;
       const index = indexWithOffset < 0 ? 0 : indexWithOffset;
 
