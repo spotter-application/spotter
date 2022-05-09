@@ -58,7 +58,6 @@ export const QueryPanelOptions = ({
             <Option
               option={item}
               active={hoveredOptionIndex === index}
-              withScroll={options.length > 11}
             />
           </TouchableOpacity>
         )}
@@ -70,11 +69,9 @@ export const QueryPanelOptions = ({
 export const Option = ({
   option,
   active,
-  withScroll,
 }: {
   option: PluginOnQueryOption | PluginRegistryOption,
   active: boolean,
-  withScroll: boolean,
 }) => {
   const { colors$ } = useSettings();
   const [colors, setColors] = useState<SpotterThemeColors>();
@@ -104,7 +101,7 @@ export const Option = ({
       padding: 8,
       backgroundColor: active ? colors?.activeOptionBackground: 'transparent',
       marginLeft: 10,
-      marginRight: withScroll ? 4 : -4,
+      marginRight: 4,
       height: 34,
       borderRadius: 10,
     }}
