@@ -10,8 +10,7 @@ Productivity tool to launch everything.<br/>
 Switch song, connect bluetooth device, set a timer, and a lot of other things.<br />
 So you can stay focused on your current task.
 
-* 🤖&nbsp;&nbsp;&nbsp;<b>Native</b>
-* 🔮&nbsp;&nbsp;&nbsp;<b>Fast</b>
+* 🤖&nbsp;&nbsp;&nbsp;<b>Fast</b>
 * 📦&nbsp;&nbsp;&nbsp;<b>Lightweight</b>
 * 🔌&nbsp;&nbsp;&nbsp;<b>Plug-in support</b>
 * ⬆️&nbsp;&nbsp;&nbsp;<b>Smart options sorting</b>
