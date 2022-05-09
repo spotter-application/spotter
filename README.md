@@ -18,7 +18,7 @@ Switch song, connect bluetooth device, set a timer, and a lot of other things.<b
 ```brew install --cask spotter```
 
 Or check new [spotter beta versions](
-https://github.com/spotter-applicatio/spotter/releases) with external plugins support 
+https://github.com/spotter-application/spotter/releases) with external plugins support 
 
 
 Default hotkey to run the app ```double shift```
