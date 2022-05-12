@@ -11,6 +11,7 @@ import { INTERNAL_PLUGINS } from '../constants';
 const externalPluginsRepos = [
   'spotter-application/applications-plugin',
   'spotter-application/emoji-plugin',
+  'spotter-application/visual-studio-code-plugin',
 ];
 
 export const randomPort = (): number =>
