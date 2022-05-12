@@ -1,6 +1,6 @@
 {
   "name": "@spotter-app/spotter",
-  "version": "2.0.0-beta.19",
+  "version": "2.0.0-beta.20",
   "scripts": {
     "start": "react-native run-macos",
     "build": "node generate-env.js && react-native run-macos --configuration Release"
