@@ -9,7 +9,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { OptionIcon, QueryPanelOptions } from './options';
+import { OptionHotkeyHints, OptionIcon, QueryPanelOptions } from './options';
 import {
   combineLatest,
   debounce,
@@ -310,19 +310,30 @@ export const QueryPanel: FC<{}> = () => {
               colors={colors}
             />
           }
-          {(options[hoveredOptionIndex]?.icon && !systemOption) &&
-            <OptionIcon
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+            }}
+          >
+            <OptionHotkeyHints
               style={{
-                width: 24,
-                height: 24,
-                position: 'absolute',
-                left: -26,
-                top: -12,
-                opacity: loading || doing ? 0.1 : 1,
+                marginRight: options[hoveredOptionIndex]?.icon && !systemOption ? 5 : 0,
               }}
-              icon={options[hoveredOptionIndex]?.icon}
-            ></OptionIcon>
-          }
+              colors={colors}
+              option={options[hoveredOptionIndex]}
+            />
+            {(options[hoveredOptionIndex]?.icon && !systemOption) &&
+              <OptionIcon
+                style={{
+                  width: 24,
+                  height: 24,
+                  opacity: loading || doing ? 0.1 : 1,
+                }}
+                icon={options[hoveredOptionIndex]?.icon}
+              ></OptionIcon>
+            }
+          </View>
         </View>
       </Animated.View>
       <QueryPanelOptions

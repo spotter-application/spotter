@@ -205,7 +205,7 @@ export const OptionHotkeyHint = ({
 }) => {
 
   return <View style={{
-    backgroundColor: colors?.background,
+    backgroundColor: colors?.activeOptionBackground,
     opacity: 0.5,
     paddingLeft: 7,
     paddingRight: 7,
