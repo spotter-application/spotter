@@ -306,7 +306,7 @@ export const PluginsProvider: FC<{}> = (props: PropsWithChildren<{}>) => {
     listenPlugin(activePlugin);
 
     if (!registeredPlugin) {
-      notifications.show('Connected', 'Plugin has been connected with dev mode');
+      // notifications.show('Connected', 'Plugin has been connected with dev mode');
     }
 
     activePlugins$.next([
