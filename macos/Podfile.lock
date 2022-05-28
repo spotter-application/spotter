@@ -395,7 +395,7 @@ SPEC CHECKSUMS:
   CallbackURLKit: a940d1b869c70e1fa700ea06f988ba2a8963dafb
   DoubleConversion: 0ea4559a49682230337df966e735d6cc7760108e
   FBLazyVector: 54b0b353a19db053cc037451ecd8060b03703779
-  FBReactNativeSpec: 76ef5f236258dff31cddd5df2489f52aa6a2b719
+  FBReactNativeSpec: a014584f1a82ccec5eed44dcd349b0a2dc7b707c
   glog: 0dc7efada961c0793012970b60faebbd58b0decb
   KeyHolder: 7fce073043392cddc3e3126f3f9bdaa5ecf1f19e
   Magnet: a44a5a14eecc77433cbaad1431b78f7d20725bf2

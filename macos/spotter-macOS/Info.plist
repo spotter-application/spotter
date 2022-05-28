@@ -67,6 +67,6 @@
 	<key>NSSupportsSuddenTermination</key>
 	<true/>
 	<key>NSSystemAdministrationUsageDescription</key>
-	<string>I want to read all your files</string>
+	<string>File access is needed for plugins</string>
 </dict>
 </plist>

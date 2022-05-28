@@ -30,7 +30,7 @@ class SpotterHotkey: RCTEventEmitter {
     hotKey.register()
   }
 
-  override func supportedEvents() -> [String]! {
+  override func supportedEvents() -> [String]? {
     return [Events.press]
   }
   
