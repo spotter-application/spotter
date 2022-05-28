@@ -92,9 +92,7 @@ export class PluginsManagerPlugin extends SpotterPluginApi {
 
   private async installVersion(version: ExternalPluginVersion) {
     const { name, versionName, publishedAt, downloadUrl } = version;
-    // const appPath = FS.MainBundlePath;
-    const appPath = '/Applications/spotter.app';
-
+    const appPath = FS.MainBundlePath;
     await this.shell.execute(`cd ${appPath} && mkdir -p Plugins && cd Plugins && rm -rf ${name} && mkdir ${name} && cd ${name} && curl ${downloadUrl} -L -o plugin.zip && unzip -o plugin.zip && rm -rf plugin.zip`);
 
     const plugins = await this.spotter.plugins.get();
