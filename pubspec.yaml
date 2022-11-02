@@ -38,7 +38,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   bot_toast: ^4.0.3
   hotkey_manager: ^0.1.7
-  bitsdojo_window: ^0.1.5
   system_tray: ^2.0.2
   window_manager: ^0.2.7
 

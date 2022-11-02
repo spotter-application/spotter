@@ -1,37 +1,41 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await windowManager.ensureInitialized();
+
+  await hotKeyManager.unregisterAll();
+
+  WindowOptions windowOptions = const WindowOptions(
+    size: Size(800, 200),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    titleBarStyle: TitleBarStyle.hidden,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    print("READY TO SHOW!");
+    await windowManager.show();
+    await windowManager.focus();
+  });
   // await hotKeyManager.unregisterAll();
 
-  // Must add this line.
-  doWhenWindowReady(() {
-    const initialSize = Size(600, 200);
-    appWindow.minSize = initialSize;
-    appWindow.maxSize = initialSize;
-    appWindow.size = initialSize;
-    appWindow.alignment = Alignment.center;
-    appWindow.show();
-  });
 
-
-  HotKey _hotKey = HotKey(
-    KeyCode.space,
-    modifiers: [KeyModifier.alt],
+  HotKey openHotKey = HotKey(
+    KeyCode.keyS,
+    modifiers: [KeyModifier.control, KeyModifier.shift],
     // Set hotkey scope (default is HotKeyScope.system)
     // scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
   );
   await hotKeyManager.register(
-    _hotKey,
+    openHotKey,
     keyDownHandler: (hotKey) {
       print('onKeyDown+${hotKey.toJson()}');
     },
@@ -39,6 +43,22 @@ void main() async {
     keyUpHandler: (hotKey){
       print('onKeyUp+${hotKey.toJson()}');
     } ,
+  );
+
+  HotKey closeHotKey = HotKey(
+    KeyCode.escape,
+    modifiers: [KeyModifier.control],
+    scope: HotKeyScope.inapp,
+  );
+  // final AppWindow appWindow = AppWindow();
+  await hotKeyManager.register(
+    closeHotKey,
+    keyDownHandler: (hotKey) async {
+      print("CLOSE");
+      print('onKeyDown+${hotKey.toJson()}');
+      await windowManager.hide();
+      // await windowManager.show();
+    },
   );
 
   runApp(const MyApp());
@@ -54,7 +74,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.transparent,
+        // scaffoldBackgroundColor: Colors.transparent,
       ),
       home: const MyHomePage(
         title: 'Flutter Demo Home Page',
@@ -110,9 +130,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
     initSystemTray();
     searchTextController.addListener(_printLatestValue);
+
+    initServer();
   }
 
-    Future<void> initSystemTray() async {
+  Future<void> initServer() async {
+    var server = await HttpServer.bind(InternetAddress.anyIPv6, 3212);
+    await server.forEach((HttpRequest request) async {
+    
+      _appWindow.show();
+      // await windowManager.show();
+      // await windowManager.focus();
+
+      request.response.write('Hello, world!');
+      request.response.close();
+    });
+  }
+
+  Future<void> initSystemTray() async {
 
     await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
     _systemTray.setTitle("system tray");
@@ -133,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Show',
             image: getImagePath('darts_icon'),
             onClicked: (menuItem) async => {
-              _appWindow.show(),
+              await windowManager.show(),
               await windowManager.focus()
             },
         ),
@@ -178,29 +213,21 @@ class _MyHomePageState extends State<MyHomePage> {
       //   title: Text(widget.title),
       // ),
       body: Center(
-        child: RawKeyboardListener(
-          focusNode: focusNode,
-          onKey: (event) {
-            if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
-              _appWindow.hide();
-            }
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextField(
-                controller: searchTextController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  labelText: 'Query...',
-                )
-              ),
-              Row(children: [
-                for(var option in filteredOptions) Text(option.name)
-              ]),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextField(
+              controller: searchTextController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                labelText: 'Query...',
+              )
+            ),
+            Row(children: [
+              for(var option in filteredOptions) Text(option.name)
+            ]),
+          ],
         ),
       ),
     );
