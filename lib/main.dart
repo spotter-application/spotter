@@ -6,6 +6,7 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -204,15 +205,35 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     var focusNode = FocusNode();
+    KeyEventResult _handleKeyEvent(RawKeyEvent event) {
+        if (event.logicalKey == LogicalKeyboardKey.escape) {
+          print("Q");
+          // _message = 'Pressed the "Q" key!';
+          windowManager.hide();
+          return KeyEventResult.handled;
+        } else {
+          // if (kReleaseMode) {
+          //   _message =
+          //       'Not a Q: Pressed 0x${event.logicalKey.keyId.toRadixString(16)}';
+          // } else {
+          //   // As the name implies, the debugName will only print useful
+          //   // information in debug mode.
+          //   _message = 'Not a Q: Pressed ${event.logicalKey.debugName}';
+          // }
+        }
+        return KeyEventResult.ignored;
+    }
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.title),
       // ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RawKeyboardListener(
+            focusNode: focusNode,
+            onKey: _handleKeyEvent,
+            child: TextField(
               controller: searchTextController,
               autofocus: true,
               decoration: const InputDecoration(
@@ -221,16 +242,16 @@ class _MyHomePageState extends State<MyHomePage> {
                 border: InputBorder.none,
                 labelText: 'Query...',
               )
-            ),
-            Column(children: [
-              for(var option in filteredOptions) Container(
-                width: double.infinity,
-                color: Colors.grey,
-                child: Text(option.name),
-              )
-            ]),
-          ],
-        ),
+            )
+          ),
+          Column(children: [
+            for(var option in filteredOptions) Container(
+              width: double.infinity,
+              color: Colors.grey,
+              child: Text(option.name),
+            )
+          ]),
+        ],
       ),
     );
   }
