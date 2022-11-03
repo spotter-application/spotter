@@ -112,11 +112,15 @@ class _MyHomePageState extends State<MyHomePage> {
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
 
-  final searchTextController = new TextEditingController();
+  final searchTextController = TextEditingController();
+
+  int selectedOptionIndex = 0;
 
   List<Option> options = [
     Option(id: '1', name: 'Alacritty'),
     Option(id: '2', name: 'Brave browser'),
+    Option(id: '3', name: 'Slack'),
+    Option(id: '4', name: 'Signal'),
   ];
 
   List<Option> filteredOptions = [];
@@ -126,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
 
     initSystemTray();
-    searchTextController.addListener(_printLatestValue);
+    searchTextController.addListener(onQuery);
 
     initServer();
   }
@@ -189,50 +193,61 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void _printLatestValue() {
-    print('Second text field: ${searchTextController.text}');
+  void onQuery() {
     setState(() {
+      selectedOptionIndex = 0;
       filteredOptions = options.where((option) => option.name.toLowerCase().contains(searchTextController.text)).toList();
     });
   }
 
-  // @override
-  // void onWindowBlur() async {
-  //   print("heeey");
-  //   // await windowManager.hide();
-  // }
+  void selectNextOption() {
+    setState(() {
+      selectedOptionIndex = selectedOptionIndex >= filteredOptions.length - 1
+        ? 0
+        : selectedOptionIndex + 1;
+    });
+  }
+
+  void selectPreviousOption() {
+    setState(() {
+      selectedOptionIndex = selectedOptionIndex <= 0
+        ? filteredOptions.length - 1
+        : selectedOptionIndex - 1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     var focusNode = FocusNode();
-    KeyEventResult _handleKeyEvent(RawKeyEvent event) {
-        if (event.logicalKey == LogicalKeyboardKey.escape) {
-          print("Q");
-          // _message = 'Pressed the "Q" key!';
-          windowManager.hide();
-          return KeyEventResult.handled;
-        } else {
-          // if (kReleaseMode) {
-          //   _message =
-          //       'Not a Q: Pressed 0x${event.logicalKey.keyId.toRadixString(16)}';
-          // } else {
-          //   // As the name implies, the debugName will only print useful
-          //   // information in debug mode.
-          //   _message = 'Not a Q: Pressed ${event.logicalKey.debugName}';
-          // }
-        }
+    KeyEventResult handleKeyEvent(RawKeyEvent event) {
+      if (event is RawKeyUpEvent) {
         return KeyEventResult.ignored;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.escape) {
+        windowManager.hide();
+        return KeyEventResult.handled;
+      }
+
+      if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyN) {
+        selectNextOption();
+        return KeyEventResult.ignored;
+      }
+
+      if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyP) {
+        selectPreviousOption();
+        return KeyEventResult.ignored;
+      }
+
+      return KeyEventResult.ignored;
     }
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      // ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           RawKeyboardListener(
             focusNode: focusNode,
-            onKey: _handleKeyEvent,
+            onKey: handleKeyEvent,
             child: TextField(
               controller: searchTextController,
               autofocus: true,
@@ -245,10 +260,10 @@ class _MyHomePageState extends State<MyHomePage> {
             )
           ),
           Column(children: [
-            for(var option in filteredOptions) Container(
+            for(var i = 0; i < filteredOptions.length; i++) Container(
               width: double.infinity,
-              color: Colors.grey,
-              child: Text(option.name),
+              color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
+              child: Text(filteredOptions[i].name),
             )
           ]),
         ],
