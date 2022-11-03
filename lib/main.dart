@@ -275,13 +275,20 @@ class _MyHomePageState extends State<MyHomePage> {
         return KeyEventResult.handled;
       }
 
-      if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyN) {
+      bool next = (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyN)
+        || event.logicalKey == LogicalKeyboardKey.arrowDown;
+      
+      if (next) {
         selectNextOption();
         scrollToMakeOptionsVisible();
         return KeyEventResult.ignored;
       }
 
-      if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyP) {
+
+      bool previous = (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyP)
+        || event.logicalKey == LogicalKeyboardKey.arrowUp;
+
+      if (previous) {
         selectPreviousOption();
         scrollToMakeOptionsVisible();
         return KeyEventResult.ignored;
