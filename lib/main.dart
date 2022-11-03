@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:window_manager/window_manager.dart';
+import 'package:window_manager/window_manager.dart'; // TODO: remove
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,17 +14,12 @@ void main() async {
 
   await hotKeyManager.unregisterAll();
 
-  WindowOptions windowOptions = const WindowOptions(
-    size: Size(800, 200),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    titleBarStyle: TitleBarStyle.hidden,
-  );
-  windowManager.waitUntilReadyToShow(windowOptions, () async {
-    print("READY TO SHOW!");
-    await windowManager.show();
-    await windowManager.focus();
+  doWhenWindowReady(() {
+    const initialSize = Size(600, 450);
+    appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
+    appWindow.alignment = Alignment.center;
+    appWindow.show();
   });
   // await hotKeyManager.unregisterAll();
 
@@ -74,7 +70,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        // scaffoldBackgroundColor: Colors.transparent,
+        scaffoldBackgroundColor: Colors.transparent,
       ),
       home: const MyHomePage(
         title: 'Flutter Demo Home Page',
@@ -220,12 +216,18 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: searchTextController,
               autofocus: true,
               decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.grey,
                 border: InputBorder.none,
                 labelText: 'Query...',
               )
             ),
-            Row(children: [
-              for(var option in filteredOptions) Text(option.name)
+            Column(children: [
+              for(var option in filteredOptions) Container(
+                width: double.infinity,
+                color: Colors.grey,
+                child: Text(option.name),
+              )
             ]),
           ],
         ),
