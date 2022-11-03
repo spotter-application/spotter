@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void onQuery() {
     setState(() {
       selectedOptionIndex = 0;
-      filteredOptions = options.where((option) => option.name.toLowerCase().contains(searchTextController.text)).toList();
+      filteredOptions = options.where((option) => option.name.toLowerCase().contains(searchTextController.text.toLowerCase())).toList();
     });
   }
 
@@ -302,7 +302,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
                 bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
               ),
-              color: Colors.green,
             ),
             clipBehavior: Clip.hardEdge,
             child: RawKeyboardListener(
@@ -333,9 +332,16 @@ class _MyHomePageState extends State<MyHomePage> {
               controller: scrollController,
               child: Column(children: [
                 for(var i = 0; i < filteredOptions.length; i++) Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                      bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                    ),
+                    color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
+                  ),
+                  clipBehavior: Clip.hardEdge,
                   height: 30,
                   width: double.infinity,
-                  color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
                   child: Text(filteredOptions[i].name),
                 )
               ])
