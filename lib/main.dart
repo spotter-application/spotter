@@ -16,8 +16,9 @@ void main() async {
   await hotKeyManager.unregisterAll();
 
   doWhenWindowReady(() {
-    const initialSize = Size(600, 450);
+    const initialSize = Size(800, 350);
     appWindow.minSize = initialSize;
+    appWindow.maxSize = initialSize;
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
     appWindow.show();
@@ -293,22 +294,41 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          RawKeyboardListener(
-            focusNode: focusNode,
-            onKey: handleKeyEvent,
-            child: TextField(
-              controller: searchTextController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                filled: true,
-                fillColor: Colors.grey,
-                border: InputBorder.none,
-                labelText: 'Query...',
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(10),
+                topRight: const Radius.circular(10),
+                bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+              ),
+              color: Colors.green,
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: RawKeyboardListener(
+              focusNode: focusNode,
+              onKey: handleKeyEvent,
+              child: TextField(
+                controller: searchTextController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey,
+                  border: InputBorder.none,
+                  hintText: 'Query...',
+                )
               )
-            )
+            ),
           ),
-          SizedBox(
-            height: 300,
+          Container(
+            height: 30 * 10,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+            ),
+            clipBehavior: Clip.hardEdge,
             child: SingleChildScrollView(
               controller: scrollController,
               child: Column(children: [
@@ -321,13 +341,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ])
             )
           )
-          // ListView(children: [
-          //   for(var i = 0; i < filteredOptions.length; i++) Container(
-          //     width: double.infinity,
-          //     color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
-          //     child: Text(filteredOptions[i].name),
-          //   )
-          // ]),
         ],
       ),
     );
