@@ -113,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final Menu _menuMain = Menu();
 
   final searchTextController = TextEditingController();
+  final scrollController = ScrollController();
 
   int selectedOptionIndex = 0;
 
@@ -120,6 +121,31 @@ class _MyHomePageState extends State<MyHomePage> {
     Option(id: '1', name: 'Alacritty'),
     Option(id: '2', name: 'Brave browser'),
     Option(id: '3', name: 'Slack'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
+    Option(id: '4', name: 'Signal'),
     Option(id: '4', name: 'Signal'),
   ];
 
@@ -206,6 +232,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ? 0
         : selectedOptionIndex + 1;
     });
+    // scrollController.animateTo(
+    //   (30 * selectedOptionIndex).toDouble(),
+    //   duration: const Duration(milliseconds: 500),
+    //   curve: Curves.ease,
+    // );
   }
 
   void selectPreviousOption() {
@@ -214,6 +245,16 @@ class _MyHomePageState extends State<MyHomePage> {
         ? filteredOptions.length - 1
         : selectedOptionIndex - 1;
     });
+  }
+
+  void scrollToMakeOptionsVisible() {
+    double nextOffset = (30 * (selectedOptionIndex - 5)).toDouble();
+
+    scrollController.animateTo(
+      nextOffset,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.linear,
+    );
   }
 
   @override
@@ -226,22 +267,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (event.logicalKey == LogicalKeyboardKey.escape) {
         windowManager.hide();
+        searchTextController.clear();
+        setState(() {
+          filteredOptions = [];
+        });
         return KeyEventResult.handled;
       }
 
       if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyN) {
         selectNextOption();
+        scrollToMakeOptionsVisible();
         return KeyEventResult.ignored;
       }
 
       if (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyP) {
         selectPreviousOption();
+        scrollToMakeOptionsVisible();
         return KeyEventResult.ignored;
       }
 
       return KeyEventResult.ignored;
     }
     return Scaffold(
+      // resizeToAvoidBottomInset: false,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -259,13 +307,27 @@ class _MyHomePageState extends State<MyHomePage> {
               )
             )
           ),
-          Column(children: [
-            for(var i = 0; i < filteredOptions.length; i++) Container(
-              width: double.infinity,
-              color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
-              child: Text(filteredOptions[i].name),
+          SizedBox(
+            height: 300,
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Column(children: [
+                for(var i = 0; i < filteredOptions.length; i++) Container(
+                  height: 30,
+                  width: double.infinity,
+                  color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
+                  child: Text(filteredOptions[i].name),
+                )
+              ])
             )
-          ]),
+          )
+          // ListView(children: [
+          //   for(var i = 0; i < filteredOptions.length; i++) Container(
+          //     width: double.infinity,
+          //     color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
+          //     child: Text(filteredOptions[i].name),
+          //   )
+          // ]),
         ],
       ),
     );
