@@ -41,6 +41,7 @@ dependencies:
   system_tray: ^2.0.2
   window_manager: ^0.2.7
   bitsdojo_window: ^0.1.5
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:

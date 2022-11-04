@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert';
 
+import 'package:http/http.dart';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
@@ -91,13 +93,22 @@ class MyHomePage extends StatefulWidget {
 }
 
 class Option {
-  final String id;
   final String name;
+  final String actionId;
 
   Option({
-    required this.id,
     required this.name,
+    required this.actionId,
   });
+
+  Option.fromJson(Map<String, dynamic> json)
+    : name = json['name'],
+      actionId = json['actionId'];
+
+  Map<String, dynamic> toJson() => {
+    'name': name,
+    'actionId': actionId,
+  };
 }
 
 String getTrayImagePath(String imageName) {
@@ -119,35 +130,10 @@ class _MyHomePageState extends State<MyHomePage> {
   int selectedOptionIndex = 0;
 
   List<Option> options = [
-    Option(id: '1', name: 'Alacritty'),
-    Option(id: '2', name: 'Brave browser'),
-    Option(id: '3', name: 'Slack'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
-    Option(id: '4', name: 'Signal'),
+    Option(actionId: '1', name: 'Alacritty'),
+    Option(actionId: '2', name: 'Brave browser'),
+    Option(actionId: '3', name: 'Slack'),
+    Option(actionId: '4', name: 'Signal'),
   ];
 
   List<Option> filteredOptions = [];
@@ -163,14 +149,32 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initServer() async {
-    var server = await HttpServer.bind(InternetAddress.anyIPv6, 3212);
+    var server = await HttpServer.bind(InternetAddress.anyIPv6, 32123);
     await server.forEach((HttpRequest request) async {
+
+      print(request.uri);
+
+      switch (request.uri.toString()) {
+        case ('/open'):
+          _appWindow.show();
+          break;
+        case ('/register-options'):
+          var str = await utf8.decoder.bind(request).join();
+          var res = jsonDecode(str);
+
+          setState(() {
+            print(res['options']);
+            options = List<Option>.from(res['options'].map<Option>((dynamic i) => Option.fromJson(i)));
+          });
+          print(res);
+          break;
+        default:
+      }
     
-      _appWindow.show();
       // await windowManager.show();
       // await windowManager.focus();
 
-      request.response.write('Hello, world!');
+      // request.response.write('Hello, world!');
       request.response.close();
     });
   }
@@ -223,8 +227,31 @@ class _MyHomePageState extends State<MyHomePage> {
   void onQuery() {
     setState(() {
       selectedOptionIndex = 0;
+      if (searchTextController.text.isEmpty) {
+        filteredOptions = [];
+        return;
+      }
       filteredOptions = options.where((option) => option.name.toLowerCase().contains(searchTextController.text.toLowerCase())).toList();
     });
+  }
+
+  void onSubmit(String actionId) async {
+    final uri = Uri.parse('http://localhost:34567/action');
+    final headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {'actionId': actionId};
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+
+    Response response = await post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+
+    // int statusCode = response.statusCode;
+    String responseBody = response.body;
+    print(responseBody);
   }
 
   void selectNextOption() {
@@ -264,6 +291,11 @@ class _MyHomePageState extends State<MyHomePage> {
     KeyEventResult handleKeyEvent(RawKeyEvent event) {
       if (event is RawKeyUpEvent) {
         return KeyEventResult.ignored;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.enter) {
+        onSubmit(filteredOptions[selectedOptionIndex].actionId);
+        return KeyEventResult.handled;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.escape) {
@@ -316,6 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onKey: handleKeyEvent,
               child: TextField(
                 controller: searchTextController,
+                textInputAction: TextInputAction.none,
                 autofocus: true,
                 decoration: const InputDecoration(
                   filled: true,
