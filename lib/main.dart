@@ -1,30 +1,15 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:http/http.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart' hide MenuItem;
+import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:http/http.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
-import 'package:bitsdojo_window/bitsdojo_window.dart';
-import 'package:flutter/services.dart';
 
-
-extension HexColor on Color {
-  static Color fromHex(String hexString) {
-    final buffer = StringBuffer();
-    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-    buffer.write(hexString.replaceFirst('#', ''));
-    return Color(int.parse(buffer.toString(), radix: 16));
-  }
-
-  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
-      '${alpha.toRadixString(16).padLeft(2, '0')}'
-      '${red.toRadixString(16).padLeft(2, '0')}'
-      '${green.toRadixString(16).padLeft(2, '0')}'
-      '${blue.toRadixString(16).padLeft(2, '0')}';
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -80,6 +65,16 @@ void main() async {
   runApp(const MyApp());
 }
 
+String getImagePath(String imageName) {
+  return Platform.isWindows ? 'assets/$imageName.bmp' : 'assets/$imageName.png';
+}
+
+String getTrayImagePath(String imageName) {
+  return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
+}
+
+typedef Action = List<Option> Function();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -92,214 +87,74 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.transparent,
       ),
-      home: const MyHomePage(
+      home: const Spotter(
         title: 'Flutter Demo Home Page',
       ),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
+class Spotter extends StatefulWidget {
   final String title;
 
+  const Spotter({super.key, required this.title});
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<Spotter> createState() => _SpotterState();
 }
 
 class Option {
   final String name;
-  final String actionId;
+  final String? actionId;
+  final String? secondActionId;
+  final Action? action;
 
   Option({
     required this.name,
-    required this.actionId,
+    this.actionId,
+    this.secondActionId,
+    this.action,
   });
 
   Option.fromJson(Map<String, dynamic> json)
     : name = json['name'],
-      actionId = json['actionId'];
+      actionId = json['actionId'],
+      secondActionId = json['secondActionId'],
+      action = null;
 
   Map<String, dynamic> toJson() => {
     'name': name,
     'actionId': actionId,
+    'secondActionId': secondActionId,
+    'action': action,
   };
 }
 
-String getTrayImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
-}
-
-String getImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/$imageName.bmp' : 'assets/$imageName.png';
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _SpotterState extends State<Spotter> {
   final AppWindow _appWindow = AppWindow();
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
 
-  final searchTextController = TextEditingController();
+  final textFieldController = TextEditingController();
   final scrollController = ScrollController();
 
   int selectedOptionIndex = 0;
 
-  List<Option> options = [
-    Option(actionId: '1', name: 'Alacritty'),
-    Option(actionId: '2', name: 'Brave browser'),
-    Option(actionId: '3', name: 'Slack'),
-    Option(actionId: '4', name: 'Signal'),
-  ];
+  List<Option> options = [];
 
   List<Option> filteredOptions = [];
 
   Option? activatedOption;
 
   @override
-  void initState() {
-    super.initState();
-
-    initSystemTray();
-    searchTextController.addListener(onQuery);
-
-    initServer();
-  }
-
-  Future<void> initServer() async {
-    var server = await HttpServer.bind(InternetAddress.anyIPv6, 32123);
-    await server.forEach((HttpRequest request) async {
-
-      print(request.uri);
-
-      switch (request.uri.toString()) {
-        case ('/open'):
-          _appWindow.show();
-          break;
-        case ('/register-options'):
-          var str = await utf8.decoder.bind(request).join();
-          var res = jsonDecode(str);
-
-          setState(() {
-            print(res['options']);
-            options = List<Option>.from(res['options'].map<Option>((dynamic i) => Option.fromJson(i)));
-          });
-          print(res);
-          break;
-        default:
-      }
-    
-      // await windowManager.show();
-      // await windowManager.focus();
-
-      // request.response.write('Hello, world!');
-      request.response.close();
-    });
-  }
-
-  Future<void> initSystemTray() async {
-
-    await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
-    _systemTray.setTitle("system tray");
-    _systemTray.setToolTip("How to use system tray with Flutter");
-
-    _systemTray.registerSystemTrayEventHandler((eventName) {
-      debugPrint("eventName: $eventName");
-      if (eventName == kSystemTrayEventClick) {
-        Platform.isWindows ? _appWindow.show() : _systemTray.popUpContextMenu();
-      } else if (eventName == kSystemTrayEventRightClick) {
-        Platform.isWindows ? _systemTray.popUpContextMenu() : _appWindow.show();
-      }
-    });
-
-    await _menuMain.buildFrom(
-      [
-        MenuItemLabel(
-            label: 'Show',
-            image: getImagePath('darts_icon'),
-            onClicked: (menuItem) async => {
-              await windowManager.show(),
-              await windowManager.focus()
-            },
-        ),
-        MenuItemLabel(
-            label: 'Hide',
-            image: getImagePath('darts_icon'),
-            onClicked: (menuItem) => _appWindow.hide()),
-        MenuSeparator(),
-        MenuItemLabel(
-            label: 'Exit', onClicked: (menuItem) => _appWindow.close()
-        ),
-      ]
-    );
-
-    _systemTray.setContextMenu(_menuMain);
-  }
-
-  @override
-  void dispose() {
-    searchTextController.dispose();
-    super.dispose();
-  }
-
-  void onQuery() {
-    setState(() {
-      selectedOptionIndex = 0;
-      if (searchTextController.text.isEmpty) {
-        filteredOptions = [];
-        return;
-      }
-      filteredOptions = options.where((option) => option.name.toLowerCase().contains(searchTextController.text.toLowerCase())).toList();
-    });
-  }
-
-  void onSubmit(String actionId) async {
-    final uri = Uri.parse('http://localhost:34567/action');
-    final headers = {'Content-Type': 'application/json'};
-    Map<String, dynamic> body = {'actionId': actionId};
-    String jsonBody = json.encode(body);
-    final encoding = Encoding.getByName('utf-8');
-
-    Response response = await post(
-      uri,
-      headers: headers,
-      body: jsonBody,
-      encoding: encoding,
-    );
-
-    // int statusCode = response.statusCode;
-    String responseBody = response.body;
-    print(responseBody);
-  }
-
-  void selectNextOption() {
-    setState(() {
-      selectedOptionIndex = selectedOptionIndex >= filteredOptions.length - 1
-        ? 0
-        : selectedOptionIndex + 1;
-    });
-  }
-
-  void selectPreviousOption() {
-    setState(() {
-      selectedOptionIndex = selectedOptionIndex <= 0
-        ? filteredOptions.length - 1
-        : selectedOptionIndex - 1;
-    });
-  }
-
-  void scrollToMakeOptionsVisible() {
-    double nextOffset = (30 * (selectedOptionIndex - 5)).toDouble();
-
-    scrollController.animateTo(
-      nextOffset,
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.linear,
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+
+    options = [];
+    options.add(Option(
+      name: 'Plugins',
+      action: getPluginsMenu,
+    ));
+
     var focusNode = FocusNode();
     KeyEventResult handleKeyEvent(RawKeyEvent event) {
       if (event is RawKeyUpEvent) {
@@ -308,15 +163,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (
         event.logicalKey == LogicalKeyboardKey.backspace
-        && searchTextController.text.isEmpty
+        && textFieldController.text.isEmpty
       ) {
         setState(() {
           activatedOption = null;
+          filteredOptions = [];
         });
         return KeyEventResult.handled;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.tab) {
+        Option selectedOption = filteredOptions[selectedOptionIndex];
+
+        if (selectedOption.action != null) {
+          print("activate internal action");
+          List<Option> nextOptions = selectedOption.action!();
+          activatedOption = selectedOption;
+          textFieldController.clear();
+          setState(() {
+            filteredOptions = nextOptions;
+          });
+          return KeyEventResult.handled;
+        }
+
         setState(() {
           activatedOption = filteredOptions[selectedOptionIndex];
         });
@@ -330,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (event.logicalKey == LogicalKeyboardKey.escape) {
         windowManager.hide();
-        searchTextController.clear();
+        textFieldController.clear();
         setState(() {
           filteredOptions = [];
         });
@@ -402,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       // maxLines: 1,
                       // textAlignVertical: TextAlignVertical.center,
                       // textAlign: TextAlign.left,
-                      controller: searchTextController,
+                      controller: textFieldController,
                       textInputAction: TextInputAction.none,
                       autofocus: true,
                       style: TextStyle(
@@ -481,5 +350,169 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    textFieldController.dispose();
+    super.dispose();
+  }
+
+  List<Option> getPluginsMenu() {
+    print('get menu!');
+    return [
+      Option(secondActionId: 'plugins', name: 'Plugins child'),
+    ];
+  }
+
+  Future<void> initServer() async {
+    var server = await HttpServer.bind(InternetAddress.anyIPv6, 32123);
+    await server.forEach((HttpRequest request) async {
+
+      print(request.uri);
+
+      switch (request.uri.toString()) {
+        case ('/open'):
+          _appWindow.show();
+          break;
+        case ('/register-options'):
+          var str = await utf8.decoder.bind(request).join();
+          var res = jsonDecode(str);
+
+          setState(() {
+            print(res['options']);
+            options = List<Option>.from(res['options'].map<Option>((dynamic i) => Option.fromJson(i)));
+          });
+          print(res);
+          break;
+        default:
+      }
+    
+      // await windowManager.show();
+      // await windowManager.focus();
+
+      // request.response.write('Hello, world!');
+      request.response.close();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    initSystemTray();
+    textFieldController.addListener(onQuery);
+
+    initServer();
+  }
+
+  Future<void> initSystemTray() async {
+
+    await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
+    _systemTray.setTitle("system tray");
+    _systemTray.setToolTip("How to use system tray with Flutter");
+
+    _systemTray.registerSystemTrayEventHandler((eventName) {
+      debugPrint("eventName: $eventName");
+      if (eventName == kSystemTrayEventClick) {
+        Platform.isWindows ? _appWindow.show() : _systemTray.popUpContextMenu();
+      } else if (eventName == kSystemTrayEventRightClick) {
+        Platform.isWindows ? _systemTray.popUpContextMenu() : _appWindow.show();
+      }
+    });
+
+    await _menuMain.buildFrom(
+      [
+        MenuItemLabel(
+            label: 'Show',
+            image: getImagePath('darts_icon'),
+            onClicked: (menuItem) async => {
+              await windowManager.show(),
+              await windowManager.focus()
+            },
+        ),
+        MenuItemLabel(
+            label: 'Hide',
+            image: getImagePath('darts_icon'),
+            onClicked: (menuItem) => _appWindow.hide()),
+        MenuSeparator(),
+        MenuItemLabel(
+            label: 'Exit', onClicked: (menuItem) => _appWindow.close()
+        ),
+      ]
+    );
+
+    _systemTray.setContextMenu(_menuMain);
+  }
+
+  void onQuery() {
+    setState(() {
+      selectedOptionIndex = 0;
+      if (textFieldController.text.isEmpty) {
+        filteredOptions = [];
+        return;
+      }
+      filteredOptions = options.where((option) => option.name.toLowerCase().contains(textFieldController.text.toLowerCase())).toList();
+    });
+  }
+
+  void onSubmit(String? actionId) async {
+    final uri = Uri.parse('http://localhost:34567/action');
+    final headers = {'Content-Type': 'application/json'};
+    Map<String, dynamic> body = {'actionId': actionId};
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+
+    Response response = await post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+
+    // int statusCode = response.statusCode;
+    String responseBody = response.body;
+    print(responseBody);
+  }
+
+  void scrollToMakeOptionsVisible() {
+    double nextOffset = (30 * (selectedOptionIndex - 5)).toDouble();
+
+    scrollController.animateTo(
+      nextOffset,
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.linear,
+    );
+  }
+
+  void selectNextOption() {
+    setState(() {
+      selectedOptionIndex = selectedOptionIndex >= filteredOptions.length - 1
+        ? 0
+        : selectedOptionIndex + 1;
+    });
+  }
+
+  void selectPreviousOption() {
+    setState(() {
+      selectedOptionIndex = selectedOptionIndex <= 0
+        ? filteredOptions.length - 1
+        : selectedOptionIndex - 1;
+    });
+  }
+}
+
+extension HexColor on Color {
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
+
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
   }
 }
