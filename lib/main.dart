@@ -440,17 +440,40 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(children: [
                 for(var i = 0; i < filteredOptions.length; i++) Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
-                      bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                    // borderRadius: BorderRadius.only(
+                    //   bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                    //   bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                    // ),
+                    border: Border(
+                      left: BorderSide(width: 1, color: HexColor.fromHex('#444c56')),
+                      right: BorderSide(width: 1, color: HexColor.fromHex('#444c56')),
+                      bottom: BorderSide(width: 1, color: i == filteredOptions.length - 1 ? HexColor.fromHex('#444c56') : Colors.transparent),
                     ),
-                    color: selectedOptionIndex == i ? Colors.blue : HexColor.fromHex('1c2128'),
-
+                    color: HexColor.fromHex('1c2128'),
                   ),
                   clipBehavior: Clip.hardEdge,
-                  height: 30,
+                  // height: 50,
                   width: double.infinity,
-                  child: Text(filteredOptions[i].name),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    margin: EdgeInsets.only(top: i == 0 ? 2.0 : 0.0, left: 15.0, right: 15.0),
+                    decoration: BoxDecoration(
+                      color: selectedOptionIndex == i ? HexColor.fromHex('#539bf5') : HexColor.fromHex('1c2128'),
+                      borderRadius: BorderRadius.circular(10),
+                      // borderRadius: BorderRadius.only(
+                      //   bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                      //   bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
+                      // ),
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: Text(
+                      filteredOptions[i].name,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+                      ),
+                    ),
+                  ),
                 )
               ])
             )
