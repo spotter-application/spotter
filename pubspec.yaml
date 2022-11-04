@@ -42,6 +42,7 @@ dependencies:
   window_manager: ^0.2.7
   bitsdojo_window: ^0.1.5
   http: ^0.13.5
+  process_run: ^0.12.3+2
 
 dev_dependencies:
   flutter_test:

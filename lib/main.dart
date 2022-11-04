@@ -10,6 +10,22 @@ import 'package:window_manager/window_manager.dart'; // TODO: remove
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/services.dart';
 
+
+extension HexColor on Color {
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -138,6 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<Option> filteredOptions = [];
 
+  Option? activatedOption;
+
   @override
   void initState() {
     super.initState();
@@ -260,11 +278,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ? 0
         : selectedOptionIndex + 1;
     });
-    // scrollController.animateTo(
-    //   (30 * selectedOptionIndex).toDouble(),
-    //   duration: const Duration(milliseconds: 500),
-    //   curve: Curves.ease,
-    // );
   }
 
   void selectPreviousOption() {
@@ -291,6 +304,23 @@ class _MyHomePageState extends State<MyHomePage> {
     KeyEventResult handleKeyEvent(RawKeyEvent event) {
       if (event is RawKeyUpEvent) {
         return KeyEventResult.ignored;
+      }
+
+      if (
+        event.logicalKey == LogicalKeyboardKey.backspace
+        && searchTextController.text.isEmpty
+      ) {
+        setState(() {
+          activatedOption = null;
+        });
+        return KeyEventResult.handled;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.tab) {
+        setState(() {
+          activatedOption = filteredOptions[selectedOptionIndex];
+        });
+        return KeyEventResult.handled;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.enter) {
@@ -334,7 +364,11 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Container(
+            height: 50,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
+              color: HexColor.fromHex('1c2128'),
+              border: Border.all(color: HexColor.fromHex('#444c56'), width: 1), 
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(10),
                 topRight: const Radius.circular(10),
@@ -346,17 +380,50 @@ class _MyHomePageState extends State<MyHomePage> {
             child: RawKeyboardListener(
               focusNode: focusNode,
               onKey: handleKeyEvent,
-              child: TextField(
-                controller: searchTextController,
-                textInputAction: TextInputAction.none,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey,
-                  border: InputBorder.none,
-                  hintText: 'Query...',
-                )
-              )
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: activatedOption == null ? 0 : 120,
+                    height: 50,
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                      ),
+                      child: Container(
+                        alignment: Alignment.center,
+                        child: Text(
+                          activatedOption?.name ?? '',
+                        ),
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: TextField(
+                      // maxLines: 1,
+                      // textAlignVertical: TextAlignVertical.center,
+                      // textAlign: TextAlign.left,
+                      controller: searchTextController,
+                      textInputAction: TextInputAction.none,
+                      autofocus: true,
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: HexColor.fromHex('#adbac7'),
+                      ),
+                      decoration: InputDecoration(
+                        // filled: true,
+                        // fillColor: Colors.grey,
+                        border: InputBorder.none,
+                        hintText: 'Query...',
+                        hintStyle: TextStyle(
+                          color: HexColor.fromHex('#768390'),
+                        ),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.only(left: 15),
+                      )
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Container(
@@ -377,7 +444,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
                       bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
                     ),
-                    color: selectedOptionIndex == i ? Colors.blue : Colors.grey,
+                    color: selectedOptionIndex == i ? Colors.blue : HexColor.fromHex('1c2128'),
+
                   ),
                   clipBehavior: Clip.hardEdge,
                   height: 30,
