@@ -31,16 +31,25 @@ class PluginsServer {
     });
   }
 
+  execAction(String actionId) {
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    plugins.forEach((plugin) => {
+      plugin.add('{"id": "$requestId", "type": "execAction", "data": "$actionId"}')
+    });
+  }
+
   handleConnection(WebSocket socket) {
     plugins.add(socket);
     socket.listen((event) {
-      var data = jsonDecode(event)!['data'];
-      if (data.isEmpty) {
-        return;
+      var response = jsonDecode(event);
+
+      if (response['type'] == 'renderOptions') {
+        var options = List<Option>.from(
+          response['data'].map<Option>((dynamic i) => Option.fromJson(i))
+        );
+        onNextOptions(options);
       }
 
-      var options = List<Option>.from(data.map<Option>((dynamic i) => Option.fromJson(i)));
-      onNextOptions(options);
       // socket.add('Echo: $event');
       // print(event.toString());
     });
@@ -183,7 +192,7 @@ class _SpotterState extends State<Spotter> {
 
   Option? activatedOption;
 
-  PluginsServer? socketsServer;
+  PluginsServer? pluginsServer;
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +242,7 @@ class _SpotterState extends State<Spotter> {
       }
 
       if (event.logicalKey == LogicalKeyboardKey.enter) {
-        onSubmit(filteredOptions[selectedOptionIndex].actionId);
+        onSubmit(filteredOptions[selectedOptionIndex].actionId as String);
         return KeyEventResult.handled;
       }
 
@@ -405,33 +414,18 @@ class _SpotterState extends State<Spotter> {
     ];
   }
 
+  // TODO: remove after global hotkey fix
   Future<void> initServer() async {
     var server = await HttpServer.bind(InternetAddress.anyIPv6, 32123);
     await server.forEach((HttpRequest request) async {
-
-      print(request.uri);
 
       switch (request.uri.toString()) {
         case ('/open'):
           _appWindow.show();
           break;
-        case ('/register-options'):
-          var str = await utf8.decoder.bind(request).join();
-          var res = jsonDecode(str);
-
-          setState(() {
-            print(res['options']);
-            options = List<Option>.from(res['options'].map<Option>((dynamic i) => Option.fromJson(i)));
-          });
-          print(res);
-          break;
         default:
       }
     
-      // await windowManager.show();
-      // await windowManager.focus();
-
-      // request.response.write('Hello, world!');
       request.response.close();
     });
   }
@@ -445,8 +439,8 @@ class _SpotterState extends State<Spotter> {
 
     initServer();
 
-    socketsServer = PluginsServer(onNextOptions);
-    socketsServer?.start();
+    pluginsServer = PluginsServer(onNextOptions);
+    pluginsServer?.start();
   }
 
   void onNextOptions(List<Option> options) {
@@ -495,7 +489,7 @@ class _SpotterState extends State<Spotter> {
   }
 
   void onQuery() {
-    socketsServer?.onQuery(textFieldController.text);
+    pluginsServer?.onQuery(textFieldController.text);
     setState(() {
       selectedOptionIndex = 0;
       if (textFieldController.text.isEmpty) {
@@ -506,12 +500,21 @@ class _SpotterState extends State<Spotter> {
     });
   }
 
-  void onSubmit(String? actionId) async {
-    final uri = Uri.parse('http://localhost:34567/action');
-    final headers = {'Content-Type': 'application/json'};
-    Map<String, dynamic> body = {'actionId': actionId};
-    String jsonBody = json.encode(body);
-    final encoding = Encoding.getByName('utf-8');
+  void onSubmit(String actionId) async {
+    pluginsServer?.execAction(actionId);
+
+    // TODO: check response from action
+    windowManager.hide();
+    textFieldController.clear();
+    setState(() {
+      filteredOptions = [];
+    });
+
+    // final uri = Uri.parse('http://localhost:34567/action');
+    // final headers = {'Content-Type': 'application/json'};
+    // Map<String, dynamic> body = {'actionId': actionId};
+    // String jsonBody = json.encode(body);
+    // final encoding = Encoding.getByName('utf-8');
 
     // Response response = await post(
     //   uri,
