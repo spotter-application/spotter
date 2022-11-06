@@ -6,9 +6,24 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:http/http.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
+
+class SocketsServer {
+  start() async {
+    HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
+    server.transform(WebSocketTransformer()).listen(handleConnection);
+  }
+
+  handleConnection(WebSocket socket) {
+    socket
+      .listen((event) {
+        print(event);
+        socket.add('Echo: $event');
+        print(event.toString());
+      });
+  }
+}
 
 
 void main() async {
@@ -146,8 +161,11 @@ class _SpotterState extends State<Spotter> {
 
   Option? activatedOption;
 
+  SocketsServer? socketsServer;
+
   @override
   Widget build(BuildContext context) {
+
 
     options = [];
     options.add(Option(
@@ -404,6 +422,9 @@ class _SpotterState extends State<Spotter> {
     textFieldController.addListener(onQuery);
 
     initServer();
+
+    socketsServer = SocketsServer();
+    socketsServer?.start();
   }
 
   Future<void> initSystemTray() async {
@@ -463,16 +484,16 @@ class _SpotterState extends State<Spotter> {
     String jsonBody = json.encode(body);
     final encoding = Encoding.getByName('utf-8');
 
-    Response response = await post(
-      uri,
-      headers: headers,
-      body: jsonBody,
-      encoding: encoding,
-    );
+    // Response response = await post(
+    //   uri,
+    //   headers: headers,
+    //   body: jsonBody,
+    //   encoding: encoding,
+    // );
 
     // int statusCode = response.statusCode;
-    String responseBody = response.body;
-    print(responseBody);
+    // String responseBody = response.body;
+    // print(responseBody);
   }
 
   void scrollToMakeOptionsVisible() {
