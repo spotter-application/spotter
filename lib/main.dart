@@ -9,19 +9,41 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
 
-class SocketsServer {
+typedef OnNextOptions = void Function(List<Option> options);
+
+class PluginsServer {
+
+  OnNextOptions onNextOptions;
+
+  PluginsServer(this.onNextOptions);
+
+  List<WebSocket> plugins = [];
+
   start() async {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
     server.transform(WebSocketTransformer()).listen(handleConnection);
   }
 
+  onQuery(String query) {
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    plugins.forEach((plugin) => {
+      plugin.add('{"id": "$requestId", "type": "onQuery", "data": "$query"}')
+    });
+  }
+
   handleConnection(WebSocket socket) {
-    socket
-      .listen((event) {
-        print(event);
-        socket.add('Echo: $event');
-        print(event.toString());
-      });
+    plugins.add(socket);
+    socket.listen((event) {
+      var data = jsonDecode(event)!['data'];
+      if (data.isEmpty) {
+        return;
+      }
+
+      var options = List<Option>.from(data.map<Option>((dynamic i) => Option.fromJson(i)));
+      onNextOptions(options);
+      // socket.add('Echo: $event');
+      // print(event.toString());
+    });
   }
 }
 
@@ -161,7 +183,7 @@ class _SpotterState extends State<Spotter> {
 
   Option? activatedOption;
 
-  SocketsServer? socketsServer;
+  PluginsServer? socketsServer;
 
   @override
   Widget build(BuildContext context) {
@@ -423,8 +445,14 @@ class _SpotterState extends State<Spotter> {
 
     initServer();
 
-    socketsServer = SocketsServer();
+    socketsServer = PluginsServer(onNextOptions);
     socketsServer?.start();
+  }
+
+  void onNextOptions(List<Option> options) {
+    setState(() {
+      filteredOptions = options;
+    });
   }
 
   Future<void> initSystemTray() async {
@@ -467,6 +495,7 @@ class _SpotterState extends State<Spotter> {
   }
 
   void onQuery() {
+    socketsServer?.onQuery(textFieldController.text);
     setState(() {
       selectedOptionIndex = 0;
       if (textFieldController.text.isEmpty) {
