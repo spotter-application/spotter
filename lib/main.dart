@@ -10,6 +10,8 @@ import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
 import 'package:process_run/shell.dart';
 
+import 'api_service.dart';
+
 typedef OnNextOptions = void Function(List<Option> options);
 
 class PluginsServer {
@@ -73,7 +75,7 @@ void main() async {
   await hotKeyManager.unregisterAll();
 
   doWhenWindowReady(() {
-    const initialSize = Size(800, 350);
+    const initialSize = Size(800, 450);
     appWindow.minSize = initialSize;
     appWindow.maxSize = initialSize;
     appWindow.size = initialSize;
@@ -127,7 +129,7 @@ String getTrayImagePath(String imageName) {
   return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
 }
 
-typedef Action = List<Option> Function();
+typedef Action = bool Function(String query);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -136,29 +138,26 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Spotter',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.transparent,
       ),
-      home: const Spotter(
-        title: 'Flutter Demo Home Page',
-      ),
+      home: const Spotter(),
     );
   }
 }
 
 class Spotter extends StatefulWidget {
-  final String title;
-
-  const Spotter({super.key, required this.title});
+  const Spotter({super.key});
 
   @override
   State<Spotter> createState() => _SpotterState();
 }
 
 typedef OnOptionQuery = List<Option> Function(String query);
-typedef OptionAction = bool Function();
+typedef OptionAction = Future<bool> Function();
 
 class Option {
   final String name;
@@ -195,6 +194,8 @@ class _SpotterState extends State<Spotter> {
   final AppWindow _appWindow = AppWindow();
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
+  final Shell shell = Shell();
+  final ApiService apiService = ApiService();
 
   final textFieldController = TextEditingController();
   final scrollController = ScrollController();
@@ -208,6 +209,8 @@ class _SpotterState extends State<Spotter> {
   Option? activatedOption;
 
   PluginsServer? pluginsServer;
+
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +226,27 @@ class _SpotterState extends State<Spotter> {
     KeyEventResult handleKeyEvent(RawKeyEvent event) {
       if (event is RawKeyUpEvent) {
         return KeyEventResult.ignored;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.escape) {
+        if (loading) {
+          //Save state
+          windowManager.hide();
+          return KeyEventResult.handled;
+        }
+
+        windowManager.hide();
+        textFieldController.clear();
+        setState(() {
+          filteredOptions = [];
+          // activatedOption = null;
+          selectedOptionIndex = 0;
+        });
+        return KeyEventResult.handled;
+      }
+
+      if (loading) {
+        return KeyEventResult.handled;
       }
 
       if (
@@ -276,15 +300,6 @@ class _SpotterState extends State<Spotter> {
         return KeyEventResult.handled;
       }
 
-      if (event.logicalKey == LogicalKeyboardKey.escape) {
-        windowManager.hide();
-        textFieldController.clear();
-        setState(() {
-          filteredOptions = [];
-        });
-        return KeyEventResult.handled;
-      }
-
       bool next = (event.isControlPressed && event.logicalKey == LogicalKeyboardKey.keyN)
         || event.logicalKey == LogicalKeyboardKey.arrowDown;
       
@@ -307,7 +322,6 @@ class _SpotterState extends State<Spotter> {
       return KeyEventResult.ignored;
     }
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -316,7 +330,7 @@ class _SpotterState extends State<Spotter> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: HexColor.fromHex('1c2128'),
-              border: Border.all(color: HexColor.fromHex('#444c56'), width: 1), 
+              border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
               borderRadius: BorderRadius.only(
                 topLeft: const Radius.circular(10),
                 topRight: const Radius.circular(10),
@@ -330,44 +344,62 @@ class _SpotterState extends State<Spotter> {
               onKey: handleKeyEvent,
               child: Row(
                 children: [
-                  SizedBox(
-                    width: activatedOption == null ? 0 : 120,
-                    height: 50,
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                      ),
+                  Padding(
+                    padding: EdgeInsets.only(left: activatedOption == null ? 0 : 8),
+                    child: SizedBox(
+                      width: activatedOption == null ? 0 : 120,
                       child: Container(
-                        alignment: Alignment.center,
-                        child: Text(
-                          activatedOption?.name ?? '',
+                        decoration: BoxDecoration(
+                          color: HexColor.fromHex('#539bf5'),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            activatedOption?.name ?? '',
+                            style: TextStyle(
+                              fontSize: 15.0,
+                              color: HexColor.fromHex('#cdd9e5'),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
                   Flexible(
                     child: TextField(
-                      // maxLines: 1,
-                      // textAlignVertical: TextAlignVertical.center,
-                      // textAlign: TextAlign.left,
                       controller: textFieldController,
                       textInputAction: TextInputAction.none,
                       autofocus: true,
+                      readOnly: loading,
                       style: TextStyle(
                         fontSize: 18.0,
                         color: HexColor.fromHex('#adbac7'),
                       ),
                       decoration: InputDecoration(
-                        // filled: true,
-                        // fillColor: Colors.grey,
                         border: InputBorder.none,
                         hintText: 'Query...',
                         hintStyle: TextStyle(
                           color: HexColor.fromHex('#768390'),
                         ),
                         isDense: true,
-                        contentPadding: const EdgeInsets.only(left: 15),
+                        contentPadding: const EdgeInsets.only(left: 8),
                       )
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50,
+                    child: Container(
+                      padding: const EdgeInsets.only(right: 12),
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        height: 16.0,
+                        width: 16.0,
+                        child: loading ? CircularProgressIndicator(
+                          strokeWidth: 1,
+                          color: HexColor.fromHex('#adbac7'),
+                        ) : null,
+                      ),
                     ),
                   ),
                 ],
@@ -376,56 +408,48 @@ class _SpotterState extends State<Spotter> {
           ),
           Container(
             height: 30 * 10,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
+              border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(10),
-                bottomRight: Radius.circular(10),
+                bottomLeft: const Radius.circular(10),
+                bottomRight: const Radius.circular(10),
+                topLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                topRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
               ),
+              color: HexColor.fromHex('1c2128'),
             ),
             clipBehavior: Clip.hardEdge,
             child: SingleChildScrollView(
               controller: scrollController,
-              child: Column(children: [
-                for(var i = 0; i < filteredOptions.length; i++) Container(
-                  decoration: BoxDecoration(
-                    // borderRadius: BorderRadius.only(
-                    //   bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
-                    //   bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
-                    // ),
-                    border: Border(
-                      left: BorderSide(width: 1, color: HexColor.fromHex('#444c56')),
-                      right: BorderSide(width: 1, color: HexColor.fromHex('#444c56')),
-                      bottom: BorderSide(width: 1, color: i == filteredOptions.length - 1 ? HexColor.fromHex('#444c56') : Colors.transparent),
-                    ),
-                    color: HexColor.fromHex('1c2128'),
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                  // height: 50,
-                  width: double.infinity,
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: EdgeInsets.only(top: i == 0 ? 2.0 : 0.0, left: 15.0, right: 15.0),
-                    decoration: BoxDecoration(
-                      color: selectedOptionIndex == i ? HexColor.fromHex('#539bf5') : HexColor.fromHex('1c2128'),
-                      borderRadius: BorderRadius.circular(10),
-                      // borderRadius: BorderRadius.only(
-                      //   bottomLeft: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
-                      //   bottomRight: Radius.circular(i == filteredOptions.length - 1 ? 10 : 0),
-                      // ),
-                    ),
-                    clipBehavior: Clip.hardEdge,
-                    child: Text(
-                      filteredOptions[i].name,
-                      style: TextStyle(
-                        fontSize: 15.0,
-                        color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+              child: Column(
+                children: [
+                  for(var i = 0; i < filteredOptions.length; i++) SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: selectedOptionIndex == i ? HexColor.fromHex('#539bf5') : Colors.transparent,
+                      ),
+                      padding: const EdgeInsets.all(10),
+                      margin: EdgeInsets.only(
+                        top: i == 0 ? 8 : 0,
+                        bottom: i == filteredOptions.length - 1 ? 8 : 0,
+                        left: 8,
+                        right: 8,
+                      ),
+                      child: Text(
+                        filteredOptions[i].name,
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+                        ),
                       ),
                     ),
                   ),
-                )
-              ])
-            )
-          )
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -438,14 +462,36 @@ class _SpotterState extends State<Spotter> {
   }
 
   List<Option> getPluginsMenu(String query) {
-    print(query);
-    return [
-      Option(name: 'Plugins child', onQuery: getPluginsMenu, action: installPlugin),
+    List<String> plugins = [
+      'spotter-application/applications-plugin'
     ];
+
+    // 'https://api.github.com/repos/spotter-application/applications-plugin/releases/latest'
+    // print(query);
+    return plugins.map<Option>((plugin) => Option(name: plugin, action: () => installPlugin(plugin))).toList();
+    
+    // return [
+    //   Option(name: 'Plugins child', onQuery: getPluginsMenu, action: () => installPlugin("name")),
+    // ];
   }
 
-  bool installPlugin() {
+  Future<bool> installPlugin(String plugin) async {
     print('install plguin');
+
+    List<ReleaseAsset>? assets = await apiService.getLatestReleaseAssets(plugin);
+
+    if (assets == null) {
+      return false;
+    }
+
+    await shell.run('mkdir -p plugins/$plugin');
+    await Future.wait(assets.map((asset) async {
+      String name = asset.name;
+      String url = asset.url;
+      await shell.run('wget -O plugins/$plugin/$name "$url"');
+      await shell.run('chmod 777 plugins/$plugin/$name');
+    }));
+
     return true;
   }
 
@@ -549,41 +595,36 @@ class _SpotterState extends State<Spotter> {
   }
 
   void onSubmit(Option option) async {
+    setState(() {
+      loading = true;
+    });
+
     if (option.actionId != null) {
       pluginsServer?.execAction(option.actionId as String);
     }
 
     if (option.action != null) {
-      option.action!();
+      bool result = await option.action!();
+
+      setState(() {
+        loading = false;
+      });
+
+      if (!result) {
+        return;
+      }
     }
 
-    // TODO: check response from action
     windowManager.hide();
     textFieldController.clear();
     setState(() {
+      loading = false;
       filteredOptions = [];
     });
-
-    // final uri = Uri.parse('http://localhost:34567/action');
-    // final headers = {'Content-Type': 'application/json'};
-    // Map<String, dynamic> body = {'actionId': actionId};
-    // String jsonBody = json.encode(body);
-    // final encoding = Encoding.getByName('utf-8');
-
-    // Response response = await post(
-    //   uri,
-    //   headers: headers,
-    //   body: jsonBody,
-    //   encoding: encoding,
-    // );
-
-    // int statusCode = response.statusCode;
-    // String responseBody = response.body;
-    // print(responseBody);
   }
 
   void scrollToMakeOptionsVisible() {
-    double nextOffset = (30 * (selectedOptionIndex - 5)).toDouble();
+    double nextOffset = (40 * (selectedOptionIndex - 5)).toDouble();
 
     scrollController.animateTo(
       nextOffset,
