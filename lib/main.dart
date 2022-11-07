@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
+import 'package:process_run/shell.dart';
 
 typedef OnNextOptions = void Function(List<Option> options);
 
@@ -28,6 +29,13 @@ class PluginsServer {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
     plugins.forEach((plugin) => {
       plugin.add('{"id": "$requestId", "type": "onQuery", "data": "$query"}')
+    });
+  }
+
+  onOptionQuery(String onQueryId, String query) {
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    plugins.forEach((plugin) => {
+      plugin.add('{"id": "$requestId", "type": "onOptionQuery", "data": "$onQueryId##$query"}')
     });
   }
 
@@ -149,29 +157,36 @@ class Spotter extends StatefulWidget {
   State<Spotter> createState() => _SpotterState();
 }
 
+typedef OnOptionQuery = List<Option> Function(String query);
+typedef OptionAction = bool Function();
+
 class Option {
   final String name;
   final String? actionId;
-  final String? secondActionId;
-  final Action? action;
+  final String? onQueryId;
+  final OnOptionQuery? onQuery;
+  final OptionAction? action;
 
   Option({
     required this.name,
     this.actionId,
-    this.secondActionId,
+    this.onQueryId,
+    this.onQuery,
     this.action,
   });
 
   Option.fromJson(Map<String, dynamic> json)
     : name = json['name'],
       actionId = json['actionId'],
-      secondActionId = json['secondActionId'],
+      onQueryId = json['onQueryId'],
+      onQuery = null,
       action = null;
 
   Map<String, dynamic> toJson() => {
     'name': name,
     'actionId': actionId,
-    'secondActionId': secondActionId,
+    'onQueryId': onQueryId,
+    'onQuery': onQuery,
     'action': action,
   };
 }
@@ -201,7 +216,7 @@ class _SpotterState extends State<Spotter> {
     options = [];
     options.add(Option(
       name: 'Plugins',
-      action: getPluginsMenu,
+      onQuery: getPluginsMenu,
     ));
 
     var focusNode = FocusNode();
@@ -222,27 +237,42 @@ class _SpotterState extends State<Spotter> {
       }
 
       if (event.logicalKey == LogicalKeyboardKey.tab) {
-        Option selectedOption = filteredOptions[selectedOptionIndex];
+        Option? selectedOption = filteredOptions[selectedOptionIndex];
 
-        if (selectedOption.action != null) {
-          print("activate internal action");
-          List<Option> nextOptions = selectedOption.action!();
-          activatedOption = selectedOption;
-          textFieldController.clear();
-          setState(() {
-            filteredOptions = nextOptions;
-          });
+        if (filteredOptions.length - 1 < selectedOptionIndex) {
+          return KeyEventResult.ignored;
+        }
+
+        // if (selectedOption == null) {
+        //   return KeyEventResult.ignored;
+        // }
+
+        if (selectedOption.onQueryId == null && selectedOption.onQuery == null) {
+          windowManager.focus();
           return KeyEventResult.handled;
         }
+        // if (selectedOption.action != null) {
+        //   print("activate internal action");
+        //   List<Option> nextOptions = selectedOption.action!();
+        //   activatedOption = selectedOption;
+        //   textFieldController.clear();
+        //   setState(() {
+        //     filteredOptions = nextOptions;
+        //   });
+        //   return KeyEventResult.handled;
+        // }
 
         setState(() {
           activatedOption = filteredOptions[selectedOptionIndex];
+          selectedOptionIndex = 0;
+          filteredOptions = [];
         });
+        textFieldController.clear();
         return KeyEventResult.handled;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.enter) {
-        onSubmit(filteredOptions[selectedOptionIndex].actionId as String);
+        onSubmit(filteredOptions[selectedOptionIndex]);
         return KeyEventResult.handled;
       }
 
@@ -407,11 +437,16 @@ class _SpotterState extends State<Spotter> {
     super.dispose();
   }
 
-  List<Option> getPluginsMenu() {
-    print('get menu!');
+  List<Option> getPluginsMenu(String query) {
+    print(query);
     return [
-      Option(secondActionId: 'plugins', name: 'Plugins child'),
+      Option(name: 'Plugins child', onQuery: getPluginsMenu, action: installPlugin),
     ];
+  }
+
+  bool installPlugin() {
+    print('install plguin');
+    return true;
   }
 
   // TODO: remove after global hotkey fix
@@ -489,6 +524,19 @@ class _SpotterState extends State<Spotter> {
   }
 
   void onQuery() {
+    if (activatedOption != null && activatedOption!.onQueryId != null) {
+      pluginsServer?.onOptionQuery(activatedOption!.onQueryId as String, textFieldController.text);
+      return;
+    }
+
+    if (activatedOption != null && activatedOption!.onQuery != null) {
+      var nextOptions = activatedOption!.onQuery!(textFieldController.text);
+      setState(() {
+        filteredOptions = nextOptions;
+      });
+      return;
+    }
+
     pluginsServer?.onQuery(textFieldController.text);
     setState(() {
       selectedOptionIndex = 0;
@@ -500,8 +548,14 @@ class _SpotterState extends State<Spotter> {
     });
   }
 
-  void onSubmit(String actionId) async {
-    pluginsServer?.execAction(actionId);
+  void onSubmit(Option option) async {
+    if (option.actionId != null) {
+      pluginsServer?.execAction(option.actionId as String);
+    }
+
+    if (option.action != null) {
+      option.action!();
+    }
 
     // TODO: check response from action
     windowManager.hide();
