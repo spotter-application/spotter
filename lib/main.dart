@@ -322,135 +322,161 @@ class _SpotterState extends State<Spotter> {
       return KeyEventResult.ignored;
     }
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            height: 50,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: HexColor.fromHex('1c2128'),
-              border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(10),
-                topRight: const Radius.circular(10),
-                bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
-                bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+      body: Container(
+        alignment: Alignment.topCenter,
+        // decoration: BoxDecoration(
+          // color: HexColor.fromHex('1c2128'),
+          // border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
+          // borderRadius: BorderRadius.circular(10),
+          // borderRadius: BorderRadius.only(
+          //   topLeft: const Radius.circular(10),
+          //   topRight: const Radius.circular(10),
+          //   bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+          //   bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+          // ),
+        // ),
+        child: Column(
+          // mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: HexColor.fromHex('1c2128'),
+                border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(10),
+                  topRight: const Radius.circular(10),
+                  bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                  bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                ),
               ),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: RawKeyboardListener(
-              focusNode: focusNode,
-              onKey: handleKeyEvent,
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(left: activatedOption == null ? 0 : 8),
-                    child: SizedBox(
-                      width: activatedOption == null ? 0 : 120,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: HexColor.fromHex('#539bf5'),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+              clipBehavior: Clip.hardEdge,
+              child: RawKeyboardListener(
+                focusNode: focusNode,
+                onKey: handleKeyEvent,
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: activatedOption == null ? 0 : 8),
+                      child: SizedBox(
+                        width: activatedOption == null ? 0 : 120,
                         child: Container(
-                          padding: const EdgeInsets.all(10),
-                          child: Text(
-                            activatedOption?.name ?? '',
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: HexColor.fromHex('#cdd9e5'),
+                          decoration: BoxDecoration(
+                            color: HexColor.fromHex('#539bf5'),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              activatedOption?.name ?? '',
+                              style: TextStyle(
+                                fontSize: 15.0,
+                                color: HexColor.fromHex('#cdd9e5'),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Flexible(
-                    child: TextField(
-                      controller: textFieldController,
-                      textInputAction: TextInputAction.none,
-                      autofocus: true,
-                      readOnly: loading,
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: HexColor.fromHex('#adbac7'),
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Query...',
-                        hintStyle: TextStyle(
-                          color: HexColor.fromHex('#768390'),
-                        ),
-                        isDense: true,
-                        contentPadding: const EdgeInsets.only(left: 8),
-                      )
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    child: Container(
-                      padding: const EdgeInsets.only(right: 12),
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        height: 16.0,
-                        width: 16.0,
-                        child: loading ? CircularProgressIndicator(
-                          strokeWidth: 1,
-                          color: HexColor.fromHex('#adbac7'),
-                        ) : null,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            height: 30 * 10,
-            decoration: BoxDecoration(
-              border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
-              borderRadius: BorderRadius.only(
-                bottomLeft: const Radius.circular(10),
-                bottomRight: const Radius.circular(10),
-                topLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
-                topRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
-              ),
-              color: HexColor.fromHex('1c2128'),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Column(
-                children: [
-                  for(var i = 0; i < filteredOptions.length; i++) SizedBox(
-                    width: double.infinity,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: selectedOptionIndex == i ? HexColor.fromHex('#539bf5') : Colors.transparent,
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      margin: EdgeInsets.only(
-                        top: i == 0 ? 8 : 0,
-                        bottom: i == filteredOptions.length - 1 ? 8 : 0,
-                        left: 8,
-                        right: 8,
-                      ),
-                      child: Text(
-                        filteredOptions[i].name,
+                    Flexible(
+                      child: TextField(
+                        controller: textFieldController,
+                        textInputAction: TextInputAction.none,
+                        autofocus: true,
+                        readOnly: loading,
                         style: TextStyle(
-                          fontSize: 15.0,
-                          color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+                          fontSize: 18.0,
+                          color: HexColor.fromHex('#adbac7'),
+                        ),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Query...',
+                          hintStyle: TextStyle(
+                            color: HexColor.fromHex('#768390'),
+                          ),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.only(left: 8),
+                        )
+                      ),
+                    ),
+                    SizedBox(
+                      height: 50,
+                      child: Container(
+                        padding: const EdgeInsets.only(right: 12),
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          height: 16.0,
+                          width: 16.0,
+                          child: loading ? CircularProgressIndicator(
+                            strokeWidth: 1,
+                            color: HexColor.fromHex('#adbac7'),
+                          ) : null,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            LimitedBox(
+              maxHeight: 30 * 10,
+              // decoration: BoxDecoration(
+                // border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
+                // borderRadius: BorderRadius.only(
+                //   bottomLeft: const Radius.circular(10),
+                //   bottomRight: const Radius.circular(10),
+                //   topLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                //   topRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                // ),
+                // color: HexColor.fromHex('1c2128'),
+              // ),
+              // clipBehavior: Clip.hardEdge,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: HexColor.fromHex('1c2128'),
+                  border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: const Radius.circular(10),
+                    bottomRight: const Radius.circular(10),
+                    topLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                    topRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                controller: scrollController,
+                child: Column(
+                  children: [
+                    for(var i = 0; i < filteredOptions.length; i++) SizedBox(
+                      width: double.infinity,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: selectedOptionIndex == i ? HexColor.fromHex('#539bf5') : Colors.transparent,
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        margin: EdgeInsets.only(
+                          top: i == 0 ? 8 : 0,
+                          bottom: i == filteredOptions.length - 1 ? 8 : 0,
+                          left: 8,
+                          right: 8,
+                        ),
+                        child: Text(
+                          filteredOptions[i].name,
+                          style: TextStyle(
+                            fontSize: 15.0,
+                            color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
