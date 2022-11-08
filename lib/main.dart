@@ -164,6 +164,7 @@ class Option {
   final String? actionId;
   final String? onQueryId;
   final bool? isHovered;
+  final int? priority;
   final OnOptionQuery? onQuery;
   final OptionAction? action;
 
@@ -172,6 +173,7 @@ class Option {
     this.actionId,
     this.onQueryId,
     this.isHovered,
+    this.priority,
     this.onQuery,
     this.action,
   });
@@ -181,6 +183,7 @@ class Option {
       actionId = json['actionId'],
       onQueryId = json['onQueryId'],
       isHovered = json['isHovered'],
+      priority = json['priority'],
       onQuery = null,
       action = null;
 
