@@ -281,6 +281,10 @@ class _SpotterState extends State<Spotter> {
           }
           filteredOptions = [];
         });
+
+        if (activatedOptions.isNotEmpty) {
+          onQuery();
+        }
         return KeyEventResult.handled;
       }
 
