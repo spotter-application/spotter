@@ -273,7 +273,9 @@ class _SpotterState extends State<Spotter> {
         && textFieldController.text.isEmpty
       ) {
         setState(() {
-          activatedOptions.removeLast();
+          if (activatedOptions.isNotEmpty) {
+            activatedOptions.removeLast();
+          }
           filteredOptions = [];
         });
         return KeyEventResult.handled;
@@ -290,6 +292,7 @@ class _SpotterState extends State<Spotter> {
         //   return KeyEventResult.ignored;
         // }
 
+        // TODO: check
         if (selectedOption.onQueryId == null && selectedOption.onQuery == null) {
           windowManager.focus();
           return KeyEventResult.handled;
@@ -311,6 +314,8 @@ class _SpotterState extends State<Spotter> {
           filteredOptions = [];
         });
         textFieldController.clear();
+
+        onQuery();
         return KeyEventResult.handled;
       }
 
@@ -511,7 +516,7 @@ class _SpotterState extends State<Spotter> {
 
   List<Option> getPluginsMenu(String query) {
     // TODO: add list of installed plugins
-    return [Option(name: 'Install plugins', onQuery: getPluginsMenu)];
+    return [Option(name: 'Install plugins', onQuery: getPluginsToInstallMenu)];
   }
 
   List<Option> getPluginsToInstallMenu(String query) {
