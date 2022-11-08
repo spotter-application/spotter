@@ -355,23 +355,10 @@ class _SpotterState extends State<Spotter> {
     return Scaffold(
       body: Container(
         alignment: Alignment.topCenter,
-        // decoration: BoxDecoration(
-          // color: HexColor.fromHex('1c2128'),
-          // border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
-          // borderRadius: BorderRadius.circular(10),
-          // borderRadius: BorderRadius.only(
-          //   topLeft: const Radius.circular(10),
-          //   topRight: const Radius.circular(10),
-          //   bottomLeft: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
-          //   bottomRight: Radius.circular(filteredOptions.isEmpty ? 10 : 0),
-          // ),
-        // ),
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              height: 50,
-              alignment: Alignment.center,
+              height: 55,
               decoration: BoxDecoration(
                 color: HexColor.fromHex('1c2128'),
                 border: Border.all(color: HexColor.fromHex('#2b3137'), width: 1), 
@@ -390,23 +377,27 @@ class _SpotterState extends State<Spotter> {
                   children: [
                     Row(
                       children: [
-                      for(var i = 0; i < activatedOptions.length; i++) Padding(
-                        padding: const EdgeInsets.only(left: 8),
+                      for(var i = 0; i < activatedOptions.length; i++) Container(
+                        margin: const EdgeInsets.only(
+                          top: 8,
+                          bottom: 8,
+                          left: 8,
+                        ),
                         child: LimitedBox(
-                          maxWidth: 120,
+                          maxWidth: 200,
                           child: Container(
+                            // alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: HexColor.fromHex('#539bf5'),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              child: Text(
-                                activatedOptions[i].name,
-                                style: TextStyle(
-                                  fontSize: 15.0,
-                                  color: HexColor.fromHex('#cdd9e5'),
-                                ),
+                            // TODO: check cutted text
+                            padding: const EdgeInsets.all(10),
+                            child: Text(
+                              activatedOptions[i].name,
+                              style: TextStyle(
+                                fontSize: 15.0,
+                                color: HexColor.fromHex('#cdd9e5'),
                               ),
                             ),
                           ),
