@@ -163,6 +163,7 @@ class Option {
   final String name;
   final String? actionId;
   final String? onQueryId;
+  final bool? isHovered;
   final OnOptionQuery? onQuery;
   final OptionAction? action;
 
@@ -170,6 +171,7 @@ class Option {
     required this.name,
     this.actionId,
     this.onQueryId,
+    this.isHovered,
     this.onQuery,
     this.action,
   });
@@ -178,6 +180,7 @@ class Option {
     : name = json['name'],
       actionId = json['actionId'],
       onQueryId = json['onQueryId'],
+      isHovered = json['isHovered'],
       onQuery = null,
       action = null;
 
@@ -185,9 +188,20 @@ class Option {
     'name': name,
     'actionId': actionId,
     'onQueryId': onQueryId,
+    'isHovered': isHovered,
     'onQuery': onQuery,
     'action': action,
   };
+}
+
+class PluginRegistryItem {
+  final String name;
+  bool isActive;
+
+  PluginRegistryItem({
+    required this.name,
+    required this.isActive,
+  });
 }
 
 class _SpotterState extends State<Spotter> {
@@ -206,15 +220,20 @@ class _SpotterState extends State<Spotter> {
 
   List<Option> filteredOptions = [];
 
-  Option? activatedOption;
+  List<Option> activatedOptions = [];
 
   PluginsServer? pluginsServer;
 
   bool loading = false;
 
+  List<String> plugins = [
+    'spotter-application/applications-plugin'
+  ];
+
+  List<PluginRegistryItem> registeredPlugins = [];
+
   @override
   Widget build(BuildContext context) {
-
 
     options = [];
     options.add(Option(
@@ -254,7 +273,7 @@ class _SpotterState extends State<Spotter> {
         && textFieldController.text.isEmpty
       ) {
         setState(() {
-          activatedOption = null;
+          activatedOptions.removeLast();
           filteredOptions = [];
         });
         return KeyEventResult.handled;
@@ -287,7 +306,7 @@ class _SpotterState extends State<Spotter> {
         // }
 
         setState(() {
-          activatedOption = filteredOptions[selectedOptionIndex];
+          activatedOptions.add(filteredOptions[selectedOptionIndex]);
           selectedOptionIndex = 0;
           filteredOptions = [];
         });
@@ -357,27 +376,30 @@ class _SpotterState extends State<Spotter> {
                 onKey: handleKeyEvent,
                 child: Row(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: activatedOption == null ? 0 : 8),
-                      child: SizedBox(
-                        width: activatedOption == null ? 0 : 120,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: HexColor.fromHex('#539bf5'),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                    Row(
+                      children: [
+                      for(var i = 0; i < activatedOptions.length; i++) Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: LimitedBox(
+                          maxWidth: 120,
                           child: Container(
-                            padding: const EdgeInsets.all(10),
-                            child: Text(
-                              activatedOption?.name ?? '',
-                              style: TextStyle(
-                                fontSize: 15.0,
-                                color: HexColor.fromHex('#cdd9e5'),
+                            decoration: BoxDecoration(
+                              color: HexColor.fromHex('#539bf5'),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              child: Text(
+                                activatedOptions[i].name,
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: HexColor.fromHex('#cdd9e5'),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      )],
                     ),
                     Flexible(
                       child: TextField(
@@ -386,7 +408,7 @@ class _SpotterState extends State<Spotter> {
                         autofocus: true,
                         readOnly: loading,
                         style: TextStyle(
-                          fontSize: 18.0,
+                          fontSize: 20.0,
                           color: HexColor.fromHex('#adbac7'),
                         ),
                         decoration: InputDecoration(
@@ -488,22 +510,17 @@ class _SpotterState extends State<Spotter> {
   }
 
   List<Option> getPluginsMenu(String query) {
-    List<String> plugins = [
-      'spotter-application/applications-plugin'
-    ];
+    // TODO: add list of installed plugins
+    return [Option(name: 'Install plugins', onQuery: getPluginsMenu)];
+  }
 
-    // 'https://api.github.com/repos/spotter-application/applications-plugin/releases/latest'
-    // print(query);
-    return plugins.map<Option>((plugin) => Option(name: plugin, action: () => installPlugin(plugin))).toList();
-    
-    // return [
-    //   Option(name: 'Plugins child', onQuery: getPluginsMenu, action: () => installPlugin("name")),
-    // ];
+  List<Option> getPluginsToInstallMenu(String query) {
+    return plugins.map<Option>(
+      (plugin) => Option(name: plugin, action: () => installPlugin(plugin))
+    ).toList();
   }
 
   Future<bool> installPlugin(String plugin) async {
-    print('install plguin');
-
     List<ReleaseAsset>? assets = await apiService.getLatestReleaseAssets(plugin);
 
     if (assets == null) {
@@ -518,6 +535,9 @@ class _SpotterState extends State<Spotter> {
       await shell.run('chmod 777 plugins/$plugin/$name');
     }));
 
+    registeredPlugins.add(PluginRegistryItem(name: plugin, isActive: false));
+
+    // TODO: return list of plugins with hovered installed plugin
     return true;
   }
 
@@ -596,13 +616,13 @@ class _SpotterState extends State<Spotter> {
   }
 
   void onQuery() {
-    if (activatedOption != null && activatedOption!.onQueryId != null) {
-      pluginsServer?.onOptionQuery(activatedOption!.onQueryId as String, textFieldController.text);
+    if (activatedOptions.isNotEmpty && activatedOptions.last.onQueryId != null) {
+      pluginsServer?.onOptionQuery(activatedOptions.last.onQueryId as String, textFieldController.text);
       return;
     }
 
-    if (activatedOption != null && activatedOption!.onQuery != null) {
-      var nextOptions = activatedOption!.onQuery!(textFieldController.text);
+    if (activatedOptions.isNotEmpty && activatedOptions.last.onQuery != null) {
+      var nextOptions = activatedOptions.last.onQuery!(textFieldController.text);
       setState(() {
         filteredOptions = nextOptions;
       });
