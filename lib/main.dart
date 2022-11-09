@@ -12,6 +12,7 @@ import 'package:process_run/shell.dart';
 import 'package:observable/observable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'api_service.dart';
 
@@ -51,33 +52,7 @@ class PluginRequest {
   };
 }
 
-// class PluginsRequestsRegistry extends StreamView<PluginsRequestsRegistry> {
-//   PluginsRequestsRegistry._(this._controller) : super(_controller.stream);
-//   factory PluginsRequestsRegistry() => PluginsRequestsRegistry._(StreamController());
-
-//   final StreamController<PluginsRequestsRegistry> _controller;
-
-//   Future<void> close() => _controller.close();
-
-//   final List<PluginRequest> _requests = [];
-//   List<PluginRequest> get requests => _requests;
-
-//   void add(PluginRequest request) {
-//     _requests.add(request);
-//     _controller.add(this);
-//   }
-
-//   void remove(String id) {
-//     _requests.removeWhere((request) => request.id == id);
-//     _controller.add(this);
-//   }
-// }
-
 class PluginsServer {
-
-  OnNextOptions onNextOptions;
-
-  PluginsServer(this.onNextOptions);
 
   List<WebSocket> pluginSockets = [];
 
@@ -90,14 +65,9 @@ class PluginsServer {
     server.transform(WebSocketTransformer()).listen(_handleConnection);
   }
 
-  Future<List<Option>> onQuery(String query) async {
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (pluginSockets.isNotEmpty) {
-      pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
-    }
-
+  Future<PluginRequest> findPluginRequest(String requestId) async {
+    Completer<PluginRequest> completer = Completer();
     // TODO: timer for long requests
-    Completer<List<Option>> completer = Completer();
     requestsRegistry.changes.listen((_) {
       final request = requestsRegistry.toList().firstWhereOrNull(
         (r) => r.id == requestId,
@@ -105,27 +75,41 @@ class PluginsServer {
 
       if (request != null) {
         requestsRegistry.remove(request);
-        completer.complete(request.options);
+        completer.complete(request);
       }
-
     });
 
     return completer.future;
   }
+    
 
-  onOptionQuery(String onQueryId, String query) {
+  Future<List<Option>> onQuery(String query) async {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginSockets.forEach((plugin) => {
-      // TODO: send directly to the plugin
-      plugin.add('{"id": "$requestId", "type": "onOptionQuery", "data": "$onQueryId##$query"}')
-    });
+    if (pluginSockets.isNotEmpty) {
+      pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
+    }
+
+    PluginRequest request = await findPluginRequest(requestId);
+    return request.options;
   }
 
-  execAction(String actionId) {
+  Future<List<Option>> onOptionQuery(String onQueryId, String query) async {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginSockets.forEach((plugin) => {
-      plugin.add('{"id": "$requestId", "type": "execAction", "data": "$actionId"}')
-    });
+    if (pluginSockets.isNotEmpty) {
+      pluginSockets[0].add('{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
+    }
+
+    PluginRequest request = await findPluginRequest(requestId);
+    return request.options;
+  }
+
+  Future<PluginRequest> execAction(String actionId) async {
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (pluginSockets.isNotEmpty) {
+      pluginSockets[0].add('{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
+    }
+    PluginRequest request = await findPluginRequest(requestId);
+    return request;
   }
 
   _handleConnection(WebSocket socket) {
@@ -237,6 +221,7 @@ class Option {
   final String? onQueryId;
   final bool? isHovered;
   final int? priority;
+  final String? icon;
   final OnOptionQuery? onQuery;
   final OptionAction? action;
 
@@ -246,6 +231,7 @@ class Option {
     this.onQueryId,
     this.isHovered,
     this.priority,
+    this.icon,
     this.onQuery,
     this.action,
   });
@@ -256,6 +242,7 @@ class Option {
       onQueryId = json['onQueryId'],
       isHovered = json['isHovered'],
       priority = json['priority'],
+      icon = json['icon'],
       onQuery = null,
       action = null;
 
@@ -264,6 +251,8 @@ class Option {
     'actionId': actionId,
     'onQueryId': onQueryId,
     'isHovered': isHovered,
+    'priority': priority,
+    'icon': icon,
     'onQuery': onQuery,
     'action': action,
   };
@@ -297,7 +286,7 @@ class _SpotterState extends State<Spotter> {
 
   List<Option> activatedOptions = [];
 
-  PluginsServer? pluginsServer;
+  PluginsServer pluginsServer = PluginsServer();
 
   bool loading = false;
 
@@ -558,12 +547,28 @@ class _SpotterState extends State<Spotter> {
                           left: 8,
                           right: 8,
                         ),
-                        child: Text(
-                          filteredOptions[i].name,
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
-                          ),
+                        child: Row(
+                          children: [
+                            filteredOptions[i].icon != null ? Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: filteredOptions[i].icon!.endsWith('.png') ? Image.asset(
+                                filteredOptions[i].icon as String,
+                                fit: BoxFit.contain,
+                                width: 20,
+                              ) : SvgPicture.asset(
+                                filteredOptions[i].icon as String,
+                                fit: BoxFit.contain,
+                                width: 20,
+                              ),
+                            ) : const SizedBox.shrink(),
+                            Text(
+                              filteredOptions[i].name,
+                              style: TextStyle(
+                                fontSize: 15.0,
+                                color: HexColor.fromHex(selectedOptionIndex == i ? '#cdd9e5' : '#adbac7'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -641,8 +646,7 @@ class _SpotterState extends State<Spotter> {
 
     initServer();
 
-    pluginsServer = PluginsServer(onNextOptions);
-    pluginsServer?.start();
+    pluginsServer.start();
   }
 
   void onNextOptions(List<Option> options) {
@@ -692,7 +696,7 @@ class _SpotterState extends State<Spotter> {
 
   void onQuery() async {
     if (activatedOptions.isNotEmpty && activatedOptions.last.onQueryId != null) {
-      pluginsServer?.onOptionQuery(activatedOptions.last.onQueryId as String, textFieldController.text);
+      pluginsServer.onOptionQuery(activatedOptions.last.onQueryId as String, textFieldController.text);
       return;
     }
 
@@ -704,7 +708,7 @@ class _SpotterState extends State<Spotter> {
       return;
     }
 
-    final nextOptions = await pluginsServer?.onQuery(textFieldController.text);
+    final nextOptions = await pluginsServer.onQuery(textFieldController.text);
 
     if (nextOptions != null) {
       setState(() {
@@ -730,7 +734,15 @@ class _SpotterState extends State<Spotter> {
     });
 
     if (option.actionId != null) {
-      pluginsServer?.execAction(option.actionId as String);
+      PluginRequest request = await pluginsServer.execAction(option.actionId as String);
+      setState(() {
+        loading = false;
+        filteredOptions = request.complete ? [] : request.options;
+      });
+
+      windowManager.hide();
+      textFieldController.clear();
+      return;
     }
 
     if (option.action != null) {
