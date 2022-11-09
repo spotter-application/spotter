@@ -18,35 +18,24 @@ import 'api_service.dart';
 
 typedef OnNextOptions = void Function(List<Option> options);
 
-enum PluginRequestType {
-  onQueryResponse,
-  actionResponse,
-}
-
 class PluginRequest {
   final String id;
-  final PluginRequestType type;
   final List<Option> options;
   final bool complete;
 
   PluginRequest({
     required this.id,
-    required this.type,
     required this.options,
     required this.complete,
   });
 
   PluginRequest.fromJson(Map<String, dynamic> json)
     : id = json['id'],
-      type = PluginRequestType.values.firstWhere(
-        (t) => describeEnum(t).toString() == json['type']
-      ),
       options = json['options'].map<Option>((o) => Option.fromJson(o)).toList(),
       complete = json['complete'];
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'type': type,
     'options': options,
     'complete': complete,
   };
@@ -696,27 +685,33 @@ class _SpotterState extends State<Spotter> {
 
   void onQuery() async {
     if (activatedOptions.isNotEmpty && activatedOptions.last.onQueryId != null) {
-      pluginsServer.onOptionQuery(activatedOptions.last.onQueryId as String, textFieldController.text);
+      List<Option> nextOptions = await pluginsServer.onOptionQuery(
+        activatedOptions.last.onQueryId as String,
+        textFieldController.text,
+      );
+      setState(() {
+        filteredOptions = nextOptions;
+      });
       return;
     }
 
     if (activatedOptions.isNotEmpty && activatedOptions.last.onQuery != null) {
-      var nextOptions = activatedOptions.last.onQuery!(textFieldController.text);
+      List<Option> nextOptions = activatedOptions.last.onQuery!(textFieldController.text);
       setState(() {
         filteredOptions = nextOptions;
       });
       return;
     }
 
-    final nextOptions = await pluginsServer.onQuery(textFieldController.text);
+    List<Option> nextOptions = await pluginsServer.onQuery(textFieldController.text);
 
-    if (nextOptions != null) {
-      setState(() {
-        selectedOptionIndex = 0;
-        filteredOptions = nextOptions;
-      });
-      return;
-    }
+    // if (nextOptions != null) {
+    setState(() {
+      selectedOptionIndex = 0;
+      filteredOptions = nextOptions;
+    });
+    return;
+    // }
 
     setState(() {
       selectedOptionIndex = 0;
