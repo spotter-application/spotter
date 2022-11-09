@@ -206,6 +206,7 @@ typedef OptionAction = Future<bool> Function();
 
 class Option {
   final String name;
+  final String? hint;
   final String? actionId;
   final String? onQueryId;
   final bool? isHovered;
@@ -216,6 +217,7 @@ class Option {
 
   Option({
     required this.name,
+    this.hint,
     this.actionId,
     this.onQueryId,
     this.isHovered,
@@ -227,6 +229,7 @@ class Option {
 
   Option.fromJson(Map<String, dynamic> json)
     : name = json['name'],
+      hint = json['hint'],
       actionId = json['actionId'],
       onQueryId = json['onQueryId'],
       isHovered = json['isHovered'],
@@ -237,6 +240,7 @@ class Option {
 
   Map<String, dynamic> toJson() => {
     'name': name,
+    'hint': hint,
     'actionId': actionId,
     'onQueryId': onQueryId,
     'isHovered': isHovered,
