@@ -9,10 +9,69 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
 import 'package:process_run/shell.dart';
+import 'package:observable/observable.dart';
+import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 
 import 'api_service.dart';
 
 typedef OnNextOptions = void Function(List<Option> options);
+
+enum PluginRequestType {
+  onQueryResponse,
+  actionResponse,
+}
+
+class PluginRequest {
+  final String id;
+  final PluginRequestType type;
+  final List<Option> options;
+  final bool complete;
+
+  PluginRequest({
+    required this.id,
+    required this.type,
+    required this.options,
+    required this.complete,
+  });
+
+  PluginRequest.fromJson(Map<String, dynamic> json)
+    : id = json['id'],
+      type = PluginRequestType.values.firstWhere(
+        (t) => describeEnum(t).toString() == json['type']
+      ),
+      options = json['options'].map<Option>((o) => Option.fromJson(o)).toList(),
+      complete = json['complete'];
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type,
+    'options': options,
+    'complete': complete,
+  };
+}
+
+// class PluginsRequestsRegistry extends StreamView<PluginsRequestsRegistry> {
+//   PluginsRequestsRegistry._(this._controller) : super(_controller.stream);
+//   factory PluginsRequestsRegistry() => PluginsRequestsRegistry._(StreamController());
+
+//   final StreamController<PluginsRequestsRegistry> _controller;
+
+//   Future<void> close() => _controller.close();
+
+//   final List<PluginRequest> _requests = [];
+//   List<PluginRequest> get requests => _requests;
+
+//   void add(PluginRequest request) {
+//     _requests.add(request);
+//     _controller.add(this);
+//   }
+
+//   void remove(String id) {
+//     _requests.removeWhere((request) => request.id == id);
+//     _controller.add(this);
+//   }
+// }
 
 class PluginsServer {
 
@@ -20,48 +79,61 @@ class PluginsServer {
 
   PluginsServer(this.onNextOptions);
 
-  List<WebSocket> plugins = [];
+  List<WebSocket> pluginSockets = [];
+
+  ObservableList<PluginRequest> requestsRegistry = ObservableList<PluginRequest>.from([]);
+
+  // final foo = Counter();
 
   start() async {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
-    server.transform(WebSocketTransformer()).listen(handleConnection);
+    server.transform(WebSocketTransformer()).listen(_handleConnection);
   }
 
-  onQuery(String query) {
+  Future<List<Option>> onQuery(String query) async {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    plugins.forEach((plugin) => {
-      plugin.add('{"id": "$requestId", "type": "onQuery", "data": "$query"}')
+    if (pluginSockets.isNotEmpty) {
+      pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
+    }
+
+    // TODO: timer for long requests
+    Completer<List<Option>> completer = Completer();
+    requestsRegistry.changes.listen((_) {
+      final request = requestsRegistry.toList().firstWhereOrNull(
+        (r) => r.id == requestId,
+      );
+
+      if (request != null) {
+        requestsRegistry.remove(request);
+        completer.complete(request.options);
+      }
+
     });
+
+    return completer.future;
   }
 
   onOptionQuery(String onQueryId, String query) {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    plugins.forEach((plugin) => {
+    pluginSockets.forEach((plugin) => {
+      // TODO: send directly to the plugin
       plugin.add('{"id": "$requestId", "type": "onOptionQuery", "data": "$onQueryId##$query"}')
     });
   }
 
   execAction(String actionId) {
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    plugins.forEach((plugin) => {
+    pluginSockets.forEach((plugin) => {
       plugin.add('{"id": "$requestId", "type": "execAction", "data": "$actionId"}')
     });
   }
 
-  handleConnection(WebSocket socket) {
-    plugins.add(socket);
+  _handleConnection(WebSocket socket) {
+    pluginSockets.add(socket);
     socket.listen((event) {
-      var response = jsonDecode(event);
-
-      if (response['type'] == 'renderOptions') {
-        var options = List<Option>.from(
-          response['data'].map<Option>((dynamic i) => Option.fromJson(i))
-        );
-        onNextOptions(options);
-      }
-
-      // socket.add('Echo: $event');
-      // print(event.toString());
+      PluginRequest request = PluginRequest.fromJson(jsonDecode(event));
+      // TODO: clean up after closing
+      requestsRegistry.add(request);
     });
   }
 }
@@ -618,7 +690,7 @@ class _SpotterState extends State<Spotter> {
     _systemTray.setContextMenu(_menuMain);
   }
 
-  void onQuery() {
+  void onQuery() async {
     if (activatedOptions.isNotEmpty && activatedOptions.last.onQueryId != null) {
       pluginsServer?.onOptionQuery(activatedOptions.last.onQueryId as String, textFieldController.text);
       return;
@@ -632,7 +704,16 @@ class _SpotterState extends State<Spotter> {
       return;
     }
 
-    pluginsServer?.onQuery(textFieldController.text);
+    final nextOptions = await pluginsServer?.onQuery(textFieldController.text);
+
+    if (nextOptions != null) {
+      setState(() {
+        selectedOptionIndex = 0;
+        filteredOptions = nextOptions;
+      });
+      return;
+    }
+
     setState(() {
       selectedOptionIndex = 0;
       if (textFieldController.text.isEmpty) {

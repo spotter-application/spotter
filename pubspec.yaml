@@ -43,6 +43,7 @@ dependencies:
   bitsdojo_window: ^0.1.5
   http: ^0.13.5
   process_run: ^0.12.3+2
+  observable: ^0.24.0
 
 dev_dependencies:
   flutter_test:
