@@ -21,30 +21,47 @@ typedef OnNextOptions = void Function(List<Option> options);
 
 class PluginRequest {
   final String id;
+  final String connectionId;
   final List<Option> options;
   final bool complete;
 
   PluginRequest({
     required this.id,
+    required this.connectionId,
     required this.options,
     required this.complete,
   });
 
   PluginRequest.fromJson(Map<String, dynamic> json)
     : id = json['id'],
-      options = json['options'].map<Option>((o) => Option.fromJson(o)).toList(),
+      connectionId = json['connectionId'],
+      options = json['options'].map<Option>((o) {
+        o['connectionId'] = json['connectionId'];
+        return Option.fromJson(o);
+      }).toList(),
       complete = json['complete'];
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    'connectionId': connectionId,
     'options': options,
     'complete': complete,
   };
 }
 
+class PluginConnection {
+  final String id;
+  final WebSocket socket;
+
+  PluginConnection({
+    required this.id,
+    required this.socket,
+  });
+}
+
 class PluginsServer {
   final storage = GetStorage('spotter');
-  List<WebSocket> pluginSockets = [];
+  List<PluginConnection> pluginConnections = List<PluginConnection>.from([]);
   final ApiService apiService = ApiService();
   final Shell shell = Shell();
   ObservableList<PluginRequest> requestsRegistry = ObservableList<PluginRequest>.from([]);
@@ -131,46 +148,57 @@ class PluginsServer {
     
 
   Future<List<Option>> onQuery(String query) async {
-    if (pluginSockets.isEmpty) {
+    if (pluginConnections.isEmpty) {
       return [];
     }
 
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
+    final options = <Option>[];
+    await Future.forEach(pluginConnections, (connection) async {
+      String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+      connection.socket.add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
+      PluginRequest request = await findPluginRequest(requestId);
+      options.addAll(request.options);
+    });
+    return options;
+  }
 
+  Future<List<Option>?> onOptionQuery(String onQueryId, String query, String connectionId) async {
+    PluginConnection? connection = pluginConnections.firstWhereOrNull((connection) =>
+      connection.id == connectionId,
+    );
+
+    if (connection == null) {
+      return null;
+    }
+
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    connection.socket.add('{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
     PluginRequest request = await findPluginRequest(requestId);
     return request.options;
   }
 
-  Future<List<Option>> onOptionQuery(String onQueryId, String query) async {
-    if (pluginSockets.isEmpty) {
-      // TODO: throw error
-      return [];
+  Future<PluginRequest?> execAction(String actionId, String connectionId) async {
+    PluginConnection? connection = pluginConnections.firstWhereOrNull((connection) =>
+      connection.id == connectionId,
+    );
+
+    if (connection == null) {
+      return null;
     }
 
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginSockets[0].add('{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
-
-    PluginRequest request = await findPluginRequest(requestId);
-    return request.options;
-  }
-
-  Future<PluginRequest> execAction(String actionId) async {
-    if (pluginSockets.isEmpty) {
-      // TODO: throw error
-    }
-
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginSockets[0].add('{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
+    connection.socket.add('{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
     PluginRequest request = await findPluginRequest(requestId);
     return request;
   }
 
   _handleConnection(WebSocket socket) {
-    print('-------------------------------- handle connection -----------');
-    pluginSockets.add(socket);
+    String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
+    pluginConnections.add(PluginConnection(id: connectionId, socket: socket));
     socket.listen((event) {
-      PluginRequest request = PluginRequest.fromJson(jsonDecode(event));
+      final json = jsonDecode(event);
+      json['connectionId'] = connectionId;
+      PluginRequest request = PluginRequest.fromJson(json);
       // TODO: clean up after closing
       requestsRegistry.add(request);
     });
@@ -273,6 +301,7 @@ typedef OptionAction = Future<bool> Function();
 
 class Option {
   final String name;
+  final String connectionId;
   final String? hint;
   final String? actionId;
   final String? onQueryId;
@@ -284,6 +313,7 @@ class Option {
 
   Option({
     required this.name,
+    required this.connectionId,
     this.hint,
     this.actionId,
     this.onQueryId,
@@ -296,6 +326,7 @@ class Option {
 
   Option.fromJson(Map<String, dynamic> json)
     : name = json['name'],
+      connectionId = json['connectionId'],
       hint = json['hint'],
       actionId = json['actionId'],
       onQueryId = json['onQueryId'],
@@ -307,6 +338,7 @@ class Option {
 
   Map<String, dynamic> toJson() => {
     'name': name,
+    'connectionId': connectionId,
     'hint': hint,
     'actionId': actionId,
     'onQueryId': onQueryId,
@@ -349,6 +381,7 @@ class _SpotterState extends State<Spotter> {
     options = [];
     options.add(Option(
       name: 'Plugins',
+      connectionId: '',
       onQuery: getPluginsMenu,
     ));
 
@@ -638,12 +671,12 @@ class _SpotterState extends State<Spotter> {
 
   List<Option> getPluginsMenu(String query) {
     // TODO: add list of installed plugins
-    return [Option(name: 'Install plugins', onQuery: getPluginsToInstallMenu)];
+    return [Option(name: 'Install plugins', connectionId: '', onQuery: getPluginsToInstallMenu)];
   }
 
   List<Option> getPluginsToInstallMenu(String query) {
     return plugins.map<Option>(
-      (plugin) => Option(name: plugin, action: () => installPlugin(plugin))
+      (plugin) => Option(name: plugin, connectionId: '', action: () => installPlugin(plugin))
     ).toList();
   }
 
@@ -726,12 +759,14 @@ class _SpotterState extends State<Spotter> {
 
   void onQuery() async {
     if (activatedOptions.isNotEmpty && activatedOptions.last.onQueryId != null) {
-      List<Option> nextOptions = await pluginsServer.onOptionQuery(
+      List<Option>? nextOptions = await pluginsServer.onOptionQuery(
         activatedOptions.last.onQueryId as String,
         textFieldController.text,
+        activatedOptions.last.connectionId,
       );
+
       setState(() {
-        filteredOptions = nextOptions;
+        filteredOptions = nextOptions ?? [];
       });
       return;
     }
@@ -765,10 +800,13 @@ class _SpotterState extends State<Spotter> {
     });
 
     if (option.actionId != null) {
-      PluginRequest request = await pluginsServer.execAction(option.actionId as String);
+      PluginRequest? request = await pluginsServer.execAction(
+        option.actionId as String,
+        option.connectionId,
+      );
       setState(() {
         loading = false;
-        filteredOptions = request.complete ? [] : request.options;
+        filteredOptions = request != null && request.complete ? [] : request!.options;
       });
 
       windowManager.hide();
