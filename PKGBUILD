@@ -1,6 +1,6 @@
 # Maintainer: Denis Ziulev <ziulev@pm.me>
 pkgname=spotter
-pkgver=2.0.0
+pkgver=1.9.0
 pkgrel=1
 pkgdesc="Simple and powerful tool to launch everything"
 arch=('x86_64')
@@ -10,8 +10,8 @@ depends=()
 makedepends=('flutter' 'cmake' 'ninja' 'clang')
 provides=("$pkgname")
 conflicts=("$pkgname")
-source=("$pkgname-$pkgver.tar.xz"::"https://github.com/spotter-application/spotter/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=()
+source=("$pkgname-$pkgver.tar.xz"::"https://github.com/spotter-application/spotter/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=("SKIP")
 
 build() {
   cd "$pkgname-$pkgver"
