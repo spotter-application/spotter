@@ -1,0 +1,16 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<mask id="mask0_0_4" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="50" height="50">
+<rect width="50" height="50" fill="url(#paint0_radial_0_4)"/>
+</mask>
+<g mask="url(#mask0_0_4)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M-20.5097 -12.1359C-20.5097 -18.8384 -15.0763 -24.2718 -8.37379 -24.2718H28.034C34.7365 -24.2718 40.1699 -18.8384 40.1699 -12.1359V9.53674e-07C40.1699 6.70249 34.7365 12.1359 28.034 12.1359H-8.3738C-15.0763 12.1359 -20.5097 6.70249 -20.5097 9.53674e-07V-12.1359Z" fill="#55A4ED"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M-91.1408 25C-91.1408 19.638 -86.794 15.2913 -81.432 15.2913H30.4612C35.8231 15.2913 40.1699 19.638 40.1699 25C40.1699 30.362 35.8231 34.7087 30.4612 34.7087H-81.432C-86.794 34.7087 -91.1408 30.362 -91.1408 25Z" fill="#FF9F1D"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M-20.5097 50C-20.5097 43.2975 -15.0763 37.8641 -8.37379 37.8641H28.034C34.7365 37.8641 40.1699 43.2975 40.1699 50V62.1359C40.1699 68.8384 34.7365 74.2718 28.034 74.2718H-8.3738C-15.0763 74.2718 -20.5097 68.8384 -20.5097 62.1359V50Z" fill="#E71E36"/>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(25 25) rotate(90) scale(25)">
+<stop stop-color="#22272E"/>
+<stop offset="1" stop-color="#22272E"/>
+</radialGradient>
+</defs>
+</svg>

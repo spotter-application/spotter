@@ -44,4 +44,5 @@ app.*.map.json
 /android/app/release
 
 plugins
+*.tar.gz
 

@@ -14,6 +14,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_pty/flutter_pty.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:process_run/shell.dart';
+import 'package:launch_at_startup/launch_at_startup.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'api_service.dart';
 
@@ -93,9 +95,9 @@ class PluginsServer {
   Future<bool> addPlugin(String plugin) async {
     List<String> pluginsRegistry = await getPluginsRegistry();
 
-    bool alreadyRegistered = pluginsRegistry.firstWhere(
+    bool alreadyRegistered = pluginsRegistry.firstWhereOrNull(
       (registeredPlugin) => registeredPlugin.contains(plugin)
-    ).isNotEmpty;
+    ) != null;
 
     if (alreadyRegistered) {
       return false;
@@ -206,9 +208,22 @@ class PluginsServer {
 }
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await GetStorage.init('spotter');
 
-  WidgetsFlutterBinding.ensureInitialized();
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+  launchAtStartup.setup(
+    appName: packageInfo.appName,
+    appPath: Platform.resolvedExecutable,
+  );
+
+  bool isLaunchAtStartupEnabled = await launchAtStartup.isEnabled();
+
+  if (!isLaunchAtStartupEnabled) {
+    await launchAtStartup.enable();
+  }
 
   await windowManager.ensureInitialized();
 
@@ -305,6 +320,7 @@ class Option {
   final String? hint;
   final String? actionId;
   final String? onQueryId;
+  final bool? important;
   final bool? isHovered;
   final int? priority;
   final String? icon;
@@ -317,6 +333,7 @@ class Option {
     this.hint,
     this.actionId,
     this.onQueryId,
+    this.important,
     this.isHovered,
     this.priority,
     this.icon,
@@ -330,6 +347,7 @@ class Option {
       hint = json['hint'],
       actionId = json['actionId'],
       onQueryId = json['onQueryId'],
+      important = json['important'],
       isHovered = json['isHovered'],
       priority = json['priority'],
       icon = json['icon'],
@@ -342,6 +360,7 @@ class Option {
     'hint': hint,
     'actionId': actionId,
     'onQueryId': onQueryId,
+    'important': important,
     'isHovered': isHovered,
     'priority': priority,
     'icon': icon,
@@ -372,7 +391,8 @@ class _SpotterState extends State<Spotter> {
   bool loading = false;
 
   List<String> plugins = [
-    'spotter-application/applications-plugin'
+    'spotter-application/applications-plugin',
+    'spotter-application/calculator-plugin',
   ];
 
   @override
@@ -785,7 +805,9 @@ class _SpotterState extends State<Spotter> {
     setState(() {
       selectedOptionIndex = 0;
       filteredOptions = nextOptions.where(
-        (option) => option.name.toLowerCase().contains(textFieldController.text.toLowerCase())
+        (option) =>
+          option.important == true ||
+          option.name.toLowerCase().contains(textFieldController.text.toLowerCase())
       ).toList();
       // if (textFieldController.text.isEmpty) {
       //   filteredOptions = [];

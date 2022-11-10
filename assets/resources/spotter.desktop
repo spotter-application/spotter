@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Spotter
+Comment=Simple and powerful tool to launch everything
+Exec=/usr/bin/spotter
+Terminal=false
+Type=Application
+Icon=spotter.svg

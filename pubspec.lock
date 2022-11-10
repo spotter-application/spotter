@@ -212,6 +212,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.4"
+  launch_at_startup:
+    dependency: "direct main"
+    description:
+      name: launch_at_startup
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   lints:
     dependency: transitive
     description:
@@ -254,6 +261,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.24.0"
+  package_info_plus:
+    dependency: "direct main"
+    description:
+      name: package_info_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
+  package_info_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: package_info_plus_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   path:
     dependency: transitive
     description:
@@ -483,6 +504,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  win32_registry:
+    dependency: transitive
+    description:
+      name: win32_registry
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   window_manager:
     dependency: "direct main"
     description:
