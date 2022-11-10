@@ -235,7 +235,8 @@ void main() async {
     appWindow.maxSize = initialSize;
     appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
-    appWindow.show();
+    appWindow.hide();
+    // appWindow.show();
   });
   // await hotKeyManager.unregisterAll();
 
@@ -395,6 +396,8 @@ class _SpotterState extends State<Spotter> {
     'spotter-application/calculator-plugin',
   ];
 
+  final textFieldFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
 
@@ -405,7 +408,8 @@ class _SpotterState extends State<Spotter> {
       onQuery: getPluginsMenu,
     ));
 
-    var focusNode = FocusNode();
+    final focusNode = FocusNode();
+
     KeyEventResult handleKeyEvent(RawKeyEvent event) {
       if (event is RawKeyUpEvent) {
         return KeyEventResult.ignored;
@@ -450,31 +454,17 @@ class _SpotterState extends State<Spotter> {
       }
 
       if (event.logicalKey == LogicalKeyboardKey.tab) {
-        Option? selectedOption = filteredOptions[selectedOptionIndex];
+        Option? selectedOption = filteredOptions.isEmpty ? null : filteredOptions[selectedOptionIndex];
 
-        if (filteredOptions.length - 1 < selectedOptionIndex) {
-          return KeyEventResult.ignored;
-        }
-
-        // if (selectedOption == null) {
-        //   return KeyEventResult.ignored;
-        // }
-
-        // TODO: check
-        if (selectedOption.onQueryId == null && selectedOption.onQuery == null) {
-          windowManager.focus();
+        if (selectedOption == null) {
+          textFieldFocusNode.nextFocus();
           return KeyEventResult.handled;
         }
-        // if (selectedOption.action != null) {
-        //   print("activate internal action");
-        //   List<Option> nextOptions = selectedOption.action!();
-        //   activatedOption = selectedOption;
-        //   textFieldController.clear();
-        //   setState(() {
-        //     filteredOptions = nextOptions;
-        //   });
-        //   return KeyEventResult.handled;
-        // }
+
+        if (selectedOption.onQueryId == null && selectedOption.onQuery == null) {
+          textFieldFocusNode.nextFocus();
+          return KeyEventResult.handled;
+        }
 
         setState(() {
           activatedOptions.add(filteredOptions[selectedOptionIndex]);
@@ -568,6 +558,7 @@ class _SpotterState extends State<Spotter> {
                     Flexible(
                       child: TextField(
                         controller: textFieldController,
+                        focusNode: textFieldFocusNode,
                         textInputAction: TextInputAction.none,
                         autofocus: true,
                         readOnly: loading,
@@ -711,6 +702,7 @@ class _SpotterState extends State<Spotter> {
 
       switch (request.uri.toString()) {
         case ('/open'):
+          textFieldFocusNode.requestFocus();
           _appWindow.show();
           break;
         default:
