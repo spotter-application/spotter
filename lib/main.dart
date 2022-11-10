@@ -278,11 +278,11 @@ void main() async {
 }
 
 String getImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/$imageName.bmp' : 'assets/$imageName.png';
+  return Platform.isWindows ? 'assets/spotter.bmp' : 'assets/spotter.png';
 }
 
 String getTrayImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/$imageName.ico' : 'assets/$imageName.png';
+  return Platform.isWindows ? 'assets/spotter.ico' : 'assets/spotter.png';
 }
 
 typedef Action = bool Function(String query);
