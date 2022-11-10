@@ -8,16 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
-import 'package:shell/shell.dart';
 import 'package:observable/observable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:process_runner/process_runner.dart';
 import 'package:flutter_pty/flutter_pty.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:process_run/shell.dart';
 
 import 'api_service.dart';
 
@@ -48,98 +44,63 @@ class PluginRequest {
 
 class PluginsServer {
   final storage = GetStorage('spotter');
-
   List<WebSocket> pluginSockets = [];
-
   final ApiService apiService = ApiService();
   final Shell shell = Shell();
   ObservableList<PluginRequest> requestsRegistry = ObservableList<PluginRequest>.from([]);
-
-  // final foo = Counter();
 
   start() async {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
 
-    // await pluginsRegistryStorage.ready;
-    // List<String> pluginsRegistry = List<String>.from(pluginsRegistryStorage.getItem('plugins_registry') ?? []);
-    print('--------------------------');
-    print(storage.read('test'));
-    storage.write('test', 'GetX is the best1');
-    // print(pluginsRegistry);
+    storage.writeIfNull('plugins_registry', []);
+    List<String> pluginsRegistry = await getPluginsRegistry();
+
+    for (var plugin in pluginsRegistry) {
+      Pty.start('plugins/$plugin');
+    }
+  }
+
+  Future<List<String>> getPluginsRegistry() async {
+    final storagePluginsRegistry = storage.read('plugins_registry') ?? [];
+    final existingPlugins = <String>[];
+    await Future.forEach(storagePluginsRegistry, (plugin) async {
+      final pluginExists = await File('./plugins/$plugin').exists();
+      if (pluginExists) {
+        existingPlugins.add(plugin as String);
+      }
+    });
+    return existingPlugins;
   }
 
   Future<bool> addPlugin(String plugin) async {
+    List<String> pluginsRegistry = await getPluginsRegistry();
+
+    bool alreadyRegistered = pluginsRegistry.firstWhere(
+      (registeredPlugin) => registeredPlugin.contains(plugin)
+    ).isNotEmpty;
+
+    if (alreadyRegistered) {
+      return false;
+    }
+
+    // TODO: return lingle item
     List<ReleaseAsset>? assets = await apiService.getLatestReleaseAssets(plugin);
 
     if (assets == null) {
       return false;
     }
   
-
-    final documentsDir = await getApplicationDocumentsDirectory();
-    final pluginDir = '$documentsDir/spotter/plugins/$plugin';
-      // print(Directory.current.parent.path);
-
-    // await shell.run('mkdir -p $documentsDir/spotter/plugins/$plugin');
+    await shell.run('mkdir -p plugins/$plugin');
     await Future.wait(assets.map((asset) async {
       String name = asset.name;
       String url = asset.url;
-      print(1);
-      // var res1 = await shell.run('wget -O $pluginsDir/$name "$url"');
-
-      // var res1 = await Process.run(
-      //    'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
-      //   [
-      //     // 'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
-      //   ],
-      //   runInShell: true,
-      //   // 'ls',
-      //   // [],
-      //   // workingDirectory: pluginsDir,
-      // );
-      // ProcessRunner processRunner = ProcessRunner();
-      // ProcessRunnerResult res1 = await processRunner.runProcess(['./plugins/$name']);
-      // print(res1.stdout);
-      print(2);
-      // await shell.run('chmod 777 plugins/$plugin/$name');
-      print(3);
-      // var res = await shell.run('nohup $pluginsDir/$name </dev/null >/dev/null 2>&1 &');
-      // print(res.stdout);
-      // await shell.run('nohup plugins/$plugin/$name </dev/null >/dev/null 2>&1 &');
-      // var res = await shell.run('nohup $pluginsDir/$name </dev/null >/dev/null 2>&1 &');
-      // var appPath = Directory.current.path;
-      // var res = await shell.run('nohup $appPath/plugins/$plugin/$name </dev/null >/dev/null 2>&1 &');
-      // var res = await shell.run('cd plugins');
-      final pty = Pty.start('./plugins/$plugin/$name');
-
-    // pty.output.cast<List<int>>().transform(const Utf8Decoder()).listen((text) {
-    //     print(text);
-    //   // ptyOutout.write(text);
-    //   // setState(() {});
-    // });
-      // pty.output.listen((data) => print(data));
-      // var res = await Process.runSync(
-      //    '/bin/bash',
-      //   [
-      //     '-c',
-      //    'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
-      //   ],
-      //   // 'ls',
-      //   // [],
-      //   runInShell: true,
-      //   // workingDirectory: pluginDir,
-      // );
-      // print(res.stdout);
-      print(4);
+      await shell.run('wget -O plugins/$plugin/$name "$url"');
+      await shell.run('chmod 777 plugins/$plugin/$name');
+      Pty.start('plugins/$plugin/$name');
+      storage.write('plugins_registry', [...pluginsRegistry, '$plugin/$name']);
     }));
-    print(5);
 
-    // await pluginsRegistryStorage.ready;
-    // List<String> pluginsRegistry = List<String>.from(pluginsRegistryStorage.getItem('plugins_registry') ?? []);
-    // pluginsRegistryStorage.setItem('plugins_registry', [...pluginsRegistry, plugin]);
-
-    print(6);
     return true;
   }
 
@@ -215,7 +176,6 @@ class PluginsServer {
     });
   }
 }
-
 
 void main() async {
   await GetStorage.init('spotter');
