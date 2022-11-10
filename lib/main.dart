@@ -8,11 +8,16 @@ import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart'; // TODO: remove
-import 'package:process_run/shell.dart';
+import 'package:shell/shell.dart';
 import 'package:observable/observable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:process_runner/process_runner.dart';
+import 'package:flutter_pty/flutter_pty.dart';
+import 'package:get_storage/get_storage.dart';
 
 import 'api_service.dart';
 
@@ -42,9 +47,12 @@ class PluginRequest {
 }
 
 class PluginsServer {
+  final storage = GetStorage('spotter');
 
   List<WebSocket> pluginSockets = [];
 
+  final ApiService apiService = ApiService();
+  final Shell shell = Shell();
   ObservableList<PluginRequest> requestsRegistry = ObservableList<PluginRequest>.from([]);
 
   // final foo = Counter();
@@ -52,6 +60,95 @@ class PluginsServer {
   start() async {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
+
+    // await pluginsRegistryStorage.ready;
+    // List<String> pluginsRegistry = List<String>.from(pluginsRegistryStorage.getItem('plugins_registry') ?? []);
+    print('--------------------------');
+    print(storage.read('test'));
+    storage.write('test', 'GetX is the best1');
+    // print(pluginsRegistry);
+  }
+
+  Future<bool> addPlugin(String plugin) async {
+    List<ReleaseAsset>? assets = await apiService.getLatestReleaseAssets(plugin);
+
+    if (assets == null) {
+      return false;
+    }
+  
+
+    final documentsDir = await getApplicationDocumentsDirectory();
+    final pluginDir = '$documentsDir/spotter/plugins/$plugin';
+      // print(Directory.current.parent.path);
+
+    // await shell.run('mkdir -p $documentsDir/spotter/plugins/$plugin');
+    await Future.wait(assets.map((asset) async {
+      String name = asset.name;
+      String url = asset.url;
+      print(1);
+      // var res1 = await shell.run('wget -O $pluginsDir/$name "$url"');
+
+      // var res1 = await Process.run(
+      //    'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
+      //   [
+      //     // 'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
+      //   ],
+      //   runInShell: true,
+      //   // 'ls',
+      //   // [],
+      //   // workingDirectory: pluginsDir,
+      // );
+      // ProcessRunner processRunner = ProcessRunner();
+      // ProcessRunnerResult res1 = await processRunner.runProcess(['./plugins/$name']);
+      // print(res1.stdout);
+      print(2);
+      // await shell.run('chmod 777 plugins/$plugin/$name');
+      print(3);
+      // var res = await shell.run('nohup $pluginsDir/$name </dev/null >/dev/null 2>&1 &');
+      // print(res.stdout);
+      // await shell.run('nohup plugins/$plugin/$name </dev/null >/dev/null 2>&1 &');
+      // var res = await shell.run('nohup $pluginsDir/$name </dev/null >/dev/null 2>&1 &');
+      // var appPath = Directory.current.path;
+      // var res = await shell.run('nohup $appPath/plugins/$plugin/$name </dev/null >/dev/null 2>&1 &');
+      // var res = await shell.run('cd plugins');
+      final pty = Pty.start('./plugins/$plugin/$name');
+
+    // pty.output.cast<List<int>>().transform(const Utf8Decoder()).listen((text) {
+    //     print(text);
+    //   // ptyOutout.write(text);
+    //   // setState(() {});
+    // });
+      // pty.output.listen((data) => print(data));
+      // var res = await Process.runSync(
+      //    '/bin/bash',
+      //   [
+      //     '-c',
+      //    'nohup $pluginDir/applications-plugin-linux </dev/null >/dev/null 2>&1 &',
+      //   ],
+      //   // 'ls',
+      //   // [],
+      //   runInShell: true,
+      //   // workingDirectory: pluginDir,
+      // );
+      // print(res.stdout);
+      print(4);
+    }));
+    print(5);
+
+    // await pluginsRegistryStorage.ready;
+    // List<String> pluginsRegistry = List<String>.from(pluginsRegistryStorage.getItem('plugins_registry') ?? []);
+    // pluginsRegistryStorage.setItem('plugins_registry', [...pluginsRegistry, plugin]);
+
+    print(6);
+    return true;
+  }
+
+  removePlugin(String plugin) async {
+    // await pluginsRegistryStorage.ready;
+    // List<String> pluginsRegistry = pluginsRegistryStorage.getItem('plugins_registry');
+    // pluginsRegistryStorage.setItem('plugins_registry', pluginsRegistry.where((p) => p != plugin));
+    // TODO: kill process
+    // kill -9 $(pidof 'plugin_name')
   }
 
   Future<PluginRequest> findPluginRequest(String requestId) async {
@@ -73,35 +170,43 @@ class PluginsServer {
     
 
   Future<List<Option>> onQuery(String query) async {
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (pluginSockets.isNotEmpty) {
-      pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
+    if (pluginSockets.isEmpty) {
+      return [];
     }
+
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    pluginSockets[0].add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
 
     PluginRequest request = await findPluginRequest(requestId);
     return request.options;
   }
 
   Future<List<Option>> onOptionQuery(String onQueryId, String query) async {
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (pluginSockets.isNotEmpty) {
-      pluginSockets[0].add('{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
+    if (pluginSockets.isEmpty) {
+      // TODO: throw error
+      return [];
     }
+
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    pluginSockets[0].add('{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
 
     PluginRequest request = await findPluginRequest(requestId);
     return request.options;
   }
 
   Future<PluginRequest> execAction(String actionId) async {
-    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (pluginSockets.isNotEmpty) {
-      pluginSockets[0].add('{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
+    if (pluginSockets.isEmpty) {
+      // TODO: throw error
     }
+
+    String requestId = DateTime.now().millisecondsSinceEpoch.toString();
+    pluginSockets[0].add('{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
     PluginRequest request = await findPluginRequest(requestId);
     return request;
   }
 
   _handleConnection(WebSocket socket) {
+    print('-------------------------------- handle connection -----------');
     pluginSockets.add(socket);
     socket.listen((event) {
       PluginRequest request = PluginRequest.fromJson(jsonDecode(event));
@@ -113,6 +218,8 @@ class PluginsServer {
 
 
 void main() async {
+  await GetStorage.init('spotter');
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await windowManager.ensureInitialized();
@@ -251,22 +358,11 @@ class Option {
   };
 }
 
-class PluginRegistryItem {
-  final String name;
-  bool isActive;
-
-  PluginRegistryItem({
-    required this.name,
-    required this.isActive,
-  });
-}
-
 class _SpotterState extends State<Spotter> {
   final AppWindow _appWindow = AppWindow();
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
   final Shell shell = Shell();
-  final ApiService apiService = ApiService();
 
   final textFieldController = TextEditingController();
   final scrollController = ScrollController();
@@ -286,8 +382,6 @@ class _SpotterState extends State<Spotter> {
   List<String> plugins = [
     'spotter-application/applications-plugin'
   ];
-
-  List<PluginRegistryItem> registeredPlugins = [];
 
   @override
   Widget build(BuildContext context) {
@@ -594,24 +688,7 @@ class _SpotterState extends State<Spotter> {
   }
 
   Future<bool> installPlugin(String plugin) async {
-    List<ReleaseAsset>? assets = await apiService.getLatestReleaseAssets(plugin);
-
-    if (assets == null) {
-      return false;
-    }
-
-    await shell.run('mkdir -p plugins/$plugin');
-    await Future.wait(assets.map((asset) async {
-      String name = asset.name;
-      String url = asset.url;
-      await shell.run('wget -O plugins/$plugin/$name "$url"');
-      await shell.run('chmod 777 plugins/$plugin/$name');
-    }));
-
-    registeredPlugins.add(PluginRegistryItem(name: plugin, isActive: false));
-
-    // TODO: return list of plugins with hovered installed plugin
-    return true;
+    return await pluginsServer.addPlugin(plugin);
   }
 
   // TODO: remove after global hotkey fix
@@ -707,23 +784,18 @@ class _SpotterState extends State<Spotter> {
       return;
     }
 
-    List<Option> nextOptions = await pluginsServer.onQuery(textFieldController.text);
-
-    // if (nextOptions != null) {
-    setState(() {
-      selectedOptionIndex = 0;
-      filteredOptions = nextOptions;
-    });
-    return;
-    // }
+    List<Option> pluginsOptions = await pluginsServer.onQuery(textFieldController.text);
+    List<Option> nextOptions = [...pluginsOptions, ...options];
 
     setState(() {
       selectedOptionIndex = 0;
-      if (textFieldController.text.isEmpty) {
-        filteredOptions = [];
-        return;
-      }
-      filteredOptions = options.where((option) => option.name.toLowerCase().contains(textFieldController.text.toLowerCase())).toList();
+      filteredOptions = nextOptions.where(
+        (option) => option.name.toLowerCase().contains(textFieldController.text.toLowerCase())
+      ).toList();
+      // if (textFieldController.text.isEmpty) {
+      //   filteredOptions = [];
+      //   return;
+      // }
     });
   }
 
@@ -761,6 +833,7 @@ class _SpotterState extends State<Spotter> {
     setState(() {
       loading = false;
       filteredOptions = [];
+      activatedOptions = [];
     });
   }
 
