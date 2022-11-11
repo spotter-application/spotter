@@ -72,6 +72,7 @@ class PluginsServer {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
 
+    // storage.write('plugins_registry', []);
     storage.writeIfNull('plugins_registry', []);
     List<String> pluginsRegistry = await getPluginsRegistry();
 
@@ -197,13 +198,26 @@ class PluginsServer {
   _handleConnection(WebSocket socket) {
     String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
     pluginConnections.add(PluginConnection(id: connectionId, socket: socket));
-    socket.listen((event) {
-      final json = jsonDecode(event);
-      json['connectionId'] = connectionId;
-      PluginRequest request = PluginRequest.fromJson(json);
-      // TODO: clean up after closing
-      requestsRegistry.add(request);
-    });
+    // socket.handleError(() {
+    //   // TODO: add
+    // });
+
+    socket.listen(
+      (event) {
+        print(event);
+        final json = jsonDecode(event);
+        json['connectionId'] = connectionId;
+        PluginRequest request = PluginRequest.fromJson(json);
+        // TODO: clean up after closing
+        requestsRegistry.add(request);
+      },
+      onDone: () {
+        pluginConnections.removeWhere((connection) => connection.id == connectionId);
+      },
+      onError: (error) {
+        pluginConnections.removeWhere((connection) => connection.id == connectionId);
+      }
+    );
   }
 }
 
@@ -258,31 +272,31 @@ void main() async {
     } ,
   );
 
-  HotKey closeHotKey = HotKey(
-    KeyCode.escape,
-    modifiers: [KeyModifier.control],
-    scope: HotKeyScope.inapp,
-  );
-  // final AppWindow appWindow = AppWindow();
-  await hotKeyManager.register(
-    closeHotKey,
-    keyDownHandler: (hotKey) async {
-      print("CLOSE");
-      print('onKeyDown+${hotKey.toJson()}');
-      await windowManager.hide();
-      // await windowManager.show();
-    },
-  );
+  // HotKey closeHotKey = HotKey(
+  //   KeyCode.escape,
+  //   modifiers: [KeyModifier.control],
+  //   scope: HotKeyScope.inapp,
+  // );
+  // // final AppWindow appWindow = AppWindow();
+  // await hotKeyManager.register(
+  //   closeHotKey,
+  //   keyDownHandler: (hotKey) async {
+  //     print("CLOSE");
+  //     print('onKeyDown+${hotKey.toJson()}');
+  //     await windowManager.hide();
+  //     // await windowManager.show();
+  //   },
+  // );
 
   runApp(const MyApp());
 }
 
 String getImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/spotter.bmp' : 'assets/spotter.png';
+  return Platform.isWindows ? 'assets/spotter.bmp' : 'assets/resources/spotter.png';
 }
 
 String getTrayImagePath(String imageName) {
-  return Platform.isWindows ? 'assets/spotter.ico' : 'assets/spotter.png';
+  return Platform.isWindows ? 'assets/spotter.ico' : 'assets/resources/spotter.png';
 }
 
 typedef Action = bool Function(String query);
@@ -733,8 +747,7 @@ class _SpotterState extends State<Spotter> {
   Future<void> initSystemTray() async {
 
     await _systemTray.initSystemTray(iconPath: getTrayImagePath('app_icon'));
-    _systemTray.setTitle("system tray");
-    _systemTray.setToolTip("How to use system tray with Flutter");
+    _systemTray.setTitle("Spotter");
 
     _systemTray.registerSystemTrayEventHandler((eventName) {
       debugPrint("eventName: $eventName");
