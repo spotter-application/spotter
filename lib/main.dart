@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ffi' as ffi;
+import 'package:path/path.dart' as path;
 
 // import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart' hide MenuItem;
@@ -230,15 +231,16 @@ double windowHeight = 450;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // if (Platform.isLinux) {
-  //   final dylib = ffi.DynamicLibrary.open('linux/dpi.so');
-  //   final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
-  //   final getScale = scalePointer.asFunction<Scale>();
-  //   deviceScale = (getScale() * 10).truncateToDouble() / 10;
+  if (Platform.isLinux) {
+    final libraryPath = path.join(Directory.current.path, 'linux', 'dpi.so');
+    final dylib = ffi.DynamicLibrary.open(libraryPath);
+    final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
+    final getScale = scalePointer.asFunction<Scale>();
+    deviceScale = (getScale() * 10).truncateToDouble() / 10;
 
-  //   // print('---------- scale: ');
-  //   // print(deviceScale);
-  // }
+    // print('---------- scale: ');
+    // print(deviceScale);
+  }
 
   final appWindow = AppWindow();
 
