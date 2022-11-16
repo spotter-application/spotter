@@ -230,13 +230,15 @@ double windowHeight = 450;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // final dylib = ffi.DynamicLibrary.open('linux/dpi.so');
-  // final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
-  // final getScale = scalePointer.asFunction<Scale>();
-  // deviceScale = (getScale() * 10).truncateToDouble() / 10;
+  if (Platform.isLinux) {
+    final dylib = ffi.DynamicLibrary.open('linux/dpi.so');
+    final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
+    final getScale = scalePointer.asFunction<Scale>();
+    deviceScale = (getScale() * 10).truncateToDouble() / 10;
 
-  // print('---------- scale: ');
-  // print(deviceScale);
+    // print('---------- scale: ');
+    // print(deviceScale);
+  }
 
   final appWindow = AppWindow();
 
