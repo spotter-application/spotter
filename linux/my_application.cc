@@ -1,7 +1,5 @@
 #include "my_application.h"
 
-#include <bitsdojo_window_linux/bitsdojo_window_plugin.h>
-
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -29,29 +27,53 @@ static void my_application_activate(GApplication* application) {
   // in case the window manager does more exotic layout, e.g. tiling.
   // If running on Wayland assume the header bar will work (may need changing
   // if future cases occur).
-  gboolean use_header_bar = TRUE;
-#ifdef GDK_WINDOWING_X11
-  GdkScreen* screen = gtk_window_get_screen(window);
-  if (GDK_IS_X11_SCREEN(screen)) {
-    const gchar* wm_name = gdk_x11_screen_get_window_manager_name(screen);
-    if (g_strcmp0(wm_name, "GNOME Shell") != 0) {
-      use_header_bar = FALSE;
-    }
-  }
-#endif
-  if (use_header_bar) {
-    GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
-    gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "spotter");
-    gtk_header_bar_set_show_close_button(header_bar, TRUE);
-    gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
-  } else {
-    gtk_window_set_title(window, "spotter");
+//   gboolean use_header_bar = TRUE;
+// #ifdef GDK_WINDOWING_X11
+//   GdkScreen* screen = gtk_window_get_screen(window);
+//   if (GDK_IS_X11_SCREEN(screen)) {
+//     const gchar* wm_name = gdk_x11_screen_get_window_manager_name(screen);
+//     if (g_strcmp0(wm_name, "GNOME Shell") != 0) {
+//       use_header_bar = FALSE;
+//     }
+//   }
+// #endif
+  // if (use_header_bar) {
+  //   GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
+  //   gtk_widget_show(GTK_WIDGET(header_bar));
+  //   gtk_header_bar_set_title(header_bar, "spotter");
+  //   gtk_header_bar_set_show_close_button(header_bar, TRUE);
+  //   gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
+  // } else {
+  //   gtk_window_set_title(window, "spotter");
+  // }
+
+  int dpiValue;
+  GtkSettings *settings;
+  settings = gtk_settings_get_default();
+  g_object_get(settings, "gtk-xft-dpi", &dpiValue, NULL);
+  int dpi = dpiValue / 1024;
+  float scale = static_cast<float>(dpi) / 100;
+
+  g_print("Scale is %f\n", scale);
+
+  gtk_window_set_default_size(window, 800 * scale, 450 * scale);
+  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+
+  // Move to center
+  gtk_window_set_modal(window, TRUE);
+  gtk_window_set_decorated(window, FALSE);
+
+
+  // Make background transparent
+  GdkScreen *screen;
+  GdkVisual *visual;
+  gtk_widget_set_app_paintable(GTK_WIDGET(window), TRUE);
+  screen = gdk_screen_get_default();
+  visual = gdk_screen_get_rgba_visual(screen);
+  if (visual != NULL && gdk_screen_is_composited(screen)) {
+    gtk_widget_set_visual(GTK_WIDGET(window), visual);
   }
 
-  auto bdw = bitsdojo_window_from(window);            // <--- add this line
-  bdw->setCustomFrame(true);                          // <-- add this line
-  //gtk_window_set_default_size(window, 1280, 720);   // <-- comment this line
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
