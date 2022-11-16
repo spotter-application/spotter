@@ -238,6 +238,8 @@ void main() async {
   // print('---------- scale: ');
   // print(deviceScale);
 
+  final appWindow = AppWindow();
+
   await GetStorage.init('spotter');
 
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -292,7 +294,7 @@ void main() async {
   await hotKeyManager.register(
     openHotKey,
     keyDownHandler: (hotKey) {
-      // appWindow.show();
+      appWindow.show();
       print('onKeyDown+${hotKey.toJson()}');
     },
     // Only works on macOS.
