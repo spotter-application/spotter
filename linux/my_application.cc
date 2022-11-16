@@ -48,19 +48,19 @@ static void my_application_activate(GApplication* application) {
   // }
 
   // HIDPI scaling
-  // int dpiValue;
-  // GtkSettings *settings;
-  // settings = gtk_settings_get_default();
-  // g_object_get(settings, "gtk-xft-dpi", &dpiValue, NULL);
-  // int dpi = dpiValue / 1024;
-  // float scale = static_cast<float>(dpi) / 100;
+  int dpiValue;
+  GtkSettings *settings;
+  settings = gtk_settings_get_default();
+  g_object_get(settings, "gtk-xft-dpi", &dpiValue, NULL);
+  int dpi = dpiValue / 1024;
+  float scale = static_cast<float>(dpi) / 100;
 
-  // g_print("Scale is %f\n", scale);
+  g_print("Scale is %f\n", scale);
 
-  // gtk_window_set_default_size(window, 800 * scale, 450 * scale);
-  // gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+  gtk_window_set_default_size(window, 800 * scale, 450 * scale);
+  gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
 
-  gtk_window_set_default_size(window, 800, 450);
+  // gtk_window_set_default_size(window, 800, 450);
 
   // Move to center
   gtk_window_set_modal(window, TRUE);
