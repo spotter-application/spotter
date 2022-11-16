@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ffi' as ffi;
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+// import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart' hide MenuItem;
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -204,7 +205,6 @@ class PluginsServer {
 
     socket.listen(
       (event) {
-        print(event);
         final json = jsonDecode(event);
         json['connectionId'] = connectionId;
         PluginRequest request = PluginRequest.fromJson(json);
@@ -221,8 +221,22 @@ class PluginsServer {
   }
 }
 
+typedef ScaleFunc = ffi.Double Function();
+typedef Scale = double Function();
+double deviceScale = 1;
+double windowWidth = 1000;
+double windowHeight = 450;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  final dylib = ffi.DynamicLibrary.open('linux/dpi.so');
+  final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
+  final getScale = scalePointer.asFunction<Scale>();
+  deviceScale = (getScale() * 10).truncateToDouble() / 10;
+
+  print('---------- scale: ');
+  print(deviceScale);
 
   await GetStorage.init('spotter');
 
@@ -240,30 +254,45 @@ void main() async {
   }
 
   await windowManager.ensureInitialized();
+  // WindowOptions windowOptions = const WindowOptions(
+  //   size: Size(800, 600),
+  //   center: true,
+  //   backgroundColor: Colors.yellow,
+  //   skipTaskbar: false,
+  //   titleBarStyle: TitleBarStyle.hidden,
+  // );
+  // windowManager.waitUntilReadyToShow(windowOptions, () async {
+  //   // await windowManager.show();
+  //   // await windowManager.focus();
+  // });
 
   await hotKeyManager.unregisterAll();
 
-  doWhenWindowReady(() {
-    const initialSize = Size(800, 450);
-    appWindow.minSize = initialSize;
-    appWindow.maxSize = initialSize;
-    appWindow.size = initialSize;
-    appWindow.alignment = Alignment.center;
-    appWindow.hide();
-    // appWindow.show();
-  });
+  // windowWidth = (800 * deviceScale);
+  // windowHeight = (150 * deviceScale);
+  // final initialSize = Size(windowWidth, windowHeight);
+
+  // doWhenWindowReady(() {
+  //   appWindow.minSize = initialSize;
+  //   appWindow.maxSize = initialSize;
+  //   appWindow.size = initialSize;
+  //   appWindow.alignment = Alignment.center;
+  //   appWindow.hide();
+  //   // appWindow.show();
+  // });
   // await hotKeyManager.unregisterAll();
 
 
   HotKey openHotKey = HotKey(
-    KeyCode.keyS,
-    modifiers: [KeyModifier.control, KeyModifier.shift],
+    KeyCode.space,
+    modifiers: [KeyModifier.alt],
+  );
     // Set hotkey scope (default is HotKeyScope.system)
     // scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
-  );
   await hotKeyManager.register(
     openHotKey,
     keyDownHandler: (hotKey) {
+      // appWindow.show();
       print('onKeyDown+${hotKey.toJson()}');
     },
     // Only works on macOS.
@@ -492,6 +521,7 @@ class _SpotterState extends State<Spotter> {
       }
 
       if (event.logicalKey == LogicalKeyboardKey.enter) {
+        print(deviceScale);
         onSubmit(filteredOptions[selectedOptionIndex]);
         return KeyEventResult.handled;
       }
@@ -517,9 +547,21 @@ class _SpotterState extends State<Spotter> {
 
       return KeyEventResult.ignored;
     }
+
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
     return Scaffold(
       body: Container(
         alignment: Alignment.topCenter,
+        transform: Matrix4(
+          deviceScale, 0, 0, 0, //
+          0, deviceScale, 0, 0, //
+          0, 0, 1, 0, //
+          0, 0, 0, 1,
+        ),
+        width: width / deviceScale,
+        height: height / deviceScale,
+        color: Colors.transparent,
         child: Column(
           children: <Widget>[
             Container(
