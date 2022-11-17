@@ -230,17 +230,10 @@ double windowHeight = 450;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // if (Platform.isLinux) {
-  //   final dylib = ffi.DynamicLibrary.open('linux/dpi.so');
-  //   final scalePointer = dylib.lookup<ffi.NativeFunction<ScaleFunc>>('getScale');
-  //   final getScale = scalePointer.asFunction<Scale>();
-  //   deviceScale = (getScale() * 10).truncateToDouble() / 10;
-
-  //   // print('---------- scale: ');
-  //   // print(deviceScale);
-  // }
-
-  final appWindow = AppWindow();
+  if (Platform.isLinux) {
+    final size = await windowManager.getSize();
+    deviceScale = size.width / 800;
+  }
 
   await GetStorage.init('spotter');
 
@@ -296,7 +289,7 @@ void main() async {
   await hotKeyManager.register(
     openHotKey,
     keyDownHandler: (hotKey) {
-      appWindow.show();
+      windowManager.show();
       print('onKeyDown+${hotKey.toJson()}');
     },
     // Only works on macOS.
