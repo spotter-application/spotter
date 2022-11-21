@@ -176,6 +176,7 @@ class _SpotterState extends State<Spotter> {
   List<String> plugins = [
     'spotter-application/applications-plugin',
     'spotter-application/calculator-plugin',
+    'spotter-application/ml-plugin',
   ];
 
   final textFieldFocusNode = FocusNode();
