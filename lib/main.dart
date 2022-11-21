@@ -19,6 +19,7 @@ import 'package:launch_at_startup/launch_at_startup.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'api_service.dart';
+import 'window_service.dart';
 
 typedef OnNextOptions = void Function(List<Option> options);
 
@@ -111,7 +112,7 @@ class PluginsServer {
     if (assets == null) {
       return false;
     }
-  
+
     await shell.run('mkdir -p plugins/$plugin');
     await Future.wait(assets.map((asset) async {
       String name = asset.name;
@@ -149,7 +150,7 @@ class PluginsServer {
 
     return completer.future;
   }
-    
+
 
   Future<List<Option>> onQuery(String query) async {
     if (pluginConnections.isEmpty) {
@@ -228,6 +229,7 @@ double windowWidth = 1000;
 double windowHeight = 450;
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isLinux) {
@@ -279,6 +281,7 @@ void main() async {
   // });
   // await hotKeyManager.unregisterAll();
 
+  final WindowService windowService = WindowService();
 
   HotKey openHotKey = HotKey(
     KeyCode.space,
@@ -289,7 +292,7 @@ void main() async {
   await hotKeyManager.register(
     openHotKey,
     keyDownHandler: (hotKey) {
-      windowManager.show();
+      windowService.show();
       print('onKeyDown+${hotKey.toJson()}');
     },
     // Only works on macOS.
@@ -415,6 +418,7 @@ class _SpotterState extends State<Spotter> {
   final SystemTray _systemTray = SystemTray();
   final Menu _menuMain = Menu();
   final Shell shell = Shell();
+  final WindowService windowService = WindowService();
 
   final textFieldController = TextEditingController();
   final scrollController = ScrollController();
@@ -458,11 +462,11 @@ class _SpotterState extends State<Spotter> {
       if (event.logicalKey == LogicalKeyboardKey.escape) {
         if (loading) {
           //Save state
-          windowManager.hide();
+          windowService.hide();
           return KeyEventResult.handled;
         }
 
-        windowManager.hide();
+        windowService.hide();
         textFieldController.clear();
         setState(() {
           filteredOptions = [];
@@ -803,8 +807,7 @@ class _SpotterState extends State<Spotter> {
             label: 'Show',
             image: getImagePath('darts_icon'),
             onClicked: (menuItem) async => {
-              await windowManager.show(),
-              await windowManager.focus()
+              await windowService.show(),
             },
         ),
         MenuItemLabel(
@@ -875,7 +878,7 @@ class _SpotterState extends State<Spotter> {
         filteredOptions = request != null && request.complete ? [] : request!.options;
       });
 
-      windowManager.hide();
+      windowService.hide();
       textFieldController.clear();
       return;
     }
@@ -892,7 +895,7 @@ class _SpotterState extends State<Spotter> {
       }
     }
 
-    windowManager.hide();
+    windowService.hide();
     textFieldController.clear();
     setState(() {
       loading = false;
