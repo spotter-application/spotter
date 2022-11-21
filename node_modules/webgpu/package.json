@@ -1,0 +1,49 @@
+{
+  "name": "webgpu",
+  "main": "index.js",
+  "version": "0.1.16",
+  "engines": {
+    "node": ">= 13.0.0"
+  },
+  "config": {
+    "DAWN_PATH": "PATH_TO_DAWN",
+    "GEN_OUT_DIR": "./generated",
+    "SPEC_DIR": "./generator/specifications",
+    "TEMPLATE_DIR": "./generator/templates"
+  },
+  "scripts": {
+    "build": "node ./build.js",
+    "generate": "node --experimental-modules --experimental-json-modules ./generator/index.mjs",
+    "all": "npm run generate && npm run build",
+    "tests": "node --experimental-modules tests/index.mjs"
+  },
+  "devDependencies": {
+    "ncp": "^2.0.0",
+    "node-addon-api": "^1.7.1",
+    "nunjucks": "^3.2.0"
+  },
+  "dependencies": {},
+  "description": "WebGPU for Node [WIP]",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maierfelix/webgpu.git"
+  },
+  "keywords": [
+    "webgpu",
+    "vulkan",
+    "dawn",
+    "gpu",
+    "gpgpu"
+  ],
+  "author": "Felix Maier",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/maierfelix/webgpu/issues"
+  },
+  "homepage": "https://github.com/maierfelix/webgpu#readme",
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "tests"
+  }
+}

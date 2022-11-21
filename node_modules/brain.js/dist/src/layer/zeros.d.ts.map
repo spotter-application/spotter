@@ -1,0 +1,1 @@
+{"version":3,"file":"zeros.d.ts","sourceRoot":"","sources":["../../../src/layer/zeros.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,KAAK,EAAE,MAAM,SAAS,CAAC;AAChC,OAAO,EAAE,cAAc,EAAE,MAAM,cAAc,CAAC;AAE9C,qBAAa,KAAM,SAAQ,KAAK;gBAClB,QAAQ,EAAE,cAAc;IAOpC,OAAO,IAAI,IAAI;IAIf,OAAO,IAAI,IAAI;CAKhB;AAED,wBAAgB,KAAK,CAAC,QAAQ,EAAE,cAAc,GAAG,KAAK,CAErD"}

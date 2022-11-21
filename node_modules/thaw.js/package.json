@@ -1,0 +1,52 @@
+{
+  "name": "thaw.js",
+  "version": "2.1.4",
+  "description": "synthetic asynchronous processing in javascript",
+  "files": [
+    "browser.js",
+    "browser.min.js",
+    "browser.min.js.map",
+    "dist/*.js",
+    "dist/*.ts"
+  ],
+  "main": "dist/index.js",
+  "browser": "browser.js",
+  "scripts": {
+    "test": "jest",
+    "coverage": "jest --coverage",
+    "dist": "tsc --outDir dist --declaration",
+    "browser": "lofi-bundler;  echo '\n\n export { Thaw, Block, thaw };' >> browser.ts; tsc browser.ts --target es5 --module commonjs; rm browser.ts;",
+    "browser-min": "uglifyjs browser.js --compress --mangle -o browser.min.js --wrap Thaw --source-map",
+    "make": "rm -rf ./dist; npm run dist; npm run browser; npm run browser-min",
+    "prepare": "npm run make"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertleeplummerjr/thaw.js.git"
+  },
+  "keywords": [
+    "multithread",
+    "cpu",
+    "async",
+    "synthetic"
+  ],
+  "author": "Robert Lee Plummer Jr. <robertleeplummerjr@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robertleeplummerjr/thaw.js/issues"
+  },
+  "homepage": "https://github.com/robertleeplummerjr/thaw.js#readme",
+  "devDependencies": {
+    "jest": "^26.4.1",
+    "ts-jest": "^26.2.0",
+    "typescript": "^3.9.7",
+    "lofi-bundler": "^1.0.1",
+    "uglify-js": "^3.13.0"
+  },
+  "config": {
+    "lofi-bundler": {
+      "entry": "src/index.ts",
+      "target": "browser.ts"
+    }
+  }
+}

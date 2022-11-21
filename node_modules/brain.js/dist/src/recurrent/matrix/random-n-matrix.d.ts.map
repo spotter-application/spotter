@@ -1,0 +1,1 @@
+{"version":3,"file":"random-n-matrix.d.ts","sourceRoot":"","sources":["../../../../src/recurrent/matrix/random-n-matrix.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,GAAG,CAAC;AAG3B,qBAAa,aAAc,SAAQ,MAAM;IACvC,GAAG,EAAE,MAAM,CAAC;IACZ,EAAE,EAAE,MAAM,CAAC;gBAEC,IAAI,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,EAAE,EAAE,EAAE,MAAM,EAAE,GAAG,EAAE,MAAM;IAUlE,SAAS,IAAI,IAAI;CAKlB"}

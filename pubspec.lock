@@ -113,6 +113,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.6"
+  dotup_dart_utils:
+    dependency: transitive
+    description:
+      name: dotup_dart_utils
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
+  dotup_flutter_active_window:
+    dependency: "direct main"
+    description:
+      name: dotup_flutter_active_window
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   fake_async:
     dependency: transitive
     description:

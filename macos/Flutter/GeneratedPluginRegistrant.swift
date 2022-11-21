@@ -6,6 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import bitsdojo_window_macos
+import dotup_flutter_active_window
 import hotkey_manager
 import package_info_plus
 import path_provider_macos
@@ -15,6 +16,7 @@ import window_manager
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   BitsdojoWindowPlugin.register(with: registry.registrar(forPlugin: "BitsdojoWindowPlugin"))
+  DotupFlutterActiveWindowPlugin.register(with: registry.registrar(forPlugin: "DotupFlutterActiveWindowPlugin"))
   HotkeyManagerPlugin.register(with: registry.registrar(forPlugin: "HotkeyManagerPlugin"))
   FLTPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FLTPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))

@@ -1,0 +1,1 @@
+{"version":3,"file":"lstm-cell.d.ts","sourceRoot":"","sources":["../../../src/layer/lstm-cell.ts"],"names":[],"mappings":"AAOA,OAAO,EAAE,MAAM,EAAE,cAAc,EAAE,MAAM,cAAc,CAAC;AACtD,OAAO,EAAE,eAAe,EAAE,MAAM,mBAAmB,CAAC;AAEpD,wBAAgB,QAAQ,CACtB,QAAQ,EAAE,cAAc,EACxB,KAAK,EAAE,MAAM,EACb,cAAc,EAAE,eAAe,GAC9B,MAAM,CAmHR"}

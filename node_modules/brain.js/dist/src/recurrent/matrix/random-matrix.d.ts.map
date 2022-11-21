@@ -1,0 +1,1 @@
+{"version":3,"file":"random-matrix.d.ts","sourceRoot":"","sources":["../../../../src/recurrent/matrix/random-matrix.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,GAAG,CAAC;AAG3B;GACG;AACH,qBAAa,YAAa,SAAQ,MAAM;IACtC,GAAG,EAAE,MAAM,CAAC;gBAEA,IAAI,EAAE,MAAM,EAAE,OAAO,EAAE,MAAM,EAAE,GAAG,EAAE,MAAM;CASvD"}

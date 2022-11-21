@@ -118,6 +118,9 @@ class PluginsServer {
   ObservableList<PluginRequest> requestsRegistry =
       ObservableList<PluginRequest>.from([]);
 
+  ObservableList<String> mlSuggestionsRegistry =
+      ObservableList<String>.from([]);
+
   start() async {
     HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
@@ -154,7 +157,7 @@ class PluginsServer {
       return false;
     }
 
-    // TODO: return lingle item
+    // TODO: return single item
     List<ReleaseAsset>? assets =
         await apiService.getLatestReleaseAssets(plugin);
 
@@ -250,6 +253,29 @@ class PluginsServer {
     return request;
   }
 
+  mlAddSuggestionToList(String globalActionPath) {
+    mlSuggestionsRegistry.add(globalActionPath);
+    Iterable<String> nextMlSuggestionsRegistry = [
+      ...mlSuggestionsRegistry.take(2),
+      globalActionPath
+    ];
+    mlSuggestionsRegistry.clear();
+    mlSuggestionsRegistry.addAll(nextMlSuggestionsRegistry);
+  }
+
+  mlSendGlobalActionPath(String globalActionPath) async {
+    for (var connection in pluginConnections) {
+      connection.socket.add(
+          '{"id": "", "type": "mlOnGlobalActionPath", "mlGlobalActionPath": "$globalActionPath"}');
+    }
+  }
+
+  onOpenSpotter() async {
+    for (var connection in pluginConnections) {
+      connection.socket.add('{"type": "onOpenSpotter"}');
+    }
+  }
+
   _handleConnection(WebSocket socket) {
     String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
     pluginConnections.add(PluginConnection(id: connectionId, socket: socket));
@@ -259,6 +285,12 @@ class PluginsServer {
 
     socket.listen((event) {
       final json = jsonDecode(event);
+
+      if (json['mlGlobalActionPath'] != null) {
+        mlAddSuggestionToList(json['mlGlobalActionPath']);
+        return;
+      }
+
       json['connectionId'] = connectionId;
       PluginRequest request = PluginRequest.fromJson(json);
       // TODO: clean up after closing

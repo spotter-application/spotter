@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_linux
+  dotup_flutter_active_window
   hotkey_manager
   screen_retriever
   system_tray

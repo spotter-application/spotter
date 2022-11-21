@@ -1,0 +1,137 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout webgpu
+        uses: actions/checkout@v2
+      - name: Checkout dawn
+        uses: actions/checkout@v2
+        with:
+          repository: maierfelix/dawn-ray-tracing
+          ref: bae8c688fe96d7fd07136d05b4a6931e9e6ead4d
+          path: dawn
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '13.x'
+
+      # linux /macos
+      - name: Linux/MacOS - Add tools for dawn
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH=`pwd`/depot_tools:$PATH
+          cd dawn
+          cp scripts/standalone.gclient .gclient
+          gclient sync
+      - name: Linux - Install tools and libs from apt
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get install -y \
+            clang \
+            libosmesa6-dev \
+            libvulkan-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libxxf86vm-dev \
+      - name: Linux/MacOS - Build dawn
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          export PATH=`pwd`/depot_tools:$PATH
+          cd dawn
+          gn gen out/Shared --target_cpu="x64" --args="is_component_build=true is_debug=false is_clang=true"
+          ninja -C out/Shared
+      - name: Linux/MacOS - Build webgpu
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: |
+          printf `pwd`/dawn > PATH_TO_DAWN
+          npm install
+          npm run all --dawnversion=0.0.1
+          ls -l generated/0.0.1/*/build/Release
+  
+      # windows
+      - name: Windows - Add tools for dawn
+        if: matrix.os == 'windows-latest'
+        run: |
+          Write-Host "get depot_tools"
+          (New-Object System.Net.WebClient).DownloadFile("https://storage.googleapis.com/chrome-infra/depot_tools.zip", "$pwd\depot_tools.zip")
+          Write-Host "unzip depot_tools"
+          & 7z x -odepot_tools -bd .\depot_tools.zip
+          $env:Path="${pwd}\depot_tools;$env:Path"
+          $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
+          $env:GYP_MSVS_VERSION=2019
+          cd dawn
+          cp .\scripts\standalone.gclient .gclient
+          Write-Host "gclient sync"
+          & gclient sync
+          & python -m pip install pywin32
+      - name: Windows - Build dawn
+        if: matrix.os == 'windows-latest'
+        run: |
+          $env:Path="${pwd}\depot_tools;$env:Path"
+          $env:DEPOT_TOOLS_WIN_TOOLCHAIN=0
+          $env:GYP_MSVS_VERSION=2019
+          cd dawn
+          gn gen out/Shared --ide=vs --target_cpu="x64" --args="is_component_build=true is_debug=false is_clang=false"
+          ninja -C out/Shared
+      - name: Windows - Build webgpu
+        if: matrix.os == 'windows-latest'
+        run: |
+          $env:GYP_MSVS_VERSION=2019
+          [System.IO.File]::WriteAllText("$pwd/PATH_TO_DAWN", ((Resolve-Path .\dawn).Path -Replace "/$" -Replace "\\", "/"))
+          cat PATH_TO_DAWN
+          npm install
+          npm run all --dawnversion=0.0.1
+          ls generated/0.0.1/*/build/Release
+
+      # upload
+      - name: Upload build
+        uses: actions/upload-artifact@v1
+        with:
+          name: generated-${{ matrix.os }}
+          path: generated
+
+  publish:
+    needs: build
+    name: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout webgpu
+        uses: actions/checkout@v2
+      - name: Download linux build
+        uses: actions/download-artifact@v1
+        with:
+          name: generated-ubuntu-latest
+          path: generated
+      - name: Download windows build
+        uses: actions/download-artifact@v1
+        with:
+          name: generated-windows-latest
+          path: generated
+      - name: Download macos build
+        uses: actions/download-artifact@v1
+        with:
+          name: generated-macos-latest
+          path: generated
+      - name: Publish to NPM
+        uses: primer/publish@v2.0.0
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

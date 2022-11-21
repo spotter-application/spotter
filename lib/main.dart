@@ -6,7 +6,7 @@ import 'package:flutter/material.dart' hide MenuItem;
 import 'package:flutter/services.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:system_tray/system_tray.dart';
-import 'package:window_manager/window_manager.dart'; // TODO: remove
+import 'package:window_manager/window_manager.dart'; // TODO: remove and use local window service
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:process_run/shell.dart';
@@ -21,6 +21,8 @@ typedef Scale = double Function();
 double deviceScale = 1;
 double windowWidth = 1000;
 double windowHeight = 450;
+
+PluginsServer pluginsServer = PluginsServer();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,6 +87,7 @@ void main() async {
   await hotKeyManager.register(
     openHotKey,
     keyDownHandler: (hotKey) {
+      pluginsServer.onOpenSpotter();
       windowService.show();
       print('onKeyDown+${hotKey.toJson()}');
     },
@@ -167,8 +170,6 @@ class _SpotterState extends State<Spotter> {
   List<Option> filteredOptions = [];
 
   List<Option> activatedOptions = [];
-
-  PluginsServer pluginsServer = PluginsServer();
 
   bool loading = false;
 
@@ -545,6 +546,11 @@ class _SpotterState extends State<Spotter> {
     initServer();
 
     pluginsServer.start();
+
+    pluginsServer.mlSuggestionsRegistry.changes.listen((_) {
+      List<String> mlSuggestions = pluginsServer.mlSuggestionsRegistry.toList();
+      print("-------------------------------- object");
+    });
   }
 
   void onNextOptions(List<Option> options) {
@@ -633,6 +639,10 @@ class _SpotterState extends State<Spotter> {
     setState(() {
       loading = true;
     });
+
+    final mlGlobalActionPath =
+        [...activatedOptions, option].map((e) => e.name).join('#####');
+    pluginsServer.mlSendGlobalActionPath(mlGlobalActionPath);
 
     if (option.actionId != null) {
       PluginRequest? request = await pluginsServer.execAction(

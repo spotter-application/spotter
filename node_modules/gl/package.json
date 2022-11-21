@@ -1,0 +1,53 @@
+{
+  "name": "gl",
+  "version": "5.0.3",
+  "description": "Creates a WebGL context without a window",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "browser": "browser_index.js",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "scripts": {
+    "test": "standard | snazzy && tape test/*.js | faucet",
+    "rebuild": "node-gyp rebuild --verbose",
+    "prebuild": "prebuild --all --strip",
+    "install": "prebuild-install || node-gyp rebuild"
+  },
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "bit-twiddle": "^1.0.2",
+    "glsl-tokenizer": "^2.1.5",
+    "nan": "^2.16.0",
+    "node-abi": "^3.22.0",
+    "node-gyp": "^9.0.0",
+    "prebuild-install": "^7.1.1"
+  },
+  "devDependencies": {
+    "angle-normals": "^1.0.0",
+    "bunny": "^1.0.1",
+    "faucet": "^0.0.1",
+    "gl-conformance": "^2.0.9",
+    "prebuild": "^11.0.3",
+    "snazzy": "^9.0.0",
+    "standard": "^17.0.0",
+    "tape": "^5.5.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/stackgl/headless-gl.git"
+  },
+  "keywords": [
+    "webgl",
+    "opengl",
+    "gl",
+    "headless",
+    "server",
+    "gpgpu"
+  ],
+  "author": "Mikola Lysenko",
+  "license": "BSD-2-Clause",
+  "gypfile": true
+}

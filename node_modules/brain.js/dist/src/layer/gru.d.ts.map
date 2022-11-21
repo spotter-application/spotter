@@ -1,0 +1,1 @@
+{"version":3,"file":"gru.d.ts","sourceRoot":"","sources":["../../../src/layer/gru.ts"],"names":[],"mappings":"AASA,OAAO,EAAE,MAAM,EAAE,cAAc,EAAE,MAAM,cAAc,CAAC;AACtD,OAAO,EAAE,cAAc,EAAE,MAAM,mBAAmB,CAAC;AAEnD,wBAAgB,GAAG,CACjB,QAAQ,EAAE,cAAc,EACxB,cAAc,EAAE,cAAc,EAC9B,KAAK,EAAE,MAAM,GACZ,MAAM,CAqDR"}
