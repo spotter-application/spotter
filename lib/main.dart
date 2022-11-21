@@ -623,11 +623,11 @@ class _SpotterState extends State<Spotter> {
     setState(() {
       selectedOptionIndex = 0;
       filteredOptions = nextOptions
-          .where((option) =>
-              option.important == true ||
-              option.name
-                  .toLowerCase()
-                  .contains(textFieldController.text.toLowerCase()))
+          // .where((option) =>
+          //     option.important == true ||
+          //     option.name
+          //         .toLowerCase()
+          //         .contains(textFieldController.text.toLowerCase()))
           .toList();
       // if (textFieldController.text.isEmpty) {
       //   filteredOptions = [];
