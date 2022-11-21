@@ -1,6 +1,6 @@
 # Maintainer: Denis Ziulev <ziulev@pm.me>
 pkgname=spotter
-pkgver=1.9.9
+pkgver=1.9.10
 pkgrel=1
 pkgdesc="Simple and powerful tool to launch everything"
 arch=('x86_64')

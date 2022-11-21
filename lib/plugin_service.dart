@@ -153,8 +153,9 @@ class PluginsServer {
             (registeredPlugin) => registeredPlugin.contains(plugin)) !=
         null;
 
+    // TODO: check
     if (alreadyRegistered) {
-      return false;
+      await removePlugin(plugin);
     }
 
     // TODO: return single item
@@ -179,11 +180,20 @@ class PluginsServer {
   }
 
   removePlugin(String plugin) async {
-    // await pluginsRegistryStorage.ready;
-    // List<String> pluginsRegistry = pluginsRegistryStorage.getItem('plugins_registry');
-    // pluginsRegistryStorage.setItem('plugins_registry', pluginsRegistry.where((p) => p != plugin));
-    // TODO: kill process
-    // kill -9 $(pidof 'plugin_name')
+    await shell.run('rm -rf plugins/$plugin');
+    List<String> pluginPath = plugin.split('/');
+    String pluginName = pluginPath[1];
+    String platform = Platform.isLinux ? 'linux' : 'macos';
+    String pluginFullName = '$pluginName-$platform';
+    List<String> pluginsRegistry = await getPluginsRegistry();
+    storage.write(
+        'plugins_registry', pluginsRegistry.where((p) => p != plugin));
+
+    try {
+      await shell.run('killall $pluginFullName');
+    } catch (err) {
+      return;
+    }
   }
 
   Future<PluginRequest> findPluginRequest(String requestId) async {
