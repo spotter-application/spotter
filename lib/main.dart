@@ -209,7 +209,7 @@ class _SpotterState extends State<Spotter> {
         textFieldController.clear();
         setState(() {
           filteredOptions = [];
-          // activatedOption = null;
+          activatedOptions = [];
           selectedOptionIndex = 0;
         });
         return KeyEventResult.handled;
