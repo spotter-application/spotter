@@ -16,6 +16,13 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'plugin_service.dart';
 import 'window_service.dart';
 
+List<String> plugins = [
+  'spotter-application/applications-plugin',
+  'spotter-application/calculator-plugin',
+  'spotter-application/ml-plugin',
+  'spotter-application/projects-plugin'
+];
+
 typedef ScaleFunc = ffi.Double Function();
 typedef Scale = double Function();
 double deviceScale = 1;
@@ -172,12 +179,6 @@ class _SpotterState extends State<Spotter> {
   List<Option> activatedOptions = [];
 
   bool loading = false;
-
-  List<String> plugins = [
-    'spotter-application/applications-plugin',
-    'spotter-application/calculator-plugin',
-    'spotter-application/ml-plugin',
-  ];
 
   final textFieldFocusNode = FocusNode();
 
@@ -628,7 +629,21 @@ class _SpotterState extends State<Spotter> {
           //     option.name
           //         .toLowerCase()
           //         .contains(textFieldController.text.toLowerCase()))
-          .toList();
+          .toList()
+        ..sort((a, b) {
+          String query = textFieldController.text.toLowerCase();
+          String aName = a.name.toLowerCase();
+          String bName = b.name.toLowerCase();
+          if (aName.startsWith(query) && !bName.startsWith(query)) {
+            return -1;
+          }
+
+          if (bName.startsWith(query) && !aName.startsWith(query)) {
+            return 1;
+          }
+
+          return aName.compareTo(bName);
+        });
       // if (textFieldController.text.isEmpty) {
       //   filteredOptions = [];
       //   return;
