@@ -661,14 +661,14 @@ class _SpotterState extends State<Spotter> {
     pluginsServer.mlSendGlobalActionPath(mlGlobalActionPath);
 
     if (option.actionId != null) {
-      PluginRequest? request = await pluginsServer.execAction(
+      ResponseWithOptionsFromPlugin? response = await pluginsServer.execAction(
         option.actionId as String,
         option.connectionId,
       );
       setState(() {
         loading = false;
         filteredOptions =
-            request != null && request.complete ? [] : request!.options;
+            response != null && response.complete ? [] : response!.options;
       });
 
       windowService.hide();

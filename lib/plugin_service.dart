@@ -70,20 +70,20 @@ class Option {
       };
 }
 
-class PluginRequest {
+class ResponseWithOptionsFromPlugin {
   final String id;
   final String connectionId;
   final List<Option> options;
   final bool complete;
 
-  PluginRequest({
+  ResponseWithOptionsFromPlugin({
     required this.id,
     required this.connectionId,
     required this.options,
     required this.complete,
   });
 
-  PluginRequest.fromJson(Map<String, dynamic> json)
+  ResponseWithOptionsFromPlugin.fromJson(Map<String, dynamic> json)
       : id = json['id'],
         connectionId = json['connectionId'],
         options = json['options'].map<Option>((o) {
@@ -100,13 +100,16 @@ class PluginRequest {
       };
 }
 
+// TODO: rename because it can be without connection
 class PluginConnection {
+  final String pluginName;
   final String id;
-  final WebSocket socket;
+  WebSocket? socket;
 
   PluginConnection({
+    required this.pluginName,
     required this.id,
-    required this.socket,
+    this.socket,
   });
 }
 
@@ -115,22 +118,27 @@ class PluginsServer {
   List<PluginConnection> pluginConnections = List<PluginConnection>.from([]);
   final ApiService apiService = ApiService();
   final Shell shell = Shell();
-  ObservableList<PluginRequest> requestsRegistry =
-      ObservableList<PluginRequest>.from([]);
+  ObservableList<ResponseWithOptionsFromPlugin> responseWithOptionsRegistry =
+      ObservableList<ResponseWithOptionsFromPlugin>.from([]);
 
   ObservableList<String> mlSuggestionsRegistry =
       ObservableList<String>.from([]);
 
   start() async {
-    HttpServer server = await HttpServer.bind('0.0.0.0', 4040);
+    int port = 4040;
+    HttpServer server = await HttpServer.bind('0.0.0.0', port);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
 
-    // storage.write('plugins_registry', []);
-    storage.writeIfNull('plugins_registry', []);
+    storage.write('plugins_registry', []);
+    // storage.writeIfNull('plugins_registry', []);
     List<String> pluginsRegistry = await getPluginsRegistry();
 
     for (var plugin in pluginsRegistry) {
-      Pty.start('plugins/$plugin');
+      String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
+      pluginConnections
+          .add(PluginConnection(id: connectionId, pluginName: plugin));
+      Pty.start(
+          'plugins/$plugin --web-socket-port=$port --connection-id=$connectionId');
     }
   }
 
@@ -180,6 +188,7 @@ class PluginsServer {
   }
 
   removePlugin(String plugin) async {
+    // TODO: remove from connections
     await shell.run('rm -rf plugins/$plugin');
     List<String> pluginPath = plugin.split('/');
     String pluginName = pluginPath[1];
@@ -196,17 +205,17 @@ class PluginsServer {
     }
   }
 
-  Future<PluginRequest> findPluginRequest(String requestId) async {
-    Completer<PluginRequest> completer = Completer();
-    // TODO: timer for long requests
-    requestsRegistry.changes.listen((_) {
-      final request = requestsRegistry.toList().firstWhereOrNull(
+  Future<ResponseWithOptionsFromPlugin> findResponseWithOptionsFromPlugin(
+      String requestId) async {
+    Completer<ResponseWithOptionsFromPlugin> completer = Completer();
+    responseWithOptionsRegistry.changes.listen((_) {
+      final response = responseWithOptionsRegistry.toList().firstWhereOrNull(
             (r) => r.id == requestId,
           );
 
-      if (request != null) {
-        requestsRegistry.remove(request);
-        completer.complete(request);
+      if (response != null) {
+        responseWithOptionsRegistry.remove(response);
+        completer.complete(response);
       }
     });
 
@@ -220,11 +229,16 @@ class PluginsServer {
 
     final options = <Option>[];
     await Future.forEach(pluginConnections, (connection) async {
+      if (connection.socket == null) {
+        return;
+      }
+
       String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-      connection.socket
-          .add('{"id": "$requestId", "type": "onQuery", "query": "$query"}');
-      PluginRequest request = await findPluginRequest(requestId);
-      options.addAll(request.options);
+      connection.socket!.add(
+          '{"id": "$requestId", "type": "onQueryRequest", "query": "$query"}');
+      ResponseWithOptionsFromPlugin response =
+          await findResponseWithOptionsFromPlugin(requestId);
+      options.addAll(response.options);
     });
     return options;
   }
@@ -235,32 +249,34 @@ class PluginsServer {
       (connection) => connection.id == connectionId,
     );
 
-    if (connection == null) {
+    if (connection == null || connection.socket == null) {
       return null;
     }
 
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    connection.socket.add(
-        '{"id": "$requestId", "type": "onOptionQuery", "onQueryId": "$onQueryId", "query": "$query"}');
-    PluginRequest request = await findPluginRequest(requestId);
-    return request.options;
+    connection.socket!.add(
+        '{"id": "$requestId", "type": "onOptionQueryRequest", "onQueryId": "$onQueryId", "query": "$query"}');
+    ResponseWithOptionsFromPlugin response =
+        await findResponseWithOptionsFromPlugin(requestId);
+    return response.options;
   }
 
-  Future<PluginRequest?> execAction(
+  Future<ResponseWithOptionsFromPlugin?> execAction(
       String actionId, String connectionId) async {
     PluginConnection? connection = pluginConnections.firstWhereOrNull(
       (connection) => connection.id == connectionId,
     );
 
-    if (connection == null) {
+    if (connection == null || connection.socket == null) {
       return null;
     }
 
     String requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    connection.socket.add(
-        '{"id": "$requestId", "type": "execAction", "actionId": "$actionId"}');
-    PluginRequest request = await findPluginRequest(requestId);
-    return request;
+    connection.socket!.add(
+        '{"id": "$requestId", "type": "execActionRequest", "actionId": "$actionId"}');
+    ResponseWithOptionsFromPlugin response =
+        await findResponseWithOptionsFromPlugin(requestId);
+    return response;
   }
 
   mlAddSuggestionToList(String globalActionPath) {
@@ -275,40 +291,72 @@ class PluginsServer {
 
   mlSendGlobalActionPath(String globalActionPath) async {
     for (var connection in pluginConnections) {
-      connection.socket.add(
-          '{"id": "", "type": "mlOnGlobalActionPath", "mlGlobalActionPath": "$globalActionPath"}');
+      if (connection.socket == null) {
+        return;
+      }
+      connection.socket!.add(
+          '{"type": "mlSaveSuggestion", "mlGlobalActionPath": "$globalActionPath"}');
     }
   }
 
   onOpenSpotter() async {
     for (var connection in pluginConnections) {
-      connection.socket.add('{"type": "onOpenSpotter"}');
+      if (connection.socket == null) {
+        return;
+      }
+      connection.socket!.add('{"type": "onOpenSpotter"}');
     }
   }
 
   _handleConnection(WebSocket socket) {
-    String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
-    pluginConnections.add(PluginConnection(id: connectionId, socket: socket));
-    // socket.handleError(() {
-    //   // TODO: add
-    // });
-
+    String? connectionId;
     socket.listen((event) {
       final json = jsonDecode(event);
+      final messageType = json['type'];
 
-      if (json['mlGlobalActionPath'] != null) {
+      if (messageType == 'pluginReady') {
+        print('plugin ready');
+        connectionId = json['id'];
+        bool foundConnection = false;
+        pluginConnections = pluginConnections.map((c) {
+          if (c.id == connectionId) {
+            c.socket = socket;
+            foundConnection = true;
+          }
+          return c;
+        }).toList();
+
+        if (!foundConnection) {
+          pluginConnections.add(
+              PluginConnection(pluginName: 'dev', id: 'dev', socket: socket));
+        }
+      }
+
+      if (messageType == 'mlSuggestions') {
         mlAddSuggestionToList(json['mlGlobalActionPath']);
         return;
       }
 
-      json['connectionId'] = connectionId;
-      PluginRequest request = PluginRequest.fromJson(json);
-      // TODO: clean up after closing
-      requestsRegistry.add(request);
+      if (messageType == 'onQueryResponse' ||
+          messageType == 'onOptionQueryResponse' ||
+          messageType == 'execActionResponse') {
+        print('request');
+        json['connectionId'] = connectionId;
+        ResponseWithOptionsFromPlugin response =
+            ResponseWithOptionsFromPlugin.fromJson(json);
+        responseWithOptionsRegistry.add(response);
+        return;
+      }
+
+      print('Unhandled message!');
     }, onDone: () {
+      responseWithOptionsRegistry
+          .removeWhere((response) => response.connectionId == connectionId);
       pluginConnections
           .removeWhere((connection) => connection.id == connectionId);
     }, onError: (error) {
+      responseWithOptionsRegistry
+          .removeWhere((response) => response.connectionId == connectionId);
       pluginConnections
           .removeWhere((connection) => connection.id == connectionId);
     });
