@@ -199,11 +199,11 @@ class _SpotterState extends State<Spotter> {
       }
 
       if (event.logicalKey == LogicalKeyboardKey.escape) {
-        if (loading) {
-          //Save state
-          windowService.hide();
-          return KeyEventResult.handled;
-        }
+        // if (loading) {
+        //   //Save state
+        //   windowService.hide();
+        //   return KeyEventResult.handled;
+        // }
 
         windowService.hide();
         textFieldController.clear();
@@ -215,9 +215,9 @@ class _SpotterState extends State<Spotter> {
         return KeyEventResult.handled;
       }
 
-      if (loading) {
-        return KeyEventResult.handled;
-      }
+      // if (loading) {
+      //   return KeyEventResult.handled;
+      // }
 
       if (event.logicalKey == LogicalKeyboardKey.backspace &&
           textFieldController.text.isEmpty) {
@@ -363,7 +363,6 @@ class _SpotterState extends State<Spotter> {
                           focusNode: textFieldFocusNode,
                           textInputAction: TextInputAction.none,
                           autofocus: true,
-                          readOnly: loading,
                           style: TextStyle(
                             fontSize: 20.0,
                             color: HexColor.fromHex('#adbac7'),
