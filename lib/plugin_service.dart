@@ -141,8 +141,8 @@ class PluginsServer {
     HttpServer server = await HttpServer.bind('0.0.0.0', port);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
 
-    storage.write('plugins_registry', []);
-    // storage.writeIfNull('plugins_registry', []);
+    // storage.write('plugins_registry', []);
+    storage.writeIfNull('plugins_registry', []);
     List<String> pluginsRegistry = await getPluginsRegistry();
 
     for (var plugin in pluginsRegistry) {
