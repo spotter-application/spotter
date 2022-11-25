@@ -519,7 +519,7 @@ class _SpotterState extends State<Spotter> {
   }
 
   Future<bool> installPlugin(String plugin) async {
-    return await pluginsServer.addPlugin(plugin);
+    return await pluginsServer.installPlugin(plugin);
   }
 
   // TODO: remove after global hotkey fix
@@ -541,13 +541,28 @@ class _SpotterState extends State<Spotter> {
   @override
   void initState() {
     super.initState();
+    initSpotter();
+  }
 
+  void initSpotter() async {
     initSystemTray();
     textFieldController.addListener(onQuery);
 
     initServer();
 
-    pluginsServer.start();
+    setState(() {
+      loading = true;
+    });
+
+    print('start');
+
+    await pluginsServer.start();
+
+    print('started');
+
+    setState(() {
+      loading = false;
+    });
 
     pluginsServer.mlSuggestionsRegistry.changes.listen((_) {
       List<String> mlSuggestions = pluginsServer.mlSuggestionsRegistry.toList();
