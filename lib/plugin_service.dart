@@ -377,7 +377,9 @@ class PluginsServer {
       if (messageType == 'onQueryResponse' ||
           messageType == 'onOptionQueryResponse' ||
           messageType == 'execActionResponse') {
-        json['connectionId'] = connectionId ?? 'dev';
+        if (json['connectionId'] == null) {
+          json['connectionId'] = 'dev';
+        }
         ResponseWithOptionsFromPlugin response =
             ResponseWithOptionsFromPlugin.fromJson(json);
         responseWithOptionsRegistry.add(response);

@@ -681,8 +681,12 @@ class _SpotterState extends State<Spotter> {
       );
       setState(() {
         loading = false;
-        filteredOptions =
-            response != null && response.complete ? [] : response!.options;
+        if (response == null) {
+          filteredOptions = [];
+          return;
+        }
+
+        filteredOptions = response.complete ? [] : response.options;
       });
 
       windowService.hide();
