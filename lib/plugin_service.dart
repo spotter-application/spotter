@@ -350,7 +350,7 @@ class PluginsServer {
       final messageType = json['type'];
 
       if (messageType == 'pluginReady') {
-        connectionId = json['id'];
+        connectionId = json['connectionId'];
 
         PluginToConnect? pluginToConnect = pluginsToConnect
             .toList()
@@ -385,9 +385,6 @@ class PluginsServer {
         responseWithOptionsRegistry.add(response);
         return;
       }
-
-      print('Unhandled message!');
-      print(json);
     }, onDone: () {
       // TODO:
       // responseWithOptionsRegistry
