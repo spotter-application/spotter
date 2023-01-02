@@ -141,8 +141,8 @@ class PluginsServer {
     HttpServer server = await HttpServer.bind('0.0.0.0', port);
     server.transform(WebSocketTransformer()).listen(_handleConnection);
 
-    // storage.write('plugins_registry', []);
-    storage.writeIfNull('plugins_registry', []);
+    storage.write('plugins_registry', []);
+    // storage.writeIfNull('plugins_registry', []);
     List<String> pluginsRegistry = await getPluginsRegistry();
 
     for (var plugin in pluginsRegistry) {
@@ -155,10 +155,15 @@ class PluginsServer {
   Future<bool> connectPlugin(String plugin) async {
     String connectionId = DateTime.now().millisecondsSinceEpoch.toString();
     pluginsToConnect.add(PluginToConnect(id: connectionId, pluginName: plugin));
-    Pty.start('plugins/$plugin', arguments: [
+    final pty = Pty.start('plugins/$plugin', arguments: [
       '--web-socket-port=$port',
       '--connection-id=$connectionId'
     ]);
+
+    pty.output.cast<List<int>>().transform(const Utf8Decoder()).listen((text) {
+      print(text);
+    });
+
     try {
       await findConnectedPlugin(connectionId)
           .timeout(const Duration(minutes: 5));
@@ -222,6 +227,7 @@ class PluginsServer {
       String url = asset.url;
       await shell.run('curl -o plugins/$plugin/$name -LO "$url"');
       await shell.run('chmod 777 plugins/$plugin/$name');
+      await shell.run('ls plugins/$plugin');
       await connectPlugin('$plugin/$name');
       storage.write('plugins_registry', [...pluginsRegistry, '$plugin/$name']);
     }));

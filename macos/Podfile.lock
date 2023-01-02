@@ -1,6 +1,8 @@
 PODS:
   - bitsdojo_window_macos (0.0.1):
     - FlutterMacOS
+  - dotup_flutter_active_window (0.0.1):
+    - FlutterMacOS
   - flutter_pty (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
@@ -21,6 +23,7 @@ PODS:
 
 DEPENDENCIES:
   - bitsdojo_window_macos (from `Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos`)
+  - dotup_flutter_active_window (from `Flutter/ephemeral/.symlinks/plugins/dotup_flutter_active_window/macos`)
   - flutter_pty (from `Flutter/ephemeral/.symlinks/plugins/flutter_pty/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - hotkey_manager (from `Flutter/ephemeral/.symlinks/plugins/hotkey_manager/macos`)
@@ -37,6 +40,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   bitsdojo_window_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos
+  dotup_flutter_active_window:
+    :path: Flutter/ephemeral/.symlinks/plugins/dotup_flutter_active_window/macos
   flutter_pty:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_pty/macos
   FlutterMacOS:
@@ -56,6 +61,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   bitsdojo_window_macos: 44e3b8fe3dd463820e0321f6256c5b1c16bb6a00
+  dotup_flutter_active_window: 43f23004e0f2ab2668d045a123594235c994d5e0
   flutter_pty: 41b6f848ade294be726a6b94cdd4a67c3bc52f59
   FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
   HotKey: ad59450195936c10992438c4210f673de5aee43e
@@ -68,4 +74,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

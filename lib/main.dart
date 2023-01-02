@@ -717,6 +717,11 @@ class _SpotterState extends State<Spotter> {
 
   void scrollToMakeOptionsVisible() {
     double nextOffset = (40 * (selectedOptionIndex - 5)).toDouble();
+    bool shouldScroll = scrollController.offset <= nextOffset;
+
+    if (!shouldScroll) {
+      return;
+    }
 
     scrollController.animateTo(
       nextOffset,
